@@ -130,11 +130,7 @@ class Earnings extends React.PureComponent<Props, State> {
     }));
   }
 
-  componentDidMount () {
-    const { systemChain } = this.props;
-
-    this.axiosInstance = instance[systemChain];
-
+  componentDidMount() {
     this.getStakingHistory();
     timer && clearInterval(timer);
     timer = setInterval(() => {
@@ -142,11 +138,11 @@ class Earnings extends React.PureComponent<Props, State> {
     }, 20000);
   }
 
-  componentWillUnmount () {
+  componentWillUnmount() {
     timer && clearInterval(timer);
   }
 
-  UNSAFE_componentWillReceiveProps (nextProps: Props) {
+  UNSAFE_componentWillReceiveProps(nextProps: Props) {
     if (nextProps.address !== this.props.address) {
       this.getStakingHistory(0, nextProps.address);
 
@@ -171,8 +167,8 @@ class Earnings extends React.PureComponent<Props, State> {
     });
   }
 
-  render () {
-    const { destinationId, doPayout, doPayoutIsDisabled, isLoading, payoutMaxAmount, payoutsAmount, t, unClaimedReward, systemChain } = this.props;
+  render() {
+    const { address, destinationId, doPayout, doPayoutIsDisabled, isLoading, payoutMaxAmount, payoutsAmount, t, unClaimedReward, toSlashRing, toSlashKton } = this.props;
     const { sum } = this.state;
     const extChain = ExternalsLinks.Subscan.chains[systemChain];
     const subscanDomain = ExternalsLinks.Subscan.createDomain(extChain);
@@ -184,13 +180,26 @@ class Earnings extends React.PureComponent<Props, State> {
             <div className='earings-item'>
               <p>{t('Claimed')}</p>
               {sum === '--' ? <Spinner className='inline-spinner'
-                variant='mini'/> : <h1>{formatBalance(sum)}</h1>}
+                variant='mini' /> : <h1>{formatBalance(sum)}</h1>}
             </div>
             <div className='earings-item'>
               <p>{t('Unclaimed')}</p>
               {isLoading ? <Spinner className='inline-spinner'
-                variant='mini'/> : <h1>{formatBalance(unClaimedReward)}</h1> }
+                variant='mini' /> : <h1>{formatBalance(unClaimedReward)}</h1>}
             </div>
+
+            {toSlashRing && toSlashKton && (
+              <div className='earings-item'>
+                <p>{t('Slash')}</p>
+
+                {toSlashRing ? <Spinner className='inline-spinner'
+                  variant='mini' /> : <h1>{toSlashRing} CRING</h1>}
+
+                {toSlashKton ? <Spinner className='inline-spinner'
+                  variant='mini' /> : <h1>{toSlashKton} KTON</h1>}
+              </div>
+            )}
+
             <div className='button-box'>
               <ColorButton
                 // isDisabled={history.length <= 0}
