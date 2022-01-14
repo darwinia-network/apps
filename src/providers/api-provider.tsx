@@ -1,14 +1,14 @@
 import { ApiPromise } from '@polkadot/api';
 import { createContext, useCallback, useEffect, useMemo, useReducer, useState } from 'react';
 import { EMPTY, Subscription } from 'rxjs';
-import { pangolinConfig } from '../config';
+import { darwiniaConfig } from '../config';
 import { Action, Chain, ChainConfig, Connection, ConnectionStatus, PolkadotConnection } from '../model';
 import { getInitialSetting, getPolkadotConnection, waitUntilConnected } from '../utils';
 import { updateStorage } from '../utils/helper/storage';
 
 interface StoreState {
   connection: Connection;
-  network: ChainConfig | null;
+  network: ChainConfig;
   isDev: boolean;
   enableTestNetworks: boolean;
 }
@@ -26,7 +26,7 @@ const initialConnection: Connection = {
 
 const initialState: StoreState = {
   connection: initialConnection,
-  network: pangolinConfig,
+  network: darwiniaConfig,
   isDev,
   enableTestNetworks: !!getInitialSetting('enableTestNetworks', isDev),
 };
@@ -55,7 +55,7 @@ export type ApiCtx = StoreState & {
   api: ApiPromise | null;
   connectNetwork: (network: ChainConfig) => void;
   disconnect: () => void;
-  setNetwork: (network: ChainConfig | null) => void;
+  setNetwork: (network: ChainConfig) => void;
   setEnableTestNetworks: (enable: boolean) => void;
   setApi: (api: ApiPromise) => void;
   chain: Chain;
@@ -67,7 +67,7 @@ let subscription: Subscription = EMPTY.subscribe();
 
 export const ApiProvider = ({ children }: React.PropsWithChildren<unknown>) => {
   const [state, dispatch] = useReducer(accountReducer, initialState);
-  const setNetwork = useCallback((payload: ChainConfig | null) => dispatch({ type: 'setNetwork', payload }), []);
+  const setNetwork = useCallback((payload: ChainConfig) => dispatch({ type: 'setNetwork', payload }), []);
   const setConnection = useCallback((payload: Connection) => dispatch({ type: 'setConnection', payload }), []);
   const setEnableTestNetworks = useCallback((payload: boolean) => {
     dispatch({ type: 'setEnableTestNetworks', payload });
@@ -114,8 +114,7 @@ export const ApiProvider = ({ children }: React.PropsWithChildren<unknown>) => {
 
     setConnection(initialConnection);
     setApi(null);
-    setNetwork(null);
-  }, [setConnection, setNetwork]);
+  }, [setConnection]);
 
   useEffect(() => {
     if (!state.network) {

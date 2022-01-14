@@ -1,3 +1,63 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.darwinia-select {
+  .ant-select-selector {
+    background-image: linear-gradient(#ffffff, #ffffff), linear-gradient(-45deg, #fe3876 0%, #7c30dd 71%, #3a30dd 100%);
+    background-origin: border-box;
+    background-clip: content-box, border-box;
+    padding: 0 !important;
+    border-color: transparent !important;
+  }
+}
+
+.crab-select {
+  .ant-select-selector {
+    border-color: #ec3783 !important;
+  }
+}
+
+.pangolin-select,
+.pangoro-select {
+  .ant-select-selector {
+    border-color: #5745de !important;
+  }
+}
+
+.darwinia-select,
+.crab-select,
+.pangolin-select,
+.pangoro-select {
+  .ant-select-selection-item {
+    display: flex;
+    text-transform: capitalize;
+    padding-left: 10px !important;
+  }
+}
+
+// router transition animate classes
+.fade-enter {
+  opacity: 0;
+  transform: translateX(-100%);
+}
+
+.fade-enter-active {
+  opacity: 1;
+  transform: translateX(0%);
+}
+
+.fade-exit {
+  opacity: 1;
+  transform: translateX(0%);
+}
+
+.fade-exit-active {
+  opacity: 0;
+  transform: translateX(100%);
+}
+
+.fade-enter-active,
+.fade-exit-active {
+  transition: opacity 500ms, transform 500ms;
+}

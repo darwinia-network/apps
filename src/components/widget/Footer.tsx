@@ -33,13 +33,13 @@ export function Footer({ network, theme, className = '' }: FooterProps) {
       </div>
 
       <div className="flex items-center">
-        <Link to={Path.airdrop} className="mr-4">
+        <Link to={Path.migration} className="mr-4">
           <Button type="ghost" icon={<SendOutlined />} className="flex items-center justify-center" style={{ color }}>
             {t('Airdrop')}
           </Button>
         </Link>
 
-        <Link to={Path.configure} className="mr-4">
+        <Link to={Path.portal} className="mr-4">
           <Button
             type="ghost"
             icon={<SettingOutlined />}

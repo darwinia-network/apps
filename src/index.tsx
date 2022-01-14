@@ -29,7 +29,6 @@ ReactDOM.render(
         </ApiProvider>
       </BrowserRouter>
     </Suspense>
-    ,
   </React.StrictMode>,
   document.getElementById('root')
 );
