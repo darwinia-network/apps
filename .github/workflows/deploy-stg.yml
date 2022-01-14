@@ -1,14 +1,12 @@
-name: Check pull request
+name: Deploy develop environment
 
 on:
   push:
     branches: [master]
-  pull_request:
-    branches: [master]
 
 jobs:
-  check-code:
-    name: Check code
+  deploy-develop:
+    name: Deploy
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -32,11 +30,13 @@ jobs:
       - name: Install dependencies
         run: yarn install
 
-      - name: Lint script
-        run: yarn lint
-
-      - name: Lint style
-        run: yarn stylelint
-
-      - name: Test build
+      - name: Build
         run: yarn build
+
+      - name: Deploy
+        run: |
+          REPO_NAME=${GITHUB_REPOSITORY#*/}
+          mv build $REPO_NAME
+          cd $REPO_NAME
+          vercel --token ${{ secrets.VERCEL_TOKEN }} --scope itering link --confirm
+          vercel --token ${{ secrets.VERCEL_TOKEN }} --scope itering deploy
