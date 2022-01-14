@@ -29,9 +29,6 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-yarn-
 
-      - name: Install ansi-to-html
-        run: npm i -g ansi-to-html
-
       - name: Install dependencies
         run: yarn install
 
@@ -53,19 +50,13 @@ jobs:
           echo ''
           echo "::set-output name=VERCEL_OUTPUT::$content"
 
-      - name: Create commit comment
-        uses: peter-evans/commit-comment@v1
-        with:
-          body: |
-            Preview: ${{ steps.deploy.outputs.VERCEL_OUTPUT }}
-
       - name: Slack Notification
         uses: rtCamp/action-slack-notify@v2
         env:
           SLACK_CHANNEL: darwinia-apps
           SLACK_COLOR: ${{ job.status }}
           SLACK_ICON: https://avatars.githubusercontent.com/u/50859907?s=48&v=4
-          SLACK_MESSAGE: 'Preview: ${{ steps.deploy.outputs.VERCEL_OUTPUT }}'
-          SLACK_TITLE: Deploy
+          SLACK_MESSAGE: '${{ steps.deploy.outputs.VERCEL_OUTPUT }}'
+          SLACK_TITLE: Preview
           SLACK_USERNAME: Darwinia-bot
           SLACK_WEBHOOK: ${{ secrets.SLACK_INCOMING_WEBHOOK_URL }}
