@@ -40,11 +40,11 @@ jobs:
           cd $REPO_NAME
           vercel --token ${{ secrets.VERCEL_TOKEN }} --scope itering link --confirm
           vercel --token ${{ secrets.VERCEL_TOKEN }} --scope itering deploy | tee deploy.log
-          echo ''
           content=$(cat deploy.log)
           content="${content//'%'/'%25'}"
           content="${content//$'\n'/'%0A'}"
           content="${content//$'\r'/'%0D'}"
+          echo ''
           echo "::set-output name=VERCEL_OUTPUT::$content"
 
       - name: Find Comment
