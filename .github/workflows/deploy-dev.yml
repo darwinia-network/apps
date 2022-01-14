@@ -47,17 +47,8 @@ jobs:
           echo ''
           echo "::set-output name=VERCEL_OUTPUT::$content"
 
-      - name: Find Comment
-        uses: peter-evans/find-comment@v1
-        id: fc
+      - name: Create commit comment
+        uses: peter-evans/commit-comment@v1
         with:
-          issue-number: ${{ github.event.pull_request.number }}
-          comment-author: github-actions
-
-      - name: Comment
-        uses: peter-evans/create-or-update-comment@v1
-        with:
-          issue-number: ${{ github.event.pull_request.number }}
-          comment-id: ${{ steps.fc.outputs.comment-id }}
-          body: ${{ steps.deploy.outputs.VERCEL_OUTPUT }}
-          edit-mode: replace
+          body: |
+            Preview: ${{ steps.deploy.outputs.VERCEL_OUTPUT }}
