@@ -1,12 +1,35 @@
-import React from 'react';
+import React, { Suspense } from 'react';
 import ReactDOM from 'react-dom';
-import './index.css';
+import { BrowserRouter } from 'react-router-dom';
 import App from './App';
+import { BallScalePulse } from './components/widget/BallScalePulse';
+import { THEME } from './config';
+import './index.scss';
+import { ApiProvider } from './providers';
 import reportWebVitals from './reportWebVitals';
+import './theme/antd/index.less';
+import { readStorage } from './utils';
 
 ReactDOM.render(
   <React.StrictMode>
-    <App />
+    <Suspense
+      fallback={
+        <div
+          className={`flex justify-center items-center w-screen h-screen ${
+            readStorage().theme === THEME.DARK ? 'bg-black' : 'bg-white'
+          }`}
+        >
+          <BallScalePulse />
+        </div>
+      }
+    >
+      <BrowserRouter>
+        <ApiProvider>
+          <App />
+        </ApiProvider>
+      </BrowserRouter>
+    </Suspense>
+    ,
   </React.StrictMode>,
   document.getElementById('root')
 );
