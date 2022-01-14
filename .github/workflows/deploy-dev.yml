@@ -29,14 +29,8 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-yarn-
 
-      - name: Prepare
-        run: |
-          mkdir -p $HOME/.local/bin
-          curl -LO https://github.com/masukomi/oho/releases/download/v${OHO_VERSION}/oho_v${OHO_VERSION}.tgz
-          tar -zxvf oho_v${OHO_VERSION}.tgz -C ./
-          mv oho_v${OHO_VERSION}/oho $HOME/.local/bin/
-          rm -rf oho_v${OHO_VERSION}
-          rm -rf oho_v${OHO_VERSION}.tgz
+      - name: Install ansi-to-html
+        run: npm i -g ansi-to-html
 
       - name: Install dependencies
         run: yarn install
@@ -56,7 +50,7 @@ jobs:
           content="${content//'%'/'%25'}"
           content="${content//$'\n'/'%0A'}"
           content="${content//$'\r'/'%0D'}"
-          content=$(echo $content | oho)
+          content=$(echo $content | ansi-to-html)
           echo ''
           echo "::set-output name=VERCEL_OUTPUT::$content"
 
