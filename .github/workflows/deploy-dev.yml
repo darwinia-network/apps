@@ -45,16 +45,16 @@ jobs:
           mv build $REPO_NAME
           cd $REPO_NAME
           vercel --token ${{ secrets.VERCEL_TOKEN }} --scope itering link --confirm
-          vercel --token ${{ secrets.VERCEL_TOKEN }} --scope itering deploy 2>&1 >/dev/null | tee deploy.log
+          vercel --token ${{ secrets.VERCEL_TOKEN }} --scope itering deploy | tee deploy.log
           content=$(cat deploy.log)
           content="${content//'%'/'%25'}"
           content="${content//$'\n'/'%0A'}"
           content="${content//$'\r'/'%0D'}"
-          content=$(echo $content | ansi-to-html)
           echo ''
           echo "::set-output name=VERCEL_OUTPUT::$content"
 
       - name: Create commit comment
         uses: peter-evans/commit-comment@v1
         with:
-          body: ${{ steps.deploy.outputs.VERCEL_OUTPUT }}
+          body: |
+            Preview: ${{ steps.deploy.outputs.VERCEL_OUTPUT }}
