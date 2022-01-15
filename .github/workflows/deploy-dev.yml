@@ -47,6 +47,26 @@ jobs:
           echo ''
           echo "::set-output name=VERCEL_OUTPUT::$content"
 
+      - uses: benjlevesque/short-sha@v1.2
+        id: short-sha
+        with:
+          length: 7
+
+      - name: Build comment
+        id: build-comment
+        run: |
+          echo '---' >> comment.txt
+          echo "Commit: [${{ github.event.head_commit.message }}@`${SHA}`](${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/commits/${SHA})" >> comment.txt
+          echo "Preview: ${{ steps.deploy.outputs.VERCEL_OUTPUT }}" >> comment.txt
+          COMMENT=$(cat comment.txt)
+          echo ''
+          echo ::set-output name=COMMENT::"$COMMENT"
+
+      - uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          append: true
+          message: ${{ steps.build-comment.outputs.COMMENT }}
+
 #      - name: slack - GitHub Actions Slack integration
 #        uses: act10ns/slack@v1.5.0
 #        env:
@@ -67,24 +87,3 @@ jobs:
           SLACK_TITLE: Preview
           SLACK_USERNAME: Vercel
           SLACK_WEBHOOK: ${{ secrets.SLACK_INCOMING_WEBHOOK_URL }}
-
-      - uses: benjlevesque/short-sha@v1.2
-        id: short-sha
-        with:
-          length: 7
-
-      - name: Build comment
-        id: build-comment
-        run: |
-          COMMENT="
-          ---
-          Commit: [${{ github.event.head_commit.message }}@`${SHA}`](${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/commits/${SHA})
-          Preview: ${{ steps.deploy.outputs.VERCEL_OUTPUT }}
-          "
-          echo ''
-          echo ::set-output name=COMMENT::"$COMMENT"
-
-      - uses: marocchino/sticky-pull-request-comment@v2
-        with:
-          append: true
-          message: ${{ steps.build-comment.outputs.COMMENT }}
