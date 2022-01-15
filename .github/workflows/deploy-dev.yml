@@ -76,11 +76,11 @@ jobs:
       - name: Build comment
         id: build-comment
         run: |
-          COMMENT='
+          COMMENT="
           ---
           Commit: [${{ github.event.head_commit.message }}@`${SHA}`](${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/commits/${SHA})
           Preview: ${{ steps.deploy.outputs.VERCEL_OUTPUT }}
-          '
+          "
           echo ''
           echo ::set-output name=COMMENT::"$COMMENT"
 
