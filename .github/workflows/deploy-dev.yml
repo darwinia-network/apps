@@ -53,6 +53,7 @@ jobs:
           SHA='${{ github.event.pull_request.head.sha }}'
           COMMIT="Commit: [${SHA::7}](${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/commit/${SHA::7})"
           PREVIEW="Preview: ${{ steps.deploy.outputs.VERCEL_OUTPUT }}"
+          echo '' >> comment.md
           echo '---' >> comment.md
           echo $COMMIT >> comment.md
           echo $PREVIEW >> comment.md
