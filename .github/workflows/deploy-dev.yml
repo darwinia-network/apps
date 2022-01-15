@@ -52,14 +52,15 @@ jobs:
         with:
           length: 7
       - name: Get Commit Message
+        id: commit-message
         run: |
           MSG=$(git log --format=%B -n 1 ${{github.event.after}})
-          echo "::set-env name=COMMIT_MESSAGE::${MSG}"
+          echo "::set-output name=COMMIT_MESSAGE::${MSG}"
 
       - name: Build comment
         id: build-comment
         run: |
-          COMMIT="Commit: [${COMMIT_MESSAGE}@`${SHA}`](${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/commit/${SHA})"
+          COMMIT="Commit: [${{ steps.commit-message.outputs.COMMIT_MESSAGE }}@`${SHA}`](${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/commit/${SHA})"
           PREVIEW="Preview: ${{ steps.deploy.outputs.VERCEL_OUTPUT }}"
           echo '---' >> comment.md
           echo $COMMIT >> comment.md
