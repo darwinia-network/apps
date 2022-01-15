@@ -53,8 +53,8 @@ jobs:
       - name: slack - GitHub Actions Slack integration
         uses: act10ns/slack@v1.5.0
         env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-          VERCEL_OUTPUT: ${{ secrets.SLACK_INCOMING_WEBHOOK_URL }}
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_INCOMING_WEBHOOK_URL }}
+          VERCEL_OUTPUT: ${{ steps.deploy.outputs.VERCEL_OUTPUT }}
         with:
           status: ${{ job.status }}
           channel: '#darwinia-apps'
