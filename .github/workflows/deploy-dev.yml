@@ -3,9 +3,6 @@ name: Deploy develop
 on:
   pull_request:
 
-env:
-  OHO_VERSION: 1.3.5
-
 jobs:
   deploy-develop:
     name: Deploy

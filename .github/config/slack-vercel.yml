@@ -85,7 +85,7 @@ fields:
     value: "{{jobStatus}}"
     short: true
   - title: Preview
-    value: "{{env.VERCEL_OUTPUT}}"
+    value: "{{VERCEL_OUTPUT}}"
     short: false
 
 footer: >-
