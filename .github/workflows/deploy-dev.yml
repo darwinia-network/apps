@@ -58,9 +58,13 @@ jobs:
           echo '---' >> comment.txt
           echo "Commit: [${{ github.event.head_commit.message }}@`${SHA}`](${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/commits/${SHA})" >> comment.txt
           echo "Preview: ${{ steps.deploy.outputs.VERCEL_OUTPUT }}" >> comment.txt
-          COMMENT=$(cat comment.txt)
+          echo '' >> comment.txt
+          content=$(cat comment.txt)
+          content="${content//'%'/'%25'}"
+          content="${content//$'\n'/'%0A'}"
+          content="${content//$'\r'/'%0D'}"
           echo ''
-          echo ::set-output name=COMMENT::"$COMMENT"
+          echo ::set-output name=COMMENT::"$content"
 
       - uses: marocchino/sticky-pull-request-comment@v2
         with:
