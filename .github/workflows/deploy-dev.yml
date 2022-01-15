@@ -73,8 +73,18 @@ jobs:
         with:
           length: 7
 
+      - name: Build comment
+        id: build-comment
+        run: |
+          COMMENT='
+          ---
+          Commit: [${{ github.event.head_commit.message }}@`${SHA}`](${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/commits/${SHA})
+          Preview: ${{ steps.deploy.outputs.VERCEL_OUTPUT }}
+          '
+          echo ''
+          echo ::set-output name=COMMENT::"$COMMENT"
+
       - uses: marocchino/sticky-pull-request-comment@v2
         with:
           append: true
-          message: |
-            Commit: [`${SHA}`](${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/commits/${SHA}) Preview: ${{ steps.deploy.outputs.VERCEL_OUTPUT }}
+          message: ${{ steps.build-comment.outputs.COMMENT }}
