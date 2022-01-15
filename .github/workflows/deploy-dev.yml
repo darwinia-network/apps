@@ -54,8 +54,11 @@ jobs:
       - name: Get Commit Message
         id: commit-message
         run: |
-          MSG=$(git log --format=%B -n 1 ${{github.event.after}})
-          echo "::set-output name=COMMIT_MESSAGE::${MSG}"
+          MSG=$(git log -1 --pretty=format:"%s")
+          MSG="${MSG//'%'/'%25'}"
+          MSG="${MSG//$'\n'/'%0A'}"
+          MSG="${MSG//$'\r'/'%0D'}"
+          echo ::set-output name=COMMIT_MESSAGE::"${MSG}"
 
       - name: Build comment
         id: build-comment
