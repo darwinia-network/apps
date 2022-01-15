@@ -35,6 +35,7 @@ jobs:
         run: yarn build
 
       - name: Deploy
+        id: deploy
         run: |
           REPO_NAME=${GITHUB_REPOSITORY#*/}
           mv build $REPO_NAME

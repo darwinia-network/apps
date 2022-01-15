@@ -34,6 +34,7 @@ jobs:
         run: yarn build
 
       - name: Deploy
+        id: deploy
         run: |
           REPO_NAME=${GITHUB_REPOSITORY#*/}
           mv build $REPO_NAME
@@ -57,4 +58,3 @@ jobs:
           SLACK_TITLE: Preview
           SLACK_USERNAME: Vercel
           SLACK_WEBHOOK: ${{ secrets.SLACK_INCOMING_WEBHOOK_URL }}
-
