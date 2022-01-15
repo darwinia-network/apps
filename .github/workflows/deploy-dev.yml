@@ -9,6 +9,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
 
       - uses: actions/setup-node@v2
         with:
@@ -51,19 +53,11 @@ jobs:
         id: short-sha
         with:
           length: 7
-      - name: Get Commit Message
-        id: commit-message
-        run: |
-          MSG=$(git log -1 --pretty=format:"%s")
-          MSG="${MSG//'%'/'%25'}"
-          MSG="${MSG//$'\n'/'%0A'}"
-          MSG="${MSG//$'\r'/'%0D'}"
-          echo ::set-output name=COMMIT_MESSAGE::"${MSG}"
-
       - name: Build comment
         id: build-comment
         run: |
-          COMMIT="Commit: [${{ steps.commit-message.outputs.COMMIT_MESSAGE }}@`${SHA}`](${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/commit/${SHA})"
+          MSG=$(git log -1 --pretty=format:"%s")
+          COMMIT="Commit: [${MSG}@${SHA}](${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/commit/${SHA})"
           PREVIEW="Preview: ${{ steps.deploy.outputs.VERCEL_OUTPUT }}"
           echo '---' >> comment.md
           echo $COMMIT >> comment.md
