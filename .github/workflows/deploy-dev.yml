@@ -51,15 +51,19 @@ jobs:
         id: short-sha
         with:
           length: 7
+      - name: Get Commit Message
+        run: |
+          MSG=$(git log --format=%B -n 1 ${{github.event.after}})
+          echo "::set-env name=COMMIT_MESSAGE::${MSG}"
 
       - name: Build comment
         id: build-comment
         run: |
-          echo '---' >> comment.txt
-          echo "Commit: [${{ github.event.head_commit.message }}@`${SHA}`](${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/commits/${SHA})" >> comment.txt
-          echo "Preview: ${{ steps.deploy.outputs.VERCEL_OUTPUT }}" >> comment.txt
-          echo '' >> comment.txt
-          content=$(cat comment.txt)
+          echo '---' >> comment.md
+          echo "Commit: [${COMMIT_MESSAGE}@`${SHA}`](${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/commit/${SHA})" >> comment.md
+          echo "Preview: ${{ steps.deploy.outputs.VERCEL_OUTPUT }}" >> comment.md
+          echo '' >> comment.md
+          content=$(cat comment.md)
           content="${content//'%'/'%25'}"
           content="${content//$'\n'/'%0A'}"
           content="${content//$'\r'/'%0D'}"
