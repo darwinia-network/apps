@@ -50,7 +50,7 @@ jobs:
       - name: Build comment
         id: build-comment
         run: |
-          SHA='${{ github.event.head_commit.message }}'
+          SHA='${{ github.event.pull_request.head.sha }}'
           MSG=$(git show -s --format=%B $SHA)
           COMMIT="Commit: [${MSG}@${SHA::7}](${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/commit/${SHA::7})"
           PREVIEW="Preview: ${{ steps.deploy.outputs.VERCEL_OUTPUT }}"
