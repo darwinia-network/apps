@@ -68,7 +68,13 @@ jobs:
           SLACK_USERNAME: Vercel
           SLACK_WEBHOOK: ${{ secrets.SLACK_INCOMING_WEBHOOK_URL }}
 
+      - uses: benjlevesque/short-sha@v1.2
+        id: short-sha
+        with:
+          length: 7
+
       - uses: marocchino/sticky-pull-request-comment@v2
         with:
-          append: false
-          message: 'Preview: ${{ steps.deploy.outputs.VERCEL_OUTPUT }}'
+          append: true
+          message: |
+            Commit: [`${SHA}`](${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/commits/${SHA}) Preview: ${{ steps.deploy.outputs.VERCEL_OUTPUT }}

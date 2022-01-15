@@ -40,4 +40,22 @@ jobs:
           mv build $REPO_NAME
           cd $REPO_NAME
           vercel --token ${{ secrets.VERCEL_TOKEN }} --scope itering link --confirm
-          vercel --token ${{ secrets.VERCEL_TOKEN }} --scope itering deploy --prod
+          vercel --token ${{ secrets.VERCEL_TOKEN }} --scope itering deploy --prod | tee deploy.log
+          content=$(cat deploy.log)
+          content="${content//'%'/'%25'}"
+          content="${content//$'\n'/'%0A'}"
+          content="${content//$'\r'/'%0D'}"
+          echo ''
+          echo "::set-output name=VERCEL_OUTPUT::$content"
+
+      - name: Slack Notification
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_CHANNEL: darwinia-apps
+          SLACK_COLOR: ${{ job.status }}
+          SLACK_ICON: https://avatars.githubusercontent.com/u/14985020?s=48&v=4
+          SLACK_MESSAGE: '${{ steps.deploy.outputs.VERCEL_OUTPUT }}'
+          SLACK_TITLE: Preview
+          SLACK_USERNAME: Vercel
+          SLACK_WEBHOOK: ${{ secrets.SLACK_INCOMING_WEBHOOK_URL }}
+
