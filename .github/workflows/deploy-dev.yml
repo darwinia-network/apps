@@ -59,9 +59,11 @@ jobs:
       - name: Build comment
         id: build-comment
         run: |
+          COMMIT="Commit: [${COMMIT_MESSAGE}@`${SHA}`](${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/commit/${SHA})"
+          PREVIEW="Preview: ${{ steps.deploy.outputs.VERCEL_OUTPUT }}"
           echo '---' >> comment.md
-          echo "Commit: [${COMMIT_MESSAGE}@`${SHA}`](${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/commit/${SHA})" >> comment.md
-          echo "Preview: ${{ steps.deploy.outputs.VERCEL_OUTPUT }}" >> comment.md
+          echo $COMMIT >> comment.md
+          echo $PREVIEW >> comment.md
           echo '' >> comment.md
           content=$(cat comment.md)
           content="${content//'%'/'%25'}"
