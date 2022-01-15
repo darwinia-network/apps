@@ -85,7 +85,7 @@ fields:
     value: "{{jobStatus}}"
     short: true
   - title: Preview
-    value: "{{VERCEL_OUTPUT}}"
+    value: "{{env.GITHUB_ACTOR}}"
     short: false
 
 footer: >-
