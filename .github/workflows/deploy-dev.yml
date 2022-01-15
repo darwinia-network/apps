@@ -1,10 +1,6 @@
 name: Deploy develop
 
 on:
-  push:
-    branches:
-      - '*'
-      - '!master'
   pull_request:
 
 jobs:
@@ -78,26 +74,11 @@ jobs:
         with:
           issue-number: ${{ github.event.pull_request.number }}
           comment-author: 'github-actions[bot]'
-          body-includes: Build output
+          body-includes: Preview
 
       - name: Comment on pr
         uses: peter-evans/create-or-update-comment@v1
-        if: github.event_name == 'pull_request'
         with:
           comment-id: ${{ steps.fc.outputs.comment-id }}
           issue-number: ${{ github.event.pull_request.number }}
-          body: 'Preview: ${{ steps.deploy.outputs.VERCEL_OUTPUT }}'
-
-      - name: Comment on pr
-        uses: peter-evans/create-or-update-comment@v1
-        if: github.event_name == 'pull_request'
-        with:
-          comment-id: ${{ steps.fc.outputs.comment-id }}
-          issue-number: ${{ github.event.pull_request.number }}
-          body: 'Preview: ${{ steps.deploy.outputs.VERCEL_OUTPUT }}'
-
-      - name: Comment on commit
-        uses: peter-evans/commit-comment@v1
-        if: github.event_name != 'pull_request'
-        with:
           body: 'Preview: ${{ steps.deploy.outputs.VERCEL_OUTPUT }}'
