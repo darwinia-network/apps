@@ -2,18 +2,24 @@ import { ApiPromise } from '@polkadot/api';
 import { createContext, useCallback, useEffect, useMemo, useReducer, useState } from 'react';
 import { EMPTY, Subscription } from 'rxjs';
 import { darwiniaConfig } from '../config';
-import { Action, Chain, ChainConfig, Connection, ConnectionStatus, PolkadotConnection } from '../model';
-import { getInitialSetting, getPolkadotConnection, waitUntilConnected } from '../utils';
-import { updateStorage } from '../utils/helper/storage';
+import {
+  Action,
+  Chain,
+  ChainConfig,
+  Connection,
+  ConnectionStatus,
+  PolkadotChainConfig,
+  PolkadotConnection,
+} from '../model';
+import { getPolkadotConnection, waitUntilConnected } from '../utils';
 
 interface StoreState {
   connection: Connection;
-  network: ChainConfig;
+  network: PolkadotChainConfig;
   isDev: boolean;
-  enableTestNetworks: boolean;
 }
 
-type ActionType = 'setNetwork' | 'setConnection' | 'setEnableTestNetworks';
+type ActionType = 'setNetwork' | 'setConnection';
 
 const isDev = process.env.REACT_APP_HOST_TYPE === 'dev';
 
@@ -28,7 +34,6 @@ const initialState: StoreState = {
   connection: initialConnection,
   network: darwiniaConfig,
   isDev,
-  enableTestNetworks: !!getInitialSetting('enableTestNetworks', isDev),
 };
 
 // eslint-disable-next-line complexity, @typescript-eslint/no-explicit-any
@@ -42,10 +47,6 @@ function accountReducer(state: StoreState, action: Action<ActionType, any>): Sto
       return { ...state, connection: action.payload };
     }
 
-    case 'setEnableTestNetworks': {
-      return { ...state, enableTestNetworks: action.payload };
-    }
-
     default:
       return state;
   }
@@ -56,7 +57,6 @@ export type ApiCtx = StoreState & {
   connectNetwork: (network: ChainConfig) => void;
   disconnect: () => void;
   setNetwork: (network: ChainConfig) => void;
-  setEnableTestNetworks: (enable: boolean) => void;
   setApi: (api: ApiPromise) => void;
   chain: Chain;
 };
@@ -69,10 +69,6 @@ export const ApiProvider = ({ children }: React.PropsWithChildren<unknown>) => {
   const [state, dispatch] = useReducer(accountReducer, initialState);
   const setNetwork = useCallback((payload: ChainConfig) => dispatch({ type: 'setNetwork', payload }), []);
   const setConnection = useCallback((payload: Connection) => dispatch({ type: 'setConnection', payload }), []);
-  const setEnableTestNetworks = useCallback((payload: boolean) => {
-    dispatch({ type: 'setEnableTestNetworks', payload });
-    updateStorage({ enableTestNetworks: payload });
-  }, []);
   const [api, setApi] = useState<ApiPromise | null>(null);
   const [chain, setChain] = useState<Chain>({ ss58Format: '', tokens: [] });
   const observer = useMemo(
@@ -160,7 +156,6 @@ export const ApiProvider = ({ children }: React.PropsWithChildren<unknown>) => {
         connectNetwork,
         disconnect,
         setNetwork,
-        setEnableTestNetworks,
         setApi,
         api,
         chain,

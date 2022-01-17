@@ -1,5 +1,5 @@
 import { CaretLeftFilled, SettingFilled } from '@ant-design/icons';
-import { Button, Layout, Menu, Select, Tooltip } from 'antd';
+import { Layout, Menu, Select, Tooltip } from 'antd';
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, Route, Switch, useLocation } from 'react-router-dom';
@@ -17,6 +17,7 @@ import {
   ViewBrowserIcon,
 } from './components/icons';
 import { IconProps } from './components/icons/icon-factory';
+import { Connection } from './components/widget/Connection';
 import { toggleTheme } from './components/widget/ThemeSwitch';
 import { THEME } from './config';
 import { Path, routes } from './config/routes';
@@ -139,9 +140,7 @@ function App() {
         <header className="h-20 flex justify-between items-center px-8">
           <h2 className={`text-lg font-bold bg-${network.name} text-transparent bg-clip-text`}>Account</h2>
           <div>
-            <Button type="primary" className="mr-4">
-              Connect Wallet
-            </Button>
+            <Connection />
             <SettingFilled className="text-lg text-gray-600 cursor-pointer" />
           </div>
         </header>

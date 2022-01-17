@@ -11,3 +11,10 @@ export enum DarwiniaAsset {
   ring = 'ring',
   kton = 'kton',
 }
+
+export interface IModalProps<T = unknown> {
+  account?: string;
+  isVisible: boolean;
+  confirm?: (account: T) => void;
+  cancel: () => void;
+}
