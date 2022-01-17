@@ -2,6 +2,21 @@
 @tailwind components;
 @tailwind utilities;
 
+@import '~@fontsource/ibm-plex-sans/index.css';
+
+$accent: #ec3783;
+$primary: #5745de;
+
+$bg-darwinia: linear-gradient(-45deg, #fe3876 0%, #7c30dd 71%, #3a30dd 100%);
+
+$radius-base: 10px;
+
+@mixin main-border {
+  border: 2px solid transparent;
+  border-radius: $radius-base;
+  background: linear-gradient(#ffffff, #ffffff) padding-box, linear-gradient(to right, $primary, $accent) border-box;
+}
+
 .darwinia-select {
   .ant-select-selector {
     background-image: linear-gradient(#ffffff, #ffffff), linear-gradient(-45deg, #fe3876 0%, #7c30dd 71%, #3a30dd 100%);
@@ -36,6 +51,30 @@
   }
 }
 
+.radio-list {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 2rem 10px;
+  margin-bottom: 1rem;
+  border-radius: $radius-base !important;
+  border-width: 1px !important;
+
+  &.ant-radio-button-wrapper-checked {
+    @include main-border();
+  }
+
+  .ant-radio-button + span {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  &::before {
+    visibility: hidden !important;
+  }
+}
+
 // router transition animate classes
 .fade-enter {
   opacity: 0;
@@ -60,4 +99,11 @@
 .fade-enter-active,
 .fade-exit-active {
   transition: opacity 500ms, transform 500ms;
+}
+
+// connection component style
+.connection {
+  .anticon-copy {
+    color: #ffffff;
+  }
 }

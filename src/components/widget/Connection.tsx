@@ -1,50 +1,39 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useAccount, useApi } from '../../hooks';
 import { AccountModal } from '../modal/Account';
-import { AccountSelectModal } from '../modal/AccountSelect';
 import { Account } from './Account';
 import { ConnectPolkadot } from './ConnectPolkadot';
 import { EllipsisMiddle } from './EllipsisMiddle';
 
 export function Connection() {
-  const [isAccountSwitcherVisible, setIsAccountSwitcherVisible] = useState(false);
   const [isAccountDetailVisible, setIsAccountDetailVisible] = useState(false);
-  const { account, setAccount } = useAccount();
+  const { account } = useAccount();
   const { connection } = useApi();
-
-  useEffect(() => {
-    // const { accounts } = connection;
-    // setAccount(accounts[0]?.address);
-  }, [connection, setAccount]);
 
   return (
     <>
       {!!connection && !!account ? (
-        <section className="flex items-center gap-2">
+        <section className={`flex items-center gap-2 connection`}>
           {account && (
             <Account
-              onClick={() => {
-                setIsAccountDetailVisible(true);
+              onClick={(event) => {
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                if ((event.target as any).tagName === 'SPAN') {
+                  setIsAccountDetailVisible(true);
+                }
               }}
+              className="max-w-xs text-white"
+              logoStyle={{ background: 'white', height: 24, borderRadius: '50%' }}
             >
-              <EllipsisMiddle>{account}</EllipsisMiddle>
-              {/* <ShortAccount
-                account={account}
-                className="self-stretch sm:px-1 bg-white sm:my-px sm:mx-px sm:rounded-xl text-gray-800"
-              /> */}
+              <EllipsisMiddle className="overflow-hidden" percent={48.5}>
+                {account}
+              </EllipsisMiddle>
             </Account>
           )}
         </section>
       ) : (
         <ConnectPolkadot />
       )}
-
-      <AccountSelectModal
-        account={account ?? undefined}
-        isVisible={isAccountSwitcherVisible}
-        confirm={setAccount}
-        cancel={() => setIsAccountSwitcherVisible(false)}
-      />
 
       <AccountModal isVisible={isAccountDetailVisible} cancel={() => setIsAccountDetailVisible(false)} />
     </>

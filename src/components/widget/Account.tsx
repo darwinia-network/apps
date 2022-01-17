@@ -17,12 +17,12 @@ export function Account({
   containerStyle?: CSSProperties;
   className?: string;
   textClassName?: string;
-  onClick?: () => void;
+  onClick?: React.MouseEventHandler<HTMLDivElement>;
 }>) {
   const { network } = useApi();
   const containerCls = useMemo(
     () =>
-      `flex items-center justify-between leading-normal whitespace-nowrap bg-${network.name} 
+      `flex items-center justify-between leading-normal whitespace-nowrap p-1 overflow-hidden bg-${network.name} 
         ${isLargeRounded ? 'rounded-xl ' : 'rounded-lg '}
         ${className}`,
     [isLargeRounded, className, network]
@@ -31,8 +31,8 @@ export function Account({
 
   return (
     <div className={containerCls} onClick={onClick} style={containerStyle || {}}>
-      <img src={network.facade.logo} style={logoStyle || { height: 32 }} className="hidden sm:inline-block" alt="" />
-      <span className="text-white mr-2 hidden sm:inline">{t(network.name)}</span>
+      <img src={network.facade.logo} style={logoStyle || { height: 24 }} className="hidden sm:inline-block" alt="" />
+      <span className="text-white mx-2 hidden sm:inline">{t(network.name)}</span>
       {children}
     </div>
   );

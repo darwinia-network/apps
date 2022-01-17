@@ -12,17 +12,19 @@ export const AccountContext = createContext<AccountCtx | null>(null);
 
 export const AccountProvider = ({ children }: React.PropsWithChildren<unknown>) => {
   const [account, setAccount] = useState<string | null>(null);
-  const { network } = useApi();
+  const { network, connection } = useApi();
 
   useEffect(() => {
-    if (!account) {
+    const acc = account || connection?.accounts[0]?.address;
+
+    if (!acc) {
       return;
     }
 
-    const ss58Account = convertToSS58(account, network.ss58Prefix);
+    const ss58Account = convertToSS58(acc, network.ss58Prefix);
 
     setAccount(ss58Account);
-  }, [network]);
+  }, [network.ss58Prefix, connection]);
 
   return (
     <AccountContext.Provider

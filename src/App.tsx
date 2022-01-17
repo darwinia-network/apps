@@ -17,6 +17,7 @@ import {
   ViewBrowserIcon,
 } from './components/icons';
 import { IconProps } from './components/icons/icon-factory';
+import { AccountSelect } from './components/modal/AccountSelect';
 import { Connection } from './components/widget/Connection';
 import { toggleTheme } from './components/widget/ThemeSwitch';
 import { THEME } from './config';
@@ -139,8 +140,9 @@ function App() {
       <Layout>
         <header className="h-20 flex justify-between items-center px-8">
           <h2 className={`text-lg font-bold bg-${network.name} text-transparent bg-clip-text`}>Account</h2>
-          <div>
+          <div className="flex items-center gap-4">
             <Connection />
+            <AccountSelect />
             <SettingFilled className="text-lg text-gray-600 cursor-pointer" />
           </div>
         </header>
