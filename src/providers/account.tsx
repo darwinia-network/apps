@@ -4,14 +4,14 @@ import { useApi } from '../hooks';
 import { convertToSS58 } from '../utils';
 
 export interface AccountCtx {
-  account: string | null;
+  account: string;
   setAccount: (account: string) => void;
 }
 
 export const AccountContext = createContext<AccountCtx | null>(null);
 
 export const AccountProvider = ({ children }: React.PropsWithChildren<unknown>) => {
-  const [account, setAccount] = useState<string | null>(null);
+  const [account, setAccount] = useState<string>('');
   const { network, connection } = useApi();
 
   useEffect(() => {

@@ -1,5 +1,5 @@
 import { CaretLeftFilled, SettingFilled } from '@ant-design/icons';
-import { Layout, Menu, Select, Tooltip } from 'antd';
+import { Layout, Menu, Select } from 'antd';
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, Route, Switch, useLocation } from 'react-router-dom';
@@ -18,11 +18,13 @@ import {
 } from './components/icons';
 import { IconProps } from './components/icons/icon-factory';
 import { AccountSelect } from './components/modal/AccountSelect';
+import { BestNumber } from './components/widget/BestNumber';
 import { Connection } from './components/widget/Connection';
+import { SubscanLink } from './components/widget/SubscanLink';
 import { toggleTheme } from './components/widget/ThemeSwitch';
 import { THEME } from './config';
 import { Path, routes } from './config/routes';
-import { useApi } from './hooks';
+import { useAccount, useApi } from './hooks';
 import { Network } from './model';
 import { getNetworkByName, NETWORK_CONFIGURATIONS, readStorage } from './utils';
 
@@ -46,6 +48,7 @@ const navigators: Nav[] = [
 function App() {
   const { t } = useTranslation();
   const { network, setNetwork } = useApi();
+  const { account } = useAccount();
   const [theme] = useState<THEME>(readStorage().theme ?? THEME.LIGHT);
   const location = useLocation();
   const [collapsed, setCollapsed] = useState(false);
@@ -107,10 +110,12 @@ function App() {
               className="w-3/4 flex justify-between items-center rounded-2xl px-4 py-2 mx-auto mb-8 overflow-hidden"
               style={{ boxShadow: '0px 0px 24px rgba(191, 194, 234, 0.413501)' }}
             >
-              <Tooltip title={`#6,029,137`}>
-                <span className="max-w-full overflow-hidden">#6,029,137</span>
-              </Tooltip>
-              {!collapsed && <ViewBrowserIcon />}
+              <BestNumber />
+              {!collapsed && (
+                <SubscanLink network={network.name} address={account}>
+                  <ViewBrowserIcon />
+                </SubscanLink>
+              )}
             </div>
             <div className="w-full flex flex-wrap items-center justify-between p-4">
               <a>
