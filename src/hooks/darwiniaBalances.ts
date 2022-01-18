@@ -15,7 +15,7 @@ export const getChainInfo: (tokens: TokenChainInfo[], target: DarwiniaAsset) => 
 };
 
 export function useDarwiniaAvailableBalances() {
-  const { api, chain } = useApi();
+  const { api, chain, network } = useApi();
   const getBalances = useCallback<(acc: string) => Promise<AvailableBalance[]>>(
     async (account: string) => {
       if (!api) {
@@ -28,8 +28,7 @@ export function useDarwiniaAvailableBalances() {
         {
           max: ring,
           asset: DarwiniaAsset.ring,
-          chainInfo: getChainInfo(chain.tokens, DarwiniaAsset.ring),
-          checked: true,
+          chainInfo: getChainInfo(chain.tokens, network.name === 'crab' ? DarwiniaAsset.crab : DarwiniaAsset.ring),
         },
         {
           max: kton,
@@ -38,7 +37,7 @@ export function useDarwiniaAvailableBalances() {
         },
       ];
     },
-    [api, chain.tokens]
+    [api, chain.tokens, network.name]
   );
 
   return getBalances;
