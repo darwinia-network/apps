@@ -1,7 +1,7 @@
 {
-  "Account": "",
-  "Staking": "",
-  "Toolbox": "",
-  "Darwinia Portal": "",
-  "Account Migration": ""
+  "Account": "Account",
+  "Staking": "Staking",
+  "Toolbox": "Toolbox",
+  "Darwinia Portal": "Darwinia Portal",
+  "Account Migration": "Account Migration"
 }

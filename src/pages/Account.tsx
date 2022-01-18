@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { withRouter } from 'react-router-dom';
 import { from, zip } from 'rxjs';
+import { AssetDetail } from '../components/AssetDetail';
 import { Asset, AssetOverview } from '../components/widget/AssetOverview';
 import { useAccount, useApi, useDarwiniaAvailableBalances } from '../hooks';
 
@@ -41,10 +42,13 @@ function Page() {
   return (
     <Tabs className="px-8 w-full mx-auto dark:shadow-none dark:border-transparent">
       <Tabs.TabPane tab={t('Darwinia Asset')} key="asset">
-        <div className="grid grid-cols-2 gap-8">
+        <div className="grid grid-cols-2 gap-8 mb-8">
           {availableBalance.map((item, index) => (
             <AssetOverview asset={item} key={index}></AssetOverview>
           ))}
+        </div>
+        <div>
+          <AssetDetail />
         </div>
       </Tabs.TabPane>
 
