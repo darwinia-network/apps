@@ -1,9 +1,9 @@
 import { CaretLeftFilled, SettingFilled } from '@ant-design/icons';
 import { Layout, Menu, Select } from 'antd';
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, Route, Switch, useLocation } from 'react-router-dom';
-import { CSSTransition, SwitchTransition } from 'react-transition-group';
+import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import {
   AccountIcon,
   DarwiniaIcon,
@@ -52,6 +52,13 @@ function App() {
   const [theme] = useState<THEME>(readStorage().theme ?? THEME.LIGHT);
   const location = useLocation();
   const [collapsed, setCollapsed] = useState(false);
+  const selectedKeys = useMemo<string[]>(
+    () =>
+      routes
+        .filter((item) => location.pathname === item.path)
+        .map((item) => (item.path === Path.root ? Path.account : (item.path as string))),
+    [location?.pathname]
+  );
 
   return (
     <Layout>
@@ -97,9 +104,9 @@ function App() {
             </Select>
           </div>
 
-          <Menu theme={theme} mode="inline" defaultSelectedKeys={['1']} className="flex-1">
-            {navigators.map(({ Icon, path, label }, idx) => (
-              <Menu.Item icon={<Icon />} key={path + '_' + idx}>
+          <Menu theme={theme} mode="inline" defaultSelectedKeys={selectedKeys} className="flex-1">
+            {navigators.map(({ Icon, path, label }) => (
+              <Menu.Item icon={<Icon />} key={path}>
                 <Link to={path}>{t(label)}</Link>
               </Menu.Item>
             ))}
@@ -152,22 +159,17 @@ function App() {
           </div>
         </header>
 
-        <SwitchTransition mode="out-in">
-          <CSSTransition
-            key={location.key}
-            addEndListener={(node, done) => node.addEventListener('transitionend', done, false)}
-            timeout={300}
-            classNames="fade"
-          >
-            <Content>
+        <Content>
+          <TransitionGroup>
+            <CSSTransition key={location.pathname} timeout={300} classNames="fade">
               <Switch location={location}>
                 {routes.map((item, index) => (
                   <Route key={index} {...item}></Route>
                 ))}
               </Switch>
-            </Content>
-          </CSSTransition>
-        </SwitchTransition>
+            </CSSTransition>
+          </TransitionGroup>
+        </Content>
       </Layout>
     </Layout>
   );

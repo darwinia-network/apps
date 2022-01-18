@@ -3,8 +3,16 @@ module.exports = {
   content: ['./src/**/*.{js,jsx,ts,tsx}'],
   theme: {
     extend: {
-      animation: {},
-      keyframes: {},
+      animation: {
+        'ball-scale-pulse': 'ball-scale-pulse 2s ease-in-out infinite',
+      },
+      keyframes: {
+        'ball-scale-pulse': {
+          '0%': { transform: 'scale(0)' },
+          '50%': { transform: 'scale(1)' },
+          '100%': { transform: 'scale(0)' },
+        },
+      },
       backgroundImage: (_) => ({
         darwinia: 'linear-gradient(-45deg, #fe3876 0%, #7c30dd 71%, #3a30dd 100%)',
       }),
