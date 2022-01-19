@@ -1,6 +1,6 @@
 import { CaretLeftFilled, SettingFilled } from '@ant-design/icons';
 import { Layout, Menu, Select } from 'antd';
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, Route, Switch, useLocation } from 'react-router-dom';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
@@ -59,6 +59,11 @@ function App() {
         .map((item) => (item.path === Path.root ? Path.account : (item.path as string))),
     [location?.pathname]
   );
+
+  useEffect(() => {
+    toggleTheme(theme, network.name);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <Layout>

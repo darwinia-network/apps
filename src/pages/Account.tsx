@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { withRouter } from 'react-router-dom';
 import { from, zip } from 'rxjs';
-import { AssetDetail } from '../components/AssetDetail';
+import { AccountHistory } from '../components/history-record/AccountHistory';
 import { Asset, AssetOverview } from '../components/widget/AssetOverview';
 import { useAccount, useApi, useDarwiniaAvailableBalances } from '../hooks';
 
@@ -48,7 +48,7 @@ function Page() {
           ))}
         </div>
         <div>
-          <AssetDetail />
+          <AccountHistory tokens={availableBalance.map((item) => item.chainInfo)} />
         </div>
       </Tabs.TabPane>
 

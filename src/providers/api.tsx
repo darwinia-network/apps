@@ -1,7 +1,7 @@
 import { ApiPromise } from '@polkadot/api';
 import { createContext, useCallback, useEffect, useMemo, useReducer, useState } from 'react';
 import { EMPTY, Subscription } from 'rxjs';
-import { darwiniaConfig } from '../config';
+import { crabConfig } from '../config';
 import {
   Action,
   Chain,
@@ -32,7 +32,7 @@ const initialConnection: Connection = {
 
 const initialState: StoreState = {
   connection: initialConnection,
-  network: darwiniaConfig,
+  network: crabConfig,
   isDev,
 };
 

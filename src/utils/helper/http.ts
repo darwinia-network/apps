@@ -23,10 +23,11 @@ export function rxGet<T>({ url, params }: RecordsQueryRequest): Observable<T | n
   }).pipe(map((res) => (res.response as any).data || null));
 }
 
-export function rxPost<T>({ url, params }: RecordsQueryRequest): Observable<T | null> {
+export function rxPost<T>({ url, params }: RecordsQueryRequest): Observable<T> {
   return ajax({
     url,
     method: 'POST',
     body: params,
-  }).pipe(map((res) => (res.response as any).data || null));
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  }).pipe(map((res) => (res.response as any).data as T));
 }

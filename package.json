@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "start": "cross-env CHOKIDAR_USEPOLLING=1 PORT=3001 craco start",
-    "start:dev": "cross-env PORT=3001 REACT_APP_HOST_TYPE=dev craco start",
+    "start": "cross-env CHOKIDAR_USEPOLLING=1 PORT=3006 craco start",
+    "start:dev": "cross-env PORT=3006 REACT_APP_HOST_TYPE=dev craco start",
     "build": "cross-env CI=false craco build --max_old_space_size=2048",
     "build:dev": "cross-env CI=false REACT_APP_HOST_TYPE=dev craco build --max_old_space_size=2048",
     "stylelint": "stylelint \"src/**/*.scss\" --config stylelint.config.js",
@@ -30,6 +30,7 @@
     "@polkadot/extension-dapp": "^0.42.5",
     "@polkadot/react-identicon": "^0.89.2",
     "antd": "^4.16.1",
+    "bignumber.js": "^9.0.2",
     "craco-antd": "^1.19.0",
     "date-fns": "^2.22.1",
     "date-fns-tz": "^1.1.6",
