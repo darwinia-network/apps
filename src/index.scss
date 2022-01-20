@@ -17,6 +17,11 @@ $radius-base: 10px;
   background: linear-gradient(#ffffff, #ffffff) padding-box, linear-gradient(to right, $primary, $accent) border-box;
 }
 
+// reset select
+.ant-select-selector {
+  border-right: none;
+}
+
 .darwinia-select {
   .ant-select-selector {
     background-image: linear-gradient(#ffffff, #ffffff), linear-gradient(-45deg, #fe3876 0%, #7c30dd 71%, #3a30dd 100%);

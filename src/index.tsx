@@ -6,6 +6,7 @@ import { BallScalePulse } from './components/widget/BallScalePulse';
 import { THEME } from './config';
 import './index.scss';
 import { AccountProvider, ApiProvider } from './providers';
+import { TxProvider } from './providers/tx-provider';
 import reportWebVitals from './reportWebVitals';
 import './theme/antd/index.less';
 import { readStorage } from './utils';
@@ -25,9 +26,11 @@ ReactDOM.render(
     >
       <BrowserRouter>
         <ApiProvider>
-          <AccountProvider>
-            <App />
-          </AccountProvider>
+          <TxProvider>
+            <AccountProvider>
+              <App />
+            </AccountProvider>
+          </TxProvider>
         </ApiProvider>
       </BrowserRouter>
     </Suspense>

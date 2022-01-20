@@ -6,6 +6,7 @@ import { TFunction } from 'react-i18next';
 import { Network, NetworkCategory, PolkadotChainConfig, TokenChainInfo } from '../../model';
 import { NETWORK_CONFIGURATIONS } from '../network';
 import { convertToSS58 } from './address';
+import { getUnit, toWei } from './balance';
 
 // eslint-disable-next-line complexity
 export const isValidAddress = (address: string, network: Network | NetworkCategory, strict = false): boolean => {
@@ -49,7 +50,7 @@ export const isSameAddress = (from: string, to: string): boolean => {
   return fromAddress === toAddress;
 };
 
-export const isRing = (name: string | null | undefined) => /ring/i.test(String(name));
+export const isRing = (name: string | null | undefined) => /ring/i.test(String(name)) || /crab/i.test(String(name));
 
 export const isKton = (name: string | null | undefined) => /kton/i.test(String(name));
 
@@ -78,4 +79,19 @@ export const zeroAmountRule: ValidatorRuleFactory = (options) => {
   const { t } = options;
 
   return { validator: zeroAmountValidator, message: t('The transfer amount must great than 0') };
+};
+
+const insufficientBalanceValidatorFactory: ValidatorFactory = (options) => (_, val) => {
+  const { compared = '0', token } = options;
+  const max = new BN(compared as string);
+  const value = new BN(toWei({ value: val, unit: getUnit(Number(token?.decimal)) ?? 'gwei' }));
+
+  return value.gt(max) ? Promise.reject() : Promise.resolve();
+};
+
+export const insufficientBalanceRule: ValidatorRuleFactory = (options) => {
+  const { t } = options;
+  const validator = insufficientBalanceValidatorFactory(options);
+
+  return { validator, message: t('Insufficient balance') };
 };

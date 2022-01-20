@@ -13,13 +13,13 @@ export function AccountHistory({ tokens }: AccountHistoryProps) {
   return (
     <Card className="relative">
       <Tabs defaultActiveKey={activeKey} onChange={(key) => setActiveKey(key as AccountStatus)}>
-        <Tabs.TabPane tab={t('Bound')} key="bonded">
+        <Tabs.TabPane tab={t('Bond')} key="bonded">
           <Bound tokens={tokens} />
         </Tabs.TabPane>
-        <Tabs.TabPane tab={t('Unbound')} key="unbond">
+        <Tabs.TabPane tab={t('Unbond')} key="unbond">
           <Unbonding />
         </Tabs.TabPane>
-        {/*  TODO: cross chain record remove it ? */}
+        {/* TODO: cross chain record remove it ? */}
         <Tabs.TabPane disabled tab={t('Mapping')} key="mapping">
           {/* <Table columns={columns} /> */}
         </Tabs.TabPane>

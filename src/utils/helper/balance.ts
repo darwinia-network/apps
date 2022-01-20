@@ -1,11 +1,28 @@
 import BN from 'bn.js';
 import { isString, isNumber, isUndefined, isNull } from 'lodash';
-import { Unit, fromWei as web3FromWei, toWei as web3ToWei } from 'web3-utils';
+import { Unit, fromWei as web3FromWei, toWei as web3ToWei, unitMap, Units } from 'web3-utils';
 
 export type WeiValue = string | BN | number | null | undefined;
 export interface PrettyNumberOptions {
   withThousandSplit?: boolean;
   decimal?: number;
+}
+
+export const ETH_UNITS = unitMap as unknown as Units;
+
+export function getUnit(num: number): Unit {
+  const str = Math.pow(10, num).toString();
+  try {
+    const [key] = Object.entries(ETH_UNITS).find(([_, value]) => value === str) as [Unit, string];
+
+    return key;
+  } catch (err) {
+    return 'ether';
+  }
+}
+
+export function getPrecisionByUnit(unit: Unit): number {
+  return ETH_UNITS[unit].length - 1;
 }
 
 // eslint-disable-next-line complexity

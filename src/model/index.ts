@@ -6,5 +6,6 @@ export * from './metamask';
 export * from './network';
 export * from './route';
 export * from './storage';
+export * from './tx';
 export * from './type-operator';
 export * from './webapi';
