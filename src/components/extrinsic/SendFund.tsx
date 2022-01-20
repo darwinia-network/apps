@@ -15,6 +15,7 @@ import {
   fromWei,
   getUnit,
   insufficientBalanceRule,
+  isRing,
   isSameAddress,
   isValidAddress,
   toWei,
@@ -54,11 +55,13 @@ export function SendFund({ asset, signal, onSuccess, onFail }: TransferProps) {
           const { to, amount, from: sender } = values;
           const obs = new Observable((spy: Observer<Tx>) => {
             waitUntilConnected(api!)
-              .then(() =>
-                api!.tx.balances
+              .then(() => {
+                const moduleName = isRing(asset.chainInfo?.symbol) ? 'balances' : 'kton';
+
+                return api!.tx[moduleName]
                   .transfer(to, toWei({ value: amount, unit: getUnit(Number(asset.chainInfo?.decimal)) ?? 'gwei' }))
-                  .signAndSend(sender, extrinsicSpy(spy))
-              )
+                  .signAndSend(sender, extrinsicSpy(spy));
+              })
               .catch((error) => {
                 spy.error({ status: 'error', error });
               });
