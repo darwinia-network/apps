@@ -1,27 +1,25 @@
-import { web3FromAddress } from '@polkadot/extension-dapp';
 import { AutoComplete, Form, Input } from 'antd';
 import { useForm } from 'antd/lib/form/Form';
 import { upperFirst } from 'lodash';
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { catchError, from, NEVER, Observable, Observer, switchMap, switchMapTo, tap } from 'rxjs';
+import { catchError, from, NEVER, Observable, switchMap } from 'rxjs';
 import { validateMessages } from '../../config';
 import i18n from '../../config/i18n';
 import { useAccount, useApi } from '../../hooks';
 import { useTx } from '../../hooks/tx';
 import { AvailableBalance, Tx } from '../../model';
 import {
-  extrinsicSpy,
   fromWei,
   getUnit,
   insufficientBalanceRule,
   isRing,
   isSameAddress,
   isValidAddress,
+  signAndSendExtrinsic,
   toWei,
-  waitUntilConnected,
 } from '../../utils';
-import { Balance } from './Balance';
+import { Balance } from '../widget/Balance';
 
 interface TransferValues {
   from: string;
@@ -53,24 +51,13 @@ export function SendFund({ asset, signal, onSuccess, onFail }: TransferProps) {
         switchMap((_) => from(form.validateFields()).pipe(catchError(() => NEVER))),
         switchMap((values: TransferValues) => {
           const { to, amount, from: sender } = values;
-          const obs = new Observable((spy: Observer<Tx>) => {
-            waitUntilConnected(api!)
-              .then(() => {
-                const moduleName = isRing(asset.chainInfo?.symbol) ? 'balances' : 'kton';
-
-                return api!.tx[moduleName]
-                  .transfer(to, toWei({ value: amount, unit: getUnit(Number(asset.chainInfo?.decimal)) ?? 'gwei' }))
-                  .signAndSend(sender, extrinsicSpy(spy));
-              })
-              .catch((error) => {
-                spy.error({ status: 'error', error });
-              });
-          });
-
-          return from(web3FromAddress(sender)).pipe(
-            tap((injector) => api?.setSigner(injector.signer)),
-            switchMapTo(obs)
+          const moduleName = isRing(asset.chainInfo?.symbol) ? 'balances' : 'kton';
+          const extrinsic = api!.tx[moduleName].transfer(
+            to,
+            toWei({ value: amount, unit: getUnit(Number(asset.chainInfo?.decimal)) ?? 'gwei' })
           );
+
+          return signAndSendExtrinsic(api!, sender, extrinsic);
         })
       )
       .subscribe({

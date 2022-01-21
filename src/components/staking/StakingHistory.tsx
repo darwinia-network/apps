@@ -4,9 +4,9 @@ import { useTranslation } from 'react-i18next';
 import { AccountStatus } from '../../model';
 import { Bound } from './Bound';
 import { AccountHistoryProps } from './interface';
-import { Unbonding } from './Unbonding';
+import { Unbond } from './Unbond';
 
-export function AccountHistory({ tokens }: AccountHistoryProps) {
+export function StakingHistory({ tokens }: AccountHistoryProps) {
   const [activeKey, setActiveKey] = useState<AccountStatus>('bonded');
   const { t } = useTranslation();
 
@@ -17,7 +17,7 @@ export function AccountHistory({ tokens }: AccountHistoryProps) {
           <Bound tokens={tokens} />
         </Tabs.TabPane>
         <Tabs.TabPane tab={t('Unbond')} key="unbond">
-          <Unbonding />
+          <Unbond />
         </Tabs.TabPane>
         {/* TODO: cross chain record remove it ? */}
         <Tabs.TabPane disabled tab={t('Mapping')} key="mapping">

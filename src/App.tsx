@@ -93,11 +93,7 @@ function App() {
               {NETWORK_CONFIGURATIONS.map((config) => (
                 <Option value={config.name} key={config.name} className="capitalize">
                   <span className="flex items-center">
-                    <img
-                      src={config.facade.logo}
-                      className={`h-4 mr-2 transform ${collapsed ? '-translate-x-2' : 'translate-x-0 h-6'}`}
-                      alt=""
-                    />
+                    <img src={config.facade.logo} className={`mr-2 h-6 ${collapsed ? 'collapsed' : ''}`} alt="" />
                     {!collapsed && (
                       <span className="flex-1 flex justify-between items-center overflow-hidden overflow-ellipsis">
                         <span className="capitalize mr-2">{config.name}</span>

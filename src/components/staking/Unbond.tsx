@@ -8,7 +8,7 @@ import { useApi } from '../../hooks';
 import { AccountRecord } from '../../model';
 import { fromWei, prettyNumber } from '../../utils';
 import { SubscanLink } from '../widget/SubscanLink';
-import { useRecords } from './records';
+import { useStakingRecords } from './stakingRecords';
 
 const calcProgress = (start: number, expire: number, bestNumber: number): number => {
   if (!bestNumber) {
@@ -28,10 +28,10 @@ const calcProgress = (start: number, expire: number, bestNumber: number): number
   }
 };
 
-export function Unbonding() {
+export function Unbond() {
   const { t } = useTranslation();
   const { network, api } = useApi();
-  const { pagination, setPagination, data } = useRecords('unbonding');
+  const { pagination, setPagination, stakingRecord } = useStakingRecords('unbonding');
   const [bestNumber, setBestNumber] = useState<number>(0);
 
   const columns: ColumnType<AccountRecord>[] = [
@@ -107,8 +107,8 @@ export function Unbonding() {
     <Table
       rowKey={'Id'}
       columns={columns}
-      pagination={{ ...pagination, total: data.count }}
-      dataSource={data.list ?? undefined}
+      pagination={{ ...pagination, total: stakingRecord.count }}
+      dataSource={stakingRecord.list ?? undefined}
       onChange={({ pageSize = 0, current = 0 }) => {
         setPagination({ ...pagination, pageSize, current });
       }}

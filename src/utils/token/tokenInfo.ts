@@ -1,4 +1,4 @@
-import { AccountData, AccountInfo } from '@darwinia/types';
+import { AccountData } from '@darwinia/types';
 import { ApiPromise } from '@polkadot/api';
 import { waitUntilConnected } from '../network';
 
@@ -26,7 +26,7 @@ export async function getDarwiniaBalances(api: ApiPromise, account = ''): Promis
   }
 
   try {
-    const { data } = (await api.query.system.account(account)) as AccountInfo;
+    const { data } = await api.query.system.account(account);
     const { free, freeKton } = data as unknown as AccountData;
 
     return [free.toString(), freeKton.toString()];

@@ -1,6 +1,6 @@
 import BigNumber from 'bignumber.js';
 import { getUnixTime } from 'date-fns';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useAccount, useApi } from '../../hooks';
 import { AccountRecordListRes, AccountStatus } from '../../model';
 import { rxPost } from '../../utils';
@@ -30,19 +30,16 @@ export function ringToKton(value: string | number, month: number): string {
   );
 }
 
-export function useRecords(status: AccountStatus, locked = false) {
+export function useStakingRecords(status: AccountStatus, locked = false) {
   const { account } = useAccount();
   const { network } = useApi();
   const [data, setData] = useState<AccountRecordListRes>({ count: 0, list: [] });
   const [pagination, setPagination] = useState({ pageSize: 10, current: 1 });
-  useEffect(() => {
-    if (!account) {
-      return;
-    }
-
+  const query = useCallback(() => {
     const url = `https://${network.name}.webapi.subscan.io/api${ApiPath[status]}`;
     const { pageSize: row, current } = pagination;
-    const sub$$ = rxPost<AccountRecordListRes>({
+
+    return rxPost<AccountRecordListRes>({
       url,
       params: {
         page: current - 1,
@@ -51,14 +48,22 @@ export function useRecords(status: AccountStatus, locked = false) {
         row,
         address: account,
       },
-    }).subscribe((res) => {
+    });
+  }, [account, locked, network.name, pagination, status]);
+
+  useEffect(() => {
+    if (!account) {
+      return;
+    }
+
+    const sub$$ = query().subscribe((res) => {
       setData(res);
     });
 
     return () => {
       sub$$?.unsubscribe();
     };
-  }, [account, status, locked, network.name, pagination]);
+  }, [account, query]);
 
-  return { data, pagination, setPagination };
+  return { stakingRecord: data, pagination, setPagination, refreshStakingRecords: query, updateStakingRecord: setData };
 }

@@ -1,7 +1,7 @@
 import { Button, Card, Tabs } from 'antd';
 import { useTranslation } from 'react-i18next';
 import { withRouter } from 'react-router-dom';
-import { AccountHistory } from '../components/history-record/AccountHistory';
+import { StakingHistory } from '../components/staking/StakingHistory';
 import { AssetOverview } from '../components/widget/AssetOverview';
 import { useDarwiniaAvailableBalances } from '../hooks';
 
@@ -18,7 +18,7 @@ function Page() {
           ))}
         </div>
         <div>
-          <AccountHistory tokens={availableBalance.map((item) => item.chainInfo)} />
+          <StakingHistory tokens={availableBalance.map((item) => item.chainInfo)} />
         </div>
       </Tabs.TabPane>
 

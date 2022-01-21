@@ -10,6 +10,7 @@ import { TxProvider } from './providers/tx-provider';
 import reportWebVitals from './reportWebVitals';
 import './theme/antd/index.less';
 import { readStorage } from './utils';
+import '@polkadot/api-augment';
 
 ReactDOM.render(
   <React.StrictMode>
