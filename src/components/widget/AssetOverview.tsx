@@ -3,18 +3,9 @@ import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Observable, Subject } from 'rxjs';
 import { useApi } from '../../hooks';
-import { AvailableBalance } from '../../model';
+import { AssetOverviewProps } from '../../model';
 import { fromWei, isRing, prettyNumber } from '../../utils';
 import { SendFund } from '../extrinsic/SendFund';
-
-export interface Asset extends AvailableBalance {
-  total: number;
-}
-
-interface AssetOverviewProps {
-  asset: Asset;
-  refresh: (acc?: string) => void;
-}
 
 export function AssetOverview({ asset, refresh }: AssetOverviewProps) {
   const { t } = useTranslation();

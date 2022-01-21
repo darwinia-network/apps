@@ -5,6 +5,5 @@
   "@btn-primary-bg": "@project-main-bg",
   "@card-radius": "@project-radius-base",
   "@layout-header-background": "#fff",
-  "@project-main-bg": "#5745de",
-  "@project-radius-base": "12px"
+  "@project-main-bg": "#5745de"
 }

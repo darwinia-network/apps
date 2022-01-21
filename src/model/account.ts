@@ -25,3 +25,12 @@ export interface DailyLimit {
   limit: string | number;
   spentToday: string | number;
 }
+
+export interface Asset extends AvailableBalance {
+  total: number;
+}
+
+export interface AssetOverviewProps {
+  asset: Asset;
+  refresh: (acc?: string) => void;
+}

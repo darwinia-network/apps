@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useAccount, useApi } from '../../hooks';
 import { AccountModal } from '../modal/Account';
-import { Account } from './Account';
+import { ActiveAccount } from './ActiveAccount';
 import { ConnectPolkadot } from './ConnectPolkadot';
 import { EllipsisMiddle } from './EllipsisMiddle';
 
@@ -15,7 +15,7 @@ export function Connection() {
       {!!connection && !!account ? (
         <section className={`flex items-center gap-2 connection`}>
           {account && (
-            <Account
+            <ActiveAccount
               onClick={(event) => {
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 if ((event.target as any).tagName === 'SPAN') {
@@ -28,7 +28,7 @@ export function Connection() {
               <EllipsisMiddle className="overflow-hidden" percent={48.5}>
                 {account}
               </EllipsisMiddle>
-            </Account>
+            </ActiveAccount>
           )}
         </section>
       ) : (

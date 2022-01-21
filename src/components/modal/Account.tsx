@@ -1,12 +1,11 @@
 import BaseIdentityIcon from '@polkadot/react-identicon';
 import { Card, Col, Modal, Row } from 'antd';
-import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAccount, useApi } from '../../hooks';
 import { IModalProps } from '../../model';
 import { convertToSS58 } from '../../utils';
 import { CloseIcon, CopyIcon, ViewBrowserIcon } from '../icons';
-import { Account } from '../widget/Account';
+import { ActiveAccount } from '../widget/ActiveAccount';
 
 const iconSize = 42;
 
@@ -39,9 +38,9 @@ export function AccountModal({ isVisible, cancel }: IModalProps) {
             <Row>
               <Col>
                 <span className="mr-4 text-gray-600 text-base">{account}</span>
-                <Account
+                <ActiveAccount
                   isLargeRounded={false}
-                  logoStyle={{ width: '1.5em', float: 'left' }}
+                  logoStyle={{ float: 'left', background: 'white', height: 24, borderRadius: '50%' }}
                   containerStyle={{ display: 'inline-block' }}
                   textClassName="text-xs h-4 leading-4  mr-0.5"
                 />

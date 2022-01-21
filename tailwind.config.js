@@ -23,8 +23,8 @@ module.exports = {
         pangoro: '#5745DE',
       }),
       borderRadius: {
-        xl: '10px',
-        lg: '8px',
+        xl: '20px',
+        lg: '10px',
       },
       boxShadow: {
         'mock-bottom-border': '0px 10px 1px -8px #5745de',

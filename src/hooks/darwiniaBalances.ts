@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { from } from 'rxjs';
-import { Asset } from '../components/widget/AssetOverview';
-import { DarwiniaAsset, TokenChainInfo } from '../model';
+import { Asset, DarwiniaAsset, TokenChainInfo } from '../model';
 import { getDarwiniaBalances } from '../utils';
 import { useAccount } from './account';
 import { useApi } from './api';
