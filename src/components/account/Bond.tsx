@@ -38,7 +38,7 @@ export function Bond({ tokens }: AccountHistoryProps) {
   const [forceUnbondTarget, setForceUnbondTarget] = useState<AccountRecord | null>(null);
   const kton = useMemo(() => tokens.find((item) => isKton(item?.symbol)), [tokens]);
   const forceUnbond = useCallback(() => {
-    if (!forceUnbondTarget || !api) {
+    if (!forceUnbondTarget) {
       return;
     }
 
@@ -141,9 +141,9 @@ export function Bond({ tokens }: AccountHistoryProps) {
             <Button
               size="small"
               onClick={() => {
-                const extrinsic = api!.tx.staking.claimMatureDeposits();
+                const extrinsic = api.tx.staking.claimMatureDeposits();
 
-                signAndSendExtrinsic(api!, account, extrinsic).subscribe({
+                signAndSendExtrinsic(api, account, extrinsic).subscribe({
                   ...observer,
                   next: (value) => {
                     observer.next(value);

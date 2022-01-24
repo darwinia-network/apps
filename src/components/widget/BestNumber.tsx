@@ -12,10 +12,6 @@ export function BestNumber() {
   const [bestNumber, setBestNumber] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!api) {
-      return;
-    }
-
     const sub$$ = timer(0, duration)
       .pipe(
         takeWhile(() => isMounted && api.isConnected),

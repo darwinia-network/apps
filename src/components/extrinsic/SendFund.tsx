@@ -52,12 +52,12 @@ export function SendFund({ asset, signal, onSuccess, onFail }: TransferProps) {
         switchMap((values: TransferValues) => {
           const { to, amount, from: sender } = values;
           const moduleName = isRing(asset.chainInfo?.symbol) ? 'balances' : 'kton';
-          const extrinsic = api!.tx[moduleName].transfer(
+          const extrinsic = api.tx[moduleName].transfer(
             to,
             toWei({ value: amount, unit: getUnit(Number(asset.chainInfo?.decimal)) ?? 'gwei' })
           );
 
-          return signAndSendExtrinsic(api!, sender, extrinsic);
+          return signAndSendExtrinsic(api, sender, extrinsic);
         })
       )
       .subscribe({

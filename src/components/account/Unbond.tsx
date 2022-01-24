@@ -94,10 +94,6 @@ export function Unbond() {
   ];
 
   useEffect(() => {
-    if (!api) {
-      return;
-    }
-
     api.derive.chain.bestNumber().then((res) => {
       setBestNumber(res.toJSON());
     });

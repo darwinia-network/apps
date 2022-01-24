@@ -1,7 +1,10 @@
 import { ApiPromise } from '@polkadot/api';
+import { Alert } from 'antd';
 import { createContext, useCallback, useEffect, useMemo, useReducer, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { EMPTY, Subscription } from 'rxjs';
-import { crabConfig } from '../config';
+import { BallScalePulse } from '../components/widget/BallScalePulse';
+import { crabConfig, THEME } from '../config';
 import {
   Action,
   Chain,
@@ -11,7 +14,7 @@ import {
   PolkadotChainConfig,
   PolkadotConnection,
 } from '../model';
-import { getPolkadotConnection, waitUntilConnected } from '../utils';
+import { getPolkadotConnection, readStorage, waitUntilConnected } from '../utils';
 
 interface StoreState {
   connection: Connection;
@@ -53,7 +56,7 @@ function accountReducer(state: StoreState, action: Action<ActionType, any>): Sto
 }
 
 export type ApiCtx = StoreState & {
-  api: ApiPromise | null;
+  api: ApiPromise;
   connectNetwork: (network: ChainConfig) => void;
   disconnect: () => void;
   setNetwork: (network: ChainConfig) => void;
@@ -66,6 +69,7 @@ export const ApiContext = createContext<ApiCtx | null>(null);
 let subscription: Subscription = EMPTY.subscribe();
 
 export const ApiProvider = ({ children }: React.PropsWithChildren<unknown>) => {
+  const { t } = useTranslation();
   const [state, dispatch] = useReducer(accountReducer, initialState);
   const setNetwork = useCallback((payload: ChainConfig) => dispatch({ type: 'setNetwork', payload }), []);
   const setConnection = useCallback((payload: Connection) => dispatch({ type: 'setConnection', payload }), []);
@@ -148,6 +152,25 @@ export const ApiProvider = ({ children }: React.PropsWithChildren<unknown>) => {
       setChain(chainInfo);
     })();
   }, [api]);
+
+  if (!api || state.connection.status !== 'success') {
+    return (
+      <div
+        className={`flex justify-center items-center w-screen h-screen relative ${
+          readStorage().theme === THEME.DARK ? 'bg-black' : 'bg-white'
+        }`}
+      >
+        <BallScalePulse />
+        <Alert
+          message={t('Api connecting')}
+          description={t('Wait for connect to the remote node')}
+          type="info"
+          showIcon
+          className="absolute top-4 right-4 max-w-2xl"
+        />
+      </div>
+    );
+  }
 
   return (
     <ApiContext.Provider
