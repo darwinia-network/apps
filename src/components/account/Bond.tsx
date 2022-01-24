@@ -9,8 +9,8 @@ import { useAccount, useApi } from '../../hooks';
 import { useTx } from '../../hooks/tx';
 import { AccountRecord } from '../../model';
 import { fromWei, isKton, prettyNumber, signAndSendExtrinsic } from '../../utils';
+import { AccountHistoryProps } from '../staking/interface';
 import { SubscanLink } from '../widget/SubscanLink';
-import { AccountHistoryProps } from './interface';
 import { processTime, ringToKton, useStakingRecords } from './stakingRecords';
 
 const calcFine = (data: AccountRecord): string => {
@@ -25,7 +25,7 @@ const calcFine = (data: AccountRecord): string => {
   return fromWei({ value: rewardOrigin.minus(rewardActual).multipliedBy(times).toString() });
 };
 
-export function Bound({ tokens }: AccountHistoryProps) {
+export function Bond({ tokens }: AccountHistoryProps) {
   const { t } = useTranslation();
   const { network, api } = useApi();
   const { account } = useAccount();

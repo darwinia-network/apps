@@ -1,8 +1,8 @@
 import { Button, Card, Tabs } from 'antd';
 import { useTranslation } from 'react-i18next';
 import { withRouter } from 'react-router-dom';
-import { StakingHistory } from '../components/staking/StakingHistory';
-import { AssetOverview } from '../components/widget/AssetOverview';
+import { StakingHistory } from '../components/account/StakingHistory';
+import { AssetOverview } from '../components/account/AssetOverview';
 import { useDarwiniaAvailableBalances } from '../hooks';
 
 function Page() {

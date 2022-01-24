@@ -1,9 +1,14 @@
 import { QuestionCircleFilled, SettingFilled } from '@ant-design/icons';
 import BaseIdentityIcon from '@polkadot/react-identicon';
-import { Button, Card, Col, Row, Tabs, Tooltip } from 'antd';
+import { Button, Card, Col, Dropdown, Menu, Row, Tabs, Tooltip } from 'antd';
 import { useTranslation } from 'react-i18next';
 import { withRouter } from 'react-router-dom';
 import { AssetOverview } from '../components/staking/AssetOverview';
+import { PowerOverview } from '../components/staking/PowerOverview';
+import { StakingOverview } from '../components/staking/StakingOverview';
+import { Stats } from '../components/staking/Stats';
+import { Targets } from '../components/staking/Targets';
+import { Waiting } from '../components/staking/Waiting';
 import { useAccount, useDarwiniaAvailableBalances } from '../hooks';
 
 function Page() {
@@ -26,7 +31,28 @@ function Page() {
               <span>{account}</span>
             </div>
 
-            <SettingFilled className="text-lg text-gray-600 cursor-pointer" />
+            <div className="flex gap-2 items-center">
+              <Button>{t('Session Key')}</Button>
+              <Dropdown
+                overlay={
+                  <Menu>
+                    <Menu.Item>{t('Bond more funds')}</Menu.Item>
+                    <Menu.Item>{t('Rebond funds')}</Menu.Item>
+                    <Menu.Item>{t('Unbond funds')}</Menu.Item>
+                    <Menu.Item>{t('Lock extra')}</Menu.Item>
+                    <Menu.Item>{t('Change controller account')}</Menu.Item>
+                    <Menu.Item>{t('Change reward destination')}</Menu.Item>
+                    {/* nominate */}
+                    <Menu.Item>{t('Change session keys')}</Menu.Item>
+                    {/* stop nominating */}
+                    <Menu.Item>{t('Set nominees')}</Menu.Item>
+                  </Menu>
+                }
+              >
+                <Button>{t('Nominate')}</Button>
+              </Dropdown>
+              <SettingFilled className="text-lg text-gray-600 cursor-pointer" />
+            </div>
           </div>
         </Card>
 
@@ -58,25 +84,20 @@ function Page() {
             </Col>
           ))}
         </Row>
-
-        <Card className="mt-8">
-          <h1 className="text-xl font-bold">{t('Get Power')}</h1>
-          <ul className="leading-24 text-gray-400 list-decimal px-4 my-4">
-            <li>
-              {t(
-                'You need to stake some KTON or RING to get POWER. The higher the POWER, the greater the share of reward.'
-              )}
-            </li>
-            <li>{t('Please make sure that you have some excess RING in this account as gas fee.')}</li>
-          </ul>
-
-          <Button>{t('Staking now')}</Button>
-        </Card>
+        <PowerOverview />
       </Tabs.TabPane>
-      <Tabs.TabPane tab={t('Staking Overview')} key="staking"></Tabs.TabPane>
-      <Tabs.TabPane tab={t('Targets')} key="targets"></Tabs.TabPane>
-      <Tabs.TabPane tab={t('Waiting')} key="waiting"></Tabs.TabPane>
-      <Tabs.TabPane tab={t('Validator stats')} key="validator"></Tabs.TabPane>
+      <Tabs.TabPane tab={t('Staking Overview')} key="staking">
+        <StakingOverview />
+      </Tabs.TabPane>
+      <Tabs.TabPane tab={t('Targets')} key="targets">
+        <Targets />
+      </Tabs.TabPane>
+      <Tabs.TabPane tab={t('Waiting')} key="waiting">
+        <Waiting />
+      </Tabs.TabPane>
+      <Tabs.TabPane tab={t('Validator stats')} key="validator">
+        <Stats />
+      </Tabs.TabPane>
     </Tabs>
   );
 }

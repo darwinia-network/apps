@@ -2,8 +2,8 @@ import { Card, Tabs } from 'antd';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AccountStatus } from '../../model';
-import { Bound } from './Bound';
-import { AccountHistoryProps } from './interface';
+import { AccountHistoryProps } from '../staking/interface';
+import { Bond } from './Bond';
 import { Unbond } from './Unbond';
 
 export function StakingHistory({ tokens }: AccountHistoryProps) {
@@ -14,7 +14,7 @@ export function StakingHistory({ tokens }: AccountHistoryProps) {
     <Card className="relative">
       <Tabs defaultActiveKey={activeKey} onChange={(key) => setActiveKey(key as AccountStatus)}>
         <Tabs.TabPane tab={t('Bond')} key="bonded">
-          <Bound tokens={tokens} />
+          <Bond tokens={tokens} />
         </Tabs.TabPane>
         <Tabs.TabPane tab={t('Unbond')} key="unbond">
           <Unbond />
