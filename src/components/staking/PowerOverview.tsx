@@ -2,6 +2,7 @@ import Identicon from '@polkadot/react-identicon';
 import { Button, Card, Radio, Statistic } from 'antd';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useStakingAccount } from '../../hooks';
 
 function PowerEmpty() {
   const { t } = useTranslation();
@@ -29,13 +30,19 @@ const RANGES = [2, 6, 18, 54, 162, 336];
 export function PowerOverview() {
   const { t } = useTranslation();
   const [range, setRange] = useState<number>(RANGES[0]);
-  const [power] = useState(0);
+  const { stashAccount } = useStakingAccount();
+
+  if (!stashAccount) {
+    return (
+      <Card className="my-8">
+        <PowerEmpty />
+      </Card>
+    );
+  }
 
   return (
     <>
       <Card className="my-8">
-        {!!power && <PowerEmpty />}
-
         <Radio.Group
           value={range}
           onChange={(event) => {

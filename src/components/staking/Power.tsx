@@ -1,28 +1,15 @@
 import { QuestionCircleFilled, SettingFilled } from '@ant-design/icons';
 import BaseIdentityIcon from '@polkadot/react-identicon';
 import { Button, Card, Col, Dropdown, Menu, Row, Tooltip } from 'antd';
-import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useAccount, useApi, useDarwiniaAvailableBalances } from '../../hooks';
-import { isSameAddress } from '../../utils';
+import { useAccount, useDarwiniaAvailableBalances } from '../../hooks';
 import { AssetOverview } from './AssetOverview';
 import { PowerOverview } from './PowerOverview';
 
 export function Power() {
   const { t } = useTranslation();
-  const {
-    connection: { accounts },
-  } = useApi();
-  const { account } = useAccount();
+  const { account, accountWithMeta } = useAccount();
   const { availableBalance, getBalances } = useDarwiniaAvailableBalances();
-  const accountWithMeta = useMemo(
-    () => accounts.find((item) => isSameAddress(item.address, account)),
-    [account, accounts]
-  );
-
-  //   useEffect(() => {
-  //     const stashes = api?.derive;
-  //   }, []);
 
   return (
     <>
