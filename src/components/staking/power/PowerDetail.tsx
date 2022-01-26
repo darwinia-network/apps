@@ -2,13 +2,13 @@ import Identicon from '@polkadot/react-identicon';
 import { Button, Card, Radio, Statistic } from 'antd';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useStakingAccount } from '../../hooks';
+import { useStakingAccount } from '../../../hooks';
 import { StakingNow } from './StakingNow';
 
 // eslint-disable-next-line no-magic-numbers
 const RANGES = [2, 6, 18, 54, 162, 336];
 
-export function PowerOverview() {
+export function PowerDetail() {
   const { t } = useTranslation();
   const [range, setRange] = useState<number>(RANGES[0]);
   const { stashAccount } = useStakingAccount();

@@ -2,9 +2,9 @@ import { Button, Form, Input, Modal } from 'antd';
 import { useForm } from 'antd/lib/form/Form';
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { validateMessages } from '../../config';
-import i18n from '../../config/i18n';
-import { useAccount, useApi } from '../../hooks';
+import { validateMessages } from '../../../config';
+import i18n from '../../../config/i18n';
+import { useAccount, useApi } from '../../../hooks';
 
 export function SessionKey() {
   const { t } = useTranslation();

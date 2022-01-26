@@ -1,7 +1,7 @@
 import { Tabs } from 'antd';
 import { useTranslation } from 'react-i18next';
 import { withRouter } from 'react-router-dom';
-import { Power } from '../components/staking/Power';
+import { Power } from '../components/staking/power/Power';
 import { StakingOverview } from '../components/staking/StakingOverview';
 import { Stats } from '../components/staking/Stats';
 import { Targets } from '../components/staking/Targets';

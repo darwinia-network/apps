@@ -4,11 +4,11 @@ import BN from 'bn.js';
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { from, switchMap, takeWhile, zip } from 'rxjs';
-import { validateMessages } from '../../config';
-import i18n from '../../config/i18n';
-import { useAccount, useApi, useIsMounted } from '../../hooks';
-import { useTx } from '../../hooks/tx';
-import { Asset } from '../../model';
+import { validateMessages } from '../../../config';
+import i18n from '../../../config/i18n';
+import { useAccount, useApi, useIsMounted } from '../../../hooks';
+import { useTx } from '../../../hooks/tx';
+import { Asset } from '../../../model';
 import {
   assetToPower,
   getUnit,
@@ -17,9 +17,9 @@ import {
   isRing,
   signAndSendExtrinsic,
   toWei,
-} from '../../utils';
-import { Balance } from '../widget/Balance';
-import { PrettyAccount } from '../widget/PrettyAccount';
+} from '../../../utils';
+import { Balance } from '../../widget/Balance';
+import { PrettyAccount } from '../../widget/PrettyAccount';
 
 const MAX_PERIOD = 36;
 const LOCK_PERIOD = [0, ...new Array(MAX_PERIOD).fill(0).map((_, index) => index + 1)];
