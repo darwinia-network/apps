@@ -2,14 +2,13 @@ import { QuestionCircleFilled, SettingFilled } from '@ant-design/icons';
 import BaseIdentityIcon from '@polkadot/react-identicon';
 import { Button, Card, Col, Dropdown, Menu, Row, Tooltip } from 'antd';
 import { useTranslation } from 'react-i18next';
-import { useAccount, useDarwiniaAvailableBalances } from '../../hooks';
+import { useAccount } from '../../hooks';
 import { AssetOverview } from './AssetOverview';
 import { PowerOverview } from './PowerOverview';
 
 export function Power() {
   const { t } = useTranslation();
-  const { account, accountWithMeta } = useAccount();
-  const { availableBalance, getBalances } = useDarwiniaAvailableBalances();
+  const { account, accountWithMeta, assets, getBalances } = useAccount();
 
   return (
     <>
@@ -74,8 +73,8 @@ export function Power() {
           </div>
         </Col>
 
-        {availableBalance.map((item, index) => (
-          <Col span={8} key={item.chainInfo?.symbol}>
+        {assets.map((item, index) => (
+          <Col span={8} key={item.token?.symbol || index}>
             <AssetOverview asset={item} key={index} refresh={getBalances}></AssetOverview>
           </Col>
         ))}

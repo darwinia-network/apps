@@ -51,10 +51,10 @@ export function SendFund({ asset, signal, onSuccess, onFail }: TransferProps) {
         switchMap((_) => from(form.validateFields()).pipe(catchError(() => NEVER))),
         switchMap((values: TransferValues) => {
           const { to, amount, from: sender } = values;
-          const moduleName = isRing(asset.chainInfo?.symbol) ? 'balances' : 'kton';
+          const moduleName = isRing(asset.token?.symbol) ? 'balances' : 'kton';
           const extrinsic = api.tx[moduleName].transfer(
             to,
-            toWei({ value: amount, unit: getUnit(Number(asset.chainInfo?.decimal)) ?? 'gwei' })
+            toWei({ value: amount, unit: getUnit(Number(asset.token?.decimal)) ?? 'gwei' })
           );
 
           return signAndSendExtrinsic(api, sender, extrinsic);
@@ -97,8 +97,8 @@ export function SendFund({ asset, signal, onSuccess, onFail }: TransferProps) {
           <span className="ml-4 mt-2 text-xs">
             <span className="mr-2">{t('Available Balance')}:</span>
             <span>
-              {fromWei({ value: asset.max, unit: getUnit(Number(asset.chainInfo?.decimal)) || 'gwei' })}{' '}
-              {asset.chainInfo?.symbol}
+              {fromWei({ value: asset.max, unit: getUnit(Number(asset.token?.decimal)) || 'gwei' })}{' '}
+              {asset.token?.symbol}
             </span>
           </span>
         }
@@ -136,14 +136,14 @@ export function SendFund({ asset, signal, onSuccess, onFail }: TransferProps) {
       <Form.Item
         name="amount"
         label={t('Amount')}
-        rules={[{ required: true }, insufficientBalanceRule({ t, compared: asset.max, token: asset.chainInfo })]}
+        rules={[{ required: true }, insufficientBalanceRule({ t, compared: asset.max, token: asset.token })]}
       >
         <Balance size="large" className="flex-1">
           <div
             className="bg-gray-200 border border-l-0 p-2 rounded-r-lg text-gray-400 uppercase"
             style={{ borderColor: '#d9d9d9' }}
           >
-            {asset.chainInfo?.symbol}
+            {asset.token?.symbol}
           </div>
         </Balance>
       </Form.Item>

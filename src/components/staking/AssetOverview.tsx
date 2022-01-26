@@ -16,9 +16,9 @@ function Description({ title, value }: { title: string; value: string | number }
 
 export function AssetOverview({ asset }: AssetOverviewProps) {
   const { t } = useTranslation();
-  const as = useMemo(() => (isRing(asset.chainInfo?.symbol) ? 'ring' : 'kton'), [asset.chainInfo?.symbol]);
+  const as = useMemo(() => (isRing(asset.token?.symbol) ? 'ring' : 'kton'), [asset.token?.symbol]);
   const tips = useMemo(() => {
-    if (isRing(asset.chainInfo?.symbol)) {
+    if (isRing(asset.token?.symbol)) {
       return (
         <div className="flex flex-col gap-4">
           <p>Available: The amount of tokens that are able to transfer and bond.</p>
@@ -35,14 +35,14 @@ export function AssetOverview({ asset }: AssetOverviewProps) {
       );
     }
     return t('');
-  }, [asset.chainInfo?.symbol, t]);
+  }, [asset.token?.symbol, t]);
 
   return (
     <div className="relative rounded-xl bg-white">
       <div className="grid grid-cols-3 p-6 pl-0">
         <div className="flex flex-col gap-4 items-center">
           <img src={`/image/${as}.svg`} className="w-14" />
-          <h1 className="uppercase text-lg font-bold text-black">{asset.chainInfo?.symbol}</h1>
+          <h1 className="uppercase text-lg font-bold text-black">{asset.token?.symbol}</h1>
         </div>
 
         <div className="flex flex-col col-span-2 justify-between">

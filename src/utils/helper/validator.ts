@@ -3,7 +3,7 @@ import { hexToU8a, isHex } from '@polkadot/util';
 import BN from 'bn.js';
 import type { ValidatorRule } from 'rc-field-form/lib/interface';
 import { TFunction } from 'react-i18next';
-import { Network, NetworkCategory, PolkadotChainConfig, TokenChainInfo } from '../../model';
+import { Network, NetworkCategory, PolkadotChainConfig, Token } from '../../model';
 import { NETWORK_CONFIGURATIONS } from '../network';
 import { convertToSS58 } from './address';
 import { getUnit, toWei } from './balance';
@@ -63,7 +63,7 @@ export type Validator = ValidatorRule['validator'];
 export interface ValidateOptions {
   t: TFunction;
   compared?: string | BN | number | null;
-  token?: TokenChainInfo;
+  token?: Token;
   asset?: string;
 }
 

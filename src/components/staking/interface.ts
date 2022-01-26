@@ -1,5 +1,5 @@
-import { TokenChainInfo } from '../../model';
+import { Token } from '../../model';
 
 export interface AccountHistoryProps {
-  tokens: (TokenChainInfo | undefined)[];
+  tokens: (Token | undefined)[];
 }

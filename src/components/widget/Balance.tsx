@@ -1,4 +1,6 @@
 import { Input, InputNumber, InputNumberProps } from 'antd';
+import { GroupProps } from 'antd/lib/input';
+import { omit } from 'lodash';
 import { CSSProperties, PropsWithChildren, useCallback, useMemo } from 'react';
 import { CustomFormControlProps } from '../../model';
 import { getPrecisionByUnit } from '../../utils';
@@ -10,7 +12,7 @@ export function Balance({
   className,
   precision = getPrecisionByUnit('gwei'),
   ...other
-}: CustomFormControlProps<string> & Omit<InputNumberProps<string>, 'value'> & PropsWithChildren<unknown>) {
+}: CustomFormControlProps<string> & Omit<InputNumberProps<string>, 'value'> & PropsWithChildren<unknown> & GroupProps) {
   const triggerChange = useCallback(
     (val: string) => {
       if (onChange) {
@@ -45,9 +47,9 @@ export function Balance({
   }, [children]);
 
   return (
-    <Input.Group className="flex items-center justify-between">
+    <Input.Group compact={!!other.compact} className="items-center justify-between" style={{ display: 'flex' }}>
       <InputNumber<string>
-        {...other}
+        {...omit(other, 'compact')}
         className={className}
         style={style}
         value={value}

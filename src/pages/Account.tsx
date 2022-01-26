@@ -3,22 +3,22 @@ import { useTranslation } from 'react-i18next';
 import { withRouter } from 'react-router-dom';
 import { StakingHistory } from '../components/account/StakingHistory';
 import { AssetOverview } from '../components/account/AssetOverview';
-import { useDarwiniaAvailableBalances } from '../hooks';
+import { useAccount } from '../hooks';
 
 function Page() {
   const { t } = useTranslation();
-  const { availableBalance, getBalances } = useDarwiniaAvailableBalances();
+  const { assets, getBalances } = useAccount();
 
   return (
     <Tabs className="px-8 w-full mx-auto dark:shadow-none dark:border-transparent">
       <Tabs.TabPane tab={t('Darwinia Asset')} key="asset">
         <div className="grid grid-cols-2 gap-8 mb-8">
-          {availableBalance.map((item, index) => (
+          {assets.map((item, index) => (
             <AssetOverview asset={item} key={index} refresh={getBalances}></AssetOverview>
           ))}
         </div>
         <div>
-          <StakingHistory tokens={availableBalance.map((item) => item.chainInfo)} />
+          <StakingHistory tokens={assets.map((item) => item.token)} />
         </div>
       </Tabs.TabPane>
 
