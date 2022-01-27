@@ -7,7 +7,7 @@ export function Nominate({ label, type = 'text' }: StakingActionProps) {
   const { t } = useTranslation();
   const { isControllerAccountOwner, isNominating } = useStaking();
 
-  return isNominating ? (
+  return !isNominating ? (
     <Button type={type} disabled={!isControllerAccountOwner}>
       {t(label ?? 'Nominate')}
     </Button>

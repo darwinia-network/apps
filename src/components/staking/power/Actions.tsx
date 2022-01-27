@@ -3,7 +3,9 @@ import { u8aConcat, u8aToHex } from '@polkadot/util';
 import { Button, Dropdown, Menu } from 'antd';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useStaking } from '../../../hooks';
+import { useApi, useStaking } from '../../../hooks';
+import { useTx } from '../../../hooks/tx';
+import { signAndSendExtrinsic } from '../../../utils';
 import {
   BondMore,
   ClaimRewards,
@@ -14,8 +16,8 @@ import {
   SetIdentity,
   SetPayee,
   SetSession,
-  Unbond,
   SetValidator,
+  Unbond,
 } from '../action';
 
 interface ActionsProps {
@@ -25,7 +27,9 @@ interface ActionsProps {
 // eslint-disable-next-line complexity
 export function Actions({ eraSelectionIndex }: ActionsProps) {
   const { t } = useTranslation();
-  const { stakingDerive, validators, isValidating, isNominating } = useStaking();
+  const { api } = useApi();
+  const { observer } = useTx();
+  const { stakingDerive, validators, isValidating, isNominating, controllerAccount } = useStaking();
 
   const sessionAccounts = useMemo(() => {
     if (!stakingDerive) {
@@ -61,7 +65,13 @@ export function Actions({ eraSelectionIndex }: ActionsProps) {
   return (
     <div className="flex gap-2 items-center">
       {isNominating || isValidating ? (
-        <Button>{t(isNominating ? 'Stop Nominating' : 'Stop Validating')}</Button>
+        <Button
+          onClick={() => {
+            signAndSendExtrinsic(api, controllerAccount, api.tx.staking.chill()).subscribe(observer);
+          }}
+        >
+          {t(isNominating ? 'Stop Nominating' : 'Stop Validating')}
+        </Button>
       ) : (
         <>
           {!sessionAccounts.length || nextSessionAccount === '0x' ? (
