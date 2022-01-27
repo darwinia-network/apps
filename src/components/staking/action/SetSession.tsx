@@ -4,13 +4,15 @@ import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { validateMessages } from '../../../config';
 import i18n from '../../../config/i18n';
-import { useAccount, useApi } from '../../../hooks';
+import { useAccount, useApi, useStaking } from '../../../hooks';
+import { StakingActionProps } from './interface';
 
-export function SessionKey() {
+export function SetSession({ label, type = 'text' }: StakingActionProps) {
   const { t } = useTranslation();
   const [form] = useForm();
   const { api } = useApi();
   const { account, accountWithMeta } = useAccount();
+  const { isControllerAccountOwner, isNominating } = useStaking();
   const [isVisible, setIsVisible] = useState(false);
   const isSubstrateV2 = useMemo(() => !!Object.keys(api.consts).length, [api]);
   console.log('%c [ isSubstrateV2 ]-16', 'font-size:13px; background:pink; color:#bf2c9f;', isSubstrateV2);
@@ -21,14 +23,16 @@ export function SessionKey() {
    * stakingAccount
    */
 
-  return (
+  return !isNominating ? (
     <>
       <Button
         onClick={() => {
           setIsVisible(true);
         }}
+        type={type}
+        disabled={!isControllerAccountOwner}
       >
-        {t('Session Key')}
+        {t(label ?? 'Session Key')}
       </Button>
 
       <Modal
@@ -55,5 +59,5 @@ export function SessionKey() {
         </Form>
       </Modal>
     </>
-  );
+  ) : null;
 }

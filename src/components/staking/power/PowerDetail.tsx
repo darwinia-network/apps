@@ -2,16 +2,20 @@ import Identicon from '@polkadot/react-identicon';
 import { Button, Card, Radio, Statistic } from 'antd';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useStakingAccount } from '../../../hooks';
+import { useStaking } from '../../../hooks';
 import { StakingNow } from './StakingNow';
+
+interface PowerDetailProps {
+  updateEraIndex: (num: number) => void;
+}
 
 // eslint-disable-next-line no-magic-numbers
 const RANGES = [2, 6, 18, 54, 162, 336];
 
-export function PowerDetail() {
+export function PowerDetail({ updateEraIndex }: PowerDetailProps) {
   const { t } = useTranslation();
   const [range, setRange] = useState<number>(RANGES[0]);
-  const { stashAccount } = useStakingAccount();
+  const { stashAccount } = useStaking();
 
   if (!stashAccount) {
     return (
@@ -27,7 +31,10 @@ export function PowerDetail() {
         <Radio.Group
           value={range}
           onChange={(event) => {
-            setRange(Number(+event.target.value));
+            const idx = Number(+event.target.value);
+
+            setRange(idx);
+            updateEraIndex(idx);
           }}
         >
           {RANGES.map((item, index) => (

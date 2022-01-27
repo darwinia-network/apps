@@ -1,13 +1,22 @@
+import { DeriveStakingAccount } from '@polkadot/api-derive/staking/types';
 import { GenericAccountId, Option } from '@polkadot/types';
 import { StakingLedger } from '@polkadot/types/interfaces/staking';
-import React, { createContext, useEffect, useState } from 'react';
-import { from, map, switchMap, zip } from 'rxjs';
-import { useAccount, useApi } from '../hooks';
+import { PalletStakingValidatorPrefs } from '@polkadot/types/lookup';
+import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react';
+import { from, map, switchMap, takeWhile, zip } from 'rxjs';
+import { useAccount, useApi, useIsMounted } from '../hooks';
+import { isSameAddress } from '../utils';
 
-export interface StakingAccountCtx {
+export interface StakingCtx {
   controllerAccount: string;
-  stashAccount: string;
+  isControllerAccountOwner: boolean;
   isStashAccountOwner: boolean;
+  isNominating: boolean;
+  isValidating: boolean;
+  stakingDerive: DeriveStakingAccount | null;
+  stashAccount: string;
+  stashAccounts: string[];
+  validators: PalletStakingValidatorPrefs | null;
 }
 
 function getControllerAccount(
@@ -51,14 +60,58 @@ function isOwner(bonded: Option<GenericAccountId>[], ledger: Option<StakingLedge
   return ledger.isSome || bonded.some((value) => value.isSome);
 }
 
-export const StakingAccountContext = createContext<StakingAccountCtx | null>(null);
+export const StakingContext = createContext<StakingCtx | null>(null);
 
-export const StakingAccountProvider = ({ children }: React.PropsWithChildren<unknown>) => {
-  const { api } = useApi();
+export const StakingProvider = ({ children }: React.PropsWithChildren<unknown>) => {
+  const {
+    api,
+    connection: { accounts },
+  } = useApi();
   const { account } = useAccount();
   const [controllerAccount, setControllerAccount] = useState<string>(account);
   const [stashAccount, setStashAccount] = useState<string>(account);
+  const [stashAccounts, setStashAccounts] = useState<string[]>([]);
   const [isStashAccountOwner, setIsStashAccountOwner] = useState<boolean>(true);
+  const [stakingDerive, setStakingDerive] = useState<DeriveStakingAccount | null>(null);
+  const [validators, setValidators] = useState<PalletStakingValidatorPrefs | null>(null);
+  const isControllerAccountOwner = useMemo(
+    () =>
+      !!controllerAccount &&
+      accounts.map((item) => item.address).some((address) => isSameAddress(address, controllerAccount)),
+    [accounts, controllerAccount]
+  );
+  const isValidating = useMemo(() => {
+    return (
+      !!validators &&
+      (!(Array.isArray(validators) ? validators[1].isEmpty : validators.isEmpty) ||
+        stashAccounts.includes(stashAccount))
+    );
+  }, [stashAccount, stashAccounts, validators]);
+  const isNominating = useMemo(() => !!stakingDerive?.nominators.length, [stakingDerive]);
+  const isMounted = useIsMounted();
+
+  const updateStakingDerive = useCallback(() => {
+    from(api.derive.staking.account(stashAccount))
+      .pipe(takeWhile(() => isMounted))
+      .subscribe((res) => setStakingDerive(res));
+  }, [api, isMounted, stashAccount]);
+
+  const updateValidator = useCallback(() => {
+    from(api.query.staking.validators(stashAccount))
+      .pipe(takeWhile(() => isMounted))
+      .subscribe((res) => setValidators(res));
+  }, [api, isMounted, stashAccount]);
+
+  useEffect(() => {
+    const sub$$ = from(api.derive.staking.stashes()).subscribe((res) => {
+      setStashAccounts(res.map((item) => item.toString()));
+    });
+
+    return () => {
+      sub$$.unsubscribe();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     if (!account) {
@@ -91,17 +144,28 @@ export const StakingAccountProvider = ({ children }: React.PropsWithChildren<unk
     return () => {
       sub$$.unsubscribe();
     };
-  }, [account, api]);
+  }, [account, accounts, api]);
+
+  useEffect(() => {
+    updateStakingDerive();
+    updateValidator();
+  }, [updateStakingDerive, updateValidator]);
 
   return (
-    <StakingAccountContext.Provider
+    <StakingContext.Provider
       value={{
         controllerAccount,
-        stashAccount,
+        isControllerAccountOwner,
         isStashAccountOwner,
+        isNominating,
+        isValidating,
+        stakingDerive,
+        stashAccount,
+        stashAccounts,
+        validators,
       }}
     >
       {children}
-    </StakingAccountContext.Provider>
+    </StakingContext.Provider>
   );
 };

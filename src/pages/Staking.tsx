@@ -6,13 +6,13 @@ import { StakingOverview } from '../components/staking/StakingOverview';
 import { Stats } from '../components/staking/Stats';
 import { Targets } from '../components/staking/Targets';
 import { Waiting } from '../components/staking/Waiting';
-import { StakingAccountProvider } from '../providers/staking';
+import { StakingProvider } from '../providers/staking';
 
 function Page() {
   const { t } = useTranslation();
 
   return (
-    <StakingAccountProvider>
+    <StakingProvider>
       <Tabs className="px-8 w-full mx-auto dark:shadow-none dark:border-transparent">
         <Tabs.TabPane tab={t('Power Manager')} key="power">
           <Power />
@@ -30,7 +30,7 @@ function Page() {
           <Stats />
         </Tabs.TabPane>
       </Tabs>
-    </StakingAccountProvider>
+    </StakingProvider>
   );
 }
 

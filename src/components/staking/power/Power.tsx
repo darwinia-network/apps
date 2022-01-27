@@ -1,5 +1,6 @@
 import { QuestionCircleFilled } from '@ant-design/icons';
 import { Card, Col, Row, Tooltip } from 'antd';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAccount } from '../../../hooks';
 import { PrettyAccount } from '../../widget/PrettyAccount';
@@ -9,6 +10,7 @@ import { PowerDetail } from './PowerDetail';
 
 export function Power() {
   const { t } = useTranslation();
+  const [eraSelectionIndex, setEraSelectionIndex] = useState(0);
   const { accountWithMeta, assets, getBalances } = useAccount();
 
   return (
@@ -17,7 +19,7 @@ export function Power() {
         <div className="flex justify-between items-center">
           <PrettyAccount account={accountWithMeta} />
 
-          <Actions />
+          <Actions eraSelectionIndex={eraSelectionIndex} />
         </div>
       </Card>
 
@@ -49,7 +51,7 @@ export function Power() {
           </Col>
         ))}
       </Row>
-      <PowerDetail />
+      <PowerDetail updateEraIndex={(idx) => setEraSelectionIndex(idx)} />
     </>
   );
 }

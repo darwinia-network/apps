@@ -1,27 +1,127 @@
 import { SettingFilled } from '@ant-design/icons';
+import { u8aConcat, u8aToHex } from '@polkadot/util';
 import { Button, Dropdown, Menu } from 'antd';
+import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useStaking } from '../../../hooks';
+import {
+  BondMore,
+  ClaimRewards,
+  Deposit,
+  Nominate,
+  Rebond,
+  SetController,
+  SetIdentity,
+  SetPayee,
+  SetSession,
+  Unbond,
+  SetValidator,
+} from '../action';
 
-export function Actions() {
+interface ActionsProps {
+  eraSelectionIndex: number;
+}
+
+// eslint-disable-next-line complexity
+export function Actions({ eraSelectionIndex }: ActionsProps) {
   const { t } = useTranslation();
+  const { stakingDerive, validators, isValidating, isNominating } = useStaking();
+
+  const sessionAccounts = useMemo(() => {
+    if (!stakingDerive) {
+      return [];
+    }
+
+    const { sessionIds, nextSessionIds } = stakingDerive;
+
+    return nextSessionIds.length ? nextSessionIds : sessionIds;
+  }, [stakingDerive]);
+
+  const nextSessionAccount = useMemo(() => {
+    if (!stakingDerive) {
+      return '';
+    }
+
+    const { nextSessionIds } = stakingDerive;
+    const nextConcat = u8aConcat(...nextSessionIds.map((id) => id.toU8a()));
+    const len = 48;
+
+    return u8aToHex(nextConcat, len);
+  }, [stakingDerive]);
+
+  console.log(
+    '%c [ stakingDerive ]-9',
+    'font-size:13px; background:pink; color:#bf2c9f;',
+    isNominating,
+    isValidating,
+    stakingDerive,
+    validators?.toArray()
+  );
 
   return (
     <div className="flex gap-2 items-center">
-      <Button>{t('Session Key')}</Button>
-      <Button>{t('Nominate')}</Button>
+      {isNominating || isValidating ? (
+        <Button>{t(isNominating ? 'Stop Nominating' : 'Stop Validating')}</Button>
+      ) : (
+        <>
+          {!sessionAccounts.length || nextSessionAccount === '0x' ? (
+            <SetSession type="default" />
+          ) : (
+            <SetValidator type="default" />
+          )}
+          <Nominate type="default" />
+        </>
+      )}
       <Dropdown
         overlay={
           <Menu>
-            <Menu.Item>{t('Bond more funds')}</Menu.Item>
-            <Menu.Item>{t('Rebond funds')}</Menu.Item>
-            <Menu.Item>{t('Unbond funds')}</Menu.Item>
-            <Menu.Item>{t('Lock extra')}</Menu.Item>
-            <Menu.Item>{t('Change controller account')}</Menu.Item>
-            <Menu.Item>{t('Change reward destination')}</Menu.Item>
-            {/* nominate */}
-            <Menu.Item>{t('Change session keys')}</Menu.Item>
-            {/* stop nominating */}
-            <Menu.Item>{t('Set nominees')}</Menu.Item>
+            <Menu.Item>
+              <ClaimRewards eraSelectionIndex={eraSelectionIndex} />
+            </Menu.Item>
+
+            <Menu.Item>
+              <BondMore />
+            </Menu.Item>
+
+            <Menu.Item>
+              <Unbond />
+            </Menu.Item>
+
+            <Menu.Item>
+              <Deposit />
+            </Menu.Item>
+
+            <Menu.Item>
+              <Rebond />
+            </Menu.Item>
+
+            <Menu.Item>
+              <SetController />
+            </Menu.Item>
+
+            <Menu.Item>
+              <SetPayee />
+            </Menu.Item>
+
+            {isValidating && (
+              <Menu.Item>
+                <SetValidator />
+              </Menu.Item>
+            )}
+
+            {isNominating ? (
+              <Menu.Item>
+                <Nominate label="Set nominees" />
+              </Menu.Item>
+            ) : (
+              <Menu.Item>
+                <SetSession label="Change session keys" />
+              </Menu.Item>
+            )}
+
+            <Menu.Item>
+              <SetIdentity />
+            </Menu.Item>
           </Menu>
         }
       >
