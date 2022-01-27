@@ -1,5 +1,8 @@
 import { TypeRegistry } from '@polkadot/types';
+import type { AccountId, AccountIndex, Address } from '@polkadot/types/interfaces';
 import type { Codec, DetectCodec } from '@polkadot/types/types';
+import { keyring } from '@polkadot/ui-keyring';
+import type { KeyringItemType, KeyringJson$Meta } from '@polkadot/ui-keyring/types';
 import { hexToU8a, numberToU8a, stringToU8a, u8aToHex } from '@polkadot/util';
 import { decodeAddress, encodeAddress } from '@polkadot/util-crypto';
 import { isNull } from 'lodash';
@@ -37,10 +40,9 @@ export function convertToSS58(text: string, prefix: number | null, isShort = fal
 
   try {
     let address = encodeAddress(text, prefix);
-    const length = 8;
 
     if (isShort) {
-      address = address.substr(0, length) + '...' + address.substr(address.length - length, length);
+      address = toShortAddress(address);
     }
 
     return address;
@@ -81,4 +83,40 @@ export function remove0x(text: string): string {
     return text.slice(start);
   }
   return text;
+}
+
+export function getAddressMeta(address: string, type: KeyringItemType | null = null): KeyringJson$Meta {
+  let meta: KeyringJson$Meta | undefined;
+
+  try {
+    const pair = keyring.getAddress(address, type);
+
+    meta = pair && pair.meta;
+  } catch (error) {
+    // we could pass invalid addresses, so it may throw
+  }
+
+  return meta || {};
+}
+
+export function toShortAddress(_address?: AccountId | AccountIndex | Address | string | null | Uint8Array): string {
+  const address = (_address || '').toString();
+
+  // eslint-disable-next-line no-magic-numbers
+  return address.length > 13 ? `${address.slice(0, 6)}…${address.slice(-6)}` : address;
+}
+
+// isName, isDefault, name
+export function getAddressName(
+  address: string,
+  type: KeyringItemType | null = null,
+  defaultName?: string
+): [boolean, boolean, string] {
+  const meta = getAddressMeta(address, type);
+
+  return meta.name
+    ? [false, false, meta.name.toUpperCase()]
+    : defaultName
+    ? [false, true, defaultName.toUpperCase()]
+    : [true, false, toShortAddress(address)];
 }

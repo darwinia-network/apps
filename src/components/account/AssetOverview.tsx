@@ -1,18 +1,30 @@
-import { Button, Card, Modal } from 'antd';
+import { Button, Card, Form } from 'antd';
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Observable, Subject } from 'rxjs';
-import { useApi } from '../../hooks';
+import { useAccount, useApi } from '../../hooks';
 import { AssetOverviewProps } from '../../model';
-import { fromWei, isRing, prettyNumber } from '../../utils';
-import { SendFund } from '../extrinsic/SendFund';
+import { fromWei, getUnit, insufficientBalanceRule, isRing, prettyNumber, toWei } from '../../utils';
+import { FormModal } from '../modal/FormModal';
+import { Balance } from '../widget/Balance';
+import { AddressControl } from '../widget/form-control/AddressControl';
+
+interface TransferFormValues {
+  from: string;
+  to: string;
+  amount: number;
+  [key: string]: unknown;
+}
 
 export function AssetOverview({ asset, refresh }: AssetOverviewProps) {
   const { t } = useTranslation();
-  const { network } = useApi();
-  const [isTransferVisible, setIsTransferVisible] = useState(false);
+  const {
+    network,
+    api,
+    connection: { accounts },
+  } = useApi();
+  const { account } = useAccount();
+  const [isVisible, setIsVisible] = useState(false);
   const as = useMemo(() => (isRing(asset.token?.symbol) ? 'ring' : 'kton'), [asset.token?.symbol]);
-  const [subject] = useState<Subject<boolean>>(() => new Subject<boolean>());
 
   return (
     <>
@@ -33,36 +45,61 @@ export function AssetOverview({ asset, refresh }: AssetOverviewProps) {
             <span>{fromWei({ value: asset.max }, prettyNumber)}</span>
           </div>
 
-          <Button onClick={() => setIsTransferVisible(true)}>{t('Transfer')}</Button>
+          <Button onClick={() => setIsVisible(true)}>{t('Transfer')}</Button>
         </div>
       </Card>
 
-      <Modal
-        visible={isTransferVisible}
-        title={t('Send funds')}
-        destroyOnClose
-        maskClosable={false}
-        closable
-        onCancel={() => {
-          setIsTransferVisible(false);
+      <FormModal<TransferFormValues>
+        modalProps={{ visible: isVisible }}
+        onSuccess={() => {
+          setIsVisible(false);
+          refresh();
         }}
-        onOk={() => {
-          subject.next(true);
-          return null;
+        onFail={() => setIsVisible(false)}
+        onCancel={() => setIsVisible(false)}
+        initialValues={{ from: account, to: accounts[0].address, amount: 0 }}
+        createExtrinsic={(values) => {
+          const { to, amount } = values;
+          const moduleName = isRing(asset.token?.symbol) ? 'balances' : 'kton';
+
+          return api.tx[moduleName].transfer(
+            to,
+            toWei({ value: amount, unit: getUnit(Number(asset.token?.decimal)) ?? 'gwei' })
+          );
         }}
       >
-        <SendFund
-          signal={subject as Observable<boolean>}
-          asset={asset}
-          onSuccess={() => {
-            setIsTransferVisible(false);
-            refresh();
-          }}
-          onFail={() => {
-            setIsTransferVisible(false);
-          }}
-        />
-      </Modal>
+        <AddressControl
+          name="from"
+          label={'Send from account'}
+          extra={
+            <span className="ml-4 mt-2 text-xs">
+              <span className="mr-2">{t('Available Balance')}:</span>
+              <span>
+                {fromWei({ value: asset.max, unit: getUnit(Number(asset.token?.decimal)) || 'gwei' })}{' '}
+                {asset.token?.symbol}
+              </span>
+            </span>
+          }
+          disabled
+        ></AddressControl>
+
+        <AddressControl name="to" label={'Send to Address'} />
+
+        <Form.Item
+          name="amount"
+          label={t('Amount')}
+          rules={[{ required: true }, insufficientBalanceRule({ t, compared: asset.max, token: asset.token })]}
+        >
+          <Balance size="large" className="flex-1">
+            <div
+              className="bg-gray-200 border border-l-0 p-2 rounded-r-lg text-gray-400 uppercase"
+              style={{ borderColor: '#d9d9d9' }}
+            >
+              {asset.token?.symbol}
+            </div>
+          </Balance>
+        </Form.Item>
+      </FormModal>
     </>
   );
 }
