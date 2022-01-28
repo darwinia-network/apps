@@ -1,17 +1,17 @@
 import { AutoComplete, Form, Input, InputProps } from 'antd';
 import { isString, upperFirst } from 'lodash';
 import { useTranslation } from 'react-i18next';
-import { useAccount, useApi } from '../../../hooks';
-import { isSameAddress, isValidAddress } from '../../../utils';
+import { useApi } from '../../../hooks';
+import { isValidAddress } from '../../../utils';
 import { CustomFormControl } from './interface';
 
-export function AddressControl({ label, name, disabled, ...rest }: CustomFormControl & InputProps) {
+export function AddressControl({ label, name, disabled, rules = [], ...rest }: CustomFormControl & InputProps) {
   const { t } = useTranslation();
   const {
     connection: { accounts },
     network,
   } = useApi();
-  const { account } = useAccount();
+  // const { account } = useAccount();
 
   return (
     <Form.Item
@@ -22,16 +22,11 @@ export function AddressControl({ label, name, disabled, ...rest }: CustomFormCon
         { required: true },
         {
           validator(_, value) {
-            return !isSameAddress(account, value) ? Promise.resolve() : Promise.reject();
-          },
-          message: t('The sending address and the receiving address cannot be the same'),
-        },
-        {
-          validator(_, value) {
             return isValidAddress(value, network.name, true) ? Promise.resolve() : Promise.reject();
           },
           message: t('Please enter a valid {{network}} address', { network: upperFirst(network.name) }),
         },
+        ...rules,
       ]}
     >
       <AutoComplete

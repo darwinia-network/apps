@@ -38,7 +38,7 @@ export function FormModal<V extends Record<string, unknown>>({
   const [form] = useForm<V>();
   const { api } = useApi();
   const { account } = useAccount();
-  const { observer } = useTx();
+  const { observer, tx } = useTx();
   const { ...others } = modalProps;
 
   return (
@@ -80,6 +80,7 @@ export function FormModal<V extends Record<string, unknown>>({
           });
       }}
       onCancel={onCancel}
+      okButtonProps={{ disabled: !!tx, ...modalProps.okButtonProps }}
     >
       <Form
         form={form}

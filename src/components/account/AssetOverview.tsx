@@ -3,7 +3,7 @@ import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAccount, useApi } from '../../hooks';
 import { AssetOverviewProps } from '../../model';
-import { fromWei, getUnit, insufficientBalanceRule, isRing, prettyNumber, toWei } from '../../utils';
+import { fromWei, getUnit, insufficientBalanceRule, isRing, isSameAddress, prettyNumber, toWei } from '../../utils';
 import { FormModal } from '../modal/FormModal';
 import { Balance } from '../widget/Balance';
 import { AddressControl } from '../widget/form-control/AddressControl';
@@ -83,7 +83,18 @@ export function AssetOverview({ asset, refresh }: AssetOverviewProps) {
           disabled
         ></AddressControl>
 
-        <AddressControl name="to" label={'Send to Address'} />
+        <AddressControl
+          name="to"
+          label={'Send to Address'}
+          rules={[
+            {
+              validator(_, value) {
+                return !isSameAddress(account, value) ? Promise.resolve() : Promise.reject();
+              },
+              message: t('The sending address and the receiving address cannot be the same'),
+            },
+          ]}
+        />
 
         <Form.Item
           name="amount"

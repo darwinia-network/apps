@@ -67,6 +67,7 @@ export function Nominate({ label, type = 'text' }: StakingActionProps) {
       >
         {t(label ?? 'Nominate')}
       </Button>
+
       <FormModal<NominateFormValues>
         modalProps={{ visible: isVisible }}
         onCancel={() => setIsVisible(false)}
@@ -75,6 +76,7 @@ export function Nominate({ label, type = 'text' }: StakingActionProps) {
 
           return api.tx.staking.nominate(targets);
         }}
+        onSuccess={() => setIsVisible(false)}
         initialValues={{ controller: account, stash: stashAccount, targets: defaultSelected }}
       >
         <AddressControl name="controller" label="Controller account" disabled />
@@ -88,12 +90,15 @@ export function Nominate({ label, type = 'text' }: StakingActionProps) {
               {t('Filter available candidates based on name, address or short account index.')}
             </span>
           }
+          rules={[{ required: true }]}
         >
-          <Select mode="multiple" allowClear placeholder="Please select">
+          <Select mode="multiple" allowClear placeholder="Please select" size="large">
             {available.map((item) => (
               <Select.Option key={item} value={item}>
-                <Identicon size={24} value={item} />
-                <AccountName account={item} />
+                <div className="flex items-center gap-2">
+                  <Identicon size={24} value={item} />
+                  <AccountName account={item} />
+                </div>
               </Select.Option>
             ))}
           </Select>
