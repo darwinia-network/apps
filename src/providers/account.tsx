@@ -13,7 +13,10 @@ export interface AccountCtx {
 }
 
 const getToken: (tokens: Token[], target: DarwiniaAsset) => Token = (tokens: Token[], target: DarwiniaAsset) => {
-  return tokens.find((token) => token.symbol.toLowerCase().includes(target.toLowerCase()))!;
+  const result = tokens.find((token) => token.symbol.toLowerCase().includes(target.toLowerCase()));
+  const unknown: Token = { symbol: 'unknown', decimal: '9' };
+
+  return result || unknown;
 };
 
 export const AccountContext = createContext<AccountCtx | null>(null);

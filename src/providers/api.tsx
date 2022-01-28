@@ -35,7 +35,7 @@ const initialConnection: Connection = {
 
 const initialState: StoreState = {
   connection: initialConnection,
-  network: crabConfig,
+  network: readStorage().activeNetwork ?? crabConfig,
   isDev,
 };
 

@@ -25,8 +25,8 @@ import { toggleTheme } from './components/widget/ThemeSwitch';
 import { THEME } from './config';
 import { Path, routes } from './config/routes';
 import { useAccount, useApi } from './hooks';
-import { Network } from './model';
-import { getNetworkByName, NETWORK_CONFIGURATIONS, readStorage } from './utils';
+import { Network, PolkadotChainConfig } from './model';
+import { getNetworkByName, NETWORK_CONFIGURATIONS, readStorage, updateStorage } from './utils';
 
 interface Nav {
   label: string;
@@ -87,6 +87,7 @@ function App() {
 
                 setNetwork(config);
                 toggleTheme(theme, value);
+                updateStorage({ activeNetwork: config as PolkadotChainConfig });
               }}
               className={`w-full ${network.name}-select`}
             >

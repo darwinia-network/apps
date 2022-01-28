@@ -1,11 +1,11 @@
 import { THEME } from '../config';
 import { HashInfo } from '../utils';
-import { Network, ChainConfig } from './network';
+import { ChainConfig, Network, PolkadotChainConfig } from './network';
 
 export interface StorageInfo extends HashInfo {
   theme?: THEME;
   activeAccount?: string;
-  enableTestNetworks?: boolean;
+  activeNetwork?: PolkadotChainConfig;
   config?: Partial<{ [key in Network]: ChainConfig }>;
   custom?: Network[];
 }
