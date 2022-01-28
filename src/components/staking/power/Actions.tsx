@@ -29,7 +29,15 @@ export function Actions({ eraSelectionIndex }: ActionsProps) {
   const { t } = useTranslation();
   const { api } = useApi();
   const { observer } = useTx();
-  const { stakingDerive, validators, isValidating, isNominating, controllerAccount } = useStaking();
+  const {
+    stakingDerive,
+    validators,
+    isValidating,
+    isNominating,
+    controllerAccount,
+    updateStakingDerive,
+    updateValidators,
+  } = useStaking();
 
   const sessionAccounts = useMemo(() => {
     if (!stakingDerive) {
@@ -67,7 +75,17 @@ export function Actions({ eraSelectionIndex }: ActionsProps) {
       {isNominating || isValidating ? (
         <Button
           onClick={() => {
-            signAndSendExtrinsic(api, controllerAccount, api.tx.staking.chill()).subscribe(observer);
+            signAndSendExtrinsic(api, controllerAccount, api.tx.staking.chill()).subscribe({
+              ...observer,
+              next: (value) => {
+                observer.next(value);
+
+                if (value.status === 'finalized') {
+                  updateStakingDerive();
+                  updateValidators();
+                }
+              },
+            });
           }}
         >
           {t(isNominating ? 'Stop Nominating' : 'Stop Validating')}

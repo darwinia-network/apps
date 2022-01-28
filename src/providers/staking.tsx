@@ -11,13 +11,15 @@ export interface StakingCtx {
   availableValidators: string[];
   controllerAccount: string;
   isControllerAccountOwner: boolean;
-  isStashAccountOwner: boolean;
   isNominating: boolean;
+  isStashAccountOwner: boolean;
   isValidating: boolean;
   stakingDerive: DeriveStakingAccount | null;
   stakingOverview: DeriveStakingOverview | null;
   stashAccount: string;
   stashAccounts: string[];
+  updateStakingDerive: () => void;
+  updateValidators: () => void;
   validators: PalletStakingValidatorPrefs | null;
 }
 
@@ -112,7 +114,7 @@ export const StakingProvider = ({ children }: React.PropsWithChildren<unknown>) 
       .subscribe((res) => setStakingDerive(res));
   }, [api, isMounted, stashAccount]);
 
-  const updateValidator = useCallback(() => {
+  const updateValidators = useCallback(() => {
     from(api.query.staking.validators(stashAccount))
       .pipe(takeWhile(() => isMounted))
       .subscribe((res) => setValidators(res));
@@ -170,9 +172,9 @@ export const StakingProvider = ({ children }: React.PropsWithChildren<unknown>) 
 
   useEffect(() => {
     updateStakingDerive();
-    updateValidator();
+    updateValidators();
     updateStakingOverview();
-  }, [updateStakingDerive, updateStakingOverview, updateValidator]);
+  }, [updateStakingDerive, updateStakingOverview, updateValidators]);
 
   return (
     <StakingContext.Provider
@@ -180,13 +182,15 @@ export const StakingProvider = ({ children }: React.PropsWithChildren<unknown>) 
         availableValidators,
         controllerAccount,
         isControllerAccountOwner,
-        isStashAccountOwner,
         isNominating,
+        isStashAccountOwner,
         isValidating,
         stakingDerive,
         stakingOverview,
         stashAccount,
         stashAccounts,
+        updateStakingDerive,
+        updateValidators,
         validators,
       }}
     >

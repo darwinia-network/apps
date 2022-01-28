@@ -23,7 +23,8 @@ export function Nominate({ label, type = 'text' }: StakingActionProps) {
   const { isControllerAccountOwner, isNominating } = useStaking();
   const [isVisible, setIsVisible] = useState(false);
   const { account } = useAccount();
-  const { stashAccount, stakingDerive, stakingOverview, availableValidators } = useStaking();
+  const { stashAccount, stakingDerive, stakingOverview, availableValidators, updateValidators, updateStakingDerive } =
+    useStaking();
   const [favorites] = useFavorites(STAKING_FAV_KEY);
 
   const defaultSelected = useMemo(() => {
@@ -76,7 +77,11 @@ export function Nominate({ label, type = 'text' }: StakingActionProps) {
 
           return api.tx.staking.nominate(targets);
         }}
-        onSuccess={() => setIsVisible(false)}
+        onSuccess={() => {
+          setIsVisible(false);
+          updateValidators();
+          updateStakingDerive();
+        }}
         initialValues={{ controller: account, stash: stashAccount, targets: defaultSelected }}
       >
         <AddressControl name="controller" label="Controller account" disabled />
