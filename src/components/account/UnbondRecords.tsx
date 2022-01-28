@@ -28,7 +28,7 @@ const calcProgress = (start: number, expire: number, bestNumber: number): number
   }
 };
 
-export function Unbond() {
+export function UnbondRecords() {
   const { t } = useTranslation();
   const { network, api } = useApi();
   const { pagination, setPagination, stakingRecord } = useStakingRecords('unbonding');

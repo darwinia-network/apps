@@ -8,6 +8,7 @@ import { DATE_FORMAT } from '../../config';
 import { useAccount, useApi } from '../../hooks';
 import { useTx } from '../../hooks/tx';
 import { AccountRecord } from '../../model';
+import { afterTxSuccess } from '../../providers';
 import { fromWei, isKton, prettyNumber, signAndSendExtrinsic } from '../../utils';
 import { AccountHistoryProps } from '../staking/interface';
 import { SubscanLink } from '../widget/SubscanLink';
@@ -25,11 +26,11 @@ const calcFine = (data: AccountRecord): string => {
   return fromWei({ value: rewardOrigin.minus(rewardActual).multipliedBy(times).toString() });
 };
 
-export function Bond({ tokens }: AccountHistoryProps) {
+export function BondRecords({ tokens }: AccountHistoryProps) {
   const { t } = useTranslation();
   const { network, api } = useApi();
   const { account } = useAccount();
-  const { observer } = useTx();
+  const { createObserver } = useTx();
   const [locked, setLocked] = useState<boolean>(false);
   const { pagination, setPagination, stakingRecord, refreshStakingRecords, updateStakingRecord } = useStakingRecords(
     'bonded',
@@ -43,22 +44,18 @@ export function Bond({ tokens }: AccountHistoryProps) {
     }
 
     const extrinsic = api.tx.staking.tryClaimDepositsWithPunish(forceUnbondTarget.expired_at);
-    const sub$$ = signAndSendExtrinsic(api, account, extrinsic).subscribe({
-      ...observer,
-      next: (value) => {
-        observer.next(value);
-
-        if (value.status === 'finalized') {
-          setForceUnbondTarget(null);
-          refreshStakingRecords().subscribe(updateStakingRecord);
-        }
-      },
+    const observer = createObserver({
+      next: afterTxSuccess(() => {
+        setForceUnbondTarget(null);
+        refreshStakingRecords().subscribe(updateStakingRecord);
+      }),
     });
+    const sub$$ = signAndSendExtrinsic(api, account, extrinsic).subscribe(observer);
 
     return () => {
       sub$$.unsubscribe();
     };
-  }, [account, api, forceUnbondTarget, observer, refreshStakingRecords, updateStakingRecord]);
+  }, [account, api, createObserver, forceUnbondTarget, refreshStakingRecords, updateStakingRecord]);
 
   const columns: ColumnType<AccountRecord>[] = [
     {
@@ -142,16 +139,13 @@ export function Bond({ tokens }: AccountHistoryProps) {
               size="small"
               onClick={() => {
                 const extrinsic = api.tx.staking.claimMatureDeposits();
-
-                signAndSendExtrinsic(api, account, extrinsic).subscribe({
-                  ...observer,
-                  next: (value) => {
-                    observer.next(value);
-                    if (value.status === 'finalized') {
-                      refreshStakingRecords().subscribe(updateStakingRecord);
-                    }
-                  },
+                const observer = createObserver({
+                  next: afterTxSuccess(() => {
+                    refreshStakingRecords().subscribe(updateStakingRecord);
+                  }),
                 });
+
+                signAndSendExtrinsic(api, account, extrinsic).subscribe(observer);
               }}
             >
               {t('Release')}

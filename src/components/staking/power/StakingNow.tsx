@@ -9,6 +9,7 @@ import i18n from '../../../config/i18n';
 import { useAccount, useApi, useIsMounted } from '../../../hooks';
 import { useTx } from '../../../hooks/tx';
 import { Asset } from '../../../model';
+import { afterTxSuccess } from '../../../providers';
 import {
   assetToPower,
   getUnit,
@@ -49,7 +50,7 @@ export function StakingNow() {
   const [duration, setDuration] = useState(0);
   const [power, setPower] = useState('');
   const [pool, setPool] = useState({ ring: new BN(0), kton: new BN(0) });
-  const { observer, tx } = useTx();
+  const { createObserver, tx } = useTx();
   const isMounted = useIsMounted();
 
   const calcPower = useCallback(
@@ -78,6 +79,10 @@ export function StakingNow() {
   );
 
   const launchStaking = useCallback(() => {
+    const observer = createObserver({
+      next: afterTxSuccess(() => setIsVisible(false)),
+    });
+
     from(form.validateFields())
       .pipe(
         switchMap((value) => {
@@ -94,17 +99,8 @@ export function StakingNow() {
         }),
         takeWhile(() => isMounted)
       )
-      .subscribe({
-        ...observer,
-        next: (value) => {
-          observer.next(value);
-
-          if (value.status === 'finalized') {
-            setIsVisible(false);
-          }
-        },
-      });
-  }, [api, form, isMounted, observer, payee, selectedAsset]);
+      .subscribe(observer);
+  }, [api, createObserver, form, isMounted, payee, selectedAsset]);
 
   useEffect(() => {
     const ringPool = from(api.query.staking.ringPool());

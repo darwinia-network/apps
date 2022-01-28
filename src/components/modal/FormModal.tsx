@@ -3,13 +3,14 @@ import { ISubmittableResult } from '@polkadot/types/types';
 import { Form } from 'antd';
 import { useForm } from 'antd/lib/form/Form';
 import Modal, { ModalProps } from 'antd/lib/modal';
-import { PropsWithChildren } from 'react';
+import { PropsWithChildren, useMemo } from 'react';
 import { catchError, from, NEVER, switchMap, tap } from 'rxjs';
 import { validateMessages } from '../../config';
 import i18n from '../../config/i18n';
 import { useAccount, useApi } from '../../hooks';
 import { useTx } from '../../hooks/tx';
 import { Tx } from '../../model';
+import { afterTxSuccess } from '../../providers';
 import { signAndSendExtrinsic } from '../../utils';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -30,16 +31,24 @@ export function FormModal<V extends Record<string, unknown>>({
   initialValues,
   createExtrinsic,
   signer,
-  onSuccess,
-  onFail,
+  onSuccess = () => {
+    //
+  },
+  onFail = () => {
+    //
+  },
   beforeStart,
   onCancel,
 }: PropsWithChildren<ModalFormProps<V>>) {
   const [form] = useForm<V>();
   const { api } = useApi();
   const { account } = useAccount();
-  const { observer, tx } = useTx();
+  const { createObserver, tx } = useTx();
   const { ...others } = modalProps;
+  const observer = useMemo(
+    () => createObserver({ next: afterTxSuccess(onSuccess), error: onFail }),
+    [createObserver, onSuccess, onFail]
+  );
 
   return (
     <Modal
@@ -61,23 +70,7 @@ export function FormModal<V extends Record<string, unknown>>({
               return signAndSendExtrinsic(api, signer ?? account, ext);
             })
           )
-          .subscribe({
-            ...observer,
-            next: (value) => {
-              observer.next(value);
-
-              if (value.status === 'finalized' && onSuccess) {
-                onSuccess(value);
-              }
-            },
-            error: (err) => {
-              observer.error(err);
-
-              if (onFail) {
-                onFail(err);
-              }
-            },
-          });
+          .subscribe(observer);
       }}
       onCancel={onCancel}
       okButtonProps={{ disabled: !!tx, ...modalProps.okButtonProps }}

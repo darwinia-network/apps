@@ -5,6 +5,7 @@ import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useApi, useStaking } from '../../../hooks';
 import { useTx } from '../../../hooks/tx';
+import { afterTxSuccess } from '../../../providers';
 import { signAndSendExtrinsic } from '../../../utils';
 import {
   BondMore,
@@ -28,7 +29,7 @@ interface ActionsProps {
 export function Actions({ eraSelectionIndex }: ActionsProps) {
   const { t } = useTranslation();
   const { api } = useApi();
-  const { observer } = useTx();
+  const { createObserver } = useTx();
   const {
     stakingDerive,
     validators,
@@ -61,6 +62,14 @@ export function Actions({ eraSelectionIndex }: ActionsProps) {
     return u8aToHex(nextConcat, len);
   }, [stakingDerive]);
 
+  const observer = useMemo(
+    () =>
+      createObserver({
+        next: afterTxSuccess(updateValidators, updateStakingDerive),
+      }),
+    [createObserver, updateStakingDerive, updateValidators]
+  );
+
   console.log(
     '%c [ stakingDerive ]-9',
     'font-size:13px; background:pink; color:#bf2c9f;',
@@ -75,17 +84,7 @@ export function Actions({ eraSelectionIndex }: ActionsProps) {
       {isNominating || isValidating ? (
         <Button
           onClick={() => {
-            signAndSendExtrinsic(api, controllerAccount, api.tx.staking.chill()).subscribe({
-              ...observer,
-              next: (value) => {
-                observer.next(value);
-
-                if (value.status === 'finalized') {
-                  updateStakingDerive();
-                  updateValidators();
-                }
-              },
-            });
+            signAndSendExtrinsic(api, controllerAccount, api.tx.staking.chill()).subscribe(observer);
           }}
         >
           {t(isNominating ? 'Stop Nominating' : 'Stop Validating')}

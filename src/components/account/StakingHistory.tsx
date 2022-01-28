@@ -3,8 +3,8 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AccountStatus } from '../../model';
 import { AccountHistoryProps } from '../staking/interface';
-import { Bond } from './Bond';
-import { Unbond } from './Unbond';
+import { BondRecords } from './BondRecords';
+import { UnbondRecords } from './UnbondRecords';
 
 export function StakingHistory({ tokens }: AccountHistoryProps) {
   const [activeKey, setActiveKey] = useState<AccountStatus>('bonded');
@@ -14,10 +14,10 @@ export function StakingHistory({ tokens }: AccountHistoryProps) {
     <Card className="relative">
       <Tabs defaultActiveKey={activeKey} onChange={(key) => setActiveKey(key as AccountStatus)}>
         <Tabs.TabPane tab={t('Bond')} key="bonded">
-          <Bond tokens={tokens} />
+          <BondRecords tokens={tokens} />
         </Tabs.TabPane>
         <Tabs.TabPane tab={t('Unbond')} key="unbond">
-          <Unbond />
+          <UnbondRecords />
         </Tabs.TabPane>
         {/* TODO: cross chain record remove it ? */}
         <Tabs.TabPane disabled tab={t('Mapping')} key="mapping">

@@ -1,4 +1,6 @@
-import { last, MonoTypeOperatorFunction, scan, switchMapTo, takeWhile, tap, timer } from 'rxjs';
+import { isFunction } from 'lodash';
+import { last, MonoTypeOperatorFunction, Observer, scan, switchMapTo, takeWhile, tap, timer } from 'rxjs';
+import { Tx, WithOptional } from '../../model';
 
 function attemptsGuardFactory(maxAttempts: number) {
   return (attemptsCount: number) => {
@@ -29,5 +31,29 @@ export function pollWhile<T>(
     );
 
     return emitOnlyLast ? poll$.pipe(last()) : poll$;
+  };
+}
+
+export function combineObserver<T = Tx>(...observers: WithOptional<Observer<T>, 'complete' | 'error'>[]): Observer<T> {
+  const passOn =
+    <V>(method: 'next' | 'error' | 'complete') =>
+    (data: V) => {
+      try {
+        observers.forEach((observer) => {
+          const fn = observer[method];
+
+          if (isFunction(fn)) {
+            fn(data as unknown as T);
+          }
+        });
+      } catch (err) {
+        console.log('%c [ err ]-42', 'font-size:13px; background:pink; color:#bf2c9f;', err);
+      }
+    };
+
+  return {
+    next: passOn<T>('next'),
+    error: passOn<Record<string, unknown>>('error'),
+    complete: passOn<void>('complete'),
   };
 }
