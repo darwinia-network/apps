@@ -7,7 +7,7 @@ import { useAccount, useApi, useStaking } from '../../../hooks';
 import { STAKING_FAV_KEY, useFavorites } from '../../../hooks/favorites';
 import { FormModal } from '../../modal/FormModal';
 import { AccountName } from '../../widget/AccountName';
-import { AddressControl } from '../../widget/form-control/AddressControl';
+import { AddressItem } from '../../widget/form-control/AddressItem';
 import { StakingActionProps } from './interface';
 
 interface NominateFormValues {
@@ -84,8 +84,8 @@ export function Nominate({ label, type = 'text' }: StakingActionProps) {
         }}
         initialValues={{ controller: account, stash: stashAccount, targets: defaultSelected }}
       >
-        <AddressControl name="controller" label="Controller account" disabled />
-        <AddressControl name="stash" label="Stash account" disabled />
+        <AddressItem name="controller" label="Controller account" disabled />
+        <AddressItem name="stash" label="Stash account" disabled />
 
         <FormItem
           name="targets"

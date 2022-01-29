@@ -2,10 +2,10 @@ import { Input, InputNumber, InputNumberProps } from 'antd';
 import { GroupProps } from 'antd/lib/input';
 import { omit } from 'lodash';
 import { CSSProperties, PropsWithChildren, useCallback, useMemo } from 'react';
-import { CustomFormControlProps } from '../../model';
-import { getPrecisionByUnit } from '../../utils';
+import { CustomFormControlProps } from '../../../model';
+import { getPrecisionByUnit } from '../../../utils';
 
-export function Balance({
+export function BalanceControl({
   value,
   onChange,
   children,

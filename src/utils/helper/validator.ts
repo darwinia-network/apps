@@ -65,6 +65,7 @@ export interface ValidateOptions {
   compared?: string | BN | number | null;
   token?: Token;
   asset?: string;
+  valueKey?: string;
 }
 
 export type ValidatorFactory = (options: ValidateOptions) => Validator;
@@ -82,9 +83,10 @@ export const zeroAmountRule: ValidatorRuleFactory = (options) => {
 };
 
 const insufficientBalanceValidatorFactory: ValidatorFactory = (options) => (_, val) => {
-  const { compared = '0', token } = options;
+  const { compared = '0', token, valueKey = 'amount' } = options;
   const max = new BN(compared as string);
-  const value = new BN(toWei({ value: val, unit: getUnit(Number(token?.decimal)) ?? 'gwei' }));
+  const current = typeof val === 'object' ? val[valueKey] : val;
+  const value = new BN(toWei({ value: current, unit: getUnit(Number(token?.decimal)) ?? 'gwei' }));
 
   return value.gt(max) ? Promise.reject() : Promise.resolve();
 };

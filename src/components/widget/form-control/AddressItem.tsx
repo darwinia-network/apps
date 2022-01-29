@@ -2,10 +2,10 @@ import { AutoComplete, Form, Input, InputProps } from 'antd';
 import { isString, upperFirst } from 'lodash';
 import { useTranslation } from 'react-i18next';
 import { useApi } from '../../../hooks';
+import { CustomFormItemProps } from '../../../model';
 import { isValidAddress } from '../../../utils';
-import { CustomFormControl } from './interface';
 
-export function AddressControl({ label, name, disabled, rules = [], ...rest }: CustomFormControl & InputProps) {
+export function AddressItem({ label, name, disabled, rules = [], ...rest }: CustomFormItemProps & InputProps) {
   const { t } = useTranslation();
   const {
     connection: { accounts },

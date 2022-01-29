@@ -4,12 +4,29 @@ import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { from } from 'rxjs';
 import { useApi, useStaking } from '../../../hooks';
+import { fundParam } from '../../../utils';
+import { FormModal } from '../../modal/FormModal';
+import { AddressItem } from '../../widget/form-control/AddressItem';
+import { Fund } from '../../widget/form-control/FundsControl';
+import { FundItem } from '../../widget/form-control/FundsItem';
+import { PromiseMonthItem } from '../../widget/form-control/PromiseMonthItem';
+import { PowerReward } from '../power/PowerReward';
+
+interface BondMoreFormValues {
+  stash: string;
+  controller: string;
+  fund: Fund;
+  promiseMonth: number;
+  [key: string]: unknown;
+}
 
 export function BondMore() {
   const { t } = useTranslation();
-  const { stashAccount } = useStaking();
   const { api } = useApi();
+  const [isVisible, setIsVisible] = useState(false);
+  const { stashAccount, updateValidators, updateStakingDerive } = useStaking();
   const [balances, setBalances] = useState<DeriveBalancesAll | null>(null);
+  const [selectedAsset, setSelectedAsset] = useState<Fund | null>(null);
   const hasFreeBalance = useMemo(() => balances && balances.freeBalance.gtn(0), [balances]);
 
   useEffect(() => {
@@ -20,5 +37,36 @@ export function BondMore() {
     return () => sub$$.unsubscribe();
   }, [api, stashAccount]);
 
-  return hasFreeBalance ? <Button type="text">{t('Bond more funds')}</Button> : null;
+  return hasFreeBalance ? (
+    <>
+      <Button onClick={() => setIsVisible(true)} type="text">
+        {t('Bond more funds')}
+      </Button>
+
+      <FormModal<BondMoreFormValues>
+        modalProps={{ visible: isVisible }}
+        onCancel={() => setIsVisible(false)}
+        createExtrinsic={(values) => {
+          const { promiseMonth, fund } = values;
+          const param = fundParam(fund);
+
+          return api.tx.staking.bondExtra(param, promiseMonth);
+        }}
+        onSuccess={() => {
+          setIsVisible(false);
+          updateValidators();
+          updateStakingDerive();
+        }}
+        initialValues={{ stash: stashAccount, promiseMonth: 0, accept: false }}
+      >
+        <AddressItem name="stash" label="Stash account" disabled />
+
+        <FundItem label="Additional bond funds" name="fund" onChange={setSelectedAsset} />
+
+        <PromiseMonthItem label="Lock limit" name="promiseMonth" selectedAsset={selectedAsset} />
+
+        <PowerReward selectedAsset={selectedAsset} />
+      </FormModal>
+    </>
+  ) : null;
 }

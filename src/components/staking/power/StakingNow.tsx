@@ -1,9 +1,10 @@
+import { KtonBalance, RingBalance } from '@darwinia/types';
 import { Button, Checkbox, Form, Modal, Select } from 'antd';
 import { useForm } from 'antd/lib/form/Form';
 import BN from 'bn.js';
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { from, switchMap, takeWhile, zip } from 'rxjs';
+import { from, Observable, switchMap, takeWhile, zip } from 'rxjs';
 import { validateMessages } from '../../../config';
 import i18n from '../../../config/i18n';
 import { useAccount, useApi, useIsMounted } from '../../../hooks';
@@ -12,6 +13,7 @@ import { Asset } from '../../../model';
 import { afterTxSuccess } from '../../../providers';
 import {
   assetToPower,
+  fundParam,
   getUnit,
   insufficientBalanceRule,
   isKton,
@@ -19,7 +21,7 @@ import {
   signAndSendExtrinsic,
   toWei,
 } from '../../../utils';
-import { Balance } from '../../widget/Balance';
+import { BalanceControl } from '../../widget/form-control/BalanceControl';
 import { PrettyAccount } from '../../widget/PrettyAccount';
 
 const MAX_PERIOD = 36;
@@ -87,12 +89,8 @@ export function StakingNow() {
       .pipe(
         switchMap((value) => {
           const { controller, amount, promiseMonth, stash } = value;
-          const balance = {
-            [`${selectedAsset!.asset}balance`]: toWei({ value: amount, unit: getUnit(+selectedAsset!.token.decimal) }),
-          };
+          const balance = fundParam({ amount, ...selectedAsset! });
           const destination = payee === 'Account' ? { Account: '' } : payee;
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          // @ts-ignore
           const extrinsic = api.tx.staking.bond(controller, balance, destination, promiseMonth);
 
           return signAndSendExtrinsic(api, stash, extrinsic);
@@ -103,8 +101,8 @@ export function StakingNow() {
   }, [api, createObserver, form, isMounted, payee, selectedAsset]);
 
   useEffect(() => {
-    const ringPool = from(api.query.staking.ringPool());
-    const ktonPool = from(api.query.staking.ktonPool());
+    const ringPool = from(api.query.staking.ringPool()) as Observable<RingBalance>;
+    const ktonPool = from(api.query.staking.ktonPool()) as Observable<KtonBalance>;
     const sub$$ = zip(ringPool, ktonPool).subscribe(([ring, kton]) =>
       setPool({ ring: new BN(ring.toString()), kton: new BN(kton.toString()) })
     );
@@ -192,7 +190,7 @@ export function StakingNow() {
               </span>
             }
           >
-            <Balance
+            <BalanceControl
               compact
               onChange={(value) => {
                 const result = calcPower(value);
@@ -223,7 +221,7 @@ export function StakingNow() {
                   );
                 })}
               </Select>
-            </Balance>
+            </BalanceControl>
           </Form.Item>
 
           <Form.Item name="payee" label={t('Payment destination')} rules={[{ required: true }]}>

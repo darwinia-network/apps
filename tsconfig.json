@@ -1,7 +1,10 @@
 {
   "extends": "@darwinia/lints/tsconfig",
   "compilerOptions": {
-    "baseUrl": "."
+    "baseUrl": ".",
+    "paths": {
+      "@polkadot/api-augment": ["node_modules/@darwinia/types/interfaces/augment-api.d.ts"]
+    }
   },
   "include": ["src", "src/global.d.ts"]
 }

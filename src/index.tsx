@@ -1,4 +1,4 @@
-import React, { Suspense } from 'react';
+import { Suspense } from 'react';
 import ReactDOM from 'react-dom';
 import { BrowserRouter } from 'react-router-dom';
 import App from './App';
@@ -11,31 +11,30 @@ import reportWebVitals from './reportWebVitals';
 import './theme/antd/index.less';
 import { readStorage } from './utils';
 import '@polkadot/api-augment';
+import '@darwinia/types';
 
 ReactDOM.render(
-  <React.StrictMode>
-    <Suspense
-      fallback={
-        <div
-          className={`flex justify-center items-center w-screen h-screen ${
-            readStorage().theme === THEME.DARK ? 'bg-black' : 'bg-white'
-          }`}
-        >
-          <BallScalePulse />
-        </div>
-      }
-    >
-      <BrowserRouter>
-        <ApiProvider>
-          <TxProvider>
-            <AccountProvider>
-              <App />
-            </AccountProvider>
-          </TxProvider>
-        </ApiProvider>
-      </BrowserRouter>
-    </Suspense>
-  </React.StrictMode>,
+  <Suspense
+    fallback={
+      <div
+        className={`flex justify-center items-center w-screen h-screen ${
+          readStorage().theme === THEME.DARK ? 'bg-black' : 'bg-white'
+        }`}
+      >
+        <BallScalePulse />
+      </div>
+    }
+  >
+    <BrowserRouter>
+      <ApiProvider>
+        <TxProvider>
+          <AccountProvider>
+            <App />
+          </AccountProvider>
+        </TxProvider>
+      </ApiProvider>
+    </BrowserRouter>
+  </Suspense>,
   document.getElementById('root')
 );
 

@@ -5,8 +5,8 @@ import { useAccount, useApi } from '../../hooks';
 import { AssetOverviewProps } from '../../model';
 import { fromWei, getUnit, insufficientBalanceRule, isRing, isSameAddress, prettyNumber, toWei } from '../../utils';
 import { FormModal } from '../modal/FormModal';
-import { Balance } from '../widget/Balance';
-import { AddressControl } from '../widget/form-control/AddressControl';
+import { BalanceControl } from '../widget/form-control/BalanceControl';
+import { AddressItem } from '../widget/form-control/AddressItem';
 
 interface TransferFormValues {
   from: string;
@@ -68,7 +68,7 @@ export function AssetOverview({ asset, refresh }: AssetOverviewProps) {
           );
         }}
       >
-        <AddressControl
+        <AddressItem
           name="from"
           label={'Send from account'}
           extra={
@@ -81,9 +81,9 @@ export function AssetOverview({ asset, refresh }: AssetOverviewProps) {
             </span>
           }
           disabled
-        ></AddressControl>
+        ></AddressItem>
 
-        <AddressControl
+        <AddressItem
           name="to"
           label={'Send to Address'}
           rules={[
@@ -101,14 +101,14 @@ export function AssetOverview({ asset, refresh }: AssetOverviewProps) {
           label={t('Amount')}
           rules={[{ required: true }, insufficientBalanceRule({ t, compared: asset.max, token: asset.token })]}
         >
-          <Balance size="large" className="flex-1">
+          <BalanceControl size="large" className="flex-1">
             <div
               className="bg-gray-200 border border-l-0 p-2 rounded-r-lg text-gray-400 uppercase"
               style={{ borderColor: '#d9d9d9' }}
             >
               {asset.token?.symbol}
             </div>
-          </Balance>
+          </BalanceControl>
         </Form.Item>
       </FormModal>
     </>
