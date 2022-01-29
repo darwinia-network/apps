@@ -15,7 +15,7 @@ interface PromiseMonthItemProps extends CustomFormItemProps {
 }
 
 // eslint-disable-next-line complexity
-export function PromiseMonthItem({ selectedAsset, label, name }: PromiseMonthItemProps) {
+export function PromiseMonthItem({ selectedAsset, label, name, onChange }: PromiseMonthItemProps) {
   const { t } = useTranslation();
   const [duration, setDuration] = useState(0);
   const { assets } = useAccount();
@@ -24,7 +24,16 @@ export function PromiseMonthItem({ selectedAsset, label, name }: PromiseMonthIte
     <>
       {isRing(selectedAsset?.asset) && (
         <FormItem name={name} label={isString(label) ? t(label) : label} rules={[{ required: true }]}>
-          <Select size="large" onChange={(value) => setDuration(Number(value))}>
+          <Select
+            size="large"
+            onChange={(value: string) => {
+              setDuration(Number(value));
+
+              if (onChange) {
+                onChange(value);
+              }
+            }}
+          >
             {LOCK_PERIOD.map((item, index) => (
               <Select.Option value={item} key={index}>
                 {!item

@@ -1,4 +1,3 @@
-import BigNumber from 'bignumber.js';
 import { getUnixTime } from 'date-fns';
 import { useCallback, useEffect, useState } from 'react';
 import { useAccount, useApi } from '../../hooks';
@@ -17,18 +16,6 @@ export const processTime = (start: number, expire: number): number => {
 
   return end <= now ? 100 : 100 - ((end - now) / (end - getUnixTime(start))) * 100;
 };
-
-export function ringToKton(value: string | number, month: number): string {
-  return (
-    new BigNumber(value)
-      // eslint-disable-next-line no-magic-numbers
-      .times(new BigNumber(67 / 66).pow(month).minus(1))
-      // eslint-disable-next-line no-magic-numbers
-      .div(new BigNumber(1970))
-      .integerValue()
-      .toString()
-  );
-}
 
 export function useStakingRecords(status: AccountStatus, locked = false) {
   const { account } = useAccount();

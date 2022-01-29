@@ -9,10 +9,10 @@ import { useAccount, useApi } from '../../hooks';
 import { useTx } from '../../hooks/tx';
 import { AccountRecord } from '../../model';
 import { afterTxSuccess } from '../../providers';
-import { fromWei, isKton, prettyNumber, signAndSendExtrinsic } from '../../utils';
+import { fromWei, isKton, prettyNumber, ringToKton, signAndSendExtrinsic } from '../../utils';
 import { AccountHistoryProps } from '../staking/interface';
 import { SubscanLink } from '../widget/SubscanLink';
-import { processTime, ringToKton, useStakingRecords } from './stakingRecords';
+import { processTime, useStakingRecords } from './stakingRecords';
 
 const calcFine = (data: AccountRecord): string => {
   const { amount, month, start_at } = data;

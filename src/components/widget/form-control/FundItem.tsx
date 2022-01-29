@@ -6,16 +6,14 @@ import { useTranslation } from 'react-i18next';
 import { useAccount } from '../../../hooks';
 import { Asset, CustomFormItemProps, DarwiniaAsset, Fund } from '../../../model';
 import { fromWei, insufficientBalanceRule, isRing } from '../../../utils';
-import { FundControl } from './FundControl';
+import { FundControl, FundControlProps } from './FundControl';
+
+interface FundItemProps extends CustomFormItemProps<Fund>, Pick<FundControlProps, 'hiddenAssets'> {
+  max?: { [key in DarwiniaAsset]?: string };
+}
 
 // eslint-disable-next-line complexity
-export function FundItem({
-  label,
-  name,
-  extra,
-  max,
-  onChange,
-}: CustomFormItemProps<Fund> & { max?: { [key in DarwiniaAsset]?: string } }) {
+export function FundItem({ label, name, extra, max, hiddenAssets, onChange }: FundItemProps) {
   const { t } = useTranslation();
   const { assets } = useAccount();
   const [asset, setAsset] = useState<Asset | null>(null);
@@ -70,6 +68,7 @@ export function FundItem({
           setAsset(data);
         }}
         max={maxValue && fromWei({ value: maxValue })}
+        hiddenAssets={hiddenAssets}
       />
     </FormItem>
   );

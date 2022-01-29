@@ -38,13 +38,6 @@ export function Unbond() {
     const { active, activeKton } = ledger.unwrap();
     const ring = active.unwrap();
     const kton = activeKton.unwrap();
-    console.log(
-      '%c [ ledger ]-27',
-      'font-size:13px; background:pink; color:#bf2c9f;',
-      ledger?.unwrap(),
-      ring.toString(),
-      kton.toString()
-    );
     const data = pickBy({ ring, kton }, (item: BN) => item.gt(new BN(0)));
 
     return Object.entries(data)
@@ -59,7 +52,7 @@ export function Unbond() {
       </Button>
 
       <FormModal<UnbondFormValues>
-        modalProps={{ visible: isVisible }}
+        modalProps={{ visible: isVisible, title: t('Unbond') }}
         onCancel={() => setIsVisible(false)}
         createExtrinsic={(values) => {
           const { fund } = values;

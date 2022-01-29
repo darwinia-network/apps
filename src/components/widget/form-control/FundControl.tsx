@@ -1,13 +1,23 @@
 import { Select } from 'antd';
+import { useMemo } from 'react';
 import { useCallback, useEffect, useState } from 'react';
 import { useAccount } from '../../../hooks';
-import { Asset, Fund, CustomFormControlProps } from '../../../model';
+import { Asset, Fund, CustomFormControlProps, DarwiniaAsset } from '../../../model';
 import { BalanceControl } from './BalanceControl';
 
-export function FundControl({ onChange, max }: CustomFormControlProps<Fund> & { max?: string }) {
-  const { assets } = useAccount();
+export interface FundControlProps extends CustomFormControlProps<Fund> {
+  max?: string;
+  hiddenAssets?: DarwiniaAsset[];
+}
+
+export function FundControl({ onChange, max, hiddenAssets }: FundControlProps) {
+  const { assets: assetAll } = useAccount();
   const [selectedAsset, setSelectedAsset] = useState<Asset | null>(null);
   const [amount, setAmount] = useState<string>('');
+  const assets = useMemo(
+    () => (hiddenAssets && assetAll ? assetAll.filter((item) => !hiddenAssets.includes(item.asset)) : assetAll),
+    [assetAll, hiddenAssets]
+  );
   const triggerChange = useCallback(
     (val: Fund) => {
       if (onChange) {

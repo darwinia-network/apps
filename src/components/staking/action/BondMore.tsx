@@ -44,7 +44,7 @@ export function BondMore() {
       </Button>
 
       <FormModal<BondMoreFormValues>
-        modalProps={{ visible: isVisible }}
+        modalProps={{ visible: isVisible, title: t('Bond more funds') }}
         onCancel={() => setIsVisible(false)}
         createExtrinsic={(values) => {
           const { promiseMonth, fund } = values;
