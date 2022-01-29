@@ -4,11 +4,11 @@ import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { from } from 'rxjs';
 import { useApi, useStaking } from '../../../hooks';
+import { Fund } from '../../../model';
 import { fundParam } from '../../../utils';
 import { FormModal } from '../../modal/FormModal';
 import { AddressItem } from '../../widget/form-control/AddressItem';
-import { Fund } from '../../widget/form-control/FundsControl';
-import { FundItem } from '../../widget/form-control/FundsItem';
+import { FundItem } from '../../widget/form-control/FundItem';
 import { PromiseMonthItem } from '../../widget/form-control/PromiseMonthItem';
 import { PowerReward } from '../power/PowerReward';
 

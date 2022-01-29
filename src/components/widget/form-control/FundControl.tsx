@@ -1,14 +1,10 @@
 import { Select } from 'antd';
 import { useCallback, useEffect, useState } from 'react';
 import { useAccount } from '../../../hooks';
-import { Asset, CustomFormControlProps } from '../../../model';
+import { Asset, Fund, CustomFormControlProps } from '../../../model';
 import { BalanceControl } from './BalanceControl';
 
-export interface Fund extends Asset {
-  amount: string;
-}
-
-export function FundControl({ onChange }: CustomFormControlProps<Fund>) {
+export function FundControl({ onChange, max }: CustomFormControlProps<Fund> & { max?: string }) {
   const { assets } = useAccount();
   const [selectedAsset, setSelectedAsset] = useState<Asset | null>(null);
   const [amount, setAmount] = useState<string>('');
@@ -24,7 +20,7 @@ export function FundControl({ onChange }: CustomFormControlProps<Fund>) {
   useEffect(() => {
     if (selectedAsset === null && assets.length) {
       setSelectedAsset(assets[0]);
-      triggerChange({ amount: amount || '0', ...assets[0] });
+      triggerChange({ amount: amount || '-0', ...assets[0] });
     }
   }, [assets, selectedAsset, amount, triggerChange]);
 
@@ -38,6 +34,7 @@ export function FundControl({ onChange }: CustomFormControlProps<Fund>) {
           triggerChange({ amount: value, ...selectedAsset });
         }
       }}
+      max={max}
       size="large"
       className="flex-1"
     >

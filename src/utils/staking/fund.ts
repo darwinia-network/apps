@@ -1,4 +1,4 @@
-import { Fund } from '../../components/widget/form-control/FundsControl';
+import { Fund } from '../../model';
 import { getUnit, toWei } from '../helper';
 
 export function fundParam(data: Fund) {

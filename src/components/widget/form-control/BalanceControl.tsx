@@ -1,18 +1,27 @@
-import { Input, InputNumber, InputNumberProps } from 'antd';
+import { Button, Input, InputNumber, InputNumberProps } from 'antd';
 import { GroupProps } from 'antd/lib/input';
 import { omit } from 'lodash';
-import { CSSProperties, PropsWithChildren, useCallback, useMemo } from 'react';
+import { PropsWithChildren, useCallback, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { CustomFormControlProps } from '../../../model';
 import { getPrecisionByUnit } from '../../../utils';
+
+type BalanceControlProps = CustomFormControlProps<string> &
+  Omit<InputNumberProps<string>, 'value'> &
+  PropsWithChildren<unknown> &
+  GroupProps & { max?: string };
 
 export function BalanceControl({
   value,
   onChange,
   children,
   className,
+  max,
   precision = getPrecisionByUnit('gwei'),
   ...other
-}: CustomFormControlProps<string> & Omit<InputNumberProps<string>, 'value'> & PropsWithChildren<unknown> & GroupProps) {
+}: BalanceControlProps) {
+  const { t } = useTranslation();
+  const [data, setData] = useState(value);
   const triggerChange = useCallback(
     (val: string) => {
       if (onChange) {
@@ -33,36 +42,37 @@ export function BalanceControl({
     },
     [precision]
   );
-  const style = useMemo(() => {
-    if (!children) {
-      return {};
-    }
-
-    const sty: CSSProperties = {
-      borderTopRightRadius: 0,
-      borderBottomRightRadius: 0,
-    };
-
-    return sty;
-  }, [children]);
 
   return (
     <Input.Group compact={!!other.compact} className="items-center justify-between" style={{ display: 'flex' }}>
       <InputNumber<string>
         {...omit(other, 'compact')}
         className={className}
-        style={style}
-        value={value}
+        value={data}
         min="0"
         stringMode
         precision={precision}
         onChange={(event) => {
           const inputValue = event ? event.replace(/,/g, '') : '';
+          const val = getValue(inputValue);
 
-          triggerChange(getValue(inputValue));
+          setData(val);
+          triggerChange(val);
         }}
       />
       {children}
+      {max && (
+        <Button
+          size="large"
+          type="primary"
+          onClick={() => {
+            setData(max);
+            triggerChange(max);
+          }}
+        >
+          {t('Max')}
+        </Button>
+      )}
     </Input.Group>
   );
 }

@@ -114,13 +114,15 @@ function rewardsGroupedByPayoutValidator(
     .sort((a, b) => b.available.cmp(a.available));
 }
 
-export function useOwnStashes(): [string, IsInKeyring][] | undefined {
+export function useOwnStashes() {
   const isMounted = useIsMounted();
   const {
     api,
     connection: { accounts },
   } = useApi();
   const [state, setState] = useState<[string, IsInKeyring][] | undefined>();
+  const [ownBondedAccounts, setOwnBondedAccounts] = useState<Option<GenericAccountId>[]>([]);
+  const [ownLedgers, setOwnLedgers] = useState<Option<StakingLedger>[]>([]);
 
   useEffect(() => {
     const addresses = accounts.map((item) => item.address);
@@ -134,18 +136,20 @@ export function useOwnStashes(): [string, IsInKeyring][] | undefined {
         .pipe(takeWhile(() => isMounted))
         .subscribe(([bonded, ledger]) => {
           setState(getStashes(addresses, bonded, ledger));
+          setOwnBondedAccounts(bonded.filter((item) => item.isSome));
+          setOwnLedgers(ledger.filter((item) => item.isSome));
         });
     }
 
     return () => sub$$?.unsubscribe();
   }, [accounts, api, isMounted]);
 
-  return state;
+  return { ownStashes: state, ownBondedAccounts, ownLedgers };
 }
 
 export function useOwnStashIds(): string[] | undefined {
   const isMounted = useIsMounted();
-  const ownStashes = useOwnStashes();
+  const { ownStashes } = useOwnStashes();
   const [stashIds, setStashIds] = useState<string[] | undefined>();
 
   useEffect((): void => {

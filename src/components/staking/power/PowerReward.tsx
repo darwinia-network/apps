@@ -4,8 +4,8 @@ import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { from, zip } from 'rxjs';
 import { useApi } from '../../../hooks';
+import { Fund } from '../../../model';
 import { assetToPower, getUnit, isKton, isRing, toWei } from '../../../utils';
-import { Fund } from '../../widget/form-control/FundsControl';
 
 interface PowerRewardProps {
   selectedAsset: Fund | null;
