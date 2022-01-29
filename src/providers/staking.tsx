@@ -115,7 +115,7 @@ export const StakingProvider = ({ children }: React.PropsWithChildren<unknown>) 
   }, [api, isMounted, stashAccount]);
 
   const updateValidators = useCallback(() => {
-    from(api.query.staking.validators(stashAccount))
+    from<Promise<PalletStakingValidatorPrefs>>(api.query.staking.validators(stashAccount))
       .pipe(takeWhile(() => isMounted))
       .subscribe((res) => setValidators(res));
   }, [api, isMounted, stashAccount]);
@@ -143,7 +143,10 @@ export const StakingProvider = ({ children }: React.PropsWithChildren<unknown>) 
     }
 
     const getSource = (address: string) =>
-      zip([from(api.query.staking.bonded.multi([address])), from(api.query.staking.ledger(address))]);
+      zip([
+        from<Promise<Option<GenericAccountId>[]>>(api.query.staking.bonded.multi([address])),
+        from<Promise<Option<StakingLedger>>>(api.query.staking.ledger(address)),
+      ]);
 
     const sub$$ = getSource(account)
       .pipe(

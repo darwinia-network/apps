@@ -1,3 +1,4 @@
+import { KtonBalance, RingBalance } from '@darwinia/types';
 import BN from 'bn.js';
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -38,8 +39,8 @@ export function PowerReward({ selectedAsset }: PowerRewardProps) {
   }, [pool, selectedAsset]);
 
   useEffect(() => {
-    const ringPool = from(api.query.staking.ringPool());
-    const ktonPool = from(api.query.staking.ktonPool());
+    const ringPool = from<Promise<RingBalance>>(api.query.staking.ringPool());
+    const ktonPool = from<Promise<KtonBalance>>(api.query.staking.ktonPool());
     const sub$$ = zip(ringPool, ktonPool).subscribe(([ring, kton]) =>
       setPool({ ring: new BN(ring.toString()), kton: new BN(kton.toString()) })
     );

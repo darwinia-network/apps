@@ -127,7 +127,10 @@ export function useOwnStashes(): [string, IsInKeyring][] | undefined {
     let sub$$: Subscription;
 
     if (addresses.length) {
-      sub$$ = zip([from(api.query.staking.bonded.multi(addresses)), from(api.query.staking.ledger.multi(addresses))])
+      sub$$ = zip([
+        from<Promise<Option<GenericAccountId>[]>>(api.query.staking.bonded.multi(addresses)),
+        from<Promise<Option<StakingLedger>[]>>(api.query.staking.ledger.multi(addresses)),
+      ])
         .pipe(takeWhile(() => isMounted))
         .subscribe(([bonded, ledger]) => {
           setState(getStashes(addresses, bonded, ledger));

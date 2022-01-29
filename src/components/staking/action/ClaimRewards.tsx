@@ -99,11 +99,12 @@ export function ClaimRewards({ eraSelectionIndex }: ClaimRewardsProps) {
   }, [rewards, stashAccount]);
 
   useEffect(() => {
-    const sub$$ = zip([from(api.derive.session.eraLength()), from(api.query.staking.historyDepth())]).subscribe(
-      ([len, depth]) => {
-        setEraSelectionOptions({ eraLength: len, historyDepth: depth });
-      }
-    );
+    const sub$$ = zip([
+      from(api.derive.session.eraLength()),
+      from<Promise<BN>>(api.query.staking.historyDepth()),
+    ]).subscribe(([len, depth]) => {
+      setEraSelectionOptions({ eraLength: len, historyDepth: depth });
+    });
 
     return sub$$.unsubscribe();
   }, [api]);
