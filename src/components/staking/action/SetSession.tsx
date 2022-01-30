@@ -61,7 +61,7 @@ export function SetSession({ label, type = 'text' }: StakingActionProps) {
             }
             rules={[{ required: true }]}
           >
-            <Input />
+            <Input size="large" />
           </FormItem>
         ) : (
           <FormItem
@@ -85,7 +85,7 @@ export function SetSession({ label, type = 'text' }: StakingActionProps) {
               },
             ]}
           >
-            <Input />
+            <Input size="large" />
           </FormItem>
         )}
       </FormModal>

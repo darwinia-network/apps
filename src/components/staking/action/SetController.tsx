@@ -5,7 +5,7 @@ import { useApi, useStaking } from '../../../hooks';
 import { FormModal } from '../../modal/FormModal';
 import { AddressItem } from '../../widget/form-control/AddressItem';
 import { Label } from '../../widget/form-control/Label';
-interface SetControllerValues {
+interface SetControllerFormValues {
   stash: string;
   controller: string;
   [key: string]: unknown;
@@ -23,7 +23,7 @@ export function SetController() {
         {t('Change controller account')}
       </Button>
 
-      <FormModal<SetControllerValues>
+      <FormModal<SetControllerFormValues>
         modalProps={{ visible: isVisible, title: t('Change controller account') }}
         onCancel={() => setIsVisible(false)}
         extrinsic={(values) => {
