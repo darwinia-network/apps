@@ -50,7 +50,8 @@ export function PayeeControl({ onChange, value }: CustomFormControlProps<Payee>)
         <FormItem
           label={<Label text={t('Payment account')} info={t('An account that is to receive the rewards.')} />}
           rules={[{ required: true }]}
-          className="mt-2"
+          className="mt-4"
+          required
         >
           <Select
             size="large"

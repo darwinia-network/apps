@@ -83,7 +83,7 @@ const zh = {
   },
   number: {
     len: '${name} 必须等于 ${len}',
-    min: '${name} 必须小于 ${min}',
+    min: '${name} 必须大于 ${min}',
     max: '${name} 不能大于 ${max}',
     range: '${name} 必须介于 ${min} 和 ${max} 之间',
   },
