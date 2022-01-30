@@ -72,7 +72,7 @@ export function Nominate({ label, type = 'text' }: StakingActionProps) {
       <FormModal<NominateFormValues>
         modalProps={{ visible: isVisible }}
         onCancel={() => setIsVisible(false)}
-        createExtrinsic={(values) => {
+        extrinsic={(values) => {
           const { targets } = values;
 
           return api.tx.staking.nominate(targets);

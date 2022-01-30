@@ -7,6 +7,7 @@ import { getUnit, toWei } from '../../../utils';
 import { FormModal } from '../../modal/FormModal';
 import { AddressItem } from '../../widget/form-control/AddressItem';
 import { FundItem } from '../../widget/form-control/FundItem';
+import { Label } from '../../widget/form-control/Label';
 import { PromiseMonthItem } from '../../widget/form-control/PromiseMonthItem';
 import { KtonReward } from '../power/KtonReward';
 
@@ -36,7 +37,7 @@ export function Deposit() {
       <FormModal<DepositFormValues>
         modalProps={{ visible: isVisible, title: t('Deposit more funds') }}
         onCancel={() => setIsVisible(false)}
-        createExtrinsic={(values) => {
+        extrinsic={(values) => {
           const { promiseMonth, fund } = values;
 
           return api.tx.staking.depositExtra(
@@ -54,7 +55,14 @@ export function Deposit() {
         <AddressItem name="stash" label="Stash account" disabled />
 
         <FundItem
-          label="Additional deposit funds"
+          label={
+            <Label
+              text={t('Additional deposit funds')}
+              info={t(
+                'Amount to add to the currently deposit funds. This is adjusted using the bonded funds on the account.'
+              )}
+            />
+          }
           name="fund"
           onChange={setSelectedAsset}
           hiddenAssets={[DarwiniaAsset.kton]}

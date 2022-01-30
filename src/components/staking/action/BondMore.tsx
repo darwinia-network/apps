@@ -9,6 +9,7 @@ import { fundParam } from '../../../utils';
 import { FormModal } from '../../modal/FormModal';
 import { AddressItem } from '../../widget/form-control/AddressItem';
 import { FundItem } from '../../widget/form-control/FundItem';
+import { Label } from '../../widget/form-control/Label';
 import { PromiseMonthItem } from '../../widget/form-control/PromiseMonthItem';
 import { PowerReward } from '../power/PowerReward';
 
@@ -46,7 +47,7 @@ export function BondMore() {
       <FormModal<BondMoreFormValues>
         modalProps={{ visible: isVisible, title: t('Bond more funds') }}
         onCancel={() => setIsVisible(false)}
-        createExtrinsic={(values) => {
+        extrinsic={(values) => {
           const { promiseMonth, fund } = values;
           const param = fundParam(fund);
 
@@ -61,7 +62,18 @@ export function BondMore() {
       >
         <AddressItem name="stash" label="Stash account" disabled />
 
-        <FundItem label="Additional bond funds" name="fund" onChange={setSelectedAsset} />
+        <FundItem
+          label={
+            <Label
+              text={t('Additional bond funds')}
+              info={t(
+                'Amount to add to the currently bonded funds. This is adjusted using the available funds on the account.'
+              )}
+            />
+          }
+          name="fund"
+          onChange={setSelectedAsset}
+        />
 
         <PromiseMonthItem label="Lock limit" name="promiseMonth" selectedAsset={selectedAsset} />
 

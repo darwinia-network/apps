@@ -30,7 +30,7 @@ export function Rebond() {
       <FormModal<RebondFormValues>
         modalProps={{ visible: isVisible, title: t('Rebond funds') }}
         onCancel={() => setIsVisible(false)}
-        createExtrinsic={(values) => {
+        extrinsic={(values) => {
           const { fund } = values;
           const value = toWei({ value: fund.amount, unit: getUnit(+fund.token.decimal) });
           const params = isRing(fund.asset) ? [value, new BN(0)] : [new BN(0), value];
@@ -42,7 +42,7 @@ export function Rebond() {
           updateValidators();
           updateStakingDerive();
         }}
-        initialValues={{ stash: stashAccount, promiseMonth: 0, accept: false }}
+        initialValues={{ stash: stashAccount }}
       >
         <AddressItem name="stash" label="Stash account" disabled />
 

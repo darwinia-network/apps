@@ -9,6 +9,7 @@ import { fundParam, isSameAddress } from '../../../utils';
 import { FormModal } from '../../modal/FormModal';
 import { AddressItem } from '../../widget/form-control/AddressItem';
 import { FundItem } from '../../widget/form-control/FundItem';
+import { Label } from '../../widget/form-control/Label';
 
 interface UnbondFormValues {
   controller: string;
@@ -54,7 +55,7 @@ export function Unbond() {
       <FormModal<UnbondFormValues>
         modalProps={{ visible: isVisible, title: t('Unbond') }}
         onCancel={() => setIsVisible(false)}
-        createExtrinsic={(values) => {
+        extrinsic={(values) => {
           const { fund } = values;
           const param = fundParam(fund);
 
@@ -67,7 +68,17 @@ export function Unbond() {
       >
         <AddressItem label="Controller account" name="controller" disabled />
 
-        <FundItem label="Additional bond funds" name="fund" extra={null} max={max} />
+        <FundItem
+          label={
+            <Label
+              text={t('Unbond amount')}
+              info={t('The amount of funds to unbond, this is adjusted using the bonded funds on the stash account.')}
+            />
+          }
+          name="fund"
+          extra={null}
+          max={max}
+        />
       </FormModal>
     </>
   );

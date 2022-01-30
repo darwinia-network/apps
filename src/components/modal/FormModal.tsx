@@ -13,10 +13,9 @@ import { Tx } from '../../model';
 import { afterTxSuccess } from '../../providers';
 import { signAndSendExtrinsic } from '../../utils';
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export interface ModalFormProps<Values = any> {
+interface ModalFormProps<Values = Record<string, unknown>> {
   beforeStart?: (val: Values) => void;
-  createExtrinsic: (val: Values) => SubmittableExtrinsic<'promise', ISubmittableResult>;
+  extrinsic: (val: Values) => SubmittableExtrinsic<'promise', ISubmittableResult>;
   initialValues?: Partial<Values>;
   modalProps: ModalProps;
   onFail?: (err: Record<string, unknown>) => void;
@@ -29,7 +28,7 @@ export function FormModal<V extends Record<string, unknown>>({
   modalProps,
   children,
   initialValues,
-  createExtrinsic,
+  extrinsic,
   signer,
   onSuccess = () => {
     //
@@ -65,7 +64,7 @@ export function FormModal<V extends Record<string, unknown>>({
               }
             }),
             switchMap((value) => {
-              const ext = createExtrinsic(value);
+              const ext = extrinsic(value);
 
               return signAndSendExtrinsic(api, signer ?? account, ext);
             })

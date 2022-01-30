@@ -58,7 +58,7 @@ export function AssetOverview({ asset, refresh }: AssetOverviewProps) {
         onFail={() => setIsVisible(false)}
         onCancel={() => setIsVisible(false)}
         initialValues={{ from: account, to: accounts[0].address, amount: 0 }}
-        createExtrinsic={(values) => {
+        extrinsic={(values) => {
           const { to, amount } = values;
           const moduleName = isRing(asset.token?.symbol) ? 'balances' : 'kton';
 
