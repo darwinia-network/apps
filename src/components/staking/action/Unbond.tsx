@@ -37,9 +37,9 @@ export function Unbond() {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     const { active, activeKton } = ledger.unwrap();
-    const ring = active.unwrap();
-    const kton = activeKton.unwrap();
-    const data = pickBy({ ring, kton }, (item: BN) => item.gt(new BN(0)));
+    const ring = active?.unwrap();
+    const kton = activeKton?.unwrap();
+    const data = pickBy({ ring, kton }, (item: BN) => item && item.gt(new BN(0)));
 
     return Object.entries(data)
       .map(([key, value]: [string, BN]) => [key, value.toString()])
