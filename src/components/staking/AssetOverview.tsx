@@ -1,5 +1,6 @@
 import { QuestionCircleFilled } from '@ant-design/icons';
 import { Tooltip } from 'antd';
+import BN from 'bn.js';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAccount, useStaking } from '../../hooks';
@@ -63,20 +64,34 @@ export function AssetOverview({ asset }: AssetOverviewProps) {
       // @ts-ignore
       const locked = stakingLedger.activeDepositRing.toBn();
       const bonded = stakingLedger.active.toBn().sub(locked);
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      const unbonding = stakingDerive.unlockingTotalValue;
+      const { ringStakingLock } = stakingLedger.toJSON() as {
+        ringStakingLock: { unbondings: { amount: number; until: number }[] };
+      };
 
-      return { bonded, locked, unbonding };
+      return {
+        bonded,
+        locked,
+        unbonding: ringStakingLock.unbondings.reduce(
+          (acc: BN, cur: { amount: number }) => acc.add(new BN(cur.amount)),
+          new BN(0)
+        ),
+      };
     }
 
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     const bonded = stakingLedger.activeKton?.toBn();
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    const unbonding = stakingDerive.unlockingTotalValue;
-    return { bonded, locked: null, unbonding };
+    const { ktonStakingLock } = stakingLedger.toJSON() as {
+      ktonStakingLock: { unbondings: { amount: number; until: number }[] };
+    };
+    return {
+      bonded,
+      locked: null,
+      unbonding: ktonStakingLock.unbondings.reduce(
+        (acc: BN, cur: { amount: number }) => acc.add(new BN(cur.amount)),
+        new BN(0)
+      ),
+    };
   }, [asset, stakingDerive]);
 
   if (!stakingDerive || (stakingDerive.stakingLedger.isEmpty && account)) {
