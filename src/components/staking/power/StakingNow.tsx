@@ -1,26 +1,15 @@
-import { KtonBalance, RingBalance } from '@darwinia/types';
 import { Button, Checkbox, Form, Modal, Select } from 'antd';
 import { useForm } from 'antd/lib/form/Form';
-import BN from 'bn.js';
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { from, Observable, switchMap, takeWhile, zip } from 'rxjs';
+import { from, switchMap, takeWhile } from 'rxjs';
 import { validateMessages } from '../../../config';
 import i18n from '../../../config/i18n';
-import { useAccount, useApi, useIsMounted } from '../../../hooks';
+import { useAccount, useApi, useIsMounted, usePower } from '../../../hooks';
 import { useTx } from '../../../hooks/tx';
 import { Asset } from '../../../model';
 import { afterTxSuccess } from '../../../providers';
-import {
-  assetToPower,
-  fundParam,
-  getUnit,
-  insufficientBalanceRule,
-  isKton,
-  isRing,
-  signAndSendExtrinsic,
-  toWei,
-} from '../../../utils';
+import { fundParam, insufficientBalanceRule, isKton, isRing, signAndSendExtrinsic } from '../../../utils';
 import { BalanceControl } from '../../widget/form-control/BalanceControl';
 import { PrettyAccount } from '../../widget/PrettyAccount';
 
@@ -51,34 +40,9 @@ export function StakingNow() {
   const [payee, setPayee] = useState<Payee>('Staked');
   const [duration, setDuration] = useState(0);
   const [power, setPower] = useState('');
-  const [pool, setPool] = useState({ ring: new BN(0), kton: new BN(0) });
   const { createObserver, tx } = useTx();
+  const { calcPower } = usePower();
   const isMounted = useIsMounted();
-
-  const calcPower = useCallback(
-    (amount: string) => {
-      if (!selectedAsset) {
-        return new BN(0);
-      }
-
-      const value = toWei({ value: amount, unit: getUnit(+selectedAsset.token.decimal) });
-      const ktonBonded = new BN(0);
-      const ringBonded = new BN(0);
-      const ktonExtra = isKton(selectedAsset.asset) ? new BN(value) : new BN(0);
-      const ringExtra = isRing(selectedAsset.asset) ? new BN(value) : new BN(0);
-      const { ring: ringPool, kton: ktonPool } = pool;
-      const powerBase = assetToPower(ringBonded, ktonBonded, ringPool, ktonPool);
-      const powerTelemetry = assetToPower(
-        ringBonded.add(ringExtra),
-        ktonBonded.add(ktonExtra),
-        ringPool.add(ringExtra),
-        ktonPool.add(ktonExtra)
-      );
-
-      return powerTelemetry.minus(powerBase).toFixed(0);
-    },
-    [pool, selectedAsset]
-  );
 
   const launchStaking = useCallback(() => {
     const observer = createObserver({
@@ -99,17 +63,6 @@ export function StakingNow() {
       )
       .subscribe(observer);
   }, [api, createObserver, form, isMounted, payee, selectedAsset]);
-
-  useEffect(() => {
-    const ringPool = from(api.query.staking.ringPool()) as Observable<RingBalance>;
-    const ktonPool = from(api.query.staking.ktonPool()) as Observable<KtonBalance>;
-    const sub$$ = zip(ringPool, ktonPool).subscribe(([ring, kton]) =>
-      setPool({ ring: new BN(ring.toString()), kton: new BN(kton.toString()) })
-    );
-
-    return () => sub$$.unsubscribe();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   useEffect(() => {
     if (assets.length) {
@@ -193,7 +146,7 @@ export function StakingNow() {
             <BalanceControl
               compact
               onChange={(value) => {
-                const result = calcPower(value);
+                const result = calcPower(selectedAsset, value);
                 setPower(result.toString());
               }}
               size="large"
