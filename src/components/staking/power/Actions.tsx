@@ -30,15 +30,8 @@ export function Actions({ eraSelectionIndex }: ActionsProps) {
   const { t } = useTranslation();
   const { api } = useApi();
   const { createObserver } = useTx();
-  const {
-    stakingDerive,
-    validators,
-    isValidating,
-    isNominating,
-    controllerAccount,
-    updateStakingDerive,
-    updateValidators,
-  } = useStaking();
+  const { stakingDerive, isValidating, isNominating, controllerAccount, updateStakingDerive, updateValidators } =
+    useStaking();
 
   const sessionAccounts = useMemo(() => {
     if (!stakingDerive) {
@@ -70,15 +63,6 @@ export function Actions({ eraSelectionIndex }: ActionsProps) {
     [createObserver, updateStakingDerive, updateValidators]
   );
 
-  console.log(
-    '%c [ stakingDerive ]-9',
-    'font-size:13px; background:pink; color:#bf2c9f;',
-    isNominating,
-    isValidating,
-    stakingDerive,
-    validators?.toArray()
-  );
-
   return (
     <div className="flex gap-2 items-center">
       {isNominating || isValidating ? (
@@ -102,51 +86,51 @@ export function Actions({ eraSelectionIndex }: ActionsProps) {
       <Dropdown
         overlay={
           <Menu>
-            <Menu.Item>
+            <Menu.Item key="claimRewards">
               <ClaimRewards eraSelectionIndex={eraSelectionIndex} />
             </Menu.Item>
 
-            <Menu.Item>
+            <Menu.Item key="bondMore">
               <BondMore />
             </Menu.Item>
 
-            <Menu.Item>
+            <Menu.Item key="unbond">
               <Unbond />
             </Menu.Item>
 
-            <Menu.Item>
+            <Menu.Item key="deposit">
               <Deposit />
             </Menu.Item>
 
-            <Menu.Item>
+            <Menu.Item key="rebond">
               <Rebond />
             </Menu.Item>
 
-            <Menu.Item>
+            <Menu.Item key="controller">
               <SetController />
             </Menu.Item>
 
-            <Menu.Item>
+            <Menu.Item key="payee">
               <SetPayee />
             </Menu.Item>
 
             {isValidating && (
-              <Menu.Item>
+              <Menu.Item key="validator">
                 <SetValidator />
               </Menu.Item>
             )}
 
             {isNominating ? (
-              <Menu.Item>
+              <Menu.Item key="nominess">
                 <Nominate label="Set nominees" />
               </Menu.Item>
             ) : (
-              <Menu.Item>
+              <Menu.Item key="session">
                 <SetSession label="Change session keys" />
               </Menu.Item>
             )}
 
-            <Menu.Item>
+            <Menu.Item key="identity">
               <SetIdentity />
             </Menu.Item>
           </Menu>

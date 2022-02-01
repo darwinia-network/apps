@@ -8,7 +8,7 @@ import { assetToPower } from '../../../utils';
 import { PrettyAccount } from '../../widget/PrettyAccount';
 import { AssetOverview } from '../AssetOverview';
 import { Actions } from './Actions';
-import { PowerDetail } from './PowerDetail';
+import { Earnings } from './Earnings';
 
 export function Power() {
   const { t } = useTranslation();
@@ -66,7 +66,7 @@ export function Power() {
           </Col>
         ))}
       </Row>
-      <PowerDetail updateEraIndex={(idx) => setEraSelectionIndex(idx)} />
+      <Earnings updateEraIndex={(idx) => setEraSelectionIndex(idx)} />
     </>
   );
 }

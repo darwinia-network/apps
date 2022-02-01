@@ -53,3 +53,9 @@ export interface AccountDisplay {
 }
 
 export type AccountRecordListRes = ListRes<AccountRecord>;
+
+/* --------------------------------------------Staking history----------------------------------- */
+
+export interface StakingHistory {
+  sum: string;
+}
