@@ -71,6 +71,7 @@ export function AssetOverview({ asset }: AssetOverviewProps) {
       return {
         bonded,
         locked,
+        // TODO: in old version, the value comes form stakingDerive.unlockingTotalValue
         unbonding: ringStakingLock.unbondings.reduce(
           (acc: BN, cur: { amount: number }) => acc.add(new BN(cur.amount)),
           new BN(0)

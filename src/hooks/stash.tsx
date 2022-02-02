@@ -1,11 +1,11 @@
 import { DeriveStakerReward } from '@polkadot/api-derive/types';
 import { GenericAccountId, Option } from '@polkadot/types';
-import { EraIndex, Balance } from '@polkadot/types/interfaces';
+import { Balance, EraIndex } from '@polkadot/types/interfaces';
 import { StakingLedger } from '@polkadot/types/interfaces/staking';
 import BN from 'bn.js';
 import { has } from 'lodash';
 import { useEffect, useMemo, useState } from 'react';
-import { from, Subscription, takeWhile, zip } from 'rxjs';
+import { from, Subscription, takeWhile, tap, zip } from 'rxjs';
 import { NoNullFields } from '../model';
 import { useApi } from './api';
 import { useIsMounted } from './isMounted';
@@ -161,7 +161,7 @@ export function useOwnStashIds(): string[] | undefined {
   return stashIds;
 }
 
-export function useOwnEraReward(maxEras?: number) {
+export function useOwnEraReward(maxEras?: number, stashAccount = '') {
   const { api } = useApi();
   const isMounted = useIsMounted();
   const stashIds = useOwnStashIds();
@@ -172,37 +172,47 @@ export function useOwnEraReward(maxEras?: number) {
   );
   const [reward, setReward] = useState<OwnReward>({ rewardCount: 0, isLoadingRewards: true, rewards: null });
   const [payoutValidators, setPayoutValidators] = useState<PayoutValidator[]>([]);
+  const ids = useMemo(() => ([stashAccount] || stashIds || []).filter((item) => !!item), [stashIds, stashAccount]);
 
   useEffect(() => {
     setReward({ rewards: null, isLoadingRewards: true, rewardCount: 0 });
   }, [maxEras]);
 
   useEffect(() => {
+    if (!maxEras) {
+      return;
+    }
+
     const sub$$ = from(api.derive.staking.erasHistoric()).subscribe((eras) => {
-      if (eras && maxEras) {
-        setFilteredEras(eras.slice(-1 * maxEras));
-      }
+      setFilteredEras(eras.slice(-1 * maxEras));
     });
 
     return () => sub$$.unsubscribe();
   }, [api, maxEras]);
 
   useEffect(() => {
-    if (!stashIds) {
+    if (!ids || !ids.length) {
       return;
     }
 
-    const sub$$ = from(api.derive.staking.stakerRewardsMultiEras(stashIds, filteredEras))
-      .pipe(takeWhile(() => isMounted))
+    // TODO: consistent with polkadot.js, but not same with the old version
+    const sub$$ = from(api.derive.staking.stakerRewardsMultiEras(ids, filteredEras))
+      .pipe(
+        tap((v) => {
+          console.log('%c [ v ]-204', 'font-size:13px; background:pink; color:#bf2c9f;', v);
+        }),
+        takeWhile(() => isMounted)
+      )
       .subscribe((res) => {
-        const data = getOwnReward(stashIds, res);
+        const data = getOwnReward(ids, res);
+        console.log('%c [ res ]-246', 'font-size:13px; background:pink; color:#bf2c9f;', res);
 
         setReward(data);
         setPayoutValidators(rewardsGroupedByPayoutValidator(data.rewards, stakerPayoutAfter));
       });
 
     return () => sub$$?.unsubscribe();
-  }, [api, filteredEras, isMounted, stakerPayoutAfter, stashIds]);
+  }, [api.derive.staking, filteredEras, ids, isMounted, stakerPayoutAfter]);
 
   return { reward, payoutValidators };
 }

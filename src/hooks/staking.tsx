@@ -78,7 +78,7 @@ export function useStakingRewards(eraSelectionIndex: number) {
   const { stashAccount } = useStaking();
   const {
     reward: { rewards },
-  } = useOwnEraReward(eraSelection[eraSelectionIndex]?.value);
+  } = useOwnEraReward(eraSelection[eraSelectionIndex]?.value, stashAccount);
 
   useEffect(() => {
     if (rewards && stashAccount) {

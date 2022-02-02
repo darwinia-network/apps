@@ -14,20 +14,17 @@ interface PowerDetailProps {
   updateEraIndex: (num: number) => void;
 }
 
-// eslint-disable-next-line no-magic-numbers
-const RANGES = [2, 6, 18, 54, 162, 336];
-
 export function Earnings({ updateEraIndex }: PowerDetailProps) {
   const { t } = useTranslation();
   const { network } = useApi();
-  const [range, setRange] = useState<number>(RANGES[0]);
+  const [eraSelectionIndex, setEraSelectionIndex] = useState<number>(0);
   const [claimed, setClaimed] = useState('-');
-  const { assets } = useAccount();
-  const { account } = useAccount();
+  const { assets, account } = useAccount();
   const { stashAccount } = useStaking();
   const {
     stakingRewards: { payoutTotal },
-  } = useStakingRewards(range);
+    eraSelection,
+  } = useStakingRewards(eraSelectionIndex);
   const isMounted = useIsMounted();
   const ringAsset = useMemo(() => assets.find((item) => isRing(item.asset)), [assets]);
 
@@ -58,17 +55,17 @@ export function Earnings({ updateEraIndex }: PowerDetailProps) {
     <>
       <Card className="my-8">
         <Radio.Group
-          value={range}
+          value={eraSelection[eraSelectionIndex].value}
           onChange={(event) => {
             const idx = Number(+event.target.value);
 
-            setRange(idx);
+            setEraSelectionIndex(idx);
             updateEraIndex(idx);
           }}
         >
-          {RANGES.map((item, index) => (
-            <Radio.Button value={item} key={index}>
-              {t('{{count}} days', { count: item })}
+          {eraSelection.map((item, index) => (
+            <Radio.Button value={item.value} key={index}>
+              {t('{{count}} days', { count: item.value })}
             </Radio.Button>
           ))}
         </Radio.Group>
