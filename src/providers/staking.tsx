@@ -12,6 +12,7 @@ export interface StakingCtx {
   controllerAccount: string;
   isControllerAccountOwner: boolean;
   isNominating: boolean;
+  isStakingLedgerEmpty: boolean;
   isStashAccountOwner: boolean;
   isValidating: boolean;
   stakingDerive: DeriveStakingAccount | null;
@@ -106,6 +107,10 @@ export const StakingProvider = ({ children }: React.PropsWithChildren<unknown>) 
   }, [stashAccount, stashAccounts, validators]);
 
   const isNominating = useMemo(() => !!stakingDerive?.nominators.length, [stakingDerive]);
+  const isStakingLedgerEmpty = useMemo(
+    () => !stakingDerive || !stakingDerive.stakingLedger || stakingDerive.stakingLedger.isEmpty,
+    [stakingDerive]
+  );
   const isMounted = useIsMounted();
 
   const updateStakingDerive = useCallback(() => {
@@ -186,6 +191,7 @@ export const StakingProvider = ({ children }: React.PropsWithChildren<unknown>) 
         controllerAccount,
         isControllerAccountOwner,
         isNominating,
+        isStakingLedgerEmpty,
         isStashAccountOwner,
         isValidating,
         stakingDerive,

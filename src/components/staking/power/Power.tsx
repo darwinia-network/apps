@@ -9,16 +9,17 @@ import { PrettyAccount } from '../../widget/PrettyAccount';
 import { AssetOverview } from '../AssetOverview';
 import { Actions } from './Actions';
 import { Earnings } from './Earnings';
+import { Nominating } from './Nominating';
 
 export function Power() {
   const { t } = useTranslation();
   const [eraSelectionIndex, setEraSelectionIndex] = useState(0);
   const { accountWithMeta, assets, getBalances } = useAccount();
-  const { stakingDerive } = useStaking();
+  const { stakingDerive, isStakingLedgerEmpty } = useStaking();
   const { pool } = usePower();
 
   const power = useMemo(() => {
-    if (!stakingDerive || stakingDerive.stakingLedger.isEmpty) {
+    if (isStakingLedgerEmpty) {
       return assetToPower(new BN(0), new BN(0), pool.ring, pool.kton);
     }
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -26,7 +27,7 @@ export function Power() {
     const { active, activeKton } = stakingDerive.stakingLedger;
 
     return assetToPower(new BN(active.toString()), new BN(activeKton.toString()), pool.ring, pool.kton);
-  }, [pool, stakingDerive]);
+  }, [pool, stakingDerive, isStakingLedgerEmpty]);
 
   return (
     <>
@@ -66,7 +67,10 @@ export function Power() {
           </Col>
         ))}
       </Row>
+
       <Earnings updateEraIndex={(idx) => setEraSelectionIndex(idx)} />
+
+      <Nominating />
     </>
   );
 }

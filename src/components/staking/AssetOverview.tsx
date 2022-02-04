@@ -19,7 +19,7 @@ function Description({ title, value }: { title: string; value: string | number }
 export function AssetOverview({ asset }: AssetOverviewProps) {
   const { t } = useTranslation();
   const { account } = useAccount();
-  const { stakingDerive } = useStaking();
+  const { stakingDerive, isStakingLedgerEmpty } = useStaking();
   const as = useMemo(() => (isRing(asset.token?.symbol) ? 'ring' : 'kton'), [asset.token?.symbol]);
   const tips = useMemo(() => {
     if (isRing(asset.token?.symbol)) {
@@ -54,11 +54,11 @@ export function AssetOverview({ asset }: AssetOverviewProps) {
   }, [asset.token?.symbol, t]);
 
   const ledger = useMemo(() => {
-    if (!stakingDerive || stakingDerive.stakingLedger.isEmpty) {
+    if (isStakingLedgerEmpty) {
       return { bonded: null, unbonding: null, locked: null, total: null };
     }
 
-    const { stakingLedger } = stakingDerive;
+    const { stakingLedger } = stakingDerive!;
     if (isRing(asset.token.symbol)) {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
@@ -93,9 +93,9 @@ export function AssetOverview({ asset }: AssetOverviewProps) {
         new BN(0)
       ),
     };
-  }, [asset, stakingDerive]);
+  }, [asset.token.symbol, isStakingLedgerEmpty, stakingDerive]);
 
-  if (!stakingDerive || (stakingDerive.stakingLedger.isEmpty && account)) {
+  if (isStakingLedgerEmpty && account) {
     return null;
   }
 

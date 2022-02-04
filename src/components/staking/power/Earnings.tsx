@@ -1,4 +1,3 @@
-import Identicon from '@polkadot/react-identicon';
 import { Button, Card, Radio, Spin } from 'antd';
 import { upperCase } from 'lodash';
 import { useEffect, useMemo, useState } from 'react';
@@ -102,18 +101,6 @@ export function Earnings({ updateEraIndex }: PowerDetailProps) {
 
             <ClaimRewards eraSelectionIndex={eraSelectionIndex} type="primary" />
           </div>
-        </div>
-      </Card>
-
-      <Card>
-        <h1 className="text-lg font-bold mb-8">{t('Nomination')}</h1>
-
-        <div className="flex justify-between items-center border-b py-2">
-          <div className="flex items-center gap-2">
-            <Identicon value={'5FA7CzAgT5fNDFRdb4UWSZX3b9HJsPuR7F5BF4YotSpKxAA2'} size={32} />
-            <span>{t('5FA7CzAgT5fNDFRdb4UWSZX3b9HJsPuR7F5BF4YotSpKxAA2')}</span>
-          </div>
-          <span>{t('{{amount}} Powder', { amount: 0 })}</span>
         </div>
       </Card>
     </>
