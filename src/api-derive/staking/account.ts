@@ -7,8 +7,7 @@ import { Moment } from '@polkadot/types/interfaces';
 import { BN } from '@polkadot/util';
 import { isUndefined } from 'lodash';
 import { combineLatest, map, Observable } from 'rxjs';
-import { StakingLock } from '../types';
-import { DeriveStakingAccount, DeriveStakingQuery } from './types';
+import { DeriveStakingAccount, DeriveStakingQuery, StakingLock } from './types';
 
 const QUERY_OPTS = {
   withDestination: true,

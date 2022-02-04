@@ -74,7 +74,7 @@ export function Earnings({ updateEraIndex }: PowerDetailProps) {
 
           <Statistic
             title={t('Unclaimed')}
-            value={`${fromWei({ value: payoutTotal })} ${upperCase(ringAsset?.token.symbol)}`}
+            value={`${fromWei({ value: payoutTotal }, prettyNumber)} ${upperCase(ringAsset?.token.symbol)}`}
           />
 
           <div className="flex items-center gap-4">

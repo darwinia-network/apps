@@ -2,13 +2,13 @@ import { typesBundleForPolkadotApps } from '@darwinia/types/mix';
 import { ApiPromise, WsProvider } from '@polkadot/api';
 import { derive } from '@polkadot/api-derive';
 import { DeriveCustom } from '@polkadot/api/types';
-import { derive as iDerive } from '../../api-derive/derive';
+import { derive as darwiniaDerive } from '../../api-derive/derive';
 
 const { staking, ...rest } = derive;
 
 const customDerive = {
   ...rest,
-  staking: { ...staking, ...iDerive.staking },
+  staking: { ...staking, ...darwiniaDerive.staking },
 } as DeriveCustom;
 
 interface ApiGuy<T> {

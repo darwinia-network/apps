@@ -1,90 +1,16 @@
-// Copyright 2017-2020 @polkadot/api-derive authors & contributors
-// This software may be modified and distributed under the terms
-// of the Apache-2.0 license. See the LICENSE file for details.
-
-import { DeriveUnlocking } from '@polkadot/api-derive/types';
-import { ExposureT as Exposure, RKT, StakingLedgerT as StakingLedger } from '@darwinia/types/interfaces';
+import { Exposure } from '@darwinia/types';
+import { StakingLedgerT as StakingLedger } from '@darwinia/types/interfaces';
 import { TimeDepositItem } from '@darwinia/types/interfaces/darwiniaInject';
 import {
   AccountId,
   Balance,
+  BlockNumber,
   EraIndex,
   Keys,
   RewardDestination,
-  RewardPoint,
   ValidatorPrefs,
 } from '@polkadot/types/interfaces';
-import { DeriveSessionIndexes } from '../session/types';
-
-export type DeriveEraValPoints = Record<string, RewardPoint>;
-
-export type DeriveEraValPrefs = Record<string, ValidatorPrefs>;
-
-export type DeriveEraValSlash = Record<string, Balance>;
-
-export interface DeriveEraPoints {
-  era: EraIndex;
-  eraPoints: RewardPoint;
-  validators: DeriveEraValPoints;
-}
-
-export interface DeriveEraPrefs {
-  era: EraIndex;
-  validators: DeriveEraValPrefs;
-}
-
-export interface DeriveEraRewards {
-  era: EraIndex;
-  eraReward: Balance;
-}
-
-export interface DeriveEraSlashes {
-  era: EraIndex;
-  nominators: DeriveEraValSlash;
-  validators: DeriveEraValSlash;
-}
-
-export interface DeriveStakerPoints {
-  era: EraIndex;
-  eraPoints: RewardPoint;
-  points: RewardPoint;
-}
-
-export type DeriveEraNominatorExposure = Record<string, DeriveEraExposureNominating[]>;
-
-export type DeriveEraValidatorExposure = Record<string, Exposure>;
-
-export interface DeriveEraExposure {
-  era: EraIndex;
-  nominators: DeriveEraNominatorExposure;
-  validators: DeriveEraValidatorExposure;
-}
-
-export interface DeriveOwnExposure {
-  clipped: Exposure;
-  era: EraIndex;
-  exposure: Exposure;
-}
-
-export type DeriveOwnSlashes = DeriveStakerSlashes;
-
-export interface DeriveEraExposureNominating {
-  validatorId: string;
-  validatorIndex: number;
-}
-
-export interface DeriveStakerExposure {
-  era: EraIndex;
-  isEmpty: boolean;
-  isValidator: boolean;
-  nominating: DeriveEraExposureNominating[];
-  validators: DeriveEraValidatorExposure;
-}
-
-export interface DeriveStakerRewardValidator {
-  total: Balance;
-  value: Balance;
-}
+import type BN from 'bn.js';
 
 export interface DeriveStakerReward {
   era: EraIndex;
@@ -97,28 +23,44 @@ export interface DeriveStakerReward {
   total: Balance;
 }
 
-export interface DeriveStakerSlashes {
+interface DeriveEraExposureNominating {
+  validatorId: string;
+  validatorIndex: number;
+}
+
+interface DeriveStakerRewardValidator {
+  total: Balance;
+  value: Balance;
+}
+
+export interface DeriveStakerExposure {
   era: EraIndex;
-  total: RKT;
+  isEmpty: boolean;
+  isValidator: boolean;
+  nominating: DeriveEraExposureNominating[];
+  validators: DeriveEraValidatorExposure;
 }
 
-export interface DeriveStakingElected {
-  nextElected: AccountId[];
-  info: DeriveStakingQuery[];
-  activeComminssions: ValidatorPrefs[];
+type DeriveEraValidatorExposure = Record<string, Exposure>;
+
+export type StakingLock = {
+  stakingAmount: Balance;
+  unbondings: StakingLockUnbonding[];
+};
+
+type StakingLockUnbonding = {
+  amount: Balance;
+  until: BlockNumber;
+};
+
+export interface DeriveStakingQuery extends DeriveStakingStash {
+  accountId: AccountId;
+  nextSessionIds: AccountId[];
+  sessionIds: AccountId[];
+  stakingLedger?: StakingLedger;
 }
 
-export interface DeriveStakingWaiting {
-  info: DeriveStakingQuery[];
-  waiting: AccountId[];
-}
-
-export interface DeriveStakingValidators {
-  nextElected: AccountId[];
-  validators: AccountId[];
-}
-
-export interface DeriveStakingStash {
+interface DeriveStakingStash {
   controllerId?: AccountId;
   exposure?: Exposure;
   nominators?: AccountId[];
@@ -127,13 +69,6 @@ export interface DeriveStakingStash {
   nextKeys?: Keys;
   stashId?: AccountId;
   validatorPrefs?: ValidatorPrefs;
-}
-
-export interface DeriveStakingQuery extends DeriveStakingStash {
-  accountId: AccountId;
-  nextSessionIds: AccountId[];
-  sessionIds: AccountId[];
-  stakingLedger?: StakingLedger;
 }
 
 export interface DeriveStakingAccount extends DeriveStakingQuery {
@@ -146,7 +81,7 @@ export interface DeriveStakingAccount extends DeriveStakingQuery {
   activeDepositAmount?: Balance;
 }
 
-export interface DeriveStakingOverview extends DeriveSessionIndexes {
-  nextElected: AccountId[];
-  validators: AccountId[];
-}
+type DeriveUnlocking = {
+  remainingEras: BN;
+  value: Balance;
+};
