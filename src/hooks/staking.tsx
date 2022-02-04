@@ -77,7 +77,8 @@ export function useStakingRewards(eraSelectionIndex: number) {
   });
   const { stashAccount } = useStaking();
   const {
-    reward: { rewards },
+    reward: { rewards, isLoadingRewards },
+    payoutValidators,
   } = useOwnEraReward(eraSelection[eraSelectionIndex]?.value, stashAccount);
 
   useEffect(() => {
@@ -106,5 +107,5 @@ export function useStakingRewards(eraSelectionIndex: number) {
     return () => sub$$.unsubscribe();
   }, [api]);
 
-  return { stakingRewards, eraSelection };
+  return { stakingRewards, eraSelection, isLoadingRewards, payoutValidators };
 }

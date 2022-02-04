@@ -13,6 +13,7 @@ interface SubscanLinkProps extends PropsWithChildren<unknown> {
   network: Network;
   style?: CSSProperties;
   txHash?: string;
+  query?: string;
 }
 
 // eslint-disable-next-line complexity
@@ -24,11 +25,16 @@ export function SubscanLink({
   copyable,
   block,
   txHash,
+  query,
   ...other
 }: SubscanLinkProps) {
   if (address) {
     return (
-      <Link href={`https://${network}.subscan.io/account/${address}`} target="_blank" copyable={copyable}>
+      <Link
+        href={`https://${network}.subscan.io/account/${address}${query ? '?' + query : ''}`}
+        target="_blank"
+        copyable={copyable}
+      >
         {children || address}
       </Link>
     );

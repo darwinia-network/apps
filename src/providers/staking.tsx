@@ -3,7 +3,7 @@ import { GenericAccountId, Option } from '@polkadot/types';
 import { StakingLedger } from '@polkadot/types/interfaces/staking';
 import { PalletStakingValidatorPrefs } from '@polkadot/types/lookup';
 import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react';
-import { combineLatest, from, map, switchMap, takeWhile, tap, zip } from 'rxjs';
+import { combineLatest, from, map, switchMap, takeWhile, zip } from 'rxjs';
 import { useAccount, useApi, useIsMounted } from '../hooks';
 import { isSameAddress } from '../utils';
 
@@ -110,10 +110,7 @@ export const StakingProvider = ({ children }: React.PropsWithChildren<unknown>) 
 
   const updateStakingDerive = useCallback(() => {
     from(api.derive.staking.account(stashAccount))
-      .pipe(
-        tap((v) => console.log('------', v)),
-        takeWhile(() => isMounted)
-      )
+      .pipe(takeWhile(() => isMounted))
       .subscribe((res) => setStakingDerive(res));
   }, [api, isMounted, stashAccount]);
 

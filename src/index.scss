@@ -11,6 +11,10 @@ $bg-darwinia: linear-gradient(-45deg, #fe3876 0%, #7c30dd 71%, #3a30dd 100%);
 
 $radius-base: 10px;
 
+body {
+  font-family: 'IBM Plex Sans', sans-serif;
+}
+
 @mixin main-border {
   border: 2px solid transparent;
   border-radius: $radius-base;

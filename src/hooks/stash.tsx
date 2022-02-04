@@ -5,7 +5,7 @@ import { StakingLedger } from '@polkadot/types/interfaces/staking';
 import BN from 'bn.js';
 import { has } from 'lodash';
 import { useEffect, useMemo, useState } from 'react';
-import { from, Subscription, takeWhile, tap, zip } from 'rxjs';
+import { from, Subscription, takeWhile, zip } from 'rxjs';
 import { NoNullFields } from '../model';
 import { useApi } from './api';
 import { useIsMounted } from './isMounted';
@@ -21,10 +21,10 @@ interface PayoutEraValidator {
   stashes: Record<string, Balance>;
 }
 
-interface PayoutValidator {
+export interface PayoutValidator {
   available: BN;
   eras: PayoutEraValidator[];
-  validator: string;
+  validatorId: string;
 }
 
 type IsInKeyring = boolean;
@@ -79,7 +79,7 @@ function rewardsGroupedByPayoutValidator(
         .filter(({ era }) => era.gte(stakerPayoutsAfter))
         .forEach((reward): void => {
           Object.entries(reward.validators).forEach(([validatorId, { value }]): void => {
-            const entry = grouped.find((item) => item.validator === validatorId);
+            const entry = grouped.find((item) => item.validatorId === validatorId);
 
             if (entry) {
               const eraEntry = entry.eras.find((item) => item.era.eq(reward.era));
@@ -103,7 +103,7 @@ function rewardsGroupedByPayoutValidator(
                     stashes: { [stashId]: value },
                   },
                 ],
-                validator: validatorId,
+                validatorId,
               });
             }
           });
@@ -170,12 +170,14 @@ export function useOwnEraReward(maxEras?: number, stashAccount = '') {
     () => (has(api.tx.staking, 'payoutStakers') ? new BN(0) : new BN('1000000000')),
     [api]
   );
-  const [reward, setReward] = useState<OwnReward>({ rewardCount: 0, isLoadingRewards: true, rewards: null });
-  const [payoutValidators, setPayoutValidators] = useState<PayoutValidator[]>([]);
+  const [state, setState] = useState<{ reward: OwnReward; payoutValidators: PayoutValidator[] }>({
+    reward: { rewardCount: 0, isLoadingRewards: true, rewards: null },
+    payoutValidators: [],
+  });
   const ids = useMemo(() => ([stashAccount] || stashIds || []).filter((item) => !!item), [stashIds, stashAccount]);
 
   useEffect(() => {
-    setReward({ rewards: null, isLoadingRewards: true, rewardCount: 0 });
+    setState({ reward: { rewards: null, isLoadingRewards: true, rewardCount: 0 }, payoutValidators: [] });
   }, [maxEras]);
 
   useEffect(() => {
@@ -195,24 +197,17 @@ export function useOwnEraReward(maxEras?: number, stashAccount = '') {
       return;
     }
 
-    // TODO: consistent with polkadot.js, but not same with the old version
     const sub$$ = from(api.derive.staking.stakerRewardsMultiEras(ids, filteredEras))
-      .pipe(
-        tap((v) => {
-          console.log('%c [ v ]-204', 'font-size:13px; background:pink; color:#bf2c9f;', v);
-        }),
-        takeWhile(() => isMounted)
-      )
+      .pipe(takeWhile(() => isMounted))
       .subscribe((res) => {
         const data = getOwnReward(ids, res);
-        console.log('%c [ res ]-246', 'font-size:13px; background:pink; color:#bf2c9f;', res);
+        const validators = rewardsGroupedByPayoutValidator(data.rewards, stakerPayoutAfter);
 
-        setReward(data);
-        setPayoutValidators(rewardsGroupedByPayoutValidator(data.rewards, stakerPayoutAfter));
+        setState({ reward: data, payoutValidators: validators });
       });
 
     return () => sub$$?.unsubscribe();
   }, [api.derive.staking, filteredEras, ids, isMounted, stakerPayoutAfter]);
 
-  return { reward, payoutValidators };
+  return state;
 }

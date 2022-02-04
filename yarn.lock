@@ -1932,10 +1932,10 @@
     "@ethersproject/properties" "^5.5.0"
     "@ethersproject/strings" "^5.5.0"
 
-"@fontsource/ibm-plex-sans@^4.5.1":
-  version "4.5.1"
-  resolved "https://registry.yarnpkg.com/@fontsource/ibm-plex-sans/-/ibm-plex-sans-4.5.1.tgz#0aff4e48f470c1647c180255495d91a28b0a50e6"
-  integrity sha512-Jz+Jgjhrzv21MrsJbUV2sewRrCsKv51NuQFje1QWQbn2E4L1G58pxb6+H9N6EdELlvZvwBffvTYS4OWrF4r71A==
+"@fontsource/ibm-plex-sans@^4.5.2":
+  version "4.5.2"
+  resolved "https://registry.yarnpkg.com/@fontsource/ibm-plex-sans/-/ibm-plex-sans-4.5.2.tgz#6d553cca9cceee138d98c98d4dfd3871339221f7"
+  integrity sha512-1mL4SLmSlzrsOCkNl7y7o/hQqX5Xf0GfATJXZe0y0NkmyLA1Gq/52gzeC2H2kFtwtNCj2MTSbSYdLYOFykWXjA==
 
 "@fullhuman/postcss-purgecss@^3.1.3":
   version "3.1.3"

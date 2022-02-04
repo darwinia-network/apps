@@ -1,13 +1,16 @@
 import Identicon from '@polkadot/react-identicon';
-import { Button, Card, Radio, Statistic } from 'antd';
+import { Button, Card, Radio, Spin } from 'antd';
 import { upperCase } from 'lodash';
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { switchMapTo, timer, takeWhile } from 'rxjs';
+import { switchMapTo, takeWhile, timer } from 'rxjs';
 import { LONG_DURATION } from '../../../config';
 import { useAccount, useApi, useIsMounted, useStaking, useStakingRewards } from '../../../hooks';
 import { StakingHistory } from '../../../model';
 import { fromWei, isRing, prettyNumber, rxPost } from '../../../utils';
+import { Statistics } from '../../widget/Statistics';
+import { SubscanLink } from '../../widget/SubscanLink';
+import { ClaimRewards } from '../action';
 import { StakingNow } from './StakingNow';
 
 interface PowerDetailProps {
@@ -24,6 +27,7 @@ export function Earnings({ updateEraIndex }: PowerDetailProps) {
   const {
     stakingRewards: { payoutTotal },
     eraSelection,
+    isLoadingRewards,
   } = useStakingRewards(eraSelectionIndex);
   const isMounted = useIsMounted();
   const ringAsset = useMemo(() => assets.find((item) => isRing(item.asset)), [assets]);
@@ -53,11 +57,12 @@ export function Earnings({ updateEraIndex }: PowerDetailProps) {
     </Card>
   ) : (
     <>
-      <Card className="my-8">
+      <Card className="my-8" bodyStyle={{ padding: '24px 32px' }}>
         <Radio.Group
           value={eraSelection[eraSelectionIndex].value}
           onChange={(event) => {
-            const idx = Number(+event.target.value);
+            const value = +event.target.value;
+            const idx = eraSelection.findIndex((item) => item.value === value);
 
             setEraSelectionIndex(idx);
             updateEraIndex(idx);
@@ -65,21 +70,37 @@ export function Earnings({ updateEraIndex }: PowerDetailProps) {
         >
           {eraSelection.map((item, index) => (
             <Radio.Button value={item.value} key={index}>
-              {t('{{count}} days', { count: item.value })}
+              {item.text}
             </Radio.Button>
           ))}
         </Radio.Group>
         <div className="flex justify-between items-center mt-8">
-          <Statistic title={t('Claimed')} value={`${claimed} ${upperCase(ringAsset?.token.symbol)}`} />
+          <Statistics
+            title={t('Claimed')}
+            value={`${claimed} ${upperCase(ringAsset?.token.symbol)}`}
+            className="border-none"
+          />
 
-          <Statistic
+          <Statistics
             title={t('Unclaimed')}
-            value={`${fromWei({ value: payoutTotal }, prettyNumber)} ${upperCase(ringAsset?.token.symbol)}`}
+            value={
+              isLoadingRewards ? (
+                <Spin />
+              ) : (
+                `${fromWei({ value: payoutTotal }, prettyNumber)} ${upperCase(ringAsset?.token.symbol)}`
+              )
+            }
+            className="border-none"
           />
 
           <div className="flex items-center gap-4">
-            <Button type="primary">{t('Claim Reward')}</Button>
-            <Button>{t('Reward History')}</Button>
+            <Button type="primary">
+              <SubscanLink network={network.name} address={account} query="tab=reward">
+                {t('Reward History')}
+              </SubscanLink>
+            </Button>
+
+            <ClaimRewards eraSelectionIndex={eraSelectionIndex} type="primary" />
           </div>
         </div>
       </Card>
