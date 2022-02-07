@@ -2,9 +2,9 @@ import { KtonBalance, RingBalance } from '@darwinia/types';
 import BN from 'bn.js';
 import { useCallback, useEffect, useState } from 'react';
 import { from, zip } from 'rxjs';
-import { Asset, Fund } from '../model';
-import { assetToPower, getUnit, isKton, isRing, toWei } from '../utils';
-import { useApi } from './api';
+import { Asset, Fund } from '../../model';
+import { assetToPower, getUnit, isKton, isRing, toWei } from '../../utils';
+import { useApi } from '../api';
 
 export function usePower() {
   const { api } = useApi();

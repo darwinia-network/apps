@@ -6,7 +6,7 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { from, takeWhile } from 'rxjs';
 import { DeriveStakingQuery } from '../../../api-derive/types';
-import { useApi, useIsMounted, useStaking } from '../../../hooks';
+import { useApi, useIsMounted, useNominators, useStaking } from '../../../hooks';
 import { AccountName } from '../../widget/AccountName';
 
 interface NominateItemProps {
@@ -36,25 +36,9 @@ function NominateItem({ source }: NominateItemProps) {
 }
 
 function Nominators() {
-  const { api } = useApi();
-  const { stashAccount } = useStaking();
-  const [nominators, setNominators] = useState<[string, Power][]>([]);
-  const isMounted = useIsMounted();
+  const { nominators } = useNominators();
 
-  useEffect(() => {
-    from(api.derive.staking.query(stashAccount, { withLedger: true }) as unknown as Promise<DeriveStakingQuery>)
-      .pipe(takeWhile(() => isMounted))
-      .subscribe((res) => {
-        const { exposure } = res;
-        const data = exposure
-          ? exposure.others.map(({ power, who }) => [who.toString(), power] as [string, Power])
-          : [];
-
-        setNominators(data);
-      });
-  }, [api.derive.staking, isMounted, stashAccount]);
-
-  return <NominateItem source={nominators} />;
+  return <NominateItem source={nominators ?? []} />;
 }
 
 function Nominees() {

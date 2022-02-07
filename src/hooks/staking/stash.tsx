@@ -6,9 +6,9 @@ import BN from 'bn.js';
 import { has } from 'lodash';
 import { useEffect, useMemo, useState } from 'react';
 import { from, Subscription, takeWhile, zip } from 'rxjs';
-import { NoNullFields } from '../model';
-import { useApi } from './api';
-import { useIsMounted } from './isMounted';
+import { NoNullFields } from '../../model';
+import { useApi } from '../api';
+import { useIsMounted } from '../isMounted';
 
 interface OwnReward {
   rewards: Record<string, DeriveStakerReward[]> | null;

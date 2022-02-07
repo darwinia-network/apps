@@ -2,14 +2,12 @@ import { ApiPromise } from '@polkadot/api';
 import { EraIndex } from '@polkadot/types/interfaces';
 import BN from 'bn.js';
 import { TFunction } from 'i18next';
-import { useContext, useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { from, zip } from 'rxjs';
-import { StakingContext, StakingCtx } from '../providers/staking';
-import { useApi } from './api';
+import { useApi } from '../api';
+import { useStaking } from './staking';
 import { useOwnEraReward } from './stash';
-
-export const useStaking = () => useContext(StakingContext) as Exclude<StakingCtx, null>;
 
 interface EraSelection {
   value: number;
