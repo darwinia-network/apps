@@ -146,7 +146,7 @@ export function StakingOverview() {
       {overview ? (
         <Validators overview={overview} />
       ) : (
-        <Card>
+        <Card className="my-8">
           <Skeleton active />
         </Card>
       )}

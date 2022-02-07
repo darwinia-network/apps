@@ -66,7 +66,7 @@ function App() {
   }, []);
 
   return (
-    <Layout>
+    <Layout style={{ height: '100vh' }} className="overflow-hidden">
       <Sider theme={theme} trigger={null} collapsible collapsed={collapsed}>
         <div className="h-screen max-h-screen flex flex-col items-stretch relative">
           <div className="p-4">
@@ -151,8 +151,8 @@ function App() {
         </div>
       </Sider>
 
-      <Layout>
-        <header className="h-20 flex justify-between items-center px-8">
+      <Layout className="overflow-scroll">
+        <header className="h-20 flex justify-between items-center p-8 sticky top-0 z-10 bg-gray-100">
           <h2 className={`text-lg font-bold bg-${network.name} text-transparent bg-clip-text`}>Account</h2>
           <div className="flex items-center gap-4">
             <Connection />
