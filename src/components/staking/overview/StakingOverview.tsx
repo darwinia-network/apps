@@ -1,16 +1,16 @@
 import { DeriveSessionProgress } from '@polkadot/api-derive/session/types';
 import { DeriveStakingOverview, DeriveStakingWaiting } from '@polkadot/api-derive/staking/types';
-import { Card, Input, Progress, Spin } from 'antd';
-import Table, { ColumnsType } from 'antd/lib/table';
+import { Card, Progress, Skeleton, Spin } from 'antd';
 import BN from 'bn.js';
 import { isNull } from 'lodash';
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { from, switchMap, takeWhile, timer } from 'rxjs';
-import { MIDDLE_DURATION } from '../../config';
-import { useApi, useIsMounted, useNominators, useStaking } from '../../hooks';
-import { BlockTime } from '../widget/BlockTime';
-import { Statistics } from '../widget/Statistics';
+import { MIDDLE_DURATION } from '../../../config';
+import { useApi, useIsMounted, useNominators, useStaking } from '../../../hooks';
+import { BlockTime } from '../../widget/BlockTime';
+import { Statistics } from '../../widget/Statistics';
+import { Validators } from './Validators';
 
 interface StatisticProgressProps {
   label: string;
@@ -57,10 +57,6 @@ function StatisticProgress({ label, block, data, className = '' }: StatisticProg
   );
 }
 
-const testData = [
-  { id: 0, validators: 'xxx', other: '8743104(8)', own: 4848, active: '6%', next: '6%', points: 2660, last: 6157610 },
-];
-
 // eslint-disable-next-line complexity
 export function StakingOverview() {
   const { t } = useTranslation();
@@ -71,15 +67,6 @@ export function StakingOverview() {
   const [progress, setProgress] = useState<DeriveSessionProgress | null>(null);
   const { nominators } = useNominators();
   const isMounted = useIsMounted();
-  const columns: ColumnsType<Record<string, string | number>> = [
-    { title: 'validators', dataIndex: 'validators' },
-    { title: 'other stake(power)', dataIndex: 'other' },
-    { title: 'own stake(power)', dataIndex: 'own' },
-    { title: 'active commission', dataIndex: 'active' },
-    { title: 'next commission', dataIndex: 'next' },
-    { title: 'points', dataIndex: 'points' },
-    { title: 'last #', dataIndex: 'last' },
-  ];
 
   useEffect(() => {
     const sub$$ = from(api.derive.staking.overview())
@@ -156,11 +143,13 @@ export function StakingOverview() {
         </div>
       </Card>
 
-      <Input size="large" placeholder={t('Flite by name, address or index')} className="my-8 w-1/3" />
-
-      <Card>
-        <Table rowKey={'id'} dataSource={testData} columns={columns} />
-      </Card>
+      {overview ? (
+        <Validators overview={overview} />
+      ) : (
+        <Card>
+          <Skeleton active />
+        </Card>
+      )}
     </>
   );
 }

@@ -101,7 +101,7 @@ function extractIdentity(address: string, identity: DeriveAccountRegistration): 
   const judgements = identity.judgements.filter(([, judgement]) => !judgement.isFeePaid);
   const isGood = judgements.some(([, judgement]) => judgement.isKnownGood || judgement.isReasonable);
   const isBad = judgements.some(([, judgement]) => judgement.isErroneous || judgement.isLowQuality);
-  const displayName = isGood ? identity.display : (identity.display || '').replace(/[^\x20-\x7E]/g, '');
+  const displayName = isGood ? identity.display : identity.display || ''; // at polkadot apps: .replace(/[^\x20-\x7E]/g, '');
   const displayParent =
     identity.displayParent && (isGood ? identity.displayParent : identity.displayParent.replace(/[^\x20-\x7E]/g, ''));
   const elem = createIdElem(

@@ -13,6 +13,5 @@
   "@project-primary": "#5745de",
   "@secondary-color": "@primary-color",
   "@select-item-selected-bg": "@background-color-base",
-  "@select-item-selected-option-color": "@primary-color",
-  "@skeleton-color": "@primary-color"
+  "@select-item-selected-option-color": "@primary-color"
 }

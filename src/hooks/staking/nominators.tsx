@@ -1,11 +1,34 @@
 import { Power } from '@darwinia/types';
 import { BN_ZERO } from '@polkadot/util';
+import { StorageKey, Option } from '@polkadot/types';
+import { Nominations } from '@polkadot/types/interfaces';
 import BN from 'bn.js';
 import { useEffect, useState } from 'react';
 import { from, takeWhile } from 'rxjs';
 import { useApi } from '../api';
 import { useIsMounted } from '../isMounted';
 import { useStaking } from './staking';
+
+function extractNominators(nominations: [StorageKey, Option<Nominations>][]): Record<string, [string, number][]> {
+  return nominations.reduce((mapped: Record<string, [string, number][]>, [key, optNoms]) => {
+    if (optNoms.isSome) {
+      const nominatorId = key.args[0].toString();
+
+      optNoms.unwrap().targets.forEach((_validatorId, index): void => {
+        const validatorId = _validatorId.toString();
+        const info: [string, number] = [nominatorId, index + 1];
+
+        if (!mapped[validatorId]) {
+          mapped[validatorId] = [info];
+        } else {
+          mapped[validatorId].push(info);
+        }
+      });
+    }
+
+    return mapped;
+  }, {});
+}
 
 export function useNominators() {
   const {
@@ -49,4 +72,22 @@ export function useNominators() {
   }, [accounts, api, isMounted, stashAccount]);
 
   return { nominators };
+}
+
+export function useNominatorEntries() {
+  const { api } = useApi();
+  const [entries, setEntries] = useState<Record<string, [string, number][]>>({});
+  const isMounted = useIsMounted();
+
+  useEffect(() => {
+    const sub$$ = from(api.query.staking.nominators.entries())
+      .pipe(takeWhile(() => isMounted))
+      .subscribe((res) => {
+        setEntries(extractNominators(res as [StorageKey, Option<Nominations>][]));
+      });
+
+    return () => sub$$.unsubscribe();
+  }, [api, isMounted]);
+
+  return { nominatedBy: entries };
 }
