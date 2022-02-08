@@ -28,33 +28,13 @@ jobs:
           append: true
           message: ${{ steps.smart-vercel.outputs.PREVIEW_OUTPUT }}
 
-#      - name: slack - GitHub Actions Slack integration
-#        uses: act10ns/slack@v1.5.0
-#        env:
-#          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_INCOMING_WEBHOOK_URL }}
-#          VERCEL_OUTPUT: ${{ steps.deploy.outputs.PREVIEW_OUTPUT }}
-#        with:
-#          status: ${{ job.status }}
-#          channel: '#darwinia-apps'
-#          config: .github/config/slack-vercel.yml
-
       - name: slack - GitHub Actions Slack integration
         uses: act10ns/slack@v1.5.0
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_INCOMING_WEBHOOK_URL }}
-          VERCEL_OUTPUT: ${{ steps.deploy.outputs.PREVIEW_LINK }}
+          VERCEL_OUTPUT: ${{ steps.smart-vercel.outputs.PREVIEW_LINK }}
         with:
           status: ${{ job.status }}
           channel: '#darwinia-apps'
-          config: .github/config/slack-vercel.yml
-
-#      - name: Slack Notification
-#        uses: rtCamp/action-slack-notify@v2
-#        env:
-#          SLACK_CHANNEL: darwinia-apps
-#          SLACK_COLOR: ${{ job.status }}
-#          SLACK_ICON: https://avatars.githubusercontent.com/u/14985020?s=48&v=4
-#          SLACK_MESSAGE: '${{ steps.smart-vercel.outputs.PREVIEW_LINK }}'
-#          SLACK_TITLE: Preview
-#          SLACK_USERNAME: Vercel
-#          SLACK_WEBHOOK: ${{ secrets.SLACK_INCOMING_WEBHOOK_URL }}
+          message: |
+            Preview: ${{ steps.smart-vercel.outputs.PREVIEW_LINK }}
