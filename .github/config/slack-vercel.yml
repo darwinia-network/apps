@@ -34,7 +34,7 @@ fields:
     value: "{{jobStatus}}"
     short: true
   - title: Preview
-    value: "{{env.GITHUB_ACTOR}}"
+    value: "{{GITHUB_ACTOR}}"
     short: false
 
 colors:
