@@ -34,7 +34,7 @@ fields:
     value: "{{jobStatus}}"
     short: true
   - title: Preview
-    value: "{{GITHUB_ACTOR}}"
+    value: "{{VERCEL_OUTPUT}}"
     short: false
 
 colors:

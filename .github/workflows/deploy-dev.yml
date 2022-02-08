@@ -36,5 +36,4 @@ jobs:
         with:
           status: ${{ job.status }}
           channel: '#darwinia-apps'
-          message: |
-            Preview: ${{ steps.smart-vercel.outputs.PREVIEW_LINK }}
+          config: .github/config/slack-vercel.yml
