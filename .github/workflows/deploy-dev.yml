@@ -16,6 +16,7 @@ jobs:
           path: .github/actions
 
       - uses: ./.github/actions/smart-vercel
+        name: Deploy to Vercel
         id: smart-vercel
         with:
           vercel_token: ${{ secrets.VERCEL_TOKEN }}
