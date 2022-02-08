@@ -1,17 +1,22 @@
-import { MailOutlined } from '@ant-design/icons';
+import { AppstoreOutlined, LineChartOutlined, MailOutlined } from '@ant-design/icons';
+import { Power } from '@darwinia/types';
 import { DeriveStakingOverview } from '@polkadot/api-derive/staking/types';
 import { DeriveHeartbeats } from '@polkadot/api-derive/types';
 import Identicon from '@polkadot/react-identicon';
+import { BN_ZERO } from '@polkadot/util';
 import { Card, Col, Collapse, Input, Row, Tag } from 'antd';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { from, switchMap, timer } from 'rxjs';
 import { MIDDLE_DURATION } from '../../../config';
 import { useApi, useIsMountedOperator } from '../../../hooks';
 import { STAKING_FAV_KEY, useFavorites } from '../../../hooks/favorites';
+import { prettyNumber } from '../../../utils';
 import { AccountName } from '../../widget/AccountName';
 import { Favorite } from '../../widget/Favorite';
+import { PrettyAccount } from '../../widget/PrettyAccount';
 import { HidablePanel } from './HidablePanel';
+import { OverviewProvider, useOverview } from './overview';
 
 type AccountExtend = [string, boolean, boolean];
 
@@ -51,6 +56,45 @@ function getFiltered(stakingOverview: DeriveStakingOverview, favorites: string[]
     validators,
     waiting,
   };
+}
+
+function StakerOther() {
+  const { stakingInfo } = useOverview();
+
+  const count = useMemo(() => {
+    const { exposure } = stakingInfo;
+    const other = exposure?.totalPower.sub(exposure.ownPower);
+
+    return other || BN_ZERO;
+  }, [stakingInfo]);
+
+  const nominators = useMemo(() => stakingInfo.exposure?.others.map((item) => item.who.toString()), [stakingInfo]);
+
+  if (count?.lte(BN_ZERO)) {
+    return null;
+  }
+
+  return (
+    <span>
+      {prettyNumber(count)} {`(${nominators?.length})`}
+    </span>
+  );
+}
+
+function Nominators() {
+  const { stakingInfo } = useOverview();
+  const nominators = useMemo<[string, Power][]>(
+    () => stakingInfo.exposure?.others.map((item) => [item.who.toString(), item.power]) || [],
+    [stakingInfo]
+  );
+
+  return (
+    <span className="grid grid-cols-4 items-center gap-4 bg-white p-4 rounded-lg">
+      {nominators?.map(([acc]) => (
+        <PrettyAccount key={acc} account={{ address: acc }} iconSize={24} />
+      ))}
+    </span>
+  );
 }
 
 export function Validators({ overview }: ValidatorsProps) {
@@ -105,51 +149,104 @@ export function Validators({ overview }: ValidatorsProps) {
       />
 
       <Card>
-        <Row justify="space-between" className="py-4 pl-8 pr-4 font-bold bg-gray-200 rounded-t-lg">
-          <Col span={10}>{t('Validator')}</Col>
-          <Col span={10}>
-            <Row justify="space-between">
-              <Col>{t('other stake(power)')}</Col>
-              <Col>{t('own stake(power)')}</Col>
-              <Col>{t('active commission')}</Col>
-              <Col>{t('next commission')}</Col>
-              <Col>{t('points')}</Col>
-              <Col>{t('last #')}</Col>
+        <Row justify="space-between" align="middle" className="p-4 font-bold bg-gray-200 rounded-t-lg">
+          <Col span={8} className="pl-8">
+            {t('Validator')}
+          </Col>
+          <Col className="flex-1">
+            <Row align="middle" justify="space-around">
+              <Col span={3} className="text-center">
+                {t('other stake(power)')}
+              </Col>
+              <Col span={3} className="text-center">
+                {t('own stake(power)')}
+              </Col>
+              <Col span={3} className="text-center">
+                {t('active commission')}
+              </Col>
+              <Col span={3} className="text-center">
+                {t('next commission')}
+              </Col>
+              <Col span={3} className="text-center">
+                {t('points')}
+              </Col>
+              <Col span={3} className="text-center">
+                {t('last #')}
+              </Col>
+              <Col span={2}></Col>
             </Row>
           </Col>
-          <Col></Col>
         </Row>
 
-        <Collapse style={{ borderRadius: '0 0 10px 10px' }}>
-          {sourceData.map(([account]) => {
+        <div className="border-l border-r rounded-b-lg">
+          {sourceData.map(([account], index) => {
             const count = online?.[account]?.blockCount.toNumber();
             const hasMsg = online?.[account]?.hasMessage;
 
             return (
-              <HidablePanel
-                showArrow={false}
-                account={account}
-                match={searchName}
-                header={
-                  <span className="flex items-center gap-4 ml-4 ">
-                    <Favorite account={account} />
+              <OverviewProvider key={account} account={account}>
+                <Collapse bordered={false} className="rounded-none">
+                  <HidablePanel
+                    showArrow={false}
+                    account={account}
+                    match={searchName}
+                    style={{ borderRadius: index === sourceData.length - 1 ? '0 0 10px 10px' : '0' }}
+                    header={
+                      <Row align="middle" justify="space-between">
+                        <Col
+                          span={8}
+                          onClick={(event) => event.stopPropagation()}
+                          className="flex items-center gap-4 pl-4"
+                        >
+                          <Favorite account={account} />
 
-                    <div className="w-8">
-                      {!!count && <Tag color="cyan">{count}</Tag>}
-                      {!count && hasMsg && <MailOutlined color="cyan" />}
-                    </div>
+                          <div className="w-8">
+                            {!!count && <Tag color="cyan">{count}</Tag>}
+                            {!count && hasMsg && <MailOutlined color="cyan" />}
+                          </div>
 
-                    <span className="inline-flex items-center gap-2">
-                      <Identicon value={account} size={32} className="rounded-full border p-1" />
-                      <AccountName account={account} />
-                    </span>
-                  </span>
-                }
-                key={account}
-              ></HidablePanel>
+                          <span className="inline-flex items-center gap-2">
+                            <Identicon value={account} size={32} className="rounded-full border p-1" />
+                            <AccountName account={account} />
+                          </span>
+                        </Col>
+                        <Col className="flex-1">
+                          <Row justify="space-around" align="middle">
+                            <Col span={3} className="text-center">
+                              <StakerOther />
+                            </Col>
+                            <Col span={3} className="text-center">
+                              xx
+                            </Col>
+                            <Col span={3} className="text-center">
+                              xx
+                            </Col>
+                            <Col span={3} className="text-center">
+                              xx
+                            </Col>
+                            <Col span={3} className="text-center">
+                              xx
+                            </Col>
+                            <Col span={3} className="text-center">
+                              xx
+                            </Col>
+                            <Col span={2} className="flex justify-end items-center gap-8">
+                              <LineChartOutlined />
+                              <AppstoreOutlined />
+                            </Col>
+                          </Row>
+                        </Col>
+                      </Row>
+                    }
+                    key={account}
+                  >
+                    <Nominators />
+                  </HidablePanel>
+                </Collapse>
+              </OverviewProvider>
             );
           })}
-        </Collapse>
+        </div>
       </Card>
     </>
   );

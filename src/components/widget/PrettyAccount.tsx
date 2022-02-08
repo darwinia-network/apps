@@ -1,5 +1,6 @@
 import Identicon from '@polkadot/react-identicon';
 import { IAccountMeta } from '../../model';
+import { EllipsisMiddle } from './EllipsisMiddle';
 
 interface PrettyAccountProps {
   account: IAccountMeta;
@@ -12,9 +13,9 @@ export function PrettyAccount({ account: { address, meta }, className, iconSize 
   return (
     <div className={`flex items-center ${className}`}>
       <Identicon size={iconSize} value={address} className="rounded-full border border-gray-100" />
-      <span className="ml-2">{meta?.name}</span>
+      {!!meta?.name && <span className="ml-2">{meta?.name}</span>}
       <span className="mx-1">-</span>
-      <span className="overflow-hidden whitespace-nowrap">{address}</span>
+      <EllipsisMiddle>{address}</EllipsisMiddle>
     </div>
   );
 }

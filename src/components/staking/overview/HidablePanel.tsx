@@ -1,21 +1,21 @@
-import { DeriveAccountInfo } from '@polkadot/api-derive/types';
 import { Collapse, CollapsePanelProps } from 'antd';
-import { useEffect, useMemo, useState } from 'react';
-import { from } from 'rxjs';
+import { PropsWithChildren } from 'react';
+import { useMemo } from 'react';
 import { useApi } from '../../../hooks';
 import { isSameAddress } from '../../../utils';
+import { useOverview } from './overview';
 
-interface PanelProps extends CollapsePanelProps {
+interface PanelProps extends CollapsePanelProps, PropsWithChildren<unknown> {
   account: string;
   match: string;
 }
 
-export function HidablePanel({ account, match, ...rest }: PanelProps) {
+export function HidablePanel({ account, match, children, ...rest }: PanelProps) {
   const {
     api,
     connection: { accounts },
   } = useApi();
-  const [accountInfo, setAccountInfo] = useState<DeriveAccountInfo | null>(null);
+  const { accountInfo } = useOverview();
 
   // eslint-disable-next-line complexity
   const canDisplay = useMemo(() => {
@@ -49,13 +49,9 @@ export function HidablePanel({ account, match, ...rest }: PanelProps) {
     return isVisible;
   }, [account, accountInfo, accounts, api.query.identity, match]);
 
-  useEffect(() => {
-    const sub$$ = from(api.derive.accounts.info(account)).subscribe((res) => {
-      setAccountInfo(res);
-    });
-
-    return () => sub$$.unsubscribe();
-  }, [account, api]);
-
-  return <Collapse.Panel className={!canDisplay ? 'hidden' : ''} {...rest}></Collapse.Panel>;
+  return (
+    <Collapse.Panel className={!canDisplay ? 'hidden' : ''} {...rest}>
+      {children}
+    </Collapse.Panel>
+  );
 }
