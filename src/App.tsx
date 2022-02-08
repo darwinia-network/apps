@@ -30,7 +30,7 @@ import { getNetworkByName, NETWORK_CONFIGURATIONS, readStorage, updateStorage } 
 
 interface Nav {
   label: string;
-  path: Path;
+  path: string;
   Icon: (Props: IconProps) => JSX.Element;
 }
 
@@ -39,7 +39,7 @@ const { Option } = Select;
 
 const navigators: Nav[] = [
   { label: 'Account', path: Path.account, Icon: AccountIcon },
-  { label: 'Staking', path: Path.staking, Icon: StakingIcon },
+  { label: 'Staking', path: Path.staking + '?active=power', Icon: StakingIcon },
   { label: 'Toolbox', path: Path.toolbox, Icon: ToolboxIcon },
   { label: 'Darwinia Portal', path: Path.portal, Icon: DarwiniaIcon },
   { label: 'Account Migration', path: Path.migration, Icon: UsersIcon },
