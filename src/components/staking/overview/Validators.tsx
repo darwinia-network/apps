@@ -3,15 +3,16 @@ import { Power } from '@darwinia/types';
 import { DeriveStakingOverview } from '@polkadot/api-derive/staking/types';
 import { DeriveHeartbeats } from '@polkadot/api-derive/types';
 import Identicon from '@polkadot/react-identicon';
+import { EraRewardPoints, Perbill } from '@polkadot/types/interfaces';
 import { BN_ZERO } from '@polkadot/util';
 import { Card, Col, Collapse, Input, Row, Tag } from 'antd';
-import { useEffect, useMemo, useState } from 'react';
+import { Reducer, useEffect, useMemo, useReducer, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { from, switchMap, timer } from 'rxjs';
 import { MIDDLE_DURATION } from '../../../config';
 import { useApi, useIsMountedOperator } from '../../../hooks';
 import { STAKING_FAV_KEY, useFavorites } from '../../../hooks/favorites';
-import { prettyNumber } from '../../../utils';
+import { isSameAddress, prettyNumber } from '../../../utils';
 import { AccountName } from '../../widget/AccountName';
 import { Favorite } from '../../widget/Favorite';
 import { PrettyAccount } from '../../widget/PrettyAccount';
@@ -97,15 +98,66 @@ function Nominators() {
   );
 }
 
+function StakerOwn() {
+  const { stakingInfo } = useOverview();
+  const count = useMemo(() => {
+    const { exposure } = stakingInfo;
+
+    return exposure?.ownPower;
+  }, [stakingInfo]);
+
+  return !count || count.lt(BN_ZERO) ? null : <span>{prettyNumber(count)}</span>;
+}
+
+function Commission({ value }: { value: Perbill | null | undefined }) {
+  const base = 10_000_000;
+  const decimal = 2;
+  const percent = value ? (value.toNumber() / base).toFixed(decimal) + '%' : '-';
+
+  return <span>{percent}</span>;
+}
+
+function ActiveCommission() {
+  const { validatorPrefs } = useOverview();
+
+  return <Commission value={validatorPrefs.commission.unwrap()} />;
+}
+
+function NextCommission() {
+  const { stakingInfo } = useOverview();
+
+  return <Commission value={stakingInfo.validatorPrefs?.commission.unwrap() ?? null} />;
+}
+
+function Points({ points, account }: { points: EraRewardPoints | null; account: string }) {
+  if (!points) {
+    return null;
+  }
+
+  const entry = [...points.individual.entries()].find(([address]) => isSameAddress(address.toString(), account));
+
+  if (!entry) {
+    return null;
+  }
+
+  return <span>{entry[1].toString()}</span>;
+}
+
 export function Validators({ overview }: ValidatorsProps) {
   const { t } = useTranslation();
   const {
     api,
     connection: { accounts },
+    network,
   } = useApi();
   const [sourceData, setSourceData] = useState<AccountExtend[]>([]);
   const [favorites] = useFavorites(STAKING_FAV_KEY);
-  const [online, setOnline] = useState<DeriveHeartbeats | null>();
+  const [online, setOnline] = useState<DeriveHeartbeats | null>(null);
+  const [points, setPoints] = useState<EraRewardPoints | null>(null);
+  const [byAuthor, setByAuthor] = useReducer<Reducer<Record<string, string>, Record<string, string>>>(
+    (state, action) => ({ ...state, ...action }),
+    {}
+  );
   const [searchName, setSearchName] = useState('');
   const { takeWhileIsMounted } = useIsMountedOperator();
 
@@ -134,7 +186,29 @@ export function Validators({ overview }: ValidatorsProps) {
         setOnline(res);
       });
 
-    return () => sub$$.unsubscribe();
+    const points$$ = from(api.derive.staking.currentPoints())
+      .pipe(takeWhileIsMounted())
+      .subscribe((res) => setPoints(res));
+
+    const header$$ = timer(0, MIDDLE_DURATION)
+      .pipe(
+        switchMap((_) => from(api.derive.chain.subscribeNewHeads())),
+        takeWhileIsMounted()
+      )
+      .subscribe((lastHeader) => {
+        if (lastHeader?.number && lastHeader?.author) {
+          const blockNumber = prettyNumber(lastHeader.number.unwrap());
+          const author = lastHeader.author.toString();
+
+          setByAuthor({ [author]: blockNumber });
+        }
+      });
+
+    return () => {
+      sub$$.unsubscribe();
+      points$$.unsubscribe();
+      header$$.unsubscribe();
+    };
   }, [api, takeWhileIsMounted]);
 
   return (
@@ -216,23 +290,28 @@ export function Validators({ overview }: ValidatorsProps) {
                               <StakerOther />
                             </Col>
                             <Col span={3} className="text-center">
-                              xx
+                              <StakerOwn />
                             </Col>
                             <Col span={3} className="text-center">
-                              xx
+                              <ActiveCommission />
                             </Col>
                             <Col span={3} className="text-center">
-                              xx
+                              <NextCommission />
                             </Col>
                             <Col span={3} className="text-center">
-                              xx
+                              <Points points={points} account={account} />
                             </Col>
                             <Col span={3} className="text-center">
-                              xx
+                              {byAuthor[account]}
                             </Col>
                             <Col span={2} className="flex justify-end items-center gap-8">
-                              <LineChartOutlined />
-                              <AppstoreOutlined />
+                              <LineChartOutlined disabled />
+                              <AppstoreOutlined
+                                className={`hover:text-${network.name}-main transform transition-colors duration-500`}
+                                onClick={() => {
+                                  window.open(`https://${network.name}.subscan.io/validator/${account}`, '_blank');
+                                }}
+                              />
                             </Col>
                           </Row>
                         </Col>
