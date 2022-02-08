@@ -5,7 +5,7 @@ import { useLocation, withRouter } from 'react-router-dom';
 import { StakingOverview } from '../components/staking/overview/StakingOverview';
 import { Power } from '../components/staking/power/Power';
 import { Stats } from '../components/staking/Stats';
-import { Targets } from '../components/staking/Targets';
+import { Targets } from '../components/staking/targets/Targets';
 import { Waiting } from '../components/staking/Waiting';
 import { StakingProvider } from '../providers/staking';
 

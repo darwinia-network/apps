@@ -7,7 +7,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { from, switchMap, takeWhile, timer } from 'rxjs';
 import { MIDDLE_DURATION } from '../../../config';
-import { useApi, useIsMounted, useNominators, useStaking } from '../../../hooks';
+import { useApi, useIsMounted, useElectedNominators, useStaking } from '../../../hooks';
 import { BlockTime } from '../../widget/BlockTime';
 import { Statistics } from '../../widget/Statistics';
 import { Validators } from './Validators';
@@ -65,7 +65,7 @@ export function StakingOverview() {
   const [overview, setOverview] = useState<DeriveStakingOverview | null>(null);
   const [waiting, setWaiting] = useState<DeriveStakingWaiting | null>(null);
   const [progress, setProgress] = useState<DeriveSessionProgress | null>(null);
-  const { nominators } = useNominators();
+  const { nominators } = useElectedNominators();
   const isMounted = useIsMounted();
 
   useEffect(() => {

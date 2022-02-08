@@ -1,13 +1,14 @@
 import { Power } from '@darwinia/types';
-import { BN_ZERO } from '@polkadot/util';
-import { StorageKey, Option } from '@polkadot/types';
+import { Option, StorageKey } from '@polkadot/types';
 import { Nominations } from '@polkadot/types/interfaces';
+import { DeriveStakingElected, DeriveStakingWaiting } from '@polkadot/api-derive/types';
+import { BN_ZERO } from '@polkadot/util';
 import BN from 'bn.js';
 import { useEffect, useState } from 'react';
 import { from, takeWhile } from 'rxjs';
+import { useIsMountedOperator } from '..';
 import { useApi } from '../api';
 import { useIsMounted } from '../isMounted';
-import { useStaking } from './staking';
 
 function extractNominators(nominations: [StorageKey, Option<Nominations>][]): Record<string, [string, number][]> {
   return nominations.reduce((mapped: Record<string, [string, number][]>, [key, optNoms]) => {
@@ -30,20 +31,21 @@ function extractNominators(nominations: [StorageKey, Option<Nominations>][]): Re
   }, {});
 }
 
-export function useNominators() {
+function useNominators(method: 'electedInfo' | 'waitingInfo') {
   const {
     api,
     connection: { accounts },
   } = useApi();
-  const { stashAccount } = useStaking();
   const [nominators, setNominators] = useState<[string, Power][] | null>(null);
-  const isMounted = useIsMounted();
+  const [total, setTotal] = useState<BN>(BN_ZERO);
+  const [sourceData, setSourceData] = useState<DeriveStakingWaiting | DeriveStakingElected | null>(null);
+  const { takeWhileIsMounted } = useIsMountedOperator();
 
   useEffect(() => {
     const elected$$ = from(
-      api.derive.staking.electedInfo({ withController: true, withExposure: true, withPrefs: true, withLedger: true })
+      api.derive.staking[method]({ withController: true, withExposure: true, withPrefs: true, withLedger: true })
     )
-      .pipe(takeWhile(() => isMounted))
+      .pipe(takeWhileIsMounted())
       .subscribe((derive) => {
         const { info } = derive;
         const all = accounts.map((item) => item.address);
@@ -51,7 +53,7 @@ export function useNominators() {
           .map(({ exposure, accountId }) => {
             const result: Record<string, BN> = {};
 
-            exposure.others.reduce((isNominating, cur) => {
+            exposure?.others.reduce((isNominating, cur) => {
               const nominator = cur.who.toString();
 
               result[nominator] = (result[nominator] || BN_ZERO).add(cur.value?.toBn() || BN_ZERO);
@@ -63,15 +65,33 @@ export function useNominators() {
           })
           .reduce((acc, cur) => ({ ...acc, ...cur }));
 
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        const num = info.reduce((acc, { exposure }) => acc.add(exposure.totalPower), BN_ZERO);
+
         setNominators(Object.entries(data) as [string, Power][]);
+        setTotal(num);
+        setSourceData(derive);
       });
 
     return () => {
       elected$$.unsubscribe();
     };
-  }, [accounts, api, isMounted, stashAccount]);
+  }, [accounts, api.derive.staking, method, takeWhileIsMounted]);
 
-  return { nominators };
+  return { nominators, total, sourceData };
+}
+
+export function useElectedNominators() {
+  const { nominators, total, sourceData } = useNominators('electedInfo');
+
+  return { nominators, totalStaked: total, sourceData };
+}
+
+export function useWaitingNominators() {
+  const { nominators, total, sourceData } = useNominators('waitingInfo');
+
+  return { nominators, totalWaiting: total, sourceData };
 }
 
 export function useNominatorEntries() {

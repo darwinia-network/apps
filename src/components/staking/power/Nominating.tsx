@@ -6,7 +6,7 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { from, takeWhile } from 'rxjs';
 import { DeriveStakingQuery } from '../../../api-derive/types';
-import { useApi, useIsMounted, useNominators, useStaking } from '../../../hooks';
+import { useApi, useIsMounted, useElectedNominators, useStaking } from '../../../hooks';
 import { AccountName } from '../../widget/AccountName';
 
 interface NominateItemProps {
@@ -36,7 +36,7 @@ function NominateItem({ source }: NominateItemProps) {
 }
 
 function Nominators() {
-  const { nominators } = useNominators();
+  const { nominators } = useElectedNominators();
 
   return <NominateItem source={nominators ?? []} />;
 }
