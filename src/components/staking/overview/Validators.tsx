@@ -1,4 +1,4 @@
-import { MailOutlined, StarOutlined } from '@ant-design/icons';
+import { MailOutlined } from '@ant-design/icons';
 import { DeriveStakingOverview } from '@polkadot/api-derive/staking/types';
 import { DeriveHeartbeats } from '@polkadot/api-derive/types';
 import Identicon from '@polkadot/react-identicon';
@@ -10,6 +10,7 @@ import { MIDDLE_DURATION } from '../../../config';
 import { useApi, useIsMountedOperator } from '../../../hooks';
 import { STAKING_FAV_KEY, useFavorites } from '../../../hooks/favorites';
 import { AccountName } from '../../widget/AccountName';
+import { Favorite } from '../../widget/Favorite';
 import { HidablePanel } from './HidablePanel';
 
 type AccountExtend = [string, boolean, boolean];
@@ -131,7 +132,7 @@ export function Validators({ overview }: ValidatorsProps) {
                 match={searchName}
                 header={
                   <span className="flex items-center gap-4 ml-4 ">
-                    <StarOutlined />
+                    <Favorite account={account} />
 
                     <div className="w-8">
                       {!!count && <Tag color="cyan">{count}</Tag>}

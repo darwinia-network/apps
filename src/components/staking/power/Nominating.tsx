@@ -1,6 +1,6 @@
 import { Power } from '@darwinia/types';
 import Identicon from '@polkadot/react-identicon';
-import { Card, Empty } from 'antd';
+import { Card, Skeleton } from 'antd';
 import { isNull } from 'lodash';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -17,7 +17,7 @@ function NominateItem({ source }: NominateItemProps) {
   const { t } = useTranslation();
 
   if (!source.length) {
-    return <Empty />;
+    return <Skeleton active />;
   }
 
   return (
@@ -77,15 +77,19 @@ export function Nominating() {
     <Card>
       <h1 className="text-lg font-bold">{t('Nominating')}</h1>
 
-      {isNominating && (
-        <p className="text-sx my-4 text-gray-400">
-          {t('Your nomination will take effect in the next era. Before that, the POWER may be displayed as 0')}
-        </p>
-      )}
-
       {isValidating && <Nominators />}
 
-      {isNominating && <Nominees />}
+      {isNominating && (
+        <>
+          <p className="text-sx my-4 text-gray-400">
+            {t('Your nomination will take effect in the next era. Before that, the POWER may be displayed as 0')}
+          </p>
+
+          <Nominees />
+        </>
+      )}
+
+      {!isValidating && !isNominating && <Skeleton active />}
     </Card>
   );
 }
