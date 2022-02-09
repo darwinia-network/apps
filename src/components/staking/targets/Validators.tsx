@@ -1,12 +1,14 @@
+import { LineChartOutlined } from '@ant-design/icons';
 import { ExposureT, Power } from '@darwinia/types';
-import { DeriveStakingWaiting } from '@polkadot/api-derive/types';
+import { DeriveAccountInfo, DeriveStakingWaiting } from '@polkadot/api-derive/types';
 import { Button, Card, Input, Table } from 'antd';
 import { ColumnsType } from 'antd/lib/table';
 import BN from 'bn.js';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { from, map, mergeMap, reduce } from 'rxjs';
 import { IDeriveStakingElected } from '../../../api-derive';
-import { useIsAccountFuzzyMatch } from '../../../hooks';
+import { useApi, useIsAccountFuzzyMatch, useIsMountedOperator } from '../../../hooks';
 import { prettyNumber } from '../../../utils';
 import { IdentAccountName } from '../../widget/account/IdentAccountName';
 import { Favorite } from '../../widget/Favorite';
@@ -17,6 +19,7 @@ interface ValidatorsProps {
 }
 
 interface RowData {
+  accountInfo: DeriveAccountInfo;
   account: string;
   nominatorCount: number;
   currentEraCommissionPer: number;
@@ -33,26 +36,16 @@ const toPercent = (value: number) => {
 
 export function Validators({ data }: ValidatorsProps) {
   const { t } = useTranslation();
+  const { api } = useApi();
   const isMatch = useIsAccountFuzzyMatch();
   const [searchName, setSearchName] = useState('');
-
-  const rowData = useMemo<RowData[]>(() => {
-    const { elected, waiting } = data;
-    const billion = 10_000_000;
-
-    return [...elected.info, ...waiting.info].map(({ accountId, exposure, validatorPrefs }, index) => ({
-      account: accountId.toString(),
-      nominatorCount: exposure.others.length,
-      currentEraCommissionPer:
-        (elected.activeCommissions[index]?.commission?.unwrap() || new BN(0)).toNumber() / billion,
-      commissionPer: validatorPrefs.commission.unwrap().toNumber() / billion,
-      bondedTotal: (exposure as unknown as ExposureT).totalPower,
-      bondedOwn: (exposure as unknown as ExposureT).ownPower,
-    }));
-  }, [data]);
+  const [rowData, setRowData] = useState<RowData[]>([]);
+  const { takeWhileIsMounted } = useIsMountedOperator();
+  const [selectedAccounts, setSelectedAccounts] = useState<string[]>([]);
+  console.log('%c [ selectedAccounts ]-45', 'font-size:13px; background:pink; color:#bf2c9f;', selectedAccounts);
 
   const sourceData = useMemo(
-    () => rowData.filter(({ account }) => isMatch(account, searchName)),
+    () => rowData.filter(({ account, accountInfo }) => isMatch(account, searchName, accountInfo)),
     [isMatch, rowData, searchName]
   );
 
@@ -102,9 +95,45 @@ export function Validators({ data }: ValidatorsProps) {
         );
       },
     },
+    {
+      key: 'action',
+      render() {
+        return <LineChartOutlined disabled />;
+      },
+    },
   ];
 
-  console.log('%c [ searchName ]-16', 'font-size:13px; background:pink; color:#bf2c9f;', searchName, data);
+  useEffect(() => {
+    const { elected, waiting } = data;
+    const billion = 10_000_000;
+    const sub$$ = from([...elected.info, ...waiting.info])
+      .pipe(
+        mergeMap(({ accountId, exposure, validatorPrefs }, index) =>
+          from(api.derive.accounts.info(accountId.toString())).pipe(
+            map(
+              (accountInfo) =>
+                ({
+                  accountInfo,
+                  account: accountId.toString(),
+                  nominatorCount: exposure.others.length,
+                  currentEraCommissionPer:
+                    (elected.activeCommissions[index]?.commission?.unwrap() || new BN(0)).toNumber() / billion,
+                  commissionPer: validatorPrefs.commission.unwrap().toNumber() / billion,
+                  bondedTotal: (exposure as unknown as ExposureT).totalPower,
+                  bondedOwn: (exposure as unknown as ExposureT).ownPower,
+                } as RowData)
+            )
+          )
+        ),
+        takeWhileIsMounted(),
+        reduce((acc: RowData[], cur: RowData) => [...acc, cur], [])
+      )
+      .subscribe((res) => {
+        setRowData(res);
+      });
+
+    return () => sub$$.unsubscribe();
+  }, [api, data, takeWhileIsMounted]);
 
   return (
     <>
@@ -121,7 +150,18 @@ export function Validators({ data }: ValidatorsProps) {
       </div>
 
       <Card>
-        <Table rowKey="account" dataSource={sourceData} columns={columns} pagination={false} />
+        <Table
+          rowKey="account"
+          rowSelection={{
+            type: 'checkbox',
+            onChange: (keys) => {
+              setSelectedAccounts(keys as string[]);
+            },
+          }}
+          dataSource={sourceData}
+          columns={columns}
+          pagination={false}
+        />
       </Card>
     </>
   );
