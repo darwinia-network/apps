@@ -96,7 +96,7 @@ export function Targets() {
       </Card>
 
       {elected && waiting ? (
-        <Validators data={{ elected, waiting }} />
+        <Validators data={{ elected, waiting }} lastReward={lastReward ? new BN(lastReward) : new BN(1)} />
       ) : (
         <Card className="my-8">
           <Skeleton active />

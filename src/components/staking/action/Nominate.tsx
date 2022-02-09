@@ -16,19 +16,25 @@ interface NominateFormValues {
   [key: string]: unknown;
 }
 
-export function Nominate({ label, type = 'text' }: StakingActionProps) {
+export function Nominate({
+  label,
+  defaultSelects,
+  disabled,
+  type = 'text',
+}: StakingActionProps & { defaultSelects?: string[] }) {
   const { t } = useTranslation();
   const { api } = useApi();
-  const { isControllerAccountOwner, isNominating } = useStaking();
+  const { isControllerAccountOwner } = useStaking();
   const [isVisible, setIsVisible] = useState(false);
   const { account } = useAccount();
   const { stashAccount, stakingDerive, stakingOverview, availableValidators, updateValidators, updateStakingDerive } =
     useStaking();
   const [favorites] = useFavorites(STAKING_FAV_KEY);
 
-  const defaultSelected = useMemo(() => {
-    return (stakingDerive && stakingDerive.nominators.map((item) => item.toString())) || [];
-  }, [stakingDerive]);
+  const defaultSelected = useMemo(
+    () => defaultSelects || (stakingDerive && stakingDerive.nominators.map((item) => item.toString())) || [],
+    [stakingDerive, defaultSelects]
+  );
 
   const validators = useMemo(
     () => (stakingOverview && stakingOverview.validators.map((item) => item.toString())) || [],
@@ -56,11 +62,11 @@ export function Nominate({ label, type = 'text' }: StakingActionProps) {
     ]);
   }, [favorites, availableValidators, nominees, validators]);
 
-  return !isNominating ? (
+  return (
     <>
       <Button
         type={type}
-        disabled={!isControllerAccountOwner}
+        disabled={!isControllerAccountOwner || disabled}
         onClick={() => {
           setIsVisible(true);
         }}
@@ -82,8 +88,9 @@ export function Nominate({ label, type = 'text' }: StakingActionProps) {
           updateStakingDerive();
         }}
         initialValues={{ controller: account, stash: stashAccount, targets: defaultSelected }}
+        defaultValues={{ targets: defaultSelects }}
       >
-        <AddressItem name="controller" label="Controller account" disabled />
+        <AddressItem name="controller" label="Controller account" disabled={!defaultSelects} />
         <AddressItem name="stash" label="Stash account" disabled />
 
         <FormItem
@@ -96,7 +103,7 @@ export function Nominate({ label, type = 'text' }: StakingActionProps) {
           }
           rules={[{ required: true }]}
         >
-          <Select mode="multiple" allowClear placeholder="Please select" size="large">
+          <Select mode="multiple" allowClear placeholder="Please select" size="large" disabled={!!defaultSelects}>
             {available.map((item) => (
               <Select.Option key={item} value={item}>
                 <IdentAccountName account={item} iconSize={24} />
@@ -106,5 +113,5 @@ export function Nominate({ label, type = 'text' }: StakingActionProps) {
         </FormItem>
       </FormModal>
     </>
-  ) : null;
+  );
 }

@@ -80,7 +80,7 @@ export function useStakingRewards(eraSelectionIndex: number) {
   } = useOwnEraReward(eraSelection[eraSelectionIndex]?.value, stashAccount);
 
   useEffect(() => {
-    if (rewards && stashAccount) {
+    if (rewards && stashAccount && rewards[stashAccount]) {
       const eras = rewards[stashAccount].map(({ era }): EraIndex => era);
       const total = rewards[stashAccount].reduce((result, { validators: val }) => {
         const eraTotal = Object.values(val)

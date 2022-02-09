@@ -1,5 +1,5 @@
 import { Power } from '@darwinia/types';
-import { Card, Skeleton } from 'antd';
+import { Card, Empty, Skeleton } from 'antd';
 import { isNull } from 'lodash';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -85,7 +85,7 @@ export function Nominating() {
         </>
       )}
 
-      {!isValidating && !isNominating && <Skeleton active />}
+      {!isValidating && !isNominating && <Empty />}
     </Card>
   );
 }
