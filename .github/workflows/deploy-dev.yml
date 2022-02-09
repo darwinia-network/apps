@@ -4,7 +4,7 @@ on:
   pull_request:
 
 jobs:
-  deploy-develop:
+  deploy:
     name: Deploy
     runs-on: ubuntu-latest
     steps:
