@@ -5,7 +5,7 @@ import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAccount, usePower, useStaking } from '../../../hooks';
 import { assetToPower } from '../../../utils';
-import { PrettyAccount } from '../../widget/PrettyAccount';
+import { IdentAccountAddress } from '../../widget/account/IdentAccountAddress';
 import { AssetOverview } from '../AssetOverview';
 import { Actions } from './Actions';
 import { Earnings } from './Earnings';
@@ -33,7 +33,7 @@ export function Power() {
     <>
       <Card>
         <div className="flex justify-between items-center">
-          <PrettyAccount account={accountWithMeta} />
+          <IdentAccountAddress account={accountWithMeta} />
 
           <Actions eraSelectionIndex={eraSelectionIndex} />
         </div>

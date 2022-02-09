@@ -1,4 +1,3 @@
-import Identicon from '@polkadot/react-identicon';
 import { Button, Select } from 'antd';
 import FormItem from 'antd/lib/form/FormItem';
 import { useEffect, useMemo, useState } from 'react';
@@ -6,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { useAccount, useApi, useStaking } from '../../../hooks';
 import { STAKING_FAV_KEY, useFavorites } from '../../../hooks/favorites';
 import { FormModal } from '../../modal/FormModal';
-import { AccountName } from '../../widget/AccountName';
+import { IdentAccountName } from '../../widget/account/IdentAccountName';
 import { AddressItem } from '../../widget/form-control/AddressItem';
 import { StakingActionProps } from './interface';
 
@@ -100,10 +99,7 @@ export function Nominate({ label, type = 'text' }: StakingActionProps) {
           <Select mode="multiple" allowClear placeholder="Please select" size="large">
             {available.map((item) => (
               <Select.Option key={item} value={item}>
-                <div className="flex items-center gap-2">
-                  <Identicon size={24} value={item} />
-                  <AccountName account={item} />
-                </div>
+                <IdentAccountName account={item} iconSize={24} />
               </Select.Option>
             ))}
           </Select>

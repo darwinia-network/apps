@@ -2,7 +2,6 @@ import { AppstoreOutlined, LineChartOutlined, MailOutlined } from '@ant-design/i
 import { Power } from '@darwinia/types';
 import { DeriveStakingOverview } from '@polkadot/api-derive/staking/types';
 import { DeriveHeartbeats } from '@polkadot/api-derive/types';
-import Identicon from '@polkadot/react-identicon';
 import { EraRewardPoints, Perbill } from '@polkadot/types/interfaces';
 import { BN_ZERO } from '@polkadot/util';
 import { Card, Col, Collapse, Input, Row, Tag } from 'antd';
@@ -13,10 +12,10 @@ import { MIDDLE_DURATION } from '../../../config';
 import { useApi, useIsMountedOperator } from '../../../hooks';
 import { STAKING_FAV_KEY, useFavorites } from '../../../hooks/favorites';
 import { isSameAddress, prettyNumber } from '../../../utils';
-import { AccountName } from '../../widget/AccountName';
+import { IdentAccountAddress } from '../../widget/account/IdentAccountAddress';
+import { IdentAccountName } from '../../widget/account/IdentAccountName';
 import { Favorite } from '../../widget/Favorite';
-import { PrettyAccount } from '../../widget/PrettyAccount';
-import { HidablePanel } from './HidablePanel';
+import { HidablePanel } from '../HidablePanel';
 import { OverviewProvider, useOverview } from './overview';
 
 type AccountExtend = [string, boolean, boolean];
@@ -92,7 +91,7 @@ function Nominators() {
   return (
     <span className="grid grid-cols-4 items-center gap-4 bg-white p-4 rounded-lg">
       {nominators?.map(([acc]) => (
-        <PrettyAccount key={acc} account={{ address: acc }} iconSize={24} />
+        <IdentAccountAddress key={acc} account={{ address: acc }} iconSize={24} />
       ))}
     </span>
   );
@@ -279,10 +278,7 @@ export function Validators({ overview }: ValidatorsProps) {
                             {!count && hasMsg && <MailOutlined color="cyan" />}
                           </div>
 
-                          <span className="inline-flex items-center gap-2">
-                            <Identicon value={account} size={32} className="rounded-full border p-1" />
-                            <AccountName account={account} />
-                          </span>
+                          <IdentAccountName account={account} />
                         </Col>
                         <Col className="flex-1">
                           <Row justify="space-around" align="middle">

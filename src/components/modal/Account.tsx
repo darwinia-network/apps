@@ -5,7 +5,7 @@ import { useAccount, useApi } from '../../hooks';
 import { IModalProps } from '../../model';
 import { convertToSS58 } from '../../utils';
 import { CloseIcon, CopyIcon, ViewBrowserIcon } from '../icons';
-import { ActiveAccount } from '../widget/ActiveAccount';
+import { ActiveAccount } from '../widget/account/ActiveAccount';
 
 const iconSize = 42;
 

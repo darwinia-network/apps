@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useAccount, useApi } from '../../hooks';
 import { AccountModal } from '../modal/Account';
-import { ActiveAccount } from './ActiveAccount';
+import { ActiveAccount } from './account/ActiveAccount';
 import { ConnectPolkadot } from './ConnectPolkadot';
 import { EllipsisMiddle } from './EllipsisMiddle';
 

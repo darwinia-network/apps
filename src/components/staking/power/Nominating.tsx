@@ -1,13 +1,12 @@
 import { Power } from '@darwinia/types';
-import Identicon from '@polkadot/react-identicon';
 import { Card, Skeleton } from 'antd';
 import { isNull } from 'lodash';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { from, takeWhile } from 'rxjs';
 import { DeriveStakingQuery } from '../../../api-derive/types';
-import { useApi, useIsMounted, useElectedNominators, useStaking } from '../../../hooks';
-import { AccountName } from '../../widget/AccountName';
+import { useApi, useElectedNominators, useIsMounted, useStaking } from '../../../hooks';
+import { IdentAccountName } from '../../widget/account/IdentAccountName';
 
 interface NominateItemProps {
   source: [string, Power | null][];
@@ -24,10 +23,7 @@ function NominateItem({ source }: NominateItemProps) {
     <>
       {source.map(([account, power], index) => (
         <div className="flex justify-between items-center border-b py-2" key={index}>
-          <div className="flex items-center gap-2">
-            <Identicon value={account} size={32} className="rounded-full border p-1" />
-            <AccountName account={account} />
-          </div>
+          <IdentAccountName account={account} />
           <span>{t('{{amount}} Powder', { amount: isNull(power) ? 0 : power })}</span>
         </div>
       ))}

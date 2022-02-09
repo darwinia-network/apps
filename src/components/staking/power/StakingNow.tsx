@@ -11,7 +11,7 @@ import { Asset } from '../../../model';
 import { afterTxSuccess } from '../../../providers';
 import { fundParam, insufficientBalanceRule, isKton, isRing, signAndSendExtrinsic } from '../../../utils';
 import { BalanceControl } from '../../widget/form-control/BalanceControl';
-import { PrettyAccount } from '../../widget/PrettyAccount';
+import { IdentAccountAddress } from '../../widget/account/IdentAccountAddress';
 
 const MAX_PERIOD = 36;
 const LOCK_PERIOD = [0, ...new Array(MAX_PERIOD).fill(0).map((_, index) => index + 1)];
@@ -106,7 +106,7 @@ export function StakingNow() {
           }}
         >
           <Form.Item name="stash" label={t('Stash account')} rules={[{ required: true }]}>
-            <PrettyAccount
+            <IdentAccountAddress
               account={accountWithMeta}
               className="border overflow-hidden px-2 py-1 rounded-lg bg-gray-100"
             />
@@ -116,7 +116,7 @@ export function StakingNow() {
             <Select size="large">
               {accounts.map((item) => (
                 <Select.Option value={item.address} key={item.address}>
-                  <PrettyAccount account={item} />
+                  <IdentAccountAddress account={item} />
                 </Select.Option>
               ))}
             </Select>
@@ -192,7 +192,7 @@ export function StakingNow() {
               <Select size="large">
                 {accounts.map((item) => (
                   <Select.Option value={item.address} key={item.address}>
-                    <PrettyAccount account={item} />
+                    <IdentAccountAddress account={item} />
                   </Select.Option>
                 ))}
               </Select>

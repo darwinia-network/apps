@@ -6,8 +6,8 @@ import { stringToU8a } from '@polkadot/util';
 import { isFunction } from 'lodash';
 import { ReactNode, useEffect, useState } from 'react';
 import { from } from 'rxjs';
-import { useApi } from '../../hooks';
-import { getAddressName } from '../../utils';
+import { useApi } from '../../../hooks';
+import { getAddressName } from '../../../utils';
 
 interface AccountNameProps {
   account: string;

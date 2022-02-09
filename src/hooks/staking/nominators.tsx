@@ -1,7 +1,7 @@
-import { Power } from '@darwinia/types';
+import { ExposureT, Power } from '@darwinia/types';
 import { Option, StorageKey } from '@polkadot/types';
 import { Nominations } from '@polkadot/types/interfaces';
-import { DeriveStakingElected, DeriveStakingWaiting } from '@polkadot/api-derive/types';
+import { DeriveStakingWaiting } from '@polkadot/api-derive/types';
 import { BN_ZERO } from '@polkadot/util';
 import BN from 'bn.js';
 import { useEffect, useState } from 'react';
@@ -9,6 +9,7 @@ import { from, takeWhile } from 'rxjs';
 import { useIsMountedOperator } from '..';
 import { useApi } from '../api';
 import { useIsMounted } from '../isMounted';
+import { IDeriveStakingElected } from '../../api-derive';
 
 function extractNominators(nominations: [StorageKey, Option<Nominations>][]): Record<string, [string, number][]> {
   return nominations.reduce((mapped: Record<string, [string, number][]>, [key, optNoms]) => {
@@ -31,14 +32,14 @@ function extractNominators(nominations: [StorageKey, Option<Nominations>][]): Re
   }, {});
 }
 
-function useNominators(method: 'electedInfo' | 'waitingInfo') {
+function useNominators<T extends IDeriveStakingElected | DeriveStakingWaiting>(method: 'electedInfo' | 'waitingInfo') {
   const {
     api,
     connection: { accounts },
   } = useApi();
   const [nominators, setNominators] = useState<[string, Power][] | null>(null);
   const [total, setTotal] = useState<BN>(BN_ZERO);
-  const [sourceData, setSourceData] = useState<DeriveStakingWaiting | DeriveStakingElected | null>(null);
+  const [sourceData, setSourceData] = useState<T | null>(null);
   const { takeWhileIsMounted } = useIsMountedOperator();
 
   useEffect(() => {
@@ -65,13 +66,11 @@ function useNominators(method: 'electedInfo' | 'waitingInfo') {
           })
           .reduce((acc, cur) => ({ ...acc, ...cur }));
 
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        const num = info.reduce((acc, { exposure }) => acc.add(exposure.totalPower), BN_ZERO);
+        const num = info.reduce((acc, { exposure }) => acc.add((exposure as unknown as ExposureT).totalPower), BN_ZERO);
 
         setNominators(Object.entries(data) as [string, Power][]);
         setTotal(num);
-        setSourceData(derive);
+        setSourceData(derive as T);
       });
 
     return () => {
@@ -83,13 +82,13 @@ function useNominators(method: 'electedInfo' | 'waitingInfo') {
 }
 
 export function useElectedNominators() {
-  const { nominators, total, sourceData } = useNominators('electedInfo');
+  const { nominators, total, sourceData } = useNominators<IDeriveStakingElected>('electedInfo');
 
   return { nominators, totalStaked: total, sourceData };
 }
 
 export function useWaitingNominators() {
-  const { nominators, total, sourceData } = useNominators('waitingInfo');
+  const { nominators, total, sourceData } = useNominators<DeriveStakingWaiting>('waitingInfo');
 
   return { nominators, totalWaiting: total, sourceData };
 }

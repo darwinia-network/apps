@@ -1,15 +1,15 @@
 import Identicon from '@polkadot/react-identicon';
-import { IAccountMeta } from '../../model';
-import { EllipsisMiddle } from './EllipsisMiddle';
+import { IAccountMeta } from '../../../model';
+import { EllipsisMiddle } from '../EllipsisMiddle';
 
-interface PrettyAccountProps {
+interface IdentAccountProps {
   account: IAccountMeta;
   className?: string;
   iconSize?: number;
 }
 
 // eslint-disable-next-line no-magic-numbers
-export function PrettyAccount({ account: { address, meta }, className, iconSize = 32 }: PrettyAccountProps) {
+export function IdentAccountAddress({ account: { address, meta }, className, iconSize = 32 }: IdentAccountProps) {
   return (
     <div className={`flex items-center ${className}`}>
       <Identicon size={iconSize} value={address} className="rounded-full border border-gray-100" />

@@ -1,7 +1,6 @@
 import { Balance } from '@polkadot/types/interfaces';
 import { BN_ZERO } from '@polkadot/util';
-import { Button, Card, Input, Spin } from 'antd';
-import Table, { ColumnsType } from 'antd/lib/table';
+import { Card, Skeleton, Spin } from 'antd';
 import BN from 'bn.js';
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -9,13 +8,11 @@ import { from, switchMap } from 'rxjs';
 import { useAccount, useApi, useElectedNominators, useIsMountedOperator, useWaitingNominators } from '../../../hooks';
 import { fromWei, isKton, isRing, prettyNumber } from '../../../utils';
 import { Statistics } from '../../widget/Statistics';
-
-const testData = [
-  { id: 0, validators: 'xxx', other: '8743104(8)', own: 4848, active: '6%', next: '6%', points: 2660, last: 6157610 },
-];
+import { Validators } from './Validators';
 
 const formatNum = (value: string) => prettyNumber(value, { decimal: 0 });
 
+// eslint-disable-next-line complexity
 export function Targets() {
   const { t } = useTranslation();
   const { totalStaked, nominators, sourceData: elected } = useElectedNominators();
@@ -25,7 +22,6 @@ export function Targets() {
   const ringSymbol = useMemo(() => assets.find((item) => isRing(item.asset))?.token.symbol ?? 'ring', [assets]);
   const ktonSymbol = useMemo(() => assets.find((item) => isKton(item.asset))?.token.symbol ?? 'kton', [assets]);
   const total = useMemo(() => totalStaked.add(totalWaiting), [totalStaked, totalWaiting]);
-
   const validatorCount = useMemo(
     () => (elected && waiting ? prettyNumber(elected.info.length + waiting.info.length) : '0'),
     [elected, waiting]
@@ -35,15 +31,6 @@ export function Targets() {
   const [issuanceKton, setIssuanceKton] = useState<Balance | null>(null);
   const [lastReward, setLastReward] = useState<string | null>(null);
   const { takeWhileIsMounted } = useIsMountedOperator();
-  const columns: ColumnsType<Record<string, string | number>> = [
-    { title: 'validators', dataIndex: 'validators' },
-    { title: 'other stake(power)', dataIndex: 'other' },
-    { title: 'own stake(power)', dataIndex: 'own' },
-    { title: 'active commission', dataIndex: 'active' },
-    { title: 'next commission', dataIndex: 'next' },
-    { title: 'points', dataIndex: 'points' },
-    { title: 'last #', dataIndex: 'last' },
-  ];
 
   useEffect(() => {
     const issuance$$ = from(api.query.balances.totalIssuance())
@@ -108,14 +95,13 @@ export function Targets() {
         </div>
       </Card>
 
-      <div className="flex justify-between items-center">
-        <Input size="large" placeholder={t('Flite by name, address or index')} className="my-8 w-1/3" />
-        <Button type="primary">{t('Nominate selected')}</Button>
-      </div>
-
-      <Card>
-        <Table rowKey={'id'} dataSource={testData} columns={columns} />
-      </Card>
+      {elected && waiting ? (
+        <Validators data={{ elected, waiting }} />
+      ) : (
+        <Card className="my-8">
+          <Skeleton active />
+        </Card>
+      )}
     </>
   );
 }

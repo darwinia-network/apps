@@ -4,7 +4,7 @@ import { useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useApi } from '../../../hooks';
 import { CustomFormControlProps } from '../../../model';
-import { PrettyAccount } from '../PrettyAccount';
+import { IdentAccountAddress } from '../account/IdentAccountAddress';
 import { Label } from './Label';
 
 export type PayeeType = 'Staked' | 'Stash' | 'Controller' | 'Account';
@@ -63,7 +63,7 @@ export function PayeeControl({ onChange, value }: CustomFormControlProps<Payee>)
           >
             {accounts.map((item, index) => (
               <Select.Option value={item.address} key={item.address || index}>
-                <PrettyAccount account={item} />
+                <IdentAccountAddress account={item} />
               </Select.Option>
             ))}
           </Select>

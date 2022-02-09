@@ -1,6 +1,6 @@
 import React, { CSSProperties, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useApi } from '../../hooks';
+import { useApi } from '../../../hooks';
 
 export function ActiveAccount({
   children,
