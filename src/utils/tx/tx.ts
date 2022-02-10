@@ -1,9 +1,10 @@
 import { ApiPromise, SubmittableResult } from '@polkadot/api';
+import { TransactionConfig } from 'web3-eth/types';
 import { SubmittableExtrinsic } from '@polkadot/api/types';
 import { web3FromAddress } from '@polkadot/extension-dapp';
 import { from, Observable, Observer, switchMapTo, tap } from 'rxjs';
 import { Tx } from '../../model';
-import { waitUntilConnected } from '../network';
+import { entrance, waitUntilConnected } from '../network';
 
 export function extrinsicSpy(observer: Observer<Tx>) {
   observer.next({ status: 'signing' });
@@ -58,4 +59,29 @@ export function signAndSendExtrinsic(
     tap((injector) => api.setSigner(injector.signer)),
     switchMapTo(obs)
   );
+}
+
+export function getSendTransactionObs(params: TransactionConfig): Observable<Tx> {
+  return new Observable((observer) => {
+    try {
+      const web3 = entrance.web3.getInstance(entrance.web3.defaultProvider);
+
+      observer.next({ status: 'signing' });
+      web3.eth
+        .sendTransaction(params)
+        .on('transactionHash', (hash: string) => {
+          observer.next({ status: 'queued', hash });
+        })
+        .on('receipt', ({ transactionHash }) => {
+          observer.next({ status: 'finalized', hash: transactionHash });
+          observer.complete();
+        })
+        .catch((error: { code: number; message: string }) => {
+          observer.error({ status: 'error', error: error.message });
+        });
+    } catch (error) {
+      console.warn('%c contract tx observable error', 'font-size:13px; background:pink; color:#bf2c9f;', error);
+      observer.error({ status: 'error', error: 'Contract construction/call failed!' });
+    }
+  });
 }

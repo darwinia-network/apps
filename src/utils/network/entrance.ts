@@ -2,6 +2,7 @@ import { typesBundleForPolkadotApps } from '@darwinia/types/mix';
 import { ApiPromise, WsProvider } from '@polkadot/api';
 import { derive } from '@polkadot/api-derive';
 import { DeriveCustom } from '@polkadot/api/types';
+import Web3 from 'web3';
 import { derive as darwiniaDerive } from '../../api-derive/derive';
 
 const { staking, ...rest } = derive;
@@ -74,12 +75,35 @@ class PolkadotEntrance extends Entrance<ApiPromise> {
   }
 }
 
+class Web3Entrance extends Entrance<Web3> {
+  apiList: ApiGuy<Web3>[] = [];
+
+  defaultProvider = 'ethereum';
+
+  init(url: string) {
+    if (url === this.defaultProvider) {
+      return new Web3(window.ethereum);
+    }
+
+    return new Web3(url);
+  }
+
+  afterInit() {
+    // nothing to do
+  }
+
+  beforeRemove() {
+    // nothing to do
+  }
+}
+
 /**
  * Hold a singleton entrance in apps scope.
  * The entrance guarantees the instance will not be instantiated repeatedly.
  */
 export const entrance = (() => {
   let polkadot: PolkadotEntrance;
+  let web3: Web3Entrance;
 
   return {
     get polkadot() {
@@ -90,6 +114,15 @@ export const entrance = (() => {
       polkadot = new PolkadotEntrance();
 
       return polkadot;
+    },
+    get web3() {
+      if (web3) {
+        return web3;
+      }
+
+      web3 = new Web3Entrance();
+
+      return web3;
     },
   };
 })();

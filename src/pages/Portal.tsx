@@ -1,4 +1,4 @@
-import { Alert, Button, Card, Col, Row, Tabs } from 'antd';
+import { Alert, Card, Col, Row, Tabs } from 'antd';
 import { useTranslation } from 'react-i18next';
 import { withRouter } from 'react-router-dom';
 import { readStorage, updateStorage } from '../utils';
@@ -45,11 +45,7 @@ function Page() {
           type="warning"
           closable
           showIcon
-          closeText={
-            <Button size="small" type="link">
-              {t('I known')}
-            </Button>
-          }
+          closeText={t('I known, do not show it anymore')}
           onClose={() => {
             updateStorage({ hidePortalWarning: true });
           }}

@@ -11,7 +11,6 @@ export function AddressItem({ label, name, disabled, rules = [], ...rest }: Cust
     connection: { accounts },
     network,
   } = useApi();
-  // const { account } = useAccount();
 
   return (
     <Form.Item
