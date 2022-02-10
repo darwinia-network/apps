@@ -56,7 +56,11 @@ function App() {
     () =>
       routes
         .filter((item) => location.pathname === item.path)
-        .map((item) => (item.path === Path.root ? Path.account : (item.path as string))),
+        .map((item) => {
+          const urlPath = item.path === Path.root ? Path.account : (item.path as string);
+
+          return navigators.find((nav) => nav.path.startsWith(urlPath))?.path || '';
+        }),
     [location?.pathname]
   );
 
