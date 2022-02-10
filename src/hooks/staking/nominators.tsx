@@ -95,7 +95,7 @@ export function useWaitingNominators() {
 
 export function useNominatorEntries() {
   const { api } = useApi();
-  const [entries, setEntries] = useState<Record<string, [string, number][]>>({});
+  const [entries, setEntries] = useState<Record<string, [string, number][]> | null>(null);
   const isMounted = useIsMounted();
 
   useEffect(() => {

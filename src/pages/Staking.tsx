@@ -6,7 +6,7 @@ import { StakingOverview } from '../components/staking/overview/StakingOverview'
 import { Power } from '../components/staking/power/Power';
 import { Stats } from '../components/staking/Stats';
 import { Targets } from '../components/staking/targets/Targets';
-import { Waiting } from '../components/staking/Waiting';
+import { Waiting } from '../components/staking/waiting/Waiting';
 import { StakingProvider } from '../providers/staking';
 
 function Page() {
