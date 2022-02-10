@@ -8,4 +8,5 @@ export interface StorageInfo extends HashInfo {
   activeNetwork?: PolkadotChainConfig;
   config?: Partial<{ [key in Network]: ChainConfig }>;
   custom?: Network[];
+  hidePortalWarning?: boolean;
 }

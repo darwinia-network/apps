@@ -33,7 +33,7 @@ export function ConnectPolkadot() {
 
           <div className="flex justify-between items-center p-4 w-full rounded-xl mt-4 border border-gray-200">
             <b>polkadot.js</b>
-            <img src="/image/polkadot-logo.svg" style={{ height: 32 }} alt="" />
+            <img src="/image/polkadot.svg" style={{ height: 32 }} alt="" />
           </div>
 
           <Button
