@@ -80,11 +80,15 @@ export function Targets() {
           <Statistics
             title={t('validators/nominators')}
             value={
-              <span>
-                <span>{validatorCount}</span>
-                <span className="px-2">/</span>
-                <span>{nominators?.length}</span>
-              </span>
+              nominators ? (
+                <span>
+                  <span>{validatorCount}</span>
+                  <span className="px-2">/</span>
+                  <span>{nominators?.length}</span>
+                </span>
+              ) : (
+                <Spin />
+              )
             }
           />
           <Statistics

@@ -1,4 +1,3 @@
-import { LineChartOutlined } from '@ant-design/icons';
 import { ExposureT, Power } from '@darwinia/types';
 import { DeriveAccountInfo, DeriveStakingWaiting } from '@polkadot/api-derive/types';
 import { ValidatorPrefs, ValidatorPrefsTo196 } from '@polkadot/types/interfaces';
@@ -15,6 +14,7 @@ import { prettyNumber } from '../../../utils';
 import { IdentAccountName } from '../../widget/account/IdentAccountName';
 import { Favorite } from '../../widget/Favorite';
 import { Nominate } from '../action';
+import { ChartLink } from '../ChartLink';
 import { MaxBadge } from './MaxBadge';
 
 interface ValidatorsProps {
@@ -54,45 +54,42 @@ const toPercent = (value: number) => {
   return value.toFixed(decimal) + '%';
 };
 
-function mapIndex(mapBy: keyof ValidatorInfoRank): (info: ValidatorInfo, index: number) => ValidatorInfo {
-  return (info, index): ValidatorInfo => {
-    info[mapBy] = index + 1;
-
-    return info;
-  };
-}
-
 function sortValidators(list: ValidatorInfo[]): ValidatorInfo[] {
-  return (
-    list
-      // .filter((a) => a.bondTotal.gtn(0))
-      .sort((a, b) => b.commissionPer - a.commissionPer)
-      .map(mapIndex('rankComm'))
-      .sort((a, b) => b.currentEraCommissionPer - a.currentEraCommissionPer)
-      .map(mapIndex('rankActiveComm'))
-      .sort((a, b) => b.bondedTotal.sub(b.bondedOwn).cmp(a.bondedTotal.sub(a.bondedOwn)))
-      .map(mapIndex('rankBondOther'))
-      .sort((a, b) => b.bondedOwn.cmp(a.bondedOwn))
-      .map(mapIndex('rankBondOwn'))
-      .sort((a, b) => b.bondedTotal.cmp(a.bondedTotal))
-      .map(mapIndex('rankBondTotal'))
-      .sort((a, b) => b.validatorPayment.cmp(a.validatorPayment))
-      .map(mapIndex('rankPayment'))
-      .sort((a, b) => a.rewardSplit.cmp(b.rewardSplit))
-      .map(mapIndex('rankReward'))
-      .sort((a, b): number => {
-        const cmp = b.rewardPayout.cmp(a.rewardPayout);
+  const mapIndex = (mapBy: keyof ValidatorInfoRank): ((info: ValidatorInfo, index: number) => ValidatorInfo) => {
+    return (info, index): ValidatorInfo => {
+      info[mapBy] = index + 1;
 
-        return cmp !== 0
-          ? cmp
-          : a.rankReward === b.rankReward
-          ? a.rankPayment === b.rankPayment
-            ? b.rankBondTotal - a.rankBondTotal
-            : b.rankPayment - a.rankPayment
-          : b.rankReward - a.rankReward;
-      })
-      .map(mapIndex('rankOverall'))
-  );
+      return info;
+    };
+  };
+
+  return list
+    .sort((a, b) => b.commissionPer - a.commissionPer)
+    .map(mapIndex('rankComm'))
+    .sort((a, b) => b.currentEraCommissionPer - a.currentEraCommissionPer)
+    .map(mapIndex('rankActiveComm'))
+    .sort((a, b) => b.bondedTotal.sub(b.bondedOwn).cmp(a.bondedTotal.sub(a.bondedOwn)))
+    .map(mapIndex('rankBondOther'))
+    .sort((a, b) => b.bondedOwn.cmp(a.bondedOwn))
+    .map(mapIndex('rankBondOwn'))
+    .sort((a, b) => b.bondedTotal.cmp(a.bondedTotal))
+    .map(mapIndex('rankBondTotal'))
+    .sort((a, b) => b.validatorPayment.cmp(a.validatorPayment))
+    .map(mapIndex('rankPayment'))
+    .sort((a, b) => a.rewardSplit.cmp(b.rewardSplit))
+    .map(mapIndex('rankReward'))
+    .sort((a, b): number => {
+      const cmp = b.rewardPayout.cmp(a.rewardPayout);
+
+      return cmp !== 0
+        ? cmp
+        : a.rankReward === b.rankReward
+        ? a.rankPayment === b.rankPayment
+          ? b.rankBondTotal - a.rankBondTotal
+          : b.rankPayment - a.rankPayment
+        : b.rankReward - a.rankReward;
+    })
+    .map(mapIndex('rankOverall'));
 }
 
 export function Validators({ data, lastReward }: ValidatorsProps) {
@@ -186,8 +183,8 @@ export function Validators({ data, lastReward }: ValidatorsProps) {
     },
     {
       key: 'action',
-      render() {
-        return <LineChartOutlined disabled />;
+      render(_, record) {
+        return <ChartLink account={record.account} />;
       },
     },
   ];

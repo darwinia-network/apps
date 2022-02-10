@@ -1,4 +1,4 @@
-import { AppstoreOutlined, LineChartOutlined } from '@ant-design/icons';
+import { AppstoreOutlined } from '@ant-design/icons';
 import { DeriveStakingOverview } from '@polkadot/api-derive/staking/types';
 import { DeriveHeartbeats } from '@polkadot/api-derive/types';
 import { EraRewardPoints } from '@polkadot/types/interfaces';
@@ -10,6 +10,7 @@ import { MIDDLE_DURATION } from '../../../config';
 import { useApi, useIsMountedOperator, useStaking } from '../../../hooks';
 import { STAKING_FAV_KEY, useFavorites } from '../../../hooks/favorites';
 import { AccountWithClassifiedInfo, createClassifiedStakingOverview, prettyNumber } from '../../../utils';
+import { ChartLink } from '../ChartLink';
 import { HidablePanel } from '../HidablePanel';
 import { OverviewProvider } from './overview';
 import {
@@ -167,9 +168,10 @@ export function Validators({ overview }: ValidatorsProps) {
                             {byAuthor[account]}
                           </Col>
                           <Col span={2} className="flex justify-end items-center gap-8">
-                            <LineChartOutlined disabled />
+                            <ChartLink account={account} />
+
                             <AppstoreOutlined
-                              className={`hover:text-${network.name}-main transform transition-colors duration-500`}
+                              className={`hover:text-${network.name}-main transform transition-colors duration-500 text-xl`}
                               onClick={() => {
                                 window.open(`https://${network.name}.subscan.io/validator/${account}`, '_blank');
                               }}

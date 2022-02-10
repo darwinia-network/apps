@@ -1,4 +1,3 @@
-import { LineChartOutlined } from '@ant-design/icons';
 import { DeriveStakingOverview } from '@polkadot/api-derive/staking/types';
 import { DeriveHeartbeats } from '@polkadot/api-derive/types';
 import { Card, Col, Collapse, Input, Row, Spin, Tooltip } from 'antd';
@@ -9,6 +8,7 @@ import { MIDDLE_DURATION } from '../../../config';
 import { useApi, useIsMountedOperator, useNominatorEntries, useStaking } from '../../../hooks';
 import { STAKING_FAV_KEY, useFavorites } from '../../../hooks/favorites';
 import { AccountWithClassifiedInfo, createClassifiedStakingOverview } from '../../../utils';
+import { ChartLink } from '../ChartLink';
 import { HidablePanel } from '../HidablePanel';
 import { OverviewProvider } from '../overview/overview';
 import { Account, ActiveCommission, NextCommission, Nominators } from '../overview/overview-widgets';
@@ -111,7 +111,7 @@ export function Validators({ overview }: ValidatorsProps) {
                             <NextCommission />
                           </Col>
                           <Col span={2} className="flex justify-end items-center gap-8">
-                            <LineChartOutlined disabled />
+                            <ChartLink account={account} />
                           </Col>
                         </Row>
                       </Col>
