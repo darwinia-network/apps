@@ -14,6 +14,8 @@ jobs:
         with:
           repository: itering/actions
           path: .github/actions
+          persist-credentials: false
+          ssh-key: "${{ secrets.ITERING_ACTIONS_DEPLOY_KEY }}"
 
       - uses: ./.github/actions/smart-vercel
         name: Deploy to Vercel
