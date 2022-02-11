@@ -1,7 +1,9 @@
 import { CaretLeftFilled, SettingFilled } from '@ant-design/icons';
 import { Layout, Menu, Select } from 'antd';
+import AntdLink from 'antd/lib/typography/Link';
+import { Steps } from 'intro.js-react';
 import React, { useEffect, useMemo, useState } from 'react';
-import { useTranslation } from 'react-i18next';
+import { Trans, useTranslation } from 'react-i18next';
 import { Link, Route, Switch, useLocation } from 'react-router-dom';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import {
@@ -27,11 +29,11 @@ import { Path, routes } from './config/routes';
 import { useAccount, useApi } from './hooks';
 import { Network, PolkadotChainConfig } from './model';
 import { getNetworkByName, NETWORK_CONFIGURATIONS, readStorage, updateStorage } from './utils';
-
 interface Nav {
   label: string;
   path: string;
   Icon: (Props: IconProps) => JSX.Element;
+  className?: string;
 }
 
 const { Sider, Content } = Layout;
@@ -42,8 +44,69 @@ const navigators: Nav[] = [
   { label: 'Staking', path: Path.staking + '?active=power', Icon: StakingIcon },
   { label: 'Toolbox', path: Path.toolbox, Icon: ToolboxIcon },
   { label: 'Darwinia Portal', path: Path.portal, Icon: DarwiniaIcon },
-  { label: 'Account Migration', path: Path.migration, Icon: UsersIcon },
+  { label: 'Account Migration', path: Path.migration, Icon: UsersIcon, className: 'migration' },
 ];
+
+function IntroGuide() {
+  const { t } = useTranslation();
+  const [stepsEnabled, setStepsEnabled] = useState(false);
+  const [currentStep, setCurrentStep] = useState(0);
+  const steps = useMemo(
+    () => [
+      {
+        element: '.connection',
+        title: t('Connect Wallet'),
+        intro: (
+          <Trans i18nKey="connectRefers">
+            Please connect polkadot\u007b.js\u007d extension to participate in Darwinia Apps.{' '}
+            <AntdLink>Tutorial refers here.</AntdLink>
+          </Trans>
+        ),
+      },
+      {
+        element: '.migration',
+        title: t('Account Migration'),
+        position: 'right',
+        intro: (
+          <Trans i18nKey="migrateRefers" className="m-8">
+            If your account in the old version cannot be found in your wallet, you can restore JSON which the account in
+            the old version apps through \u0022 Account Migration \u0022 and add the JSON to polkadot\u007b.js\u007d.
+            <AntdLink>Tutorial refers here.</AntdLink>
+          </Trans>
+        ),
+      },
+    ],
+    [t]
+  );
+
+  useEffect(() => {
+    const index = readStorage().introIndex;
+    if (index === 0) {
+      setStepsEnabled(true);
+      setCurrentStep(1);
+    } else if (index === 1) {
+      setStepsEnabled(false);
+    } else {
+      setStepsEnabled(true);
+    }
+  }, []);
+
+  return (
+    <Steps
+      enabled={stepsEnabled}
+      steps={steps}
+      initialStep={currentStep}
+      onExit={(stepIndex) => {
+        // may be not a Number
+        if (typeof stepIndex === 'number') {
+          updateStorage({ introIndex: stepIndex });
+        }
+
+        setStepsEnabled(false);
+      }}
+    />
+  );
+}
 
 function App() {
   const { t } = useTranslation();
@@ -111,8 +174,8 @@ function App() {
           </div>
 
           <Menu theme={theme} mode="inline" defaultSelectedKeys={selectedKeys} className="flex-1">
-            {navigators.map(({ Icon, path, label }) => (
-              <Menu.Item icon={<Icon />} key={path}>
+            {navigators.map(({ Icon, path, label, className }) => (
+              <Menu.Item icon={<Icon />} key={path} className={className}>
                 <Link to={path}>{t(label)}</Link>
               </Menu.Item>
             ))}
@@ -158,7 +221,7 @@ function App() {
       <Layout className="overflow-scroll">
         <header className="h-20 flex justify-between items-center p-8 sticky top-0 z-10 bg-gray-100">
           <h2 className={`text-lg font-bold bg-${network.name} text-transparent bg-clip-text`}>Account</h2>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-4 connection">
             <Connection />
             <AccountSelect />
             <SettingFilled className="text-lg text-gray-600 cursor-pointer" />
@@ -177,6 +240,8 @@ function App() {
           </TransitionGroup>
         </Content>
       </Layout>
+
+      <IntroGuide />
     </Layout>
   );
 }

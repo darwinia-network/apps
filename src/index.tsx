@@ -1,3 +1,6 @@
+import '@darwinia/types';
+import '@polkadot/api-augment';
+import 'intro.js/introjs.css';
 import { Suspense } from 'react';
 import ReactDOM from 'react-dom';
 import { BrowserRouter } from 'react-router-dom';
@@ -10,8 +13,6 @@ import { TxProvider } from './providers/tx-provider';
 import reportWebVitals from './reportWebVitals';
 import './theme/antd/index.less';
 import { readStorage } from './utils';
-import '@polkadot/api-augment';
-import '@darwinia/types';
 
 ReactDOM.render(
   <Suspense

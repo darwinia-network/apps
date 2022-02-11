@@ -17,7 +17,7 @@ function Page() {
   return (
     <div className="px-8">
       <Card className="mx-8">
-        <Trans i18nKey="tutorialRefers" className="m-8">
+        <Trans i18nKey="migrateRefers" className="m-8">
           If your account in the old version cannot be found in your wallet, you can restore JSON which the account in
           the old version apps through \u0022 Account Migration \u0022 and add the JSON to polkadot\u007b.js\u007d.
           <Link>Tutorial refers here.</Link>
