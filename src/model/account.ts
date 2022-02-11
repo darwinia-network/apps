@@ -1,11 +1,13 @@
 import type ExtType from '@polkadot/extension-inject/types';
+import { KeyringJson } from '@polkadot/ui-keyring/types';
 import BN from 'bn.js';
 import { DarwiniaAsset } from './common';
-import { WithOptional } from './type-operator';
 
 export type InjectedAccountWithMeta = ExtType.InjectedAccountWithMeta;
 
-export type IAccountMeta = WithOptional<InjectedAccountWithMeta, 'meta'>;
+export interface IAccountMeta extends InjectedAccountWithMeta {
+  json?: KeyringJson;
+}
 
 export interface Token<T = string> {
   symbol: T;

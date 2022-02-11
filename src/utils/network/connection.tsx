@@ -1,4 +1,6 @@
 import { web3Accounts, web3Enable } from '@polkadot/extension-dapp';
+import keyring from '@polkadot/ui-keyring';
+import { accounts as accountsObs } from '@polkadot/ui-keyring/observable/accounts';
 import { Modal } from 'antd';
 import Link from 'antd/lib/typography/Link';
 import { Trans } from 'react-i18next';
@@ -19,17 +21,48 @@ import {
   switchMap,
   switchMapTo,
 } from 'rxjs';
-import { ChainConfig, Connection, ConnectionStatus, EthereumConnection, PolkadotConnection } from '../../model';
+import {
+  ChainConfig,
+  Connection,
+  ConnectionStatus,
+  EthereumConnection,
+  IAccountMeta,
+  PolkadotConnection,
+} from '../../model';
+import { getAddressMeta } from '../helper';
 import { entrance } from './entrance';
 import { isMetamaskInstalled, isNetworkConsistent } from './network';
 import { switchMetamaskNetwork } from './switch';
 
 type ConnectFn<T extends Connection> = (network: ChainConfig, chainId?: string) => Observable<T>;
 
+/**
+ * keyring must be loaded before use
+ */
+keyring.loadAll({});
+
+export const LOCAL = 'local';
+
 export const getPolkadotConnection: (network: ChainConfig) => Observable<PolkadotConnection> = (network) =>
   from(web3Enable('polkadot-js/apps')).pipe(
     concatMap((extensions) =>
-      from(web3Accounts()).pipe(
+      combineLatest([from(web3Accounts()), accountsObs.subject.asObservable()], (injected, data) => {
+        const keys = Object.keys(data);
+        const injectedAddress = injected.map((item) => item.address);
+        const source = keys.filter((key) => !injectedAddress.includes(key));
+
+        const local: IAccountMeta[] = source.map((address) => {
+          const meta = getAddressMeta(address);
+
+          return {
+            address,
+            meta: { ...meta, source: LOCAL },
+            json: data[address].json,
+          };
+        });
+
+        return [...injected, ...local];
+      }).pipe(
         map(
           (accounts) =>
             ({

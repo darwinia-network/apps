@@ -5,7 +5,7 @@ import { EraRewardPoints, Perbill } from '@polkadot/types/interfaces';
 import { BN_ZERO } from '@polkadot/util';
 import { Tag } from 'antd';
 import { useMemo } from 'react';
-import { isSameAddress, prettyNumber } from '../../../utils';
+import { getAddressMeta, isSameAddress, prettyNumber } from '../../../utils';
 import { IdentAccountAddress } from '../../widget/account/IdentAccountAddress';
 import { IdentAccountName } from '../../widget/account/IdentAccountName';
 import { Favorite } from '../../widget/Favorite';
@@ -61,9 +61,13 @@ export function Nominators({ data }: { data?: [string, number][] }) {
 
   return (
     <span className="grid grid-cols-4 items-center gap-4 bg-white p-4 rounded-lg">
-      {(data || nominators)?.map(([acc]) => (
-        <IdentAccountAddress key={acc} account={{ address: acc }} iconSize={24} />
-      ))}
+      {(data || nominators)?.map(([acc]) => {
+        const meta = getAddressMeta(acc);
+
+        return (
+          <IdentAccountAddress key={acc} account={{ address: acc, meta: { ...meta, source: '' } }} iconSize={24} />
+        );
+      })}
     </span>
   );
 }
