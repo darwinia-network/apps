@@ -4,7 +4,7 @@ import React, { CSSProperties, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAccount, useApi } from '../../hooks';
 import { convertToSS58 } from '../../utils';
-import { CloseIcon, CopyIcon, ViewBrowserIcon } from '../icons';
+import { CopyIcon, ViewBrowserIcon } from '../icons';
 import { ConnectPolkadot } from './ConnectPolkadot';
 import { EllipsisMiddle } from './EllipsisMiddle';
 
@@ -82,7 +82,6 @@ export function Connection() {
         onCancel={() => setIsAccountDetailVisible(false)}
         destroyOnClose={true}
         bodyStyle={{ maxHeight: '80vh', overflow: 'hidden' }}
-        closeIcon={<CloseIcon />}
       >
         <Card className="mb-4">
           <Row gutter={4} className="overflow-hidden">

@@ -4,7 +4,6 @@ import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAccount, useApi } from '../../../hooks';
 import { convertToSS58 } from '../../../utils';
-import { CloseIcon } from '../../icons';
 
 const iconSize = 36;
 
@@ -40,7 +39,6 @@ export function ActiveAccount() {
           maxHeight: '50vh',
           overflow: 'scroll',
         }}
-        closeIcon={<CloseIcon />}
         footer={
           accounts?.length
             ? [

@@ -109,6 +109,7 @@ function IntroGuide() {
   );
 }
 
+// eslint-disable-next-line complexity
 function App() {
   const { t } = useTranslation();
   const { network, setNetwork } = useApi();
@@ -157,7 +158,11 @@ function App() {
               {NETWORK_CONFIGURATIONS.map((config) => (
                 <Option value={config.name} key={config.name} className="capitalize">
                   <span className="flex items-center">
-                    <img src={config.facade.logo} className={`mr-2 h-6 ${collapsed ? 'collapsed' : ''}`} alt="" />
+                    <img
+                      src={config.facade.logo}
+                      className={`mr-2 h-6 rounded-full dark:bg-white ${collapsed ? 'collapsed' : ''}`}
+                      alt=""
+                    />
                     {!collapsed && (
                       <span className="flex-1 flex justify-between items-center overflow-hidden overflow-ellipsis">
                         <span className="capitalize mr-2">{config.name}</span>
@@ -169,7 +174,13 @@ function App() {
             </Select>
           </div>
 
-          <Menu theme={theme} mode="inline" defaultSelectedKeys={selectedKeys} className="flex-1">
+          <Menu
+            theme={theme}
+            mode="inline"
+            defaultSelectedKeys={selectedKeys}
+            className="flex-1"
+            style={{ background: theme === THEME.DARK ? 'transparent' : 'inherit' }}
+          >
             {navigators.map(({ Icon, path, label, className }) => (
               <Menu.Item icon={<Icon />} key={path} className={className}>
                 <Link to={path}>{t(label)}</Link>
@@ -208,14 +219,15 @@ function App() {
           <div
             onClick={() => setCollapsed(!collapsed)}
             className="absolute top-1/2 -right-3.5 transform -translate-y-8 h-16 border border-solid border-gray-200 border-l-0 rounded-r-2xl flex place-items-center bg-white cursor-pointer"
+            style={theme === THEME.DARK ? { background: '#0d101d', border: 'none' } : {}}
           >
-            <CaretLeftFilled className={`opacity-40 transform ${collapsed ? 'rotate-180' : '0'}`} />
+            <CaretLeftFilled className={`light:opacity-40 transform ${collapsed ? 'rotate-180' : '0'}`} />
           </div>
         </div>
       </Sider>
 
       <Layout className="overflow-scroll">
-        <header className="h-20 flex justify-between items-center p-8 sticky top-0 z-10 bg-gray-100">
+        <header className="h-20 flex justify-between items-center p-8 sticky top-0 z-10 bg-gray-100 dark:bg-black">
           <h2 className={`text-lg font-bold bg-${network.name} text-transparent bg-clip-text`}>Account</h2>
           <div className="flex items-center gap-4 connection">
             <Connection />
