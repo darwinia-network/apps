@@ -64,7 +64,7 @@ function useNominators<T extends IDeriveStakingElected | DeriveStakingWaiting>(m
 
             return result;
           })
-          .reduce((acc, cur) => ({ ...acc, ...cur }));
+          .reduce((acc, cur) => ({ ...acc, ...cur }), {});
 
         const num = info.reduce((acc, { exposure }) => acc.add((exposure as unknown as ExposureT).totalPower), BN_ZERO);
 
