@@ -2,7 +2,7 @@ import { Button } from 'antd';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useApi, useStaking } from '../../../hooks';
-import { FormModal } from '../../modal/FormModal';
+import { FormModal } from '../../widget/FormModal';
 import { AddressItem } from '../../widget/form-control/AddressItem';
 import { Label } from '../../widget/form-control/Label';
 interface SetControllerFormValues {

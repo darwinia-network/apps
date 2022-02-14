@@ -19,7 +19,7 @@ import {
   ViewBrowserIcon,
 } from './components/icons';
 import { IconProps } from './components/icons/icon-factory';
-import { AccountSelect } from './components/modal/AccountSelect';
+import { ActiveAccount } from './components/widget/account/ActiveAccount';
 import { BestNumber } from './components/widget/BestNumber';
 import { Connection } from './components/widget/Connection';
 import { Language } from './components/widget/Language';
@@ -219,7 +219,7 @@ function App() {
           <h2 className={`text-lg font-bold bg-${network.name} text-transparent bg-clip-text`}>Account</h2>
           <div className="flex items-center gap-4 connection">
             <Connection />
-            <AccountSelect />
+            <ActiveAccount />
             <div className="flex items-center">
               <ThemeSwitch mode="btn" network={network.name} onThemeChange={setTheme} />
               <Language mode="icon" network={network.name} theme={theme} />

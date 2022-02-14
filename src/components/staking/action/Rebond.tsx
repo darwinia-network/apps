@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { useApi, useStaking } from '../../../hooks';
 import { Fund } from '../../../model';
 import { getUnit, isRing, toWei } from '../../../utils';
-import { FormModal } from '../../modal/FormModal';
+import { FormModal } from '../../widget/FormModal';
 import { AddressItem } from '../../widget/form-control/AddressItem';
 import { FundItem } from '../../widget/form-control/FundItem';
 

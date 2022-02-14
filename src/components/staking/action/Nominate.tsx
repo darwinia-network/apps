@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAccount, useApi, useStaking } from '../../../hooks';
 import { STAKING_FAV_KEY, useFavorites } from '../../../hooks/favorites';
-import { FormModal } from '../../modal/FormModal';
+import { FormModal } from '../../widget/FormModal';
 import { IdentAccountName } from '../../widget/account/IdentAccountName';
 import { AddressItem } from '../../widget/form-control/AddressItem';
 import { StakingActionProps } from './interface';

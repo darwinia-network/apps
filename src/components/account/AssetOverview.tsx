@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useAccount, useApi } from '../../hooks';
 import { AssetOverviewProps } from '../../model';
 import { fromWei, getUnit, insufficientBalanceRule, isRing, isSameAddress, prettyNumber, toWei } from '../../utils';
-import { FormModal } from '../modal/FormModal';
+import { FormModal } from '../widget/FormModal';
 import { BalanceControl } from '../widget/form-control/BalanceControl';
 import { AddressItem } from '../widget/form-control/AddressItem';
 

@@ -6,7 +6,7 @@ import { from } from 'rxjs';
 import { useApi, useStaking } from '../../../hooks';
 import { Fund } from '../../../model';
 import { fundParam } from '../../../utils';
-import { FormModal } from '../../modal/FormModal';
+import { FormModal } from '../../widget/FormModal';
 import { AddressItem } from '../../widget/form-control/AddressItem';
 import { FundItem } from '../../widget/form-control/FundItem';
 import { Label } from '../../widget/form-control/Label';

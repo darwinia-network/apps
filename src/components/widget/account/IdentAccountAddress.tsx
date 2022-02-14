@@ -15,7 +15,7 @@ export function IdentAccountAddress({ account: { address, meta }, className, ico
       <Identicon size={iconSize} value={address} className="rounded-full border border-gray-100" />
       {!!meta?.name && <span className="ml-2">{meta?.name}</span>}
       <span className="mx-1">-</span>
-      <EllipsisMiddle>{address}</EllipsisMiddle>
+      <EllipsisMiddle className="lg:w-full w-36">{address}</EllipsisMiddle>
     </div>
   );
 }

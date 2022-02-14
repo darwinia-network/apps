@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { useAccount, useApi, useOwnStashes, useStaking } from '../../../hooks';
 import { Fund } from '../../../model';
 import { fundParam, isSameAddress } from '../../../utils';
-import { FormModal } from '../../modal/FormModal';
+import { FormModal } from '../../widget/FormModal';
 import { AddressItem } from '../../widget/form-control/AddressItem';
 import { FundItem } from '../../widget/form-control/FundItem';
 import { Label } from '../../widget/form-control/Label';

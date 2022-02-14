@@ -4,7 +4,7 @@ import { has } from 'lodash';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAccount, useApi, useStaking } from '../../../hooks';
-import { FormModal } from '../../modal/FormModal';
+import { FormModal } from '../../widget/FormModal';
 
 interface SetIdentityFormValues {
   displayName: string;
