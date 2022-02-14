@@ -136,7 +136,7 @@ export function Actions({ eraSelectionIndex }: ActionsProps) {
           </Menu>
         }
       >
-        <SettingFilled className="text-lg text-gray-600 cursor-pointer" />
+        <SettingFilled className="text-lg text-gray-400 cursor-pointer" />
       </Dropdown>
     </div>
   );

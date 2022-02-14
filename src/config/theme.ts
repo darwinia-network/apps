@@ -11,7 +11,7 @@ import darwinia from '../theme/network/darwinia.json';
 import pangolin from '../theme/network/pangolin.json';
 import pangoro from '../theme/network/pangoro.json';
 
-export const NETWORK_LIGHT_THEME: NetworkThemeConfig<{ [key in keyof typeof darwinia]: string }> = {
+const NETWORK_LIGHT_THEME: NetworkThemeConfig<{ [key in keyof typeof darwinia]: string }> = {
   crab,
   darwinia,
   pangolin,
@@ -27,7 +27,7 @@ export const SKIN_THEME = {
   vars,
 };
 
-export const NETWORK_DARK_THEME: NetworkThemeConfig<{ [key in keyof typeof darwiniaDark]: string }> = {
+const NETWORK_DARK_THEME: NetworkThemeConfig<{ [key in keyof typeof darwiniaDark]: string }> = {
   crab: crabDark,
   darwinia: darwiniaDark,
   pangolin: pangolinDark,
@@ -41,3 +41,5 @@ export enum THEME {
   LIGHT = 'light',
   DARK = 'dark',
 }
+
+export const NETWORK_THEME = { [THEME.LIGHT]: NETWORK_LIGHT_THEME, [THEME.DARK]: NETWORK_DARK_THEME };

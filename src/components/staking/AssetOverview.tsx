@@ -119,7 +119,7 @@ export function AssetOverview({ asset }: AssetOverviewProps) {
           <Description title={t('Total')} value={fromWei({ value: asset.total }, prettyNumber)} />
         </div>
       </div>
-      <Tooltip title={tips} placement="right" className="absolute top-4 right-4">
+      <Tooltip title={tips} placement="right" className="absolute top-4 right-4 text-gray-400">
         <QuestionCircleFilled className="cursor-pointer" />
       </Tooltip>
     </div>

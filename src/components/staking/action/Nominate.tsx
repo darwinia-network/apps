@@ -75,7 +75,7 @@ export function Nominate({
       </Button>
 
       <FormModal<NominateFormValues>
-        modalProps={{ visible: isVisible }}
+        modalProps={{ visible: isVisible, title: t('Nominate validators') }}
         onCancel={() => setIsVisible(false)}
         extrinsic={(values) => {
           const { targets } = values;

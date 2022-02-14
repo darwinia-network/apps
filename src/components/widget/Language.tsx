@@ -1,7 +1,7 @@
 import { Button, ButtonProps, Dropdown, Menu } from 'antd';
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { NETWORK_DARK_THEME, NETWORK_LIGHT_THEME, THEME } from '../../config';
+import { NETWORK_THEME, THEME } from '../../config';
 import { Network } from '../../model';
 import { EarthIcon } from '../icons';
 
@@ -29,14 +29,8 @@ export function Language({
 }: LanguageProps) {
   const { t, i18n } = useTranslation();
   const [current, setCurrent] = useState(i18n.language.includes('-') ? i18n.language.split('-')[0] : i18n.language);
-  const textColor = useMemo(() => (network ? 'text-' + network + '-main' : ''), [network]);
-  const calcColor = useMemo(
-    () =>
-      theme === THEME.DARK
-        ? network && NETWORK_LIGHT_THEME[network]['@project-main-bg']
-        : network && NETWORK_DARK_THEME[network]['@project-main-bg'],
-    [network, theme]
-  );
+  const textColor = network ? 'text-' + network + '-main' : '';
+  const calcColor = network && NETWORK_THEME[theme][network]['@project-main-bg'];
 
   return (
     <Dropdown

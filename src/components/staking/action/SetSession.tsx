@@ -34,7 +34,7 @@ export function SetSession({ label, type = 'text' }: StakingActionProps) {
       </Button>
 
       <FormModal<SetSessionFormValues>
-        modalProps={{ visible: isVisible, title: t('Bond more funds') }}
+        modalProps={{ visible: isVisible, title: t('Set session key') }}
         onCancel={() => setIsVisible(false)}
         extrinsic={(values) => {
           const { key } = values;
