@@ -132,7 +132,7 @@ export function Validators({ overview }: ValidatorsProps) {
         <div className="border-l border-r rounded-b-lg">
           {sourceData.map(({ account }, index) => (
             <OverviewProvider key={account} account={account}>
-              <Collapse bordered={false} className="rounded-none">
+              <Collapse bordered={false} className="rounded-none hidable-collapse">
                 <HidablePanel
                   showArrow={false}
                   account={account}
@@ -147,7 +147,7 @@ export function Validators({ overview }: ValidatorsProps) {
                       >
                         <Account account={account} heartbeats={heartbeats} />
                       </Col>
-                      <Col className="flex-1">
+                      <Col className="flex-1 cursor-pointer">
                         <Row justify="space-around" align="middle">
                           <Col span={3} className="text-center">
                             <StakerOther />

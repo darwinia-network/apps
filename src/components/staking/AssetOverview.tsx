@@ -63,7 +63,9 @@ export function AssetOverview({ asset }: AssetOverviewProps) {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       const locked = stakingLedger.activeDepositRing.toBn();
-      const bonded = stakingLedger.active.toBn().sub(locked);
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      const bonded = (stakingLedger.active || stakingLedger.activeRing).toBn().sub(locked);
       const { ringStakingLock } = stakingLedger.toJSON() as {
         ringStakingLock: { unbondings: { amount: number; until: number }[] };
       };

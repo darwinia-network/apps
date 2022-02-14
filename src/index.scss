@@ -116,3 +116,8 @@ body {
 .ant-menu-inline .ant-menu-item::after {
   z-index: 99;
 }
+
+// collapse
+.hidable-collapse .ant-collapse-item .ant-collapse-header {
+  cursor: default;
+}

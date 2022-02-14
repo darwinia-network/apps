@@ -18,6 +18,9 @@ export const toggleTheme = (theme: THEME, network: Network = 'pangolin') => {
       updateStorage({ theme });
       // Do not read theme from localStorage other than this file. Use readStorage instead.
       localStorage.setItem('theme', theme);
+    })
+    .catch((error: unknown) => {
+      console.log('%c [ error ]-22', 'font-size:13px; background:pink; color:#bf2c9f;', error);
     });
 };
 

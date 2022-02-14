@@ -1,4 +1,4 @@
-import { CaretLeftFilled, SettingFilled } from '@ant-design/icons';
+import { CaretLeftFilled } from '@ant-design/icons';
 import { Layout, Menu, Select } from 'antd';
 import AntdLink from 'antd/lib/typography/Link';
 import { Steps } from 'intro.js-react';
@@ -22,8 +22,9 @@ import { IconProps } from './components/icons/icon-factory';
 import { AccountSelect } from './components/modal/AccountSelect';
 import { BestNumber } from './components/widget/BestNumber';
 import { Connection } from './components/widget/Connection';
+import { Language } from './components/widget/Language';
 import { SubscanLink } from './components/widget/SubscanLink';
-import { toggleTheme } from './components/widget/ThemeSwitch';
+import { ThemeSwitch, toggleTheme } from './components/widget/ThemeSwitch';
 import { THEME } from './config';
 import { Path, routes } from './config/routes';
 import { useAccount, useApi } from './hooks';
@@ -112,7 +113,7 @@ function App() {
   const { t } = useTranslation();
   const { network, setNetwork } = useApi();
   const { account } = useAccount();
-  const [theme] = useState<THEME>(readStorage().theme ?? THEME.LIGHT);
+  const [theme, setTheme] = useState<THEME>(readStorage().theme ?? THEME.LIGHT);
   const location = useLocation();
   const [collapsed, setCollapsed] = useState(false);
   const selectedKeys = useMemo<string[]>(
@@ -126,11 +127,6 @@ function App() {
         }),
     [location?.pathname]
   );
-
-  useEffect(() => {
-    toggleTheme(theme, network.name);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   return (
     <Layout style={{ height: '100vh' }} className="overflow-hidden">
@@ -224,7 +220,10 @@ function App() {
           <div className="flex items-center gap-4 connection">
             <Connection />
             <AccountSelect />
-            <SettingFilled className="text-lg text-gray-600 cursor-pointer" />
+            <div className="flex items-center">
+              <ThemeSwitch mode="btn" network={network.name} onThemeChange={setTheme} />
+              <Language mode="icon" network={network.name} theme={theme} />
+            </div>
           </div>
         </header>
 

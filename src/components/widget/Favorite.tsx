@@ -11,7 +11,7 @@ export function Favorite({ account, className = '' }: FavoriteProps) {
   const isFavorite = favorites.includes(account);
 
   return (
-    <div onClick={() => toggleFavorite(account)} className={className}>
+    <div onClick={() => toggleFavorite(account)} className={className + ' cursor-pointer'}>
       {isFavorite ? <StarFilled className="text-yellow-400" /> : <StarOutlined />}
     </div>
   );

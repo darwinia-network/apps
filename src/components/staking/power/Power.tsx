@@ -24,9 +24,14 @@ export function Power() {
     }
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
-    const { active, activeKton } = stakingDerive.stakingLedger;
+    const { active, activeKton, activeRing } = stakingDerive.stakingLedger;
 
-    return assetToPower(new BN(active.toString()), new BN(activeKton.toString()), pool.ring, pool.kton);
+    return assetToPower(
+      new BN((active || activeRing)?.toString()),
+      new BN(activeKton.toString()),
+      pool.ring,
+      pool.kton
+    );
   }, [pool, stakingDerive, isStakingLedgerEmpty]);
 
   return (

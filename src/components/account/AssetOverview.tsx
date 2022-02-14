@@ -50,7 +50,7 @@ export function AssetOverview({ asset, refresh }: AssetOverviewProps) {
       </Card>
 
       <FormModal<TransferFormValues>
-        modalProps={{ visible: isVisible }}
+        modalProps={{ visible: isVisible, title: t('Send {{symbol}}', { symbol: asset.token.symbol }) }}
         onSuccess={() => {
           setIsVisible(false);
           refresh();
@@ -101,7 +101,7 @@ export function AssetOverview({ asset, refresh }: AssetOverviewProps) {
           label={t('Amount')}
           rules={[{ required: true }, insufficientBalanceRule({ t, compared: asset.max, token: asset.token })]}
         >
-          <BalanceControl size="large" className="flex-1">
+          <BalanceControl compact size="large" className="flex-1">
             <div
               className="bg-gray-200 border border-l-0 p-2 rounded-r-lg text-gray-400 uppercase"
               style={{ borderColor: '#d9d9d9' }}
