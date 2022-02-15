@@ -8,9 +8,10 @@ import { Reducer, useEffect, useMemo, useReducer, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { from, map, mergeMap, reduce } from 'rxjs';
 import { IDeriveStakingElected } from '../../../api-derive';
+import { THEME } from '../../../config';
 import { useApi, useIsAccountFuzzyMatch, useIsMountedOperator } from '../../../hooks';
 import { STAKING_FAV_KEY, useFavorites } from '../../../hooks/favorites';
-import { prettyNumber } from '../../../utils';
+import { prettyNumber, readStorage } from '../../../utils';
 import { IdentAccountName } from '../../widget/account/IdentAccountName';
 import { Favorite } from '../../widget/Favorite';
 import { Nominate } from '../action';
@@ -101,6 +102,7 @@ export function Validators({ data, lastReward }: ValidatorsProps) {
   const [rowData, setRowData] = useReducer<Reducer<ValidatorInfo[], ValidatorInfo[]>>((_, payload) => payload, []);
   const { takeWhileIsMounted } = useIsMountedOperator();
   const [selectedAccounts, setSelectedAccounts] = useState<string[]>([]);
+  const theme = readStorage().theme ?? THEME.LIGHT;
 
   const sourceData = useMemo(
     () =>
@@ -280,6 +282,7 @@ export function Validators({ data, lastReward }: ValidatorsProps) {
           dataSource={sourceData}
           columns={columns}
           pagination={false}
+          className={theme === THEME.DARK ? 'dark-table' : ''}
         />
       </Card>
     </>

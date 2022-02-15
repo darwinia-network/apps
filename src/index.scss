@@ -119,3 +119,8 @@ body {
 .hidable-collapse .ant-collapse-item .ant-collapse-header {
   cursor: default;
 }
+
+// table
+.dark-table .ant-table-tbody > tr.ant-table-row-selected > td {
+  background: #262626;
+}

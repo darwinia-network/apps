@@ -66,7 +66,11 @@ export function Validators({ overview }: ValidatorsProps) {
       />
 
       <Card>
-        <Row justify="space-between" align="middle" className="p-4 font-bold light:bg-gray-200 rounded-t-lg border">
+        <Row
+          justify="space-between"
+          align="middle"
+          className="p-4 font-bold light:bg-gray-200 dark:border-gray-700 rounded-t-lg border"
+        >
           <Col span={10} className="pl-8">
             {t('Intentions')}
           </Col>
@@ -83,7 +87,7 @@ export function Validators({ overview }: ValidatorsProps) {
           </Col>
         </Row>
 
-        <div className="border-l border-r border-b rounded-b-lg">
+        <div className="border-l border-r border-b rounded-b-lg dark:border-gray-700">
           {sourceData.map(({ account }, index) => (
             <OverviewProvider key={account} account={account}>
               <Collapse bordered={false} className="rounded-none hidable-collapse">
