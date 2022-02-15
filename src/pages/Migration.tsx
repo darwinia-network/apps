@@ -15,7 +15,7 @@ function Page() {
   const localAccounts = accounts.filter((item) => item.meta.source === LOCAL);
 
   return (
-    <div className="px-8">
+    <div className="lg:px-8 px-2">
       <Card className="mx-8">
         <Trans i18nKey="migrateRefers" className="m-8">
           If your account in the old version cannot be found in your wallet, you can restore JSON which the account in

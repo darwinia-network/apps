@@ -1,4 +1,4 @@
-import BaseIdentityIcon from '@polkadot/react-identicon';
+import BaseIdentityIcon, { Identicon } from '@polkadot/react-identicon';
 import { Card, Col, Modal, Row } from 'antd';
 import React, { CSSProperties, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -55,20 +55,26 @@ export function Connection() {
       {!!connection && !!account ? (
         <section className={`flex items-center gap-2 connection`}>
           {account && (
-            <ActiveAccount
-              onClick={(event) => {
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                if ((event.target as any).tagName === 'SPAN') {
-                  setIsAccountDetailVisible(true);
-                }
-              }}
-              className="max-w-xs text-white"
-              logoStyle={{ background: 'white', height: 24, borderRadius: '50%' }}
-            >
-              <EllipsisMiddle className="text-white overflow-hidden mr-2" copyable>
-                {account}
-              </EllipsisMiddle>
-            </ActiveAccount>
+            <>
+              <ActiveAccount
+                onClick={(event) => {
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  if ((event.target as any).tagName === 'SPAN') {
+                    setIsAccountDetailVisible(true);
+                  }
+                }}
+                className="max-w-xs text-white hidden lg:flex"
+                logoStyle={{ background: 'white', height: 24, borderRadius: '50%' }}
+              >
+                <EllipsisMiddle className="text-white overflow-hidden mr-2" copyable>
+                  {account}
+                </EllipsisMiddle>
+              </ActiveAccount>
+
+              <span className="lg:hidden">
+                <Identicon value={account} size={20} className="rounded-full border p-1" />
+              </span>
+            </>
           )}
         </section>
       ) : (

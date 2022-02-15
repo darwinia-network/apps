@@ -36,7 +36,7 @@ function Page() {
   const hidePortalWarning = !!readStorage().hidePortalWarning;
 
   return (
-    <div className="px-8">
+    <div className="lg:px-8 px-2">
       {!hidePortalWarning && (
         <Alert
           message={t(

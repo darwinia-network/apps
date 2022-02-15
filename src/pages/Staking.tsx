@@ -23,7 +23,7 @@ function Page() {
           history.pushState({ url }, '', url);
           setActiveKey(active);
         }}
-        className="px-8 w-full mx-auto dark:shadow-none dark:border-transparent"
+        className="lg:px-8 px-2 w-full mx-auto dark:shadow-none dark:border-transparent"
       >
         <Tabs.TabPane tab={t('Power Manager')} key="power">
           <Power />
