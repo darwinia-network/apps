@@ -45,9 +45,14 @@ export function Withdraw() {
   return (
     <Card>
       <div className="my-8 flex items-center gap-4">
-        <span className="text-lg">{t('Connect to metamask')}: </span>
-
-        {activeAccount && <span>{activeAccount}</span>}
+        {activeAccount ? (
+          <>
+            <span className="text-lg mr-2">{t('Metamask account')}:</span>
+            <span>{activeAccount}</span>
+          </>
+        ) : (
+          <span className="text-lg mr-2">{t('Connect to Metamask')}:</span>
+        )}
 
         {status === 'success' && (
           <Button type="default" onClick={() => disconnect()} disabled={disableConnect}>
@@ -57,7 +62,7 @@ export function Withdraw() {
 
         {status === 'pending' && (
           <Button type="primary" onClick={() => connectNetwork(network)} disabled={disableConnect}>
-            {t('Connect to metamask')}
+            {t('Connect to Metamask')}
           </Button>
         )}
       </div>

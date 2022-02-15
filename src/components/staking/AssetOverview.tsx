@@ -1,5 +1,5 @@
 import { QuestionCircleFilled } from '@ant-design/icons';
-import { Tooltip } from 'antd';
+import { Skeleton, Tooltip } from 'antd';
 import BN from 'bn.js';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -9,7 +9,7 @@ import { fromWei, isRing, prettyNumber } from '../../utils';
 
 function Description({ title, value }: { title: string; value: string | number }) {
   return (
-    <div className="inline-flex gap-4 opacity-60">
+    <div className="inline-flex gap-4 opacity-60 dark:text-gray-700">
       <span style={{ minWidth: '100px' }}>{title}</span>
       <span className="font-bold">{value}</span>
     </div>
@@ -28,7 +28,7 @@ export function AssetOverview({ asset }: AssetOverviewProps) {
           <p>{t('Available: The amount of tokens that are able to transfer and bond.')}</p>
           <p>
             {t(
-              ' Locked: The amount of tokens that cannot be operated directly and has a lock limit, which is used to gain power and earn additional KTON rewards. '
+              'Locked: The amount of tokens that cannot be operated directly and has a lock limit, which is used to gain power and earn additional KTON rewards. '
             )}
           </p>
           <p>
@@ -42,13 +42,13 @@ export function AssetOverview({ asset }: AssetOverviewProps) {
     }
     return (
       <div className="flex flex-col gap-4">
-        <p>{t('available: The amount of tokens that are able to transfer, bond and transfer.')}</p>
+        <p>{t('Available: The amount of tokens that are able to transfer, bond and transfer.')}</p>
         <p>
           {t(
-            'bonded: The amount of tokens that cannot operated directly but does not have lock limit, which is used to gain voting power and can be taken out at any time (with a 14-day unbonding period) or add lock limit.'
+            'Bonded: The amount of tokens that cannot operated directly but does not have lock limit, which is used to gain voting power and can be taken out at any time (with a 14-day unbonding period) or add lock limit.'
           )}
         </p>
-        <p>{t('unbonding: The amount of tokens that has been unlocked but in the unbonding period.')}</p>
+        <p>{t('Unbonding: The amount of tokens that has been unlocked but in the unbonding period.')}</p>
       </div>
     );
   }, [asset.token?.symbol, t]);
@@ -98,11 +98,11 @@ export function AssetOverview({ asset }: AssetOverviewProps) {
   }, [asset.token.symbol, isStakingLedgerEmpty, stakingDerive]);
 
   if (isStakingLedgerEmpty && account) {
-    return null;
+    return <Skeleton active />;
   }
 
   return (
-    <div className="relative rounded-xl bg-white">
+    <div className="relative rounded-xl bg-white h-full">
       <div className="grid grid-cols-3 p-6 pl-0">
         <div className="flex flex-col gap-4 items-center">
           <img src={`/image/${as}.svg`} className="w-14" />

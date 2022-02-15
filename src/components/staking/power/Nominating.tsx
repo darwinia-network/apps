@@ -24,7 +24,7 @@ function NominateItem({ source }: NominateItemProps) {
       {source.map(([account, power], index) => (
         <div className="flex justify-between items-center border-b py-2" key={index}>
           <IdentAccountName account={account} />
-          <span>{t('{{amount}} Powder', { amount: isNull(power) ? 0 : power })}</span>
+          <span>{t('{{amount}} Power', { amount: isNull(power) ? 0 : power })}</span>
         </div>
       ))}
     </>

@@ -121,12 +121,12 @@ export function Actions({ eraSelectionIndex }: ActionsProps) {
             )}
 
             {isNominating ? (
-              <Menu.Item key="nominess">
+              <Menu.Item key="nominees">
                 <Nominate label="Set nominees" />
               </Menu.Item>
             ) : (
               <Menu.Item key="session">
-                <SetSession label="Change session keys" />
+                <SetSession label="Set session key" />
               </Menu.Item>
             )}
 

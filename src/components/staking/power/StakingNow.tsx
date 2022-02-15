@@ -1,5 +1,6 @@
 import { Button, Checkbox, Form, Modal, Select } from 'antd';
 import { useForm } from 'antd/lib/form/Form';
+import { upperCase } from 'lodash';
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { from, switchMap, takeWhile } from 'rxjs';
@@ -10,8 +11,8 @@ import { useTx } from '../../../hooks/tx';
 import { Asset } from '../../../model';
 import { afterTxSuccess } from '../../../providers';
 import { fundParam, insufficientBalanceRule, isKton, isRing, signAndSendExtrinsic } from '../../../utils';
-import { BalanceControl } from '../../widget/form-control/BalanceControl';
 import { IdentAccountAddress } from '../../widget/account/IdentAccountAddress';
+import { BalanceControl } from '../../widget/form-control/BalanceControl';
 
 const MAX_PERIOD = 36;
 const LOCK_PERIOD = [0, ...new Array(MAX_PERIOD).fill(0).map((_, index) => index + 1)];
@@ -205,7 +206,9 @@ export function StakingNow() {
                 {LOCK_PERIOD.map((item, index) => (
                   <Select.Option value={item} key={index}>
                     {!item
-                      ? t('No fixed term (Set a lock period will get additional CKTON rewards)')
+                      ? t('No fixed term (Set a lock period will get additional {{symbol}} rewards)', {
+                          symbol: upperCase(assets.find((asset) => isKton(asset.asset))?.token.symbol ?? 'kton'),
+                        })
                       : t('{{count}} Month', { count: item })}
                   </Select.Option>
                 ))}

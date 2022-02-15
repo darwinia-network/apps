@@ -149,7 +149,7 @@ export function Validators({ data, lastReward }: ValidatorsProps) {
       render: toPercent,
     },
     {
-      title: t('total stake(power)'),
+      title: t('total stake(Power)'),
       dataIndex: 'bondedTotal',
       sortDirections: ['descend'],
       sorter(a, b) {
