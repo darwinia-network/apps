@@ -32,7 +32,7 @@ export function AssetOverview({ asset, refresh }: AssetOverviewProps) {
         <div className="flex gap-4 items-center">
           <img src={`/image/${as}.svg`} className="w-12" />
           <div>
-            <h1 className="uppercase text-lg font-bold text-black">{asset.token?.symbol}</h1>
+            <h1 className="uppercase text-lg font-bold text-black dark:text-white">{asset.token?.symbol}</h1>
             <span>{fromWei({ value: asset.total }, prettyNumber)}</span>
           </div>
         </div>

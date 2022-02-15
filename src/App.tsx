@@ -2,6 +2,7 @@ import { CaretLeftFilled } from '@ant-design/icons';
 import { Layout, Menu, Select } from 'antd';
 import AntdLink from 'antd/lib/typography/Link';
 import { Steps } from 'intro.js-react';
+import { groupBy } from 'lodash';
 import React, { useEffect, useMemo, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { Link, Route, Switch, useLocation } from 'react-router-dom';
@@ -47,6 +48,8 @@ const navigators: Nav[] = [
   { label: 'Darwinia Portal', path: Path.portal, Icon: DarwiniaIcon },
   { label: 'Account Migration', path: Path.migration, Icon: UsersIcon, className: 'migration' },
 ];
+
+const NETWORK_GROUP = groupBy(NETWORK_CONFIGURATIONS, (item) => item.isTest);
 
 function IntroGuide() {
   const { t } = useTranslation();
@@ -117,7 +120,8 @@ function App() {
   const [theme, setTheme] = useState<THEME>(readStorage().theme ?? THEME.LIGHT);
   const location = useLocation();
   const [collapsed, setCollapsed] = useState(false);
-  const selectedKeys = useMemo<string[]>(
+
+  const selectedNavMenu = useMemo<string[]>(
     () =>
       routes
         .filter((item) => location.pathname === item.path)
@@ -128,6 +132,37 @@ function App() {
         }),
     [location?.pathname]
   );
+
+  const networkOptions = useMemo(() => {
+    const ele = (config: PolkadotChainConfig) => (
+      <Option value={config.name} key={config.name} className="capitalize">
+        <span className="flex items-center">
+          <img
+            src={config.facade.logo}
+            className={`mr-2 h-6 rounded-full dark:bg-white ${collapsed ? 'collapsed' : ''}`}
+            alt=""
+          />
+          {!collapsed && (
+            <span className="flex-1 flex justify-between items-center overflow-hidden overflow-ellipsis">
+              <span className="capitalize mr-2">{config.name}</span>
+            </span>
+          )}
+        </span>
+      </Option>
+    );
+
+    return (
+      <>
+        <Select.OptGroup key="product" label={t('Live networks')}>
+          {NETWORK_GROUP['false'].map((item) => ele(item))}
+        </Select.OptGroup>
+
+        <Select.OptGroup key="test" label={t('Test networks')}>
+          {NETWORK_GROUP['true'].map((item) => ele(item))}
+        </Select.OptGroup>
+      </>
+    );
+  }, [collapsed, t]);
 
   return (
     <Layout style={{ height: '100vh' }} className="overflow-hidden">
@@ -155,29 +190,14 @@ function App() {
               }}
               className={`w-full ${network.name}-select`}
             >
-              {NETWORK_CONFIGURATIONS.map((config) => (
-                <Option value={config.name} key={config.name} className="capitalize">
-                  <span className="flex items-center">
-                    <img
-                      src={config.facade.logo}
-                      className={`mr-2 h-6 rounded-full dark:bg-white ${collapsed ? 'collapsed' : ''}`}
-                      alt=""
-                    />
-                    {!collapsed && (
-                      <span className="flex-1 flex justify-between items-center overflow-hidden overflow-ellipsis">
-                        <span className="capitalize mr-2">{config.name}</span>
-                      </span>
-                    )}
-                  </span>
-                </Option>
-              ))}
+              {networkOptions}
             </Select>
           </div>
 
           <Menu
             theme={theme}
             mode="inline"
-            defaultSelectedKeys={selectedKeys}
+            defaultSelectedKeys={selectedNavMenu}
             className="flex-1"
             style={{ background: theme === THEME.DARK ? 'transparent' : 'inherit' }}
           >
