@@ -130,7 +130,7 @@ function App() {
       </Drawer>
 
       <Layout className="overflow-scroll">
-        <header className="h-20 flex justify-between items-center lg:p-8 p-2 sticky top-0 z-10 bg-gray-100 dark:bg-black">
+        <header className="flex justify-between items-center lg:p-8 p-4 sticky top-0 z-10 bg-gray-100 dark:bg-black">
           <div className="flex items-center">
             <div className={`lg:hidden flex items-center gap-2 mr-4 text-${network.name}-main text-xl`}>
               <BarsOutlined onClick={() => setCollapsed(!collapsed)} />

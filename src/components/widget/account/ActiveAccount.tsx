@@ -37,7 +37,7 @@ export function ActiveAccount() {
 
           <SettingFilled
             onClick={() => setIsVisible(true)}
-            className={`lg:hidden text-xl h-8 text-${network.name}-main`}
+            className={`lg:hidden inline-flex items-center text-2xl h-8 text-${network.name}-main`}
           />
         </>
       )}

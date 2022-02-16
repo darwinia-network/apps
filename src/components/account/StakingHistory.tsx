@@ -12,7 +12,11 @@ export function StakingHistory({ tokens }: AccountHistoryProps) {
 
   return (
     <Card className="relative">
-      <Tabs defaultActiveKey={activeKey} onChange={(key) => setActiveKey(key as AccountStatus)}>
+      <Tabs
+        defaultActiveKey={activeKey}
+        onChange={(key) => setActiveKey(key as AccountStatus)}
+        className="overflow-x-scroll"
+      >
         <Tabs.TabPane tab={t('Bond')} key="bonded">
           <BondRecords tokens={tokens} />
         </Tabs.TabPane>

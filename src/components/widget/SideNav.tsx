@@ -60,7 +60,7 @@ export function SideNav({ collapsed, theme, toggle, children }: PropsWithChildre
   const selectedNavMenu = useMemo<string[]>(() => {
     const nav = getActiveNav(location.pathname);
 
-    return [nav.length ? nav[0].label : ''];
+    return [nav.length ? nav[0].path : ''];
   }, [location?.pathname]);
 
   const networkOptions = useMemo(() => {

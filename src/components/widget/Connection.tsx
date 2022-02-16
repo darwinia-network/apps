@@ -1,5 +1,5 @@
 import BaseIdentityIcon, { Identicon } from '@polkadot/react-identicon';
-import { Card, Col, Modal, Row } from 'antd';
+import { Card, Col, Modal, Row, Typography } from 'antd';
 import React, { CSSProperties, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAccount, useApi } from '../../hooks';
@@ -37,8 +37,8 @@ function ActiveAccount({
 
   return (
     <div className={containerCls} onClick={onClick} style={containerStyle || {}}>
-      <img src={network.facade.logo} style={logoStyle || { height: 24 }} className="hidden sm:inline-block" alt="" />
-      <span className="text-white mx-2 hidden sm:inline">{t(network.name)}</span>
+      <img src={network.facade.logo} style={logoStyle || { height: 24 }} alt="" />
+      <span className="text-white mx-2">{t(network.name)}</span>
       {children}
     </div>
   );
@@ -71,7 +71,7 @@ export function Connection() {
                 </EllipsisMiddle>
               </ActiveAccount>
 
-              <span className="lg:hidden">
+              <span onClick={() => setIsAccountDetailVisible(true)} className="lg:hidden flex">
                 <Identicon value={account} size={20} className="rounded-full border p-1" />
               </span>
             </>
@@ -102,13 +102,9 @@ export function Connection() {
             <Col span={20}>
               <Row>
                 <Col>
-                  <span className="mr-4 text-gray-600 text-base">{account}</span>
-                  <ActiveAccount
-                    isLargeRounded={false}
-                    logoStyle={{ float: 'left', background: 'white', height: 24, borderRadius: '50%' }}
-                    containerStyle={{ display: 'inline-block' }}
-                    textClassName="text-xs h-4 leading-4  mr-0.5"
-                  />
+                  <Typography.Text copyable className="mr-4 text-gray-600 text-base">
+                    {account}
+                  </Typography.Text>
                 </Col>
               </Row>
 
