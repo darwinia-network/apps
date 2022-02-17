@@ -102,7 +102,7 @@ export function AssetOverview({ asset }: AssetOverviewProps) {
   }
 
   return (
-    <div className="relative rounded-xl bg-white h-full">
+    <div className="relative rounded-xl bg-white h-full shadow-xxl">
       <div className="grid grid-cols-3 p-6 pl-0">
         <div className="flex flex-col gap-4 items-center">
           <img src={`/image/${as}.svg`} className="w-14" />

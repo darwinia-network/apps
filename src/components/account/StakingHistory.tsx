@@ -11,7 +11,7 @@ export function StakingHistory({ tokens }: AccountHistoryProps) {
   const { t } = useTranslation();
 
   return (
-    <Card className="relative">
+    <Card className="relative shadow-xxl">
       <Tabs
         defaultActiveKey={activeKey}
         onChange={(key) => setActiveKey(key as AccountStatus)}
@@ -22,10 +22,6 @@ export function StakingHistory({ tokens }: AccountHistoryProps) {
         </Tabs.TabPane>
         <Tabs.TabPane tab={t('Unbond')} key="unbond">
           <UnbondRecords />
-        </Tabs.TabPane>
-        {/* TODO: cross chain record remove it ? */}
-        <Tabs.TabPane disabled tab={t('Mapping')} key="mapping">
-          {/* <Table columns={columns} /> */}
         </Tabs.TabPane>
       </Tabs>
     </Card>

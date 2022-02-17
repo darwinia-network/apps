@@ -22,7 +22,7 @@ function Page() {
       </Tabs.TabPane>
 
       <Tabs.TabPane tab={t('Cross Chain')} key="cross">
-        <Card>
+        <Card className="shadow-xxl">
           <p className="mb-4 opacity-60">
             {t('You can transfer RING/KTON through the cross-chain bridge between Ethereum and Darwinia.')}
           </p>

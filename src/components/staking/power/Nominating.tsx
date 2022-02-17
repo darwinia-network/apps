@@ -70,7 +70,7 @@ export function Nominating() {
   const { isValidating, isNominating } = useStaking();
 
   return (
-    <Card>
+    <Card className="shadow-xxl">
       <h1 className="text-lg font-bold">{t('Nominating')}</h1>
 
       {isValidating && <Nominators />}

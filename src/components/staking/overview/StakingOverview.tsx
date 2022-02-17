@@ -99,8 +99,8 @@ export function StakingOverview() {
 
   return (
     <>
-      <Card>
-        <div className="grid grid-cols-5">
+      <Card className="shadow-xxl">
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
           <Statistics
             title={t('validators')}
             value={

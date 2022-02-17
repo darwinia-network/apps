@@ -73,6 +73,7 @@ export function Nominate({
           setIsVisible(true);
         }}
         className={className}
+        size="large"
       >
         {t(label ?? 'Nominate')}
       </Button>

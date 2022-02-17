@@ -27,6 +27,7 @@ module.exports = {
         lg: '10px',
       },
       boxShadow: {
+        xxl: '0px 0px 24px rgb(191 194 234 / 41%)',
         'mock-bottom-border': '0px 10px 1px -8px #5745de',
         'mock-bottom-border-light': '0px 10px 1px -8px rgba(255,255,255,.85)',
       },

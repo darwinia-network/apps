@@ -36,7 +36,7 @@ export function Power() {
 
   return (
     <>
-      <Card>
+      <Card className="shadow-xxl">
         <div className="flex lg:flex-row flex-col lg:justify-between lg:items-center">
           <IdentAccountAddress account={accountWithMeta} className="mb-2 lg:mb-0" />
 
@@ -48,7 +48,7 @@ export function Power() {
       <Row gutter={[32, 32]} className="mt-8">
         <Col lg={8} span={24}>
           <div
-            className="relative rounded-xl bg-white"
+            className="relative rounded-xl bg-white shadow-xxl"
             style={{
               background: 'linear-gradient(-45deg, #fe3876 0%, #7c30dd 71%, #3a30dd 100%)',
             }}

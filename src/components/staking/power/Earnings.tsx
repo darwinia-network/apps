@@ -51,59 +51,57 @@ export function Earnings({ updateEraIndex }: PowerDetailProps) {
   }, [account, isMounted, network]);
 
   return !stashAccount ? (
-    <Card className="my-8">
+    <Card className="my-8 shadow-xxl">
       <StakingNow />
     </Card>
   ) : (
-    <>
-      <Card className="my-8" bodyStyle={{ padding: '24px 32px' }}>
-        <Radio.Group
-          value={eraSelection[eraSelectionIndex].value}
-          onChange={(event) => {
-            const value = +event.target.value;
-            const idx = eraSelection.findIndex((item) => item.value === value);
+    <Card className="my-8 shadow-xxl" bodyStyle={{ padding: '24px 32px' }}>
+      <Radio.Group
+        value={eraSelection[eraSelectionIndex].value}
+        onChange={(event) => {
+          const value = +event.target.value;
+          const idx = eraSelection.findIndex((item) => item.value === value);
 
-            setEraSelectionIndex(idx);
-            updateEraIndex(idx);
-          }}
-        >
-          {eraSelection.map((item, index) => (
-            <Radio.Button value={item.value} key={index}>
-              {item.text}
-            </Radio.Button>
-          ))}
-        </Radio.Group>
+          setEraSelectionIndex(idx);
+          updateEraIndex(idx);
+        }}
+      >
+        {eraSelection.map((item, index) => (
+          <Radio.Button value={item.value} key={index}>
+            {item.text}
+          </Radio.Button>
+        ))}
+      </Radio.Group>
 
-        <div className="grid grid-cols-4 md:grid-cols-3 mt-8">
-          <Statistics
-            title={t('Claimed')}
-            value={`${claimed} ${upperCase(ringAsset?.token.symbol)}`}
-            className="border-none text-center md:text-left col-span-2 md:col-span-1"
-          />
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-3 mt-8">
+        <Statistics
+          title={t('Claimed')}
+          value={`${claimed} ${upperCase(ringAsset?.token.symbol)}`}
+          className="border-none"
+        />
 
-          <Statistics
-            title={t('Unclaimed')}
-            value={
-              isLoadingRewards ? (
-                <Spin />
-              ) : (
-                `${fromWei({ value: payoutTotal }, prettyNumber)} ${upperCase(ringAsset?.token.symbol)}`
-              )
-            }
-            className="border-none text-center md:text-left col-span-2 md:col-span-1"
-          />
+        <Statistics
+          title={t('Unclaimed')}
+          value={
+            isLoadingRewards ? (
+              <Spin />
+            ) : (
+              `${fromWei({ value: payoutTotal }, prettyNumber)} ${upperCase(ringAsset?.token.symbol)}`
+            )
+          }
+          className="border-none"
+        />
 
-          <div className="flex items-center justify-center gap-4 col-span-4 md:col-span-1 mt-4 md:mt-0">
-            <Button type="primary">
-              <SubscanLink network={network.name} address={account} query="tab=reward">
-                {t('Reward History')}
-              </SubscanLink>
-            </Button>
+        <div className="flex items-center justify-center gap-4 mt-4 md:mt-0">
+          <Button type="primary">
+            <SubscanLink network={network.name} address={account} query="tab=reward">
+              {t('Reward History')}
+            </SubscanLink>
+          </Button>
 
-            <ClaimRewards eraSelectionIndex={eraSelectionIndex} type="primary" />
-          </div>
+          <ClaimRewards eraSelectionIndex={eraSelectionIndex} type="primary" />
         </div>
-      </Card>
-    </>
+      </div>
+    </Card>
   );
 }

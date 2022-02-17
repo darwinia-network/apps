@@ -1,6 +1,6 @@
 import { DeriveStakingOverview } from '@polkadot/api-derive/staking/types';
 import { DeriveHeartbeats } from '@polkadot/api-derive/types';
-import { Card, Col, Collapse, Input, Row, Spin, Tooltip } from 'antd';
+import { Col, Collapse, Input, Row, Spin, Tooltip } from 'antd';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { from, switchMap, timer } from 'rxjs';
@@ -62,14 +62,15 @@ export function Validators({ overview }: ValidatorsProps) {
         }}
         size="large"
         placeholder={t('Flite by name, address or index')}
-        className="mt-4 mb-8 w-1/3"
+        className="mt-4 mb-8 lg:w-1/3"
       />
 
-      <Card>
+      <div className="overflow-x-scroll bg-white dark:bg-antDark rounded-xl p-0 lg:p-8 shadow-xxl">
         <Row
           justify="space-between"
           align="middle"
-          className="p-4 font-bold light:bg-gray-200 dark:border-gray-700 rounded-t-lg border"
+          className="p-4 font-bold bg-gray-100 dark:bg-gray-800 dark:border-gray-700 rounded-t-xl border overflow-x-scroll"
+          style={{ minWidth: 1080 }}
         >
           <Col span={10} className="pl-8">
             {t('Intentions')}
@@ -87,16 +88,22 @@ export function Validators({ overview }: ValidatorsProps) {
           </Col>
         </Row>
 
-        <div className="border-l border-r border-b rounded-b-lg dark:border-gray-700">
+        <div className="border-l border-r border-b rounded-b-xl dark:border-gray-700" style={{ minWidth: 1080 }}>
           {sourceData.map(({ account }, index) => (
             <OverviewProvider key={account} account={account}>
-              <Collapse bordered={false} className="rounded-none hidable-collapse">
+              <Collapse
+                bordered={false}
+                className="hidable-collapse"
+                style={{
+                  borderRadius: index === sourceData.length - 1 ? '0 0 20px 20px' : 0,
+                }}
+              >
                 <HidablePanel
                   showArrow={false}
                   account={account}
                   match={searchName}
                   disabled={!nominatedBy}
-                  style={{ borderRadius: index === sourceData.length - 1 ? '0 0 10px 10px' : '0' }}
+                  style={{ borderRadius: index === sourceData.length - 1 ? '0 0 20px 20px' : 0 }}
                   header={
                     <Row align="middle" justify="space-between">
                       <Col
@@ -139,7 +146,7 @@ export function Validators({ overview }: ValidatorsProps) {
             </OverviewProvider>
           ))}
         </div>
-      </Card>
+      </div>
     </>
   );
 }

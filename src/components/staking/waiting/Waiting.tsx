@@ -26,7 +26,7 @@ export function Waiting() {
   return overview ? (
     <Validators overview={overview} />
   ) : (
-    <Card>
+    <Card className="shadow-xxl">
       <Skeleton active />
     </Card>
   );

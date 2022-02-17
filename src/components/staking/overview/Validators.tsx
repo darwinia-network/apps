@@ -2,7 +2,7 @@ import { AppstoreOutlined } from '@ant-design/icons';
 import { DeriveStakingOverview } from '@polkadot/api-derive/staking/types';
 import { DeriveHeartbeats } from '@polkadot/api-derive/types';
 import { EraRewardPoints } from '@polkadot/types/interfaces';
-import { Card, Col, Collapse, Input, Row } from 'antd';
+import { Col, Collapse, Input, Row } from 'antd';
 import { Reducer, useEffect, useReducer, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { from, switchMap, timer } from 'rxjs';
@@ -96,52 +96,57 @@ export function Validators({ overview }: ValidatorsProps) {
         }}
         size="large"
         placeholder={t('Flite by name, address or index')}
-        className="my-8 w-1/3"
+        className="my-8 lg:w-1/3"
       />
 
-      <Card>
+      <div className="overflow-x-scroll bg-white dark:bg-antDark rounded-xl p-0 lg:p-8 shadow-xxl">
         <Row
           justify="space-between"
           align="middle"
-          className="p-4 font-bold light:bg-gray-200 dark:border-gray-700 rounded-t-lg border"
+          style={{ minWidth: 1080 }}
+          className="p-4 font-bold bg-gray-100 dark:bg-gray-800 dark:border-gray-700 rounded-t-xl border overflow-x-scroll"
         >
-          <Col span={8} className="pl-8">
+          <Col lg={8} className="pl-8">
             {t('Validator')}
           </Col>
           <Col className="flex-1">
             <Row align="middle" justify="space-around">
-              <Col span={3} className="text-center">
+              <Col lg={3} className="text-center">
                 {t('other stake(power)')}
               </Col>
-              <Col span={3} className="text-center">
+              <Col lg={3} className="text-center">
                 {t('own stake(power)')}
               </Col>
-              <Col span={3} className="text-center">
+              <Col lg={3} className="text-center">
                 {t('active commission')}
               </Col>
-              <Col span={3} className="text-center">
+              <Col lg={3} className="text-center">
                 {t('next commission')}
               </Col>
-              <Col span={3} className="text-center">
+              <Col lg={3} className="text-center">
                 {t('points')}
               </Col>
-              <Col span={3} className="text-center">
+              <Col lg={3} className="text-center">
                 {t('last #')}
               </Col>
-              <Col span={2}></Col>
+              <Col lg={2}></Col>
             </Row>
           </Col>
         </Row>
 
-        <div className="border-l border-r border-b rounded-b-lg dark:border-gray-700">
+        <div className="border-l border-r border-b rounded-b-xl dark:border-gray-700" style={{ minWidth: 1080 }}>
           {sourceData.map(({ account }, index) => (
             <OverviewProvider key={account} account={account}>
-              <Collapse bordered={false} className="rounded-none hidable-collapse">
+              <Collapse
+                bordered={false}
+                className="hidable-collapse"
+                style={{ borderRadius: index === sourceData.length - 1 ? '0 0 20px 20px' : 0 }}
+              >
                 <HidablePanel
                   showArrow={false}
                   account={account}
                   match={searchName}
-                  style={{ borderRadius: index === sourceData.length - 1 ? '0 0 10px 10px' : '0' }}
+                  style={index === sourceData.length - 1 ? { border: 'none' } : {}}
                   header={
                     <Row align="middle" justify="space-between">
                       <Col
@@ -193,7 +198,7 @@ export function Validators({ overview }: ValidatorsProps) {
             </OverviewProvider>
           ))}
         </div>
-      </Card>
+      </div>
     </>
   );
 }
