@@ -22,7 +22,7 @@ function NominateItem({ source }: NominateItemProps) {
   return (
     <>
       {source.map(([account, power], index) => (
-        <div className="flex justify-between items-center border-b py-2" key={index}>
+        <div className="flex justify-between items-center border-b dark:border-gray-700 py-2" key={index}>
           <IdentAccountName account={account} />
           <span>{t('{{amount}} Power', { amount: isNull(power) ? 0 : power })}</span>
         </div>
@@ -70,7 +70,7 @@ export function Nominating() {
   const { isValidating, isNominating } = useStaking();
 
   return (
-    <Card>
+    <Card className="shadow-xxl">
       <h1 className="text-lg font-bold">{t('Nominating')}</h1>
 
       {isValidating && <Nominators />}

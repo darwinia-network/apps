@@ -34,7 +34,7 @@ function StatisticProgress({ label, block, data, className = '' }: StatisticProg
       className={className}
       value={
         <div className="grid grid-cols-5 gap-2 items-center">
-          <span className="flex-1 col-span-1">
+          <span className="flex-1 col-span-2">
             <BlockTime value={block} />
           </span>
           {isNull(data) ? (
@@ -99,8 +99,8 @@ export function StakingOverview() {
 
   return (
     <>
-      <Card>
-        <div className="grid grid-cols-5">
+      <Card className="shadow-xxl">
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
           <Statistics
             title={t('validators')}
             value={

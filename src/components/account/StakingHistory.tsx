@@ -11,17 +11,17 @@ export function StakingHistory({ tokens }: AccountHistoryProps) {
   const { t } = useTranslation();
 
   return (
-    <Card className="relative">
-      <Tabs defaultActiveKey={activeKey} onChange={(key) => setActiveKey(key as AccountStatus)}>
+    <Card className="relative shadow-xxl">
+      <Tabs
+        defaultActiveKey={activeKey}
+        onChange={(key) => setActiveKey(key as AccountStatus)}
+        className="overflow-x-scroll"
+      >
         <Tabs.TabPane tab={t('Bond')} key="bonded">
           <BondRecords tokens={tokens} />
         </Tabs.TabPane>
         <Tabs.TabPane tab={t('Unbond')} key="unbond">
           <UnbondRecords />
-        </Tabs.TabPane>
-        {/* TODO: cross chain record remove it ? */}
-        <Tabs.TabPane disabled tab={t('Mapping')} key="mapping">
-          {/* <Table columns={columns} /> */}
         </Tabs.TabPane>
       </Tabs>
     </Card>

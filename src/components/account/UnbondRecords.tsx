@@ -108,6 +108,7 @@ export function UnbondRecords() {
       onChange={({ pageSize = 0, current = 0 }) => {
         setPagination({ ...pagination, pageSize, current });
       }}
+      className="whitespace-nowrap"
     />
   );
 }

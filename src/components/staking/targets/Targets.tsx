@@ -66,8 +66,8 @@ export function Targets() {
 
   return (
     <>
-      <Card>
-        <div className="grid grid-cols-5">
+      <Card className="shadow-xxl">
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
           <Statistics title={t('total staked(Power)')} value={total ? prettyNumber(total) : <Spin />} />
           <Statistics
             title={t('total issuance({{symbol}})', { symbol: ringSymbol })}
@@ -102,7 +102,7 @@ export function Targets() {
       {elected && waiting ? (
         <Validators data={{ elected, waiting }} lastReward={lastReward ? new BN(lastReward) : new BN(1)} />
       ) : (
-        <Card className="my-8">
+        <Card className="my-8 shadow-xxl">
           <Skeleton active />
         </Card>
       )}

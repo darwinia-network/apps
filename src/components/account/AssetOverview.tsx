@@ -28,7 +28,7 @@ export function AssetOverview({ asset, refresh }: AssetOverviewProps) {
 
   return (
     <>
-      <Card className="p-4">
+      <Card className="p-4 shadow-xxl">
         <div className="flex gap-4 items-center">
           <img src={`/image/${as}.svg`} className="w-12" />
           <div>

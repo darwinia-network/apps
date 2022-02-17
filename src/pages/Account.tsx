@@ -10,20 +10,19 @@ function Page() {
   const { assets, getBalances } = useAccount();
 
   return (
-    <Tabs className="px-8 w-full mx-auto dark:shadow-none dark:border-transparent">
+    <Tabs className="lg:px-8 px-4 w-full mx-auto dark:shadow-none dark:border-transparent">
       <Tabs.TabPane tab={t('Darwinia Asset')} key="asset">
-        <div className="grid grid-cols-2 gap-8 mb-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
           {assets.map((item, index) => (
             <AssetOverview asset={item} key={index} refresh={getBalances}></AssetOverview>
           ))}
         </div>
-        <div>
-          <StakingHistory tokens={assets.map((item) => item.token)} />
-        </div>
+
+        <StakingHistory tokens={assets.map((item) => item.token)} />
       </Tabs.TabPane>
 
       <Tabs.TabPane tab={t('Cross Chain')} key="cross">
-        <Card>
+        <Card className="shadow-xxl">
           <p className="mb-4 opacity-60">
             {t('You can transfer RING/KTON through the cross-chain bridge between Ethereum and Darwinia.')}
           </p>

@@ -175,6 +175,7 @@ export function BondRecords({ tokens }: AccountHistoryProps) {
         onChange={({ pageSize = 0, current = 0 }) => {
           setPagination({ ...pagination, pageSize, current });
         }}
+        className="whitespace-nowrap"
       />
       <Modal
         title={t('Confirm to continue')}

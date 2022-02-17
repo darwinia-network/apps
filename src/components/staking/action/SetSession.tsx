@@ -11,10 +11,11 @@ import { StakingActionProps } from './interface';
 interface SetSessionFormValues {
   controller: string;
   key: string;
+  className?: string;
   [key: string]: unknown;
 }
 
-export function SetSession({ label, type = 'text' }: StakingActionProps) {
+export function SetSession({ label, type = 'text', className = '' }: StakingActionProps) {
   const { t } = useTranslation();
   const { api } = useApi();
   const { isControllerAccountOwner, isNominating, controllerAccount, stashAccount } = useStaking();
@@ -29,6 +30,7 @@ export function SetSession({ label, type = 'text' }: StakingActionProps) {
         }}
         type={type}
         disabled={!isControllerAccountOwner}
+        className={className}
       >
         {t(label ?? 'Session Key')}
       </Button>

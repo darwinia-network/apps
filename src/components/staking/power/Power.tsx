@@ -15,7 +15,7 @@ export function Power() {
   const { t } = useTranslation();
   const [eraSelectionIndex, setEraSelectionIndex] = useState(0);
   const { accountWithMeta, assets, getBalances } = useAccount();
-  const { stakingDerive, isStakingLedgerEmpty } = useStaking();
+  const { stakingDerive, isStakingLedgerEmpty, stashAccount } = useStaking();
   const { pool } = usePower();
 
   const power = useMemo(() => {
@@ -36,18 +36,19 @@ export function Power() {
 
   return (
     <>
-      <Card>
-        <div className="flex justify-between items-center">
-          <IdentAccountAddress account={accountWithMeta} />
+      <Card className="shadow-xxl">
+        <div className="flex lg:flex-row flex-col lg:justify-between lg:items-center">
+          <IdentAccountAddress account={accountWithMeta} className="mb-2 lg:mb-0" />
 
-          <Actions eraSelectionIndex={eraSelectionIndex} />
+          {stashAccount && <Actions eraSelectionIndex={eraSelectionIndex} />}
         </div>
       </Card>
 
-      <Row gutter={32} className="mt-8">
-        <Col span={8}>
+      {/* eslint-disable-next-line no-magic-numbers */}
+      <Row gutter={[32, 32]} className="mt-8">
+        <Col lg={8} span={24}>
           <div
-            className="relative rounded-xl bg-white"
+            className="relative rounded-xl bg-white shadow-xxl"
             style={{
               background: 'linear-gradient(-45deg, #fe3876 0%, #7c30dd 71%, #3a30dd 100%)',
             }}
@@ -67,7 +68,7 @@ export function Power() {
         </Col>
 
         {assets.map((item, index) => (
-          <Col span={8} key={item.token?.symbol || index}>
+          <Col lg={8} span={24} key={item.token?.symbol || index}>
             <AssetOverview asset={item} key={index} refresh={getBalances}></AssetOverview>
           </Col>
         ))}

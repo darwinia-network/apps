@@ -1,3 +1,4 @@
+import { SettingFilled } from '@ant-design/icons';
 import BaseIdentityIcon from '@polkadot/react-identicon';
 import { Button, Empty, Modal, Radio } from 'antd';
 import { useMemo, useState } from 'react';
@@ -28,7 +29,18 @@ export function ActiveAccount() {
 
   return (
     <>
-      {accounts.length > 1 && <Button onClick={() => setIsVisible(true)}>{t('Switch Account')}</Button>}
+      {accounts.length > 1 && (
+        <>
+          <Button onClick={() => setIsVisible(true)} className="hidden lg:block">
+            {t('Switch Account')}
+          </Button>
+
+          <SettingFilled
+            onClick={() => setIsVisible(true)}
+            className={`lg:hidden inline-flex items-center text-2xl h-8 text-${network.name}-main`}
+          />
+        </>
+      )}
       <Modal
         title={t('Select active account')}
         destroyOnClose

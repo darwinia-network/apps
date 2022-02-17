@@ -64,23 +64,24 @@ export function Actions({ eraSelectionIndex }: ActionsProps) {
   );
 
   return (
-    <div className="flex gap-2 items-center">
+    <div className="flex lg:flex-row flex-col gap-2 items-center">
       {isNominating || isValidating ? (
         <Button
           onClick={() => {
             signAndSendExtrinsic(api, controllerAccount, api.tx.staking.chill()).subscribe(observer);
           }}
+          className="w-full lg:w-auto"
         >
           {t(isNominating ? 'Stop Nominating' : 'Stop Validating')}
         </Button>
       ) : (
         <>
           {!sessionAccounts.length || nextSessionAccount === '0x' ? (
-            <SetSession type="default" />
+            <SetSession type="default" className="w-full lg:w-auto" />
           ) : (
-            <SetValidator type="default" />
+            <SetValidator type="default" className="w-full lg:w-auto" />
           )}
-          <Nominate type="default" />
+          <Nominate type="default" className="w-full lg:w-auto" />
         </>
       )}
       <Dropdown
@@ -135,6 +136,7 @@ export function Actions({ eraSelectionIndex }: ActionsProps) {
             </Menu.Item>
           </Menu>
         }
+        className="lg:static absolute right-6 top-6"
       >
         <SettingFilled className="text-lg text-gray-400 cursor-pointer" />
       </Dropdown>

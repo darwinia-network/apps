@@ -15,11 +15,11 @@ function Content({
   url: string;
 }) {
   return (
-    <Col span={7}>
+    <Col md={7}>
       <Card
         bordered={false}
         style={{ minHeight: 250 }}
-        className="cursor-pointer hover:scale-105 hover:shadow-lg transform transition-all duration-200"
+        className="cursor-pointer hover:scale-105 hover:shadow-lg transform transition-all duration-200 shadow-xxl"
       >
         <div onClick={() => window.open(url, '_blank')} className="flex flex-col gap-4 items-center">
           <img src={`/image/${img}`} style={{ height: 70 }} />
@@ -36,7 +36,7 @@ function Page() {
   const hidePortalWarning = !!readStorage().hidePortalWarning;
 
   return (
-    <div className="px-8">
+    <div className="lg:px-8 px-4">
       {!hidePortalWarning && (
         <Alert
           message={t(
@@ -49,13 +49,14 @@ function Page() {
           onClose={() => {
             updateStorage({ hidePortalWarning: true });
           }}
-          className="m-8"
+          className="m-0 lg:m-8"
         />
       )}
 
-      <Tabs accessKey="overview" className="px-8 w-full mx-auto dark:shadow-none dark:border-transparent">
+      <Tabs accessKey="overview" className="px-0 lg:px-8 w-full mx-auto dark:shadow-none dark:border-transparent">
         <Tabs.TabPane tab={t('overview')} key="overview" className="pb-8">
-          <Row justify="space-between">
+          {/* eslint-disable-next-line no-magic-numbers */}
+          <Row justify="space-between" gutter={[32, 32]}>
             <Content
               img="polkadot.svg"
               product={'polkadot{.js}'}

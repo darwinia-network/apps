@@ -1,10 +1,10 @@
-import BaseIdentityIcon from '@polkadot/react-identicon';
-import { Card, Col, Modal, Row } from 'antd';
+import BaseIdentityIcon, { Identicon } from '@polkadot/react-identicon';
+import { Button, Card, Col, Modal, Row, Typography } from 'antd';
 import React, { CSSProperties, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAccount, useApi } from '../../hooks';
 import { convertToSS58 } from '../../utils';
-import { CopyIcon, ViewBrowserIcon } from '../icons';
+import { ViewBrowserIcon } from '../icons';
 import { ConnectPolkadot } from './ConnectPolkadot';
 import { EllipsisMiddle } from './EllipsisMiddle';
 
@@ -37,8 +37,8 @@ function ActiveAccount({
 
   return (
     <div className={containerCls} onClick={onClick} style={containerStyle || {}}>
-      <img src={network.facade.logo} style={logoStyle || { height: 24 }} className="hidden sm:inline-block" alt="" />
-      <span className="text-white mx-2 hidden sm:inline">{t(network.name)}</span>
+      <img src={`/image/${network.name}-1.svg`} style={logoStyle || { height: 24 }} alt="" />
+      <span className="text-white mx-2">{t(network.name)}</span>
       {children}
     </div>
   );
@@ -55,20 +55,26 @@ export function Connection() {
       {!!connection && !!account ? (
         <section className={`flex items-center gap-2 connection`}>
           {account && (
-            <ActiveAccount
-              onClick={(event) => {
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                if ((event.target as any).tagName === 'SPAN') {
-                  setIsAccountDetailVisible(true);
-                }
-              }}
-              className="max-w-xs text-white"
-              logoStyle={{ background: 'white', height: 24, borderRadius: '50%' }}
-            >
-              <EllipsisMiddle className="text-white overflow-hidden mr-2" copyable>
-                {account}
-              </EllipsisMiddle>
-            </ActiveAccount>
+            <>
+              <ActiveAccount
+                onClick={(event) => {
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  if ((event.target as any).tagName === 'SPAN') {
+                    setIsAccountDetailVisible(true);
+                  }
+                }}
+                className="max-w-xs text-white hidden lg:flex"
+                logoStyle={{ height: 24 }}
+              >
+                <EllipsisMiddle className="text-white overflow-hidden mr-2" copyable>
+                  {account}
+                </EllipsisMiddle>
+              </ActiveAccount>
+
+              <span onClick={() => setIsAccountDetailVisible(true)} className="lg:hidden flex">
+                <Identicon value={account} size={20} className="rounded-full border p-1" />
+              </span>
+            </>
           )}
         </section>
       ) : (
@@ -96,35 +102,24 @@ export function Connection() {
             <Col span={20}>
               <Row>
                 <Col>
-                  <span className="mr-4 text-gray-600 text-base">{account}</span>
-                  <ActiveAccount
-                    isLargeRounded={false}
-                    logoStyle={{ float: 'left', background: 'white', height: 24, borderRadius: '50%' }}
-                    containerStyle={{ display: 'inline-block' }}
-                    textClassName="text-xs h-4 leading-4  mr-0.5"
-                  />
+                  <Typography.Text copyable className="mr-4 text-gray-600 text-base">
+                    {account}
+                  </Typography.Text>
                 </Col>
               </Row>
 
               <Row className="my-2" gutter={8}>
-                <Col className="flex items-center" style={{ cursor: 'default' }}>
-                  <CopyIcon className="mr-2" />
-                  <span className="text-xs text-gray-600">{t('Copy address')}</span>
-                </Col>
+                <Button
+                  onClick={() => {
+                    const address = convertToSS58(account ?? '', network.ss58Prefix);
 
-                <Col className="flex items-center cursor-pointer">
-                  <ViewBrowserIcon className="mr-2 text-xl" />
-                  <span
-                    onClick={() => {
-                      const address = convertToSS58(account ?? '', network.ss58Prefix);
-
-                      window.open(`https://${network}.subscan.io/account/${address}`, 'blank');
-                    }}
-                    className="text-xs text-gray-600"
-                  >
-                    {t('View in Subscan')}
-                  </span>
-                </Col>
+                    window.open(`https://${network.name}.subscan.io/account/${address}`, 'blank');
+                  }}
+                  className="flex items-center cursor-pointer"
+                  icon={<ViewBrowserIcon className="text-xl" />}
+                >
+                  {t('View in Subscan')}
+                </Button>
               </Row>
             </Col>
           </Row>

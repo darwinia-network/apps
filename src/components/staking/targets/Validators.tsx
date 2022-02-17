@@ -257,7 +257,7 @@ export function Validators({ data, lastReward }: ValidatorsProps) {
           }}
           size="large"
           placeholder={t('Flite by name, address or index')}
-          className="my-8 w-1/3"
+          className="my-8 mr-2 lg:w-1/3"
         />
 
         <Nominate
@@ -268,7 +268,7 @@ export function Validators({ data, lastReward }: ValidatorsProps) {
         />
       </div>
 
-      <Card>
+      <Card className="overflow-x-scroll shadow-xxl">
         <Table
           rowKey="id"
           rowSelection={{
@@ -283,6 +283,7 @@ export function Validators({ data, lastReward }: ValidatorsProps) {
           columns={columns}
           pagination={false}
           className={theme === THEME.DARK ? 'dark-table' : ''}
+          style={{ minWidth: 1080 }}
         />
       </Card>
     </>
