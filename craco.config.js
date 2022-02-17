@@ -31,6 +31,7 @@ const options = {
   generateOnce: false,
   publicPath: '',
   customColorRegexArray: [],
+  outputFilePath: './plugins/theme.css',
 };
 const themePlugin = new AntDesignThemePlugin(options);
 

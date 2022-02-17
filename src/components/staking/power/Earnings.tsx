@@ -73,11 +73,12 @@ export function Earnings({ updateEraIndex }: PowerDetailProps) {
             </Radio.Button>
           ))}
         </Radio.Group>
-        <div className="flex justify-between items-center mt-8">
+
+        <div className="grid grid-cols-4 md:grid-cols-3 mt-8">
           <Statistics
             title={t('Claimed')}
             value={`${claimed} ${upperCase(ringAsset?.token.symbol)}`}
-            className="border-none"
+            className="border-none text-center md:text-left col-span-2 md:col-span-1"
           />
 
           <Statistics
@@ -89,10 +90,10 @@ export function Earnings({ updateEraIndex }: PowerDetailProps) {
                 `${fromWei({ value: payoutTotal }, prettyNumber)} ${upperCase(ringAsset?.token.symbol)}`
               )
             }
-            className="border-none"
+            className="border-none text-center md:text-left col-span-2 md:col-span-1"
           />
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center justify-center gap-4 col-span-4 md:col-span-1 mt-4 md:mt-0">
             <Button type="primary">
               <SubscanLink network={network.name} address={account} query="tab=reward">
                 {t('Reward History')}

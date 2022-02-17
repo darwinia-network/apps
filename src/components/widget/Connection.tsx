@@ -1,10 +1,10 @@
 import BaseIdentityIcon, { Identicon } from '@polkadot/react-identicon';
-import { Card, Col, Modal, Row, Typography } from 'antd';
+import { Button, Card, Col, Modal, Row, Typography } from 'antd';
 import React, { CSSProperties, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAccount, useApi } from '../../hooks';
 import { convertToSS58 } from '../../utils';
-import { CopyIcon, ViewBrowserIcon } from '../icons';
+import { ViewBrowserIcon } from '../icons';
 import { ConnectPolkadot } from './ConnectPolkadot';
 import { EllipsisMiddle } from './EllipsisMiddle';
 
@@ -37,7 +37,7 @@ function ActiveAccount({
 
   return (
     <div className={containerCls} onClick={onClick} style={containerStyle || {}}>
-      <img src={network.facade.logo} style={logoStyle || { height: 24 }} alt="" />
+      <img src={`/image/${network.name}-1.svg`} style={logoStyle || { height: 24 }} alt="" />
       <span className="text-white mx-2">{t(network.name)}</span>
       {children}
     </div>
@@ -64,7 +64,7 @@ export function Connection() {
                   }
                 }}
                 className="max-w-xs text-white hidden lg:flex"
-                logoStyle={{ background: 'white', height: 24, borderRadius: '50%' }}
+                logoStyle={{ height: 24 }}
               >
                 <EllipsisMiddle className="text-white overflow-hidden mr-2" copyable>
                   {account}
@@ -109,24 +109,17 @@ export function Connection() {
               </Row>
 
               <Row className="my-2" gutter={8}>
-                <Col className="flex items-center" style={{ cursor: 'default' }}>
-                  <CopyIcon className="mr-2" />
-                  <span className="text-xs text-gray-600">{t('Copy address')}</span>
-                </Col>
+                <Button
+                  onClick={() => {
+                    const address = convertToSS58(account ?? '', network.ss58Prefix);
 
-                <Col className="flex items-center cursor-pointer">
-                  <ViewBrowserIcon className="mr-2 text-xl" />
-                  <span
-                    onClick={() => {
-                      const address = convertToSS58(account ?? '', network.ss58Prefix);
-
-                      window.open(`https://${network}.subscan.io/account/${address}`, 'blank');
-                    }}
-                    className="text-xs text-gray-600"
-                  >
-                    {t('View in Subscan')}
-                  </span>
-                </Col>
+                    window.open(`https://${network.name}.subscan.io/account/${address}`, 'blank');
+                  }}
+                  className="flex items-center cursor-pointer"
+                  icon={<ViewBrowserIcon className="text-xl" />}
+                >
+                  {t('View in Subscan')}
+                </Button>
               </Row>
             </Col>
           </Row>

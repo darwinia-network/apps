@@ -19,7 +19,7 @@ function Description({ title, value }: { title: string; value: string | number }
 export function AssetOverview({ asset }: AssetOverviewProps) {
   const { t } = useTranslation();
   const { account } = useAccount();
-  const { stakingDerive, isStakingLedgerEmpty } = useStaking();
+  const { stakingDerive, isStakingLedgerEmpty, isStakingDeriveLoading } = useStaking();
   const as = useMemo(() => (isRing(asset.token?.symbol) ? 'ring' : 'kton'), [asset.token?.symbol]);
   const tips = useMemo(() => {
     if (isRing(asset.token?.symbol)) {
@@ -97,7 +97,7 @@ export function AssetOverview({ asset }: AssetOverviewProps) {
     };
   }, [asset.token.symbol, isStakingLedgerEmpty, stakingDerive]);
 
-  if (isStakingLedgerEmpty && account) {
+  if (isStakingDeriveLoading && account) {
     return <Skeleton active />;
   }
 

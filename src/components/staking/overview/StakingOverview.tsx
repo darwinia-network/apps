@@ -34,7 +34,7 @@ function StatisticProgress({ label, block, data, className = '' }: StatisticProg
       className={className}
       value={
         <div className="grid grid-cols-5 gap-2 items-center">
-          <span className="flex-1 col-span-1">
+          <span className="flex-1 col-span-2">
             <BlockTime value={block} />
           </span>
           {isNull(data) ? (

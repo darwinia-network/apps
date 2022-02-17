@@ -609,7 +609,12 @@ async function generateTheme({
     });
 
     css = minifyCss(css);
-    css = css.replace('.anticon {color: inherit;}', '/* disable anticon color */')
+    css = css.replace('.anticon {color: inherit;}', '/* disable anticon color */') // remove antd class for icon 
+    css = css.replace('.ant-btn:hover, .ant-btn:focus, .ant-btn:active {background: @btn-default-bg;}', '/* disable btn hover color */'); 
+    css = css.replace('.ant-btn:hover, .ant-btn:focus {color: color(~`colorPalette("@{btn-primary-bg}", 5)`);background: @btn-default-bg;border-color: color(~`colorPalette("@{btn-primary-bg}", 5)`);}', '/* disable btn hover color */'); 
+    css = css.replace('.ant-btn-primary:hover, .ant-btn-primary:focus {color: #fff;background: color(~`colorPalette("@{btn-primary-bg}", 5)`);border-color: color(~`colorPalette("@{btn-primary-bg}", 5)`);}', '/* disable btn hover color */'); 
+    // .ant-btn:hover, .ant-btn:focus {color: color(~`colorPalette("@{btn-primary-bg}", 5)`);background: @btn-default-bg;border-color: color(~`colorPalette("@{btn-primary-bg}", 5)`);} 
+    css = css.replace(/\.ant-btn[-primary]?:hover.*/, '/* disable btn hover color */');
 
     if (outputFilePath) {
       fs.writeFileSync(outputFilePath, css);

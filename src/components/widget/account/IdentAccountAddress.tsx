@@ -9,7 +9,7 @@ interface IdentAccountProps {
 }
 
 // eslint-disable-next-line no-magic-numbers
-export function IdentAccountAddress({ account: { address, meta }, className, iconSize = 32 }: IdentAccountProps) {
+export function IdentAccountAddress({ account: { address, meta }, className = '', iconSize = 32 }: IdentAccountProps) {
   return (
     <div className={`flex items-center ${className}`}>
       <Identicon size={iconSize} value={address} className="rounded-full border border-gray-100" />

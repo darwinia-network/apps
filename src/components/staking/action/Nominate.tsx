@@ -13,6 +13,7 @@ interface NominateFormValues {
   controller: string;
   stash: string;
   targets: string[];
+  className?: string;
   [key: string]: unknown;
 }
 
@@ -20,6 +21,7 @@ export function Nominate({
   label,
   defaultSelects,
   disabled,
+  className = '',
   type = 'text',
 }: StakingActionProps & { defaultSelects?: string[] }) {
   const { t } = useTranslation();
@@ -70,6 +72,7 @@ export function Nominate({
         onClick={() => {
           setIsVisible(true);
         }}
+        className={className}
       >
         {t(label ?? 'Nominate')}
       </Button>

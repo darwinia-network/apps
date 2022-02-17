@@ -108,7 +108,7 @@ export function SideNav({ collapsed, theme, toggle, children }: PropsWithChildre
             toggleTheme(theme, value);
             updateStorage({ activeNetwork: config as PolkadotChainConfig });
           }}
-          className={`w-full ${network.name}-select`}
+          className={`w-full ${network.name}-${theme}-select`}
         >
           {networkOptions}
         </Select>
@@ -143,16 +143,16 @@ export function SideNav({ collapsed, theme, toggle, children }: PropsWithChildre
 
         <div className="w-full flex flex-wrap items-center justify-around px-2">
           {/* TODO: Icon can not display on drawer */}
-          <a>
+          <a href="https://github.com/darwinia-network" target="_blank" rel="noreferrer">
             <img className="w-6 mb-2" src="/image/github.svg" />
           </a>
-          <a>
+          <a href="https://twitter.com/DarwiniaNetwork" target="_blank" rel="noreferrer">
             <img className="w-6 mb-2" src="/image/twitter.svg" />
           </a>
-          <a>
+          <a href="https://medium.com/@darwinianetwork" target="_blank" rel="noreferrer">
             <img className="w-6 mb-2" src="/image/medium.svg" />
           </a>
-          <a>
+          <a href="https://medium.com/@darwinianetwork" target="_blank" rel="noreferrer">
             <img className="w-6 mb-2" src="/image/telegram.svg" />
           </a>
         </div>
