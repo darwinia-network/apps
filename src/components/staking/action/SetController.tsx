@@ -38,7 +38,7 @@ export function SetController() {
         }}
         initialValues={{ controller: controllerAccount, stash: stashAccount }}
       >
-        <AddressItem name="stash" label="Stash account" disabled />
+        <AddressItem name="stash" label="Stash account" disabled extra={null} />
 
         <AddressItem
           name="controller"
@@ -50,6 +50,7 @@ export function SetController() {
               )}
             />
           }
+          extra={null}
         />
       </FormModal>
     </>

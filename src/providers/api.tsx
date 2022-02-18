@@ -14,7 +14,7 @@ import {
   PolkadotChainConfig,
   PolkadotConnection,
 } from '../model';
-import { getPolkadotConnection, readStorage, waitUntilConnected } from '../utils';
+import { convertToSS58, getPolkadotConnection, readStorage, waitUntilConnected } from '../utils';
 
 interface StoreState {
   connection: Connection;
@@ -47,7 +47,18 @@ function accountReducer(state: StoreState, action: Action<ActionType, any>): Sto
     }
 
     case 'setConnection': {
-      return { ...state, connection: action.payload };
+      const { accounts, ...rest } = action.payload as Connection;
+
+      return {
+        ...state,
+        connection: {
+          ...rest,
+          accounts: accounts.map((item) => ({
+            ...item,
+            address: convertToSS58(item.address, state.network.ss58Prefix),
+          })),
+        },
+      };
     }
 
     default:

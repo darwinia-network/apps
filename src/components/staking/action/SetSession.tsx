@@ -48,7 +48,7 @@ export function SetSession({ label, type = 'text', className = '' }: StakingActi
         }}
         initialValues={{ controller: controllerAccount }}
       >
-        <AddressItem name="controller" label="Controller account" disabled />
+        <AddressItem name="controller" label="Controller account" disabled extra={null} />
 
         {isSubstrateV2 ? (
           <FormItem

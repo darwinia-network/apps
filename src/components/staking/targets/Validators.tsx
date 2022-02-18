@@ -135,7 +135,6 @@ export function Validators({ data, lastReward }: ValidatorsProps) {
     {
       title: t('active commission'),
       dataIndex: 'currentEraCommissionPer',
-      sortDirections: ['descend'],
       sorter(a, b) {
         return a.currentEraCommissionPer - b.currentEraCommissionPer;
       },
@@ -144,7 +143,6 @@ export function Validators({ data, lastReward }: ValidatorsProps) {
     {
       title: t('next commission'),
       dataIndex: 'commissionPer',
-      sortDirections: ['descend'],
       sorter(a, b) {
         return a.commissionPer - b.commissionPer;
       },
@@ -153,7 +151,6 @@ export function Validators({ data, lastReward }: ValidatorsProps) {
     {
       title: t('total stake(Power)'),
       dataIndex: 'bondedTotal',
-      sortDirections: ['descend'],
       sorter(a, b) {
         return a.bondedTotal.sub(b.bondedTotal).toNumber();
       },
@@ -162,7 +159,6 @@ export function Validators({ data, lastReward }: ValidatorsProps) {
     {
       title: t('own stake(power)'),
       dataIndex: 'bondedOwn',
-      sortDirections: ['descend'],
       sorter(a, b) {
         return a.bondedOwn.sub(b.bondedOwn).toNumber();
       },
@@ -171,7 +167,6 @@ export function Validators({ data, lastReward }: ValidatorsProps) {
     {
       title: t('other stake(power)'),
       key: 'boundedOther',
-      sortDirections: ['descend'],
       sorter(a, b) {
         return a.bondedTotal.sub(a.bondedOwn).sub(b.bondedTotal.sub(b.bondedOwn)).toNumber();
       },
@@ -263,6 +258,7 @@ export function Validators({ data, lastReward }: ValidatorsProps) {
         <Nominate
           type="primary"
           label="Nominate selected"
+          size="large"
           defaultSelects={selectedAccounts}
           disabled={!selectedAccounts.length}
         />

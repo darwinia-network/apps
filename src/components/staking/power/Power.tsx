@@ -4,7 +4,7 @@ import BN from 'bn.js';
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAccount, usePower, useStaking } from '../../../hooks';
-import { assetToPower } from '../../../utils';
+import { assetToPower, prettyNumber } from '../../../utils';
 import { IdentAccountAddress } from '../../widget/account/IdentAccountAddress';
 import { AssetOverview } from '../AssetOverview';
 import { Actions } from './Actions';
@@ -56,7 +56,7 @@ export function Power() {
             <div className="flex justify-between items-center p-6">
               <div className="text-white font-bold pl-4">
                 <h2 className="text-white text-lg mb-4">{t('Power')}</h2>
-                <b className="text-xl">{power.toString()}</b>
+                <b className="text-xl">{prettyNumber(power.toString())}</b>
               </div>
               <img src="/image/lightning.png" className="w-20" />
             </div>

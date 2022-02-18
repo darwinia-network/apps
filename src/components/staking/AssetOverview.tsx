@@ -3,7 +3,7 @@ import { Skeleton, Tooltip } from 'antd';
 import BN from 'bn.js';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useAccount, useStaking } from '../../hooks';
+import { useStaking } from '../../hooks';
 import { AssetOverviewProps } from '../../model';
 import { fromWei, isRing, prettyNumber } from '../../utils';
 
@@ -18,40 +18,8 @@ function Description({ title, value }: { title: string; value: string | number }
 
 export function AssetOverview({ asset }: AssetOverviewProps) {
   const { t } = useTranslation();
-  const { account } = useAccount();
   const { stakingDerive, isStakingLedgerEmpty, isStakingDeriveLoading } = useStaking();
   const as = useMemo(() => (isRing(asset.token?.symbol) ? 'ring' : 'kton'), [asset.token?.symbol]);
-  const tips = useMemo(() => {
-    if (isRing(asset.token?.symbol)) {
-      return (
-        <div className="flex flex-col gap-4">
-          <p>{t('Available: The amount of tokens that are able to transfer and bond.')}</p>
-          <p>
-            {t(
-              'Locked: The amount of tokens that cannot be operated directly and has a lock limit, which is used to gain power and earn additional KTON rewards. '
-            )}
-          </p>
-          <p>
-            {t(
-              'Bonded: The amount of tokens that cannot be operated directly but does not have a lock limit, which is used to gain power and can be taken out at any time(with a 14-day unbonding period) or add lock limit.'
-            )}
-          </p>
-          <p>{t('Unbonding: The amount of tokens that has been unlocked but in the unbonding period.')}</p>
-        </div>
-      );
-    }
-    return (
-      <div className="flex flex-col gap-4">
-        <p>{t('Available: The amount of tokens that are able to transfer, bond and transfer.')}</p>
-        <p>
-          {t(
-            'Bonded: The amount of tokens that cannot operated directly but does not have lock limit, which is used to gain voting power and can be taken out at any time (with a 14-day unbonding period) or add lock limit.'
-          )}
-        </p>
-        <p>{t('Unbonding: The amount of tokens that has been unlocked but in the unbonding period.')}</p>
-      </div>
-    );
-  }, [asset.token?.symbol, t]);
 
   const ledger = useMemo(() => {
     if (isStakingLedgerEmpty) {
@@ -97,7 +65,7 @@ export function AssetOverview({ asset }: AssetOverviewProps) {
     };
   }, [asset.token.symbol, isStakingLedgerEmpty, stakingDerive]);
 
-  if (isStakingDeriveLoading && account) {
+  if (isStakingDeriveLoading) {
     return <Skeleton active />;
   }
 
@@ -119,7 +87,28 @@ export function AssetOverview({ asset }: AssetOverviewProps) {
           <Description title={t('Total')} value={fromWei({ value: asset.total }, prettyNumber)} />
         </div>
       </div>
-      <Tooltip title={tips} placement="right" className="absolute top-4 right-4 text-gray-400">
+      <Tooltip
+        title={
+          <div className="flex flex-col gap-4">
+            <p>{t('Available The amount of tokens that are able to staking, bond and transfer.')}</p>
+            {isRing(asset.token.symbol) && (
+              <p>
+                {t(
+                  'Locked The amount of tokens that cannot be operated directly and has a lock limit, which is used to gain power and earn additional KTON rewards. '
+                )}
+              </p>
+            )}
+            <p>
+              {t(
+                'Bonded The amount of tokens that cannot be operated directly but does not have a lock limit, which is used to gain power and can be taken out at any time(with a 14-day unbonding period) or add lock limit.'
+              )}
+            </p>
+            <p>{t('Unbonding The amount of tokens that has been unlocked but in the unbonding period.')}</p>
+          </div>
+        }
+        placement="right"
+        className="absolute top-4 right-4 text-gray-400"
+      >
         <QuestionCircleFilled className="cursor-pointer" />
       </Tooltip>
     </div>

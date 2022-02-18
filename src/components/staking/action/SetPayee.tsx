@@ -24,7 +24,7 @@ export function SetPayee() {
   return (
     <>
       <Button type="text" disabled={!isControllerAccountOwner} onClick={() => setIsVisible(true)}>
-        {t('Change payee')}
+        {t('Change reward destination')}
       </Button>
 
       <FormModal<SetPayeeFormValues>
@@ -54,6 +54,7 @@ export function SetPayee() {
               )}
             />
           }
+          extra={null}
         />
 
         <PayeeItem

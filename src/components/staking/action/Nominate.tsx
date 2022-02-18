@@ -21,8 +21,7 @@ export function Nominate({
   label,
   defaultSelects,
   disabled,
-  className = '',
-  type = 'text',
+  ...rest
 }: StakingActionProps & { defaultSelects?: string[] }) {
   const { t } = useTranslation();
   const { api } = useApi();
@@ -67,13 +66,11 @@ export function Nominate({
   return (
     <>
       <Button
-        type={type}
+        {...rest}
         disabled={!isControllerAccountOwner || disabled}
         onClick={() => {
           setIsVisible(true);
         }}
-        className={className}
-        size="large"
       >
         {t(label ?? 'Nominate')}
       </Button>

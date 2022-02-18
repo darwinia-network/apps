@@ -6,11 +6,11 @@ import { from } from 'rxjs';
 import { useApi, useStaking } from '../../../hooks';
 import { Fund } from '../../../model';
 import { fundParam } from '../../../utils';
-import { FormModal } from '../../widget/FormModal';
 import { AddressItem } from '../../widget/form-control/AddressItem';
 import { FundItem } from '../../widget/form-control/FundItem';
 import { Label } from '../../widget/form-control/Label';
 import { PromiseMonthItem } from '../../widget/form-control/PromiseMonthItem';
+import { FormModal } from '../../widget/FormModal';
 import { PowerReward } from '../power/PowerReward';
 
 interface BondMoreFormValues {
@@ -45,7 +45,10 @@ export function BondMore() {
       </Button>
 
       <FormModal<BondMoreFormValues>
-        modalProps={{ visible: isVisible, title: t('Bond more funds') }}
+        modalProps={{
+          visible: isVisible,
+          title: <Label text={t('Bond more funds')} info={t('Adds bonded tokens for staking to obtain more power.')} />,
+        }}
         onCancel={() => setIsVisible(false)}
         extrinsic={(values) => {
           const { promiseMonth, fund } = values;

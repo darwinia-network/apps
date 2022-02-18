@@ -53,7 +53,15 @@ export function Unbond() {
       </Button>
 
       <FormModal<UnbondFormValues>
-        modalProps={{ visible: isVisible, title: t('Unbond') }}
+        modalProps={{
+          visible: isVisible,
+          title: (
+            <Label
+              text={t('Unbond')}
+              info={t('unbond tokens for staking, unbonded tokens become available after 14 days')}
+            />
+          ),
+        }}
         onCancel={() => setIsVisible(false)}
         extrinsic={(values) => {
           const { fund } = values;

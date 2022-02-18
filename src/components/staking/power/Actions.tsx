@@ -14,7 +14,6 @@ import {
   Nominate,
   Rebond,
   SetController,
-  SetIdentity,
   SetPayee,
   SetSession,
   SetValidator,
@@ -130,10 +129,6 @@ export function Actions({ eraSelectionIndex }: ActionsProps) {
                 <SetSession label="Set session key" />
               </Menu.Item>
             )}
-
-            <Menu.Item key="identity">
-              <SetIdentity />
-            </Menu.Item>
           </Menu>
         }
         className="lg:static absolute right-6 top-6"

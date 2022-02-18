@@ -1,8 +1,9 @@
 import { QuestionCircleOutlined } from '@ant-design/icons';
 import { Tooltip } from 'antd';
+import { ReactNode } from 'react';
 
 interface LabelProps {
-  text: string;
+  text: string | ReactNode;
   info?: string;
   className?: string;
 }

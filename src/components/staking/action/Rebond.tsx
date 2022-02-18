@@ -8,6 +8,7 @@ import { getUnit, isRing, toWei } from '../../../utils';
 import { FormModal } from '../../widget/FormModal';
 import { AddressItem } from '../../widget/form-control/AddressItem';
 import { FundItem } from '../../widget/form-control/FundItem';
+import { Label } from '../../widget/form-control/Label';
 
 interface RebondFormValues {
   stash: string;
@@ -28,7 +29,10 @@ export function Rebond() {
       </Button>
 
       <FormModal<RebondFormValues>
-        modalProps={{ visible: isVisible, title: t('Rebond funds') }}
+        modalProps={{
+          visible: isVisible,
+          title: <Label text={t('Rebond funds')} info={t('Rebond the unbonding funds')} />,
+        }}
         onCancel={() => setIsVisible(false)}
         extrinsic={(values) => {
           const { fund } = values;

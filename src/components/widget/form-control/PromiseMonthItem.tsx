@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { useAccount } from '../../../hooks';
 import { Asset, CustomFormItemProps } from '../../../model';
 import { isRing, isKton } from '../../../utils';
+import { Label } from './Label';
 
 const MAX_PERIOD = 36;
 const LOCK_PERIOD = [0, ...new Array(MAX_PERIOD).fill(0).map((_, index) => index + 1)];
@@ -23,7 +24,17 @@ export function PromiseMonthItem({ selectedAsset, label, name, onChange }: Promi
   return selectedAsset ? (
     <>
       {isRing(selectedAsset?.asset) && (
-        <FormItem name={name} label={isString(label) ? t(label) : label} rules={[{ required: true }]}>
+        <FormItem
+          name={name}
+          label={
+            <Label
+              text={isString(label) ? t(label) : label}
+              info={t('During the limited time, staked funds will not be available')}
+            />
+          }
+          rules={[{ required: true }]}
+          extra={<p className="text-xs">{t('The funds status will become locked after freezing period set')}</p>}
+        >
           <Select
             size="large"
             onChange={(value: string) => {

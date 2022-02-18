@@ -35,7 +35,10 @@ export function Deposit() {
       </Button>
 
       <FormModal<DepositFormValues>
-        modalProps={{ visible: isVisible, title: t('Deposit more funds') }}
+        modalProps={{
+          visible: isVisible,
+          title: <Label text={t('Deposit more funds')} info={t('Add lock limit for bonded tokens')} />,
+        }}
         onCancel={() => setIsVisible(false)}
         extrinsic={(values) => {
           const { promiseMonth, fund } = values;

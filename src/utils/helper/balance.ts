@@ -4,8 +4,8 @@ import { Unit, fromWei as web3FromWei, toWei as web3ToWei, unitMap, Units } from
 
 export type WeiValue = string | BN | number | null | undefined;
 export interface PrettyNumberOptions {
-  withThousandSplit?: boolean;
   decimal?: number;
+  ignoreZeroDecimal?: boolean;
 }
 
 export const ETH_UNITS = unitMap as unknown as Units;
@@ -50,7 +50,7 @@ const isDecimal = (value: number | string) => {
 // eslint-disable-next-line complexity
 export function prettyNumber(
   value: string | number | BN | null | undefined,
-  { decimal }: PrettyNumberOptions = { decimal: 3 }
+  { decimal, ignoreZeroDecimal }: PrettyNumberOptions = { decimal: 3, ignoreZeroDecimal: false }
 ): string {
   if (value === null || typeof value === 'undefined') {
     return '-';
@@ -68,7 +68,8 @@ export function prettyNumber(
 
   prefix = prefix.replace(/\d{1,3}(?=(\d{3})+(\.\d*)?$)/g, '$&,');
 
-  const result = +suffix !== 0 ? `${prefix}.${suffix}` : prefix;
+  const result =
+    +suffix !== 0 ? `${prefix}.${suffix}` : ignoreZeroDecimal ? prefix : `${prefix}.${'0'.padEnd(decimal!, '0')}`;
 
   return +result === 0 ? '0' : result;
 }

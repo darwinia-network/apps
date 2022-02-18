@@ -3,17 +3,13 @@ import { hexToU8a, isHex } from '@polkadot/util';
 import BN from 'bn.js';
 import type { ValidatorRule } from 'rc-field-form/lib/interface';
 import { TFunction } from 'react-i18next';
-import { Network, NetworkCategory, PolkadotChainConfig, Token } from '../../model';
-import { NETWORK_CONFIGURATIONS } from '../network';
+import { Token } from '../../model';
 import { convertToSS58 } from './address';
 import { getUnit, toWei } from './balance';
 
-// eslint-disable-next-line complexity
-export const isValidAddress = (address: string, network: Network | NetworkCategory, strict = false): boolean => {
-  const target = NETWORK_CONFIGURATIONS.find((item) => item.name === network) as PolkadotChainConfig;
-
-  return strict ? isSS58Address(address, target.ss58Prefix) : isSS58Address(address);
-};
+export function isSpecifiedSS58Address(address: string, sst8Prefix: number) {
+  return isSS58Address(address, sst8Prefix);
+}
 
 // eslint-disable-next-line complexity
 export const isSS58Address = (address: string, ss58Prefix?: number) => {

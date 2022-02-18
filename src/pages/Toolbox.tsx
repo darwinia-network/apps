@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { withRouter } from 'react-router-dom';
 import web3 from 'web3';
 import { Withdraw } from '../components/toolbox/withdraw';
+import { Label } from '../components/widget/form-control/Label';
 import { useApi } from '../hooks';
 import { MetamaskProvider } from '../providers/metamask';
 import { convertToSS58, dvmAddressToAccountId } from '../utils';
@@ -21,7 +22,7 @@ function Page() {
         <Tabs.TabPane tab={t('DVM Address')} key="address">
           <Form layout="vertical">
             <Form.Item
-              label={t('DVM account')}
+              label={<Label text={t('DVM account')} info={t('DVM format account ID to Darwinia network account ID')} />}
               name="address"
               rules={[
                 {
@@ -39,6 +40,7 @@ function Page() {
 
                   setAddress(addr);
                 }}
+                placeholder={t('DVM format account e.g.')}
                 allowClear
                 size="large"
               />

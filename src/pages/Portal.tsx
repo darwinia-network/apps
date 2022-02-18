@@ -45,7 +45,7 @@ function Page() {
           type="warning"
           closable
           showIcon
-          closeText={t('I known, do not show it anymore')}
+          closeText={t('I know, do not show it anymore')}
           onClose={() => {
             updateStorage({ hidePortalWarning: true });
           }}

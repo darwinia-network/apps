@@ -4,7 +4,6 @@ export * from './Deposit';
 export * from './Nominate';
 export * from './Rebond';
 export * from './SetController';
-export * from './SetIdentity';
 export * from './SetPayee';
 export * from './SetSession';
 export * from './SetValidator';
