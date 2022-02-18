@@ -4,12 +4,11 @@ import { useTranslation } from 'react-i18next';
 import { CustomFormItemProps } from '../../../model';
 import { Payee, PayeeControl } from './PayeeControl';
 
-export function PayeeItem({ label, name, onChange }: CustomFormItemProps<Payee>) {
+export function PayeeItem({ label, rules = [], onChange, ...rest }: CustomFormItemProps<Payee>) {
   const { t } = useTranslation();
 
   return (
     <FormItem
-      name={name}
       label={isString(label) ? t(label) : label}
       rules={[
         { required: true },
@@ -25,7 +24,9 @@ export function PayeeItem({ label, name, onChange }: CustomFormItemProps<Payee>)
           },
           message: t('You must set a payee account'),
         },
+        ...rules,
       ]}
+      {...rest}
     >
       <PayeeControl onChange={onChange} />
     </FormItem>

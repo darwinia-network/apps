@@ -13,7 +13,7 @@ interface FundItemProps extends CustomFormItemProps<Fund>, Pick<FundControlProps
 }
 
 // eslint-disable-next-line complexity
-export function FundItem({ label, name, extra, max, hiddenAssets, onChange }: FundItemProps) {
+export function FundItem({ label, name, extra, max, hiddenAssets, rules = [], onChange }: FundItemProps) {
   const { t } = useTranslation();
   const { assets } = useAccount();
   const [asset, setAsset] = useState<Asset | null>(null);
@@ -44,6 +44,7 @@ export function FundItem({ label, name, extra, max, hiddenAssets, onChange }: Fu
               token: asset.token,
             })
           : {},
+        ...rules,
       ]}
       extra={
         isUndefined(extra) ? (

@@ -5,6 +5,7 @@ import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAccount, useApi } from '../../../hooks';
 import { convertToSS58 } from '../../../utils';
+import { EllipsisMiddle } from '../EllipsisMiddle';
 
 const iconSize = 36;
 
@@ -88,9 +89,9 @@ export function ActiveAccount() {
                   className="mr-2 rounded-full border border-solid border-gray-100"
                   value={item.address}
                 />
-                <span className="flex flex-col leading-5">
+                <span className="flex flex-col leading-5 overflow-hidden">
                   <b>{item.meta?.name}</b>
-                  <span className="opacity-60">{item.address}</span>
+                  <EllipsisMiddle className="opacity-60 w-full">{item.address}</EllipsisMiddle>
                 </span>
               </Radio.Button>
             ))}

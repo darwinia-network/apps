@@ -1,9 +1,10 @@
-import { AutoComplete, Form, Input, InputProps } from 'antd';
+import { Form, InputProps, Select } from 'antd';
 import { isString, upperFirst } from 'lodash';
 import { useTranslation } from 'react-i18next';
 import { useAccount, useApi } from '../../../hooks';
 import { CustomFormItemProps } from '../../../model';
 import { fromWei, isSpecifiedSS58Address, prettyNumber } from '../../../utils';
+import { IdentAccountAddress } from '../account/IdentAccountAddress';
 
 export function AddressItem({ label, disabled, rules = [], ...rest }: CustomFormItemProps & InputProps) {
   const { t } = useTranslation();
@@ -39,13 +40,13 @@ export function AddressItem({ label, disabled, rules = [], ...rest }: CustomForm
         ...rules,
       ]}
     >
-      <AutoComplete
-        options={accounts.map((item) => ({ label: `${item.meta?.name} - ${item.address}`, value: item.address }))}
-        placeholder={t('Enter or select one from these below')}
-        disabled={disabled}
-      >
-        <Input size="large" disabled={disabled} />
-      </AutoComplete>
+      <Select placeholder={t('Enter or select one from these below')} disabled={disabled} size="large" showSearch>
+        {accounts.map((item) => (
+          <Select.Option value={item.address} key={item.address}>
+            <IdentAccountAddress account={item} />
+          </Select.Option>
+        ))}
+      </Select>
     </Form.Item>
   );
 }

@@ -94,6 +94,7 @@ export function AssetOverview({ asset, refresh }: AssetOverviewProps) {
               message: t('The sending address and the receiving address cannot be the same'),
             },
           ]}
+          extra={null}
         />
 
         <Form.Item

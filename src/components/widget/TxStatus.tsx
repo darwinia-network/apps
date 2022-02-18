@@ -85,7 +85,7 @@ export function TxStatus({ tx, cancel, ...others }: TxStatusProps) {
   return (
     <Alert
       {...others}
-      className="flex fixed top-2 inset-x-2 md:top-20 md:right-8 border-none max-w-sm"
+      className="flex fixed top-2 inset-x-2 md:inset-x-auto md:top-20 md:right-8 border-none md:max-w-sm"
       message={message}
       icon={icon}
       type={type}

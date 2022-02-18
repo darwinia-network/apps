@@ -96,7 +96,7 @@ export function Nominate({
 
         <FormItem
           name="targets"
-          label="Filter candidates"
+          label={t('Filter candidates')}
           extra={
             <span className="text-xs">
               {t('Filter available candidates based on name, address or short account index.')}
@@ -104,7 +104,13 @@ export function Nominate({
           }
           rules={[{ required: true }]}
         >
-          <Select mode="multiple" allowClear placeholder="Please select" size="large" disabled={!!defaultSelects}>
+          <Select
+            mode="multiple"
+            allowClear
+            placeholder={t('Please select from list')}
+            size="large"
+            disabled={!!defaultSelects}
+          >
             {available.map((item) => (
               <Select.Option key={item} value={item}>
                 <IdentAccountName account={item} iconSize={24} />

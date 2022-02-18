@@ -1,6 +1,6 @@
 import { Select, Checkbox } from 'antd';
 import FormItem from 'antd/lib/form/FormItem';
-import { isString } from 'lodash';
+import { isString, upperCase } from 'lodash';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAccount } from '../../../hooks';
@@ -48,7 +48,9 @@ export function PromiseMonthItem({ selectedAsset, label, name, onChange }: Promi
             {LOCK_PERIOD.map((item, index) => (
               <Select.Option value={item} key={index}>
                 {!item
-                  ? t('No fixed term (Set a lock period will get additional CKTON rewards)')
+                  ? t('No fixed term Set a lock period will get additional {{symbol}} rewards', {
+                      symbol: upperCase(assets.find((asset) => isKton(asset.asset))?.token.symbol ?? 'kton'),
+                    })
                   : t('{{count}} Month', { count: item })}
               </Select.Option>
             ))}

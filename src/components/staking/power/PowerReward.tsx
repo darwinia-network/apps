@@ -1,9 +1,9 @@
 import { useTranslation } from 'react-i18next';
 import { usePower } from '../../../hooks';
-import { Fund } from '../../../model';
+import { Asset, Fund } from '../../../model';
 
 interface PowerRewardProps {
-  selectedAsset: Fund | null;
+  selectedAsset: Fund | Asset | null;
 }
 
 export function PowerReward({ selectedAsset }: PowerRewardProps) {
