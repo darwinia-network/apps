@@ -16,11 +16,7 @@ function Content({
 }) {
   return (
     <Col md={7}>
-      <Card
-        bordered={false}
-        style={{ minHeight: 250 }}
-        className="cursor-pointer hover:scale-105 hover:shadow-lg transform transition-all duration-200 shadow-xxl"
-      >
+      <Card bordered={false} hoverable style={{ minHeight: 250 }} className="cursor-pointer shadow-xxl">
         <div onClick={() => window.open(url, '_blank')} className="flex flex-col gap-4 items-center">
           <img src={`/image/${img}`} style={{ height: 70 }} />
           <b className="fond-bold text-lg">{product}</b>

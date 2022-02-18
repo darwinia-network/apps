@@ -12,7 +12,7 @@ import { convertToSS58, dvmAddressToAccountId } from '../utils';
 function Page() {
   const { t } = useTranslation();
   const {
-    network: { ss58Prefix },
+    network: { ss58Prefix, name },
   } = useApi();
   const [address, setAddress] = useState('');
 
@@ -58,7 +58,7 @@ function Page() {
           </Form>
         </Tabs.TabPane>
 
-        <Tabs.TabPane tab={t('DVM Withdraw')} key="withdraw">
+        <Tabs.TabPane tab={t('DVM Withdraw')} key="withdraw" disabled={name === 'pangoro' || name === 'darwinia'}>
           <Withdraw />
         </Tabs.TabPane>
       </Tabs>

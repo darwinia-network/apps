@@ -90,7 +90,7 @@ export function Withdraw() {
           }
         }}
       >
-        <AddressItem label={'Receive account'} name="account" />
+        <AddressItem label={'Receive account'} name="account" extra={null} />
 
         <Form.Item label={t('Withdraw amount')} name="amount" rules={[{ required: true }, { min: 0 }]}>
           <BalanceControl size="large" className="w-full" />
