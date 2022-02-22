@@ -10,7 +10,6 @@ import { ActiveAccount } from './components/widget/account/ActiveAccount';
 import { Connection } from './components/widget/Connection';
 import { Language } from './components/widget/Language';
 import { getActiveNav, SideNav } from './components/widget/SideNav';
-import { ThemeSwitch } from './components/widget/ThemeSwitch';
 import { THEME } from './config';
 import { routes } from './config/routes';
 import { useApi } from './hooks';
@@ -105,7 +104,7 @@ function IntroGuide() {
 function App() {
   const { t } = useTranslation();
   const { network } = useApi();
-  const [theme, setTheme] = useState<THEME>(readStorage().theme ?? THEME.LIGHT);
+  const [theme] = useState<THEME>(readStorage().theme ?? THEME.LIGHT);
   const location = useLocation();
   const [collapsed, setCollapsed] = useState(false);
   const activeNav = useMemo(() => getActiveNav(location.pathname), [location.pathname]);
@@ -147,7 +146,7 @@ function App() {
             <ActiveAccount />
 
             <div className="hidden lg:flex items-center">
-              <ThemeSwitch mode="btn" network={network.name} onThemeChange={setTheme} />
+              {/* <ThemeSwitch mode="btn" network={network.name} onThemeChange={setTheme} /> */}
               <Language mode="icon" network={network.name} theme={theme} />
             </div>
           </div>
