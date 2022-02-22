@@ -10,6 +10,7 @@ import { ActiveAccount } from './components/widget/account/ActiveAccount';
 import { Connection } from './components/widget/Connection';
 import { Language } from './components/widget/Language';
 import { getActiveNav, SideNav } from './components/widget/SideNav';
+import { toggleTheme } from './components/widget/ThemeSwitch';
 import { THEME } from './config';
 import { routes } from './config/routes';
 import { useApi } from './hooks';
@@ -82,6 +83,8 @@ function IntroGuide() {
     } else {
       setStepsEnabled(true);
     }
+
+    toggleTheme(THEME.LIGHT);
   }, []);
 
   return (

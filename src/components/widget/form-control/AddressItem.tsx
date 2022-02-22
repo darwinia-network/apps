@@ -1,4 +1,4 @@
-import { Form, InputProps, Select } from 'antd';
+import { AutoComplete, Form, InputProps, Select } from 'antd';
 import { isString, upperFirst } from 'lodash';
 import { useTranslation } from 'react-i18next';
 import { useAccount, useApi } from '../../../hooks';
@@ -40,13 +40,23 @@ export function AddressItem({ label, disabled, rules = [], ...rest }: CustomForm
         ...rules,
       ]}
     >
-      <Select placeholder={t('Enter or select one from these below')} disabled={disabled} size="large" showSearch>
-        {accounts.map((item) => (
-          <Select.Option value={item.address} key={item.address}>
-            <IdentAccountAddress account={item} />
-          </Select.Option>
-        ))}
-      </Select>
+      {disabled ? (
+        <Select placeholder={t('Select one from these below')} size="large" showSearch className="flex-1" disabled>
+          {accounts.map((item) => (
+            <Select.Option value={item.address} key={item.address}>
+              <IdentAccountAddress account={item} />
+            </Select.Option>
+          ))}
+        </Select>
+      ) : (
+        <AutoComplete placeholder={t('Enter or select one from these below')} size="large" className="flex-1">
+          {accounts.map((item) => (
+            <AutoComplete.Option value={item.address} key={item.address}>
+              <IdentAccountAddress account={item} />
+            </AutoComplete.Option>
+          ))}
+        </AutoComplete>
+      )}
     </Form.Item>
   );
 }
