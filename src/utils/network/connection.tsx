@@ -45,8 +45,8 @@ export const LOCAL = 'local';
 
 export const getPolkadotConnection: (network: ChainConfig) => Observable<PolkadotConnection> = (network) =>
   from(web3Enable('polkadot-js/apps')).pipe(
-    concatMap((extensions) =>
-      combineLatest([from(web3Accounts()), accountsObs.subject.asObservable()], (injected, data) => {
+    concatMap((extensions) => {
+      const result = combineLatest([from(web3Accounts()), accountsObs.subject.asObservable()], (injected, data) => {
         const keys = Object.keys(data);
         const injectedAddress = injected.map((item) => item.address);
         const source = keys.filter((key) => !injectedAddress.includes(key));
@@ -71,8 +71,15 @@ export const getPolkadotConnection: (network: ChainConfig) => Observable<Polkado
               status: 'pending',
             } as Exclude<PolkadotConnection, 'api'>)
         )
-      )
-    ),
+      );
+
+      if (!extensions.length) {
+        showWarning('Polkadot', 'https://polkadot.js.org/extension/');
+        return EMPTY;
+      }
+
+      return result;
+    }),
     switchMap((envelop: Exclude<PolkadotConnection, 'api'>) => {
       const subject = new BehaviorSubject<PolkadotConnection>(envelop);
       const url = network.provider.rpc;

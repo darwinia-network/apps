@@ -79,7 +79,7 @@ export function Withdraw() {
 
           if (status === 'success' && accountHex !== EMPTY_ADDRESS) {
             getSendTransactionObs({
-              from: accounts[0].address,
+              from: accounts[0]?.address,
               to: DVM_WITHDRAW_ADDRESS,
               data: accountHex,
               value: web3.utils.toWei(amount, 'ether'),
