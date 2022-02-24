@@ -140,3 +140,61 @@ body {
 .dark-table .ant-table-tbody > tr.ant-table-row-selected > td {
   background: #262626;
 }
+
+.intro-step-tooltip {
+  border-radius: 10px;
+
+  .introjs-tooltip-title {
+    font-style: normal;
+    font-weight: normal;
+    font-size: 16px;
+    line-height: 21px;
+    color: rgba(0, 0, 0, 0.65);
+  }
+
+  .introjs-skipbutton {
+    visibility: hidden;
+  }
+
+  .introjs-tooltiptext {
+    border-top: rgba(0, 0, 0, 0.06) solid 1px;
+    margin-left: 10px;
+    margin-right: 10px;
+    padding-left: 10px;
+    padding-right: 10px;
+    padding-top: 10px;
+    font-style: normal;
+    font-weight: normal;
+    font-size: 14px;
+    line-height: 18px;
+    color: rgba(0, 0, 0, 0.65);
+  }
+
+  .introjs-tooltipbuttons {
+    border-top: none;
+  }
+
+  .introjs-button {
+    width: 100%;
+    background-clip: content-box, border-box;
+    background-image: linear-gradient(#ffffff, #ffffff), linear-gradient(315deg, #ff0050, #7000ff, #0027ff);
+    background-origin: border-box;
+    border: 1px solid transparent;
+    padding: 0;
+    border-radius: 10px;
+    line-height: 2rem;
+    text-align: center;
+    font-style: normal;
+    font-weight: normal;
+    font-size: 14px;
+    color: rgba(0, 0, 0, 0.65);
+  }
+
+  .introjs-prevbutton {
+    display: none;
+  }
+}
+
+.intro-step-heighlight {
+  box-shadow: rgb(33 33 33 / 50%) 0 0 0 5000px !important;
+}
