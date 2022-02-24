@@ -10,7 +10,7 @@ function Page() {
   const { assets, getBalances } = useAccount();
 
   return (
-    <Tabs className="lg:px-8 px-4 w-full mx-auto dark:shadow-none dark:border-transparent">
+    <Tabs className="lg:px-8 px-4 w-full mx-auto dark:shadow-none dark:border-transparent page-account-tabs">
       <Tabs.TabPane tab={t('Darwinia Asset')} key="asset">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
           {assets.map((item, index) => (
