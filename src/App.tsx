@@ -6,6 +6,7 @@ import React, { useMemo, useState, useEffect } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { Route, Switch, useLocation } from 'react-router-dom';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
+import isMobile from 'is-mobile';
 import { ActiveAccount } from './components/widget/account/ActiveAccount';
 import { Connection } from './components/widget/Connection';
 import { Language } from './components/widget/Language';
@@ -88,14 +89,16 @@ function IntroGuide() {
   }, [t, connection, account]);
 
   useEffect(() => {
-    const index = readStorage().introIndex;
-    if (index === 0) {
-      setStepsEnabled(true);
-      setCurrentStep(1);
-    } else if (index === 1) {
-      setStepsEnabled(false);
-    } else {
-      setStepsEnabled(true);
+    if (!isMobile()) {
+      const index = readStorage().introIndex;
+      if (index === 0) {
+        setStepsEnabled(true);
+        setCurrentStep(1);
+      } else if (index === 1) {
+        setStepsEnabled(false);
+      } else {
+        setStepsEnabled(true);
+      }
     }
 
     toggleTheme(THEME.LIGHT);
