@@ -127,7 +127,9 @@ export function SideNav({ collapsed, theme, toggle, children }: PropsWithChildre
       >
         {navigators.map(({ Icon, path, label, className }) => (
           <Menu.Item icon={<Icon />} key={path} className={className}>
-            <Link to={path}>{t(label)}</Link>
+            <Link to={path} className={`${collapsed ? 'text-white' : ''}`}>
+              {t(label)}
+            </Link>
           </Menu.Item>
         ))}
       </Menu>
