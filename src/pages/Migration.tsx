@@ -21,7 +21,12 @@ function Page() {
         <Trans i18nKey="migrateRefers" className="m-8">
           If your account in the old version cannot be found in your wallet, you can restore JSON which the account in
           the old version apps through \u0022 Account Migration \u0022 and add the JSON to polkadot\u007b.js\u007d.
-          <Link>Tutorial refers here.</Link>
+          <Link
+            href="https://darwinianetwork.medium.com/using-darwinia-tools-3-8-darwinia-apps-lite-guide-part-%E2%85%B0-account-ae9b3347b3c7"
+            target="_blank"
+          >
+            Tutorial refers here.
+          </Link>
         </Trans>
       </Card>
 

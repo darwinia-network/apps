@@ -21,5 +21,12 @@
         }
       ]
     }
+  ],
+  "rewrites": [
+    { "source": "/account", "destination": "/index.html" },
+    { "source": "/staking", "destination": "/index.html" },
+    { "source": "/toolbox", "destination": "/index.html" },
+    { "source": "/portal", "destination": "/index.html" },
+    { "source": "/migration", "destination": "/index.html" }
   ]
 }
