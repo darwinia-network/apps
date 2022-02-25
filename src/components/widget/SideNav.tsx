@@ -65,7 +65,7 @@ export function SideNav({ collapsed, theme, toggle, children }: PropsWithChildre
 
   const networkOptions = useMemo(() => {
     const ele = (config: PolkadotChainConfig) => (
-      <Option value={config.name} key={config.name} className="capitalize">
+      <Option value={config.name} key={config.name} className={`capitalize ${collapsed ? 'py-2' : ''}`}>
         <span className="flex items-center">
           <img
             src={config.facade.logo}
@@ -81,13 +81,17 @@ export function SideNav({ collapsed, theme, toggle, children }: PropsWithChildre
       </Option>
     );
 
-    return (
+    return collapsed ? (
       <>
-        <Select.OptGroup key="product" label={t('Live networks')}>
+        {NETWORK_GROUP['false'].map((item) => ele(item))}
+        {NETWORK_GROUP['true'].map((item) => ele(item))}
+      </>
+    ) : (
+      <>
+        <Select.OptGroup key="product" label={collapsed ? '' : t('Live networks')}>
           {NETWORK_GROUP['false'].map((item) => ele(item))}
         </Select.OptGroup>
-
-        <Select.OptGroup key="test" label={t('Test networks')}>
+        <Select.OptGroup key="test" label={collapsed ? '' : t('Test networks')}>
           {NETWORK_GROUP['true'].map((item) => ele(item))}
         </Select.OptGroup>
       </>
@@ -123,7 +127,9 @@ export function SideNav({ collapsed, theme, toggle, children }: PropsWithChildre
       >
         {navigators.map(({ Icon, path, label, className }) => (
           <Menu.Item icon={<Icon />} key={path} className={className}>
-            <Link to={path}>{t(label)}</Link>
+            <Link to={path} className={`${collapsed ? 'text-white' : ''}`}>
+              {t(label)}
+            </Link>
           </Menu.Item>
         ))}
       </Menu>

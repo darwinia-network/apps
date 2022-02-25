@@ -2,10 +2,11 @@ import { BarsOutlined } from '@ant-design/icons';
 import { Drawer, Layout } from 'antd';
 import AntdLink from 'antd/lib/typography/Link';
 import { Steps } from 'intro.js-react';
-import { useEffect, useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { Route, Switch, useLocation } from 'react-router-dom';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
+import isMobile from 'is-mobile';
 import { ActiveAccount } from './components/widget/account/ActiveAccount';
 import { Connection } from './components/widget/Connection';
 import { Language } from './components/widget/Language';
@@ -13,7 +14,7 @@ import { getActiveNav, SideNav } from './components/widget/SideNav';
 import { toggleTheme } from './components/widget/ThemeSwitch';
 import { THEME } from './config';
 import { routes } from './config/routes';
-import { useApi } from './hooks';
+import { useApi, useAccount } from './hooks';
 import { PolkadotChainConfig } from './model';
 import { readStorage, updateStorage } from './utils';
 
@@ -45,43 +46,64 @@ function IntroGuide() {
   const { t } = useTranslation();
   const [stepsEnabled, setStepsEnabled] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
-  const steps = useMemo(
-    () => [
-      {
-        element: '.connection',
-        title: t('Connect Wallet'),
-        intro: (
-          <Trans i18nKey="connectRefers">
-            Please connect polkadot\u007b.js\u007d extension to participate in Darwinia Apps.{' '}
-            <AntdLink>Tutorial refers here.</AntdLink>
-          </Trans>
-        ),
-      },
-      {
-        element: '.migration',
-        title: t('Account Migration'),
-        position: 'right',
-        intro: (
-          <Trans i18nKey="migrateRefers" className="m-8">
-            If your account in the old version cannot be found in your wallet, you can restore JSON which the account in
-            the old version apps through \u0022 Account Migration \u0022 and add the JSON to polkadot\u007b.js\u007d.
-            <AntdLink>Tutorial refers here.</AntdLink>
-          </Trans>
-        ),
-      },
-    ],
-    [t]
-  );
+  const { account } = useAccount();
+  const { connection } = useApi();
+
+  const steps = useMemo(() => {
+    const stepConnection = {
+      element: '.connection',
+      title: t('Connect Wallet'),
+      position: 'bottom-middle-aligned',
+      intro: (
+        <Trans i18nKey="connectRefers">
+          Please connect{' '}
+          <AntdLink href="https://polkadot.js.org/extension/" target="_blank" rel="noopener noreferrer">
+            {`polkadot{.js} extension`}
+          </AntdLink>{' '}
+          to participate in Darwinia Apps.{' '}
+          <AntdLink href="https://www.youtube.com/watch?v=mT7rUlQh660" target="_blank" rel="noopener noreferrer">
+            Tutorial refers here.
+          </AntdLink>
+        </Trans>
+      ),
+      tooltipClass: 'intro-step-tooltip',
+      highlightClass: 'intro-step-heighlight',
+    };
+
+    const stepMigration = {
+      element: '.migration',
+      title: t('Account Migration'),
+      position: 'right',
+      intro: (
+        <Trans i18nKey="migrateRefers" className="m-8">
+          If your account in the old version cannot be found in your wallet, you can restore JSON which the account in
+          the old version apps through \u0022 Account Migration \u0022 and add the JSON to polkadot\u007b.js\u007d.
+          <AntdLink
+            href="https://darwinianetwork.medium.com/using-darwinia-tools-3-8-darwinia-apps-lite-guide-part-%E2%85%B0-account-ae9b3347b3c7"
+            target="_blank"
+          >
+            Tutorial refers here.
+          </AntdLink>
+        </Trans>
+      ),
+      tooltipClass: 'intro-step-tooltip',
+      highlightClass: 'intro-step-heighlight',
+    };
+
+    return !!connection && !!account ? [stepMigration] : [stepConnection, stepMigration];
+  }, [t, connection, account]);
 
   useEffect(() => {
-    const index = readStorage().introIndex;
-    if (index === 0) {
-      setStepsEnabled(true);
-      setCurrentStep(1);
-    } else if (index === 1) {
-      setStepsEnabled(false);
-    } else {
-      setStepsEnabled(true);
+    if (!isMobile()) {
+      const index = readStorage().introIndex;
+      if (index === 0) {
+        setStepsEnabled(true);
+        setCurrentStep(1);
+      } else if (index === 1) {
+        setStepsEnabled(false);
+      } else {
+        setStepsEnabled(true);
+      }
     }
 
     toggleTheme(THEME.LIGHT);
@@ -99,6 +121,10 @@ function IntroGuide() {
         }
 
         setStepsEnabled(false);
+      }}
+      options={{
+        showBullets: false,
+        exitOnOverlayClick: false,
       }}
     />
   );
@@ -144,7 +170,7 @@ function App() {
             </h2>
           </div>
 
-          <div className="flex items-center gap-4 connection">
+          <div className="flex items-center gap-4">
             <Connection />
             <ActiveAccount />
 
@@ -167,7 +193,6 @@ function App() {
           </TransitionGroup>
         </Content>
       </Layout>
-
       <IntroGuide />
     </Layout>
   );

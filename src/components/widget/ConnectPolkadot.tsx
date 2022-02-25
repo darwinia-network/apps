@@ -18,6 +18,7 @@ export function ConnectPolkadot() {
           }
           connectNetwork(network);
         }}
+        className="connection"
       >
         {t('Connect Wallet')}
       </Button>
