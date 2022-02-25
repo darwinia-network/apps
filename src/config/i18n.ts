@@ -34,7 +34,7 @@ class Backend {
 
   async createLoader(lng: string): Promise<LoadResult> {
     try {
-      const response = await fetch(`/${isCy ? 'public/' : ''}locales/${lng}/translation.json`, {});
+      const response = await fetch(`/${isCy ? 'public/' : ''}locales/${lng}/translation-apps.json`, {});
 
       if (!response.ok) {
         // eslint-disable-next-line no-magic-numbers

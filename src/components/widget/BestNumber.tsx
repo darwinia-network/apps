@@ -19,7 +19,7 @@ export function BestNumber() {
         startWith(null)
       )
       .subscribe((num) => {
-        setBestNumber(num ? prettyNumber(num.toString()) : num);
+        setBestNumber(num ? prettyNumber(num.toString(), { decimal: 0, ignoreZeroDecimal: true }) : num);
       });
 
     return () => {

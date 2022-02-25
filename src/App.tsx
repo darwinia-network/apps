@@ -2,11 +2,11 @@ import { BarsOutlined } from '@ant-design/icons';
 import { Drawer, Layout } from 'antd';
 import AntdLink from 'antd/lib/typography/Link';
 import { Steps } from 'intro.js-react';
-import React, { useMemo, useState, useEffect } from 'react';
+import isMobile from 'is-mobile';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { Route, Switch, useLocation } from 'react-router-dom';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
-import isMobile from 'is-mobile';
 import { ActiveAccount } from './components/widget/account/ActiveAccount';
 import { Connection } from './components/widget/Connection';
 import { Language } from './components/widget/Language';
@@ -14,30 +14,16 @@ import { getActiveNav, SideNav } from './components/widget/SideNav';
 import { toggleTheme } from './components/widget/ThemeSwitch';
 import { THEME } from './config';
 import { routes } from './config/routes';
-import { useApi, useAccount } from './hooks';
-import { PolkadotChainConfig } from './model';
+import { useAccount, useApi } from './hooks';
 import { readStorage, updateStorage } from './utils';
 
 const { Sider, Content } = Layout;
 
-function Logo({
-  network,
-  withText,
-  className = '',
-}: {
-  network: PolkadotChainConfig;
-  className?: string;
-  withText?: boolean;
-}) {
+function Logo({ withText, className = '' }: { className?: string; withText?: boolean }) {
   return (
-    <div className={`w-full flex gap-2 justify-between items-center ${className}`}>
+    <div className={`w-full flex gap-2 items-center ${className}`}>
       <img src={`/image/darwinia.svg`} className="w-8 lg:w-11" />
-      {withText && (
-        <>
-          <h1 className="bg-darwinia text-transparent bg-clip-text text-sm lg:text-lg">Apps</h1>
-          <span className={`px-2.5 py-0.5 rounded-lg text-white text-sm lg:text-base  bg-${network.name}`}>Lite</span>
-        </>
-      )}
+      {withText && <h1 className="bg-darwinia text-transparent bg-clip-text text-sm lg:text-lg">Apps</h1>}
     </div>
   );
 }
@@ -142,7 +128,7 @@ function App() {
     <Layout style={{ height: '100vh' }} className="overflow-hidden">
       <Sider theme={theme} trigger={null} collapsible collapsed={collapsed} className="hidden lg:block">
         <SideNav collapsed={collapsed} theme={theme} toggle={() => setCollapsed(!collapsed)}>
-          <Logo withText={!collapsed} network={network} className="mb-4" />
+          <Logo withText={!collapsed} className="mb-4" />
         </SideNav>
       </Sider>
 
@@ -162,7 +148,7 @@ function App() {
           <div className="flex items-center">
             <div className={`lg:hidden flex items-center gap-2 mr-4 text-${network.name}-main text-xl`}>
               <BarsOutlined onClick={() => setCollapsed(!collapsed)} />
-              <Logo withText network={network} />
+              <Logo withText />
             </div>
 
             <h2 className={`text-lg font-bold bg-${network.name} text-transparent hidden lg:block bg-clip-text`}>
