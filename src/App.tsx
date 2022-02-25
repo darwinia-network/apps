@@ -57,11 +57,11 @@ function IntroGuide() {
       intro: (
         <Trans i18nKey="connectRefers">
           Please connect{' '}
-          <AntdLink href="https://polkadot.js.org/extension/" target={'_blank'} rel="noopener noreferrer">
+          <AntdLink href="https://polkadot.js.org/extension/" target="_blank" rel="noopener noreferrer">
             {`polkadot{.js} extension`}
           </AntdLink>{' '}
           to participate in Darwinia Apps.{' '}
-          <AntdLink href="https://www.youtube.com/watch?v=mT7rUlQh660" target={'_blank'} rel="noopener noreferrer">
+          <AntdLink href="https://www.youtube.com/watch?v=mT7rUlQh660" target="_blank" rel="noopener noreferrer">
             Tutorial refers here.
           </AntdLink>
         </Trans>
@@ -78,7 +78,12 @@ function IntroGuide() {
         <Trans i18nKey="migrateRefers" className="m-8">
           If your account in the old version cannot be found in your wallet, you can restore JSON which the account in
           the old version apps through \u0022 Account Migration \u0022 and add the JSON to polkadot\u007b.js\u007d.
-          <AntdLink>Tutorial refers here.</AntdLink>
+          <AntdLink
+            href="https://darwinianetwork.medium.com/using-darwinia-tools-3-8-darwinia-apps-lite-guide-part-%E2%85%B0-account-ae9b3347b3c7"
+            target="_blank"
+          >
+            Tutorial refers here.
+          </AntdLink>
         </Trans>
       ),
       tooltipClass: 'intro-step-tooltip',
