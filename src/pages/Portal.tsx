@@ -1,6 +1,7 @@
 import { Alert, Card, Col, Row, Tabs } from 'antd';
 import { useTranslation } from 'react-i18next';
 import { withRouter } from 'react-router-dom';
+import { useApi } from '../hooks';
 import { readStorage, updateStorage } from '../utils';
 
 function Content({
@@ -29,6 +30,7 @@ function Content({
 
 function Page() {
   const { t } = useTranslation();
+  const { network } = useApi();
   const hidePortalWarning = !!readStorage().hidePortalWarning;
 
   return (
@@ -59,7 +61,7 @@ function Page() {
               description={t(
                 'A wallet built on the polkadot-js stack. This version is updated alongside any changes to the code and always has the latest features.'
               )}
-              url="https://polkadot.js.org/apps"
+              url={`https://polkadot.js.org/apps/?rpc=${encodeURIComponent(network.provider.rpc)}`}
             />
 
             <Content
