@@ -1,9 +1,10 @@
-import { DeriveStakingAccount, DeriveStakingOverview } from '@polkadot/api-derive/staking/types';
+import { DeriveStakingOverview } from '@polkadot/api-derive/staking/types';
 import { GenericAccountId, Option } from '@polkadot/types';
 import { StakingLedger } from '@polkadot/types/interfaces/staking';
 import { PalletStakingValidatorPrefs } from '@polkadot/types/lookup';
 import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react';
 import { combineLatest, from, map, switchMap, tap, zip } from 'rxjs';
+import { DeriveStakingAccount } from '../api-derive/types';
 import { useAccount, useApi, useIsMountedOperator } from '../hooks';
 import { isSameAddress } from '../utils';
 
@@ -123,7 +124,7 @@ export const StakingProvider = ({ children }: React.PropsWithChildren<unknown>) 
       )
       .subscribe({
         next: (res) => {
-          setStakingDerive(res);
+          setStakingDerive(res as unknown as DeriveStakingAccount);
           setIsStakingDeriveLoading(false);
         },
         error: () => setIsStakingDeriveLoading(false),

@@ -23,7 +23,7 @@
   "Available The amount of tokens that are able to staking, bond and transfer.": "可用的: 当前可以操作的 token 数量，可用于质押、交易、转账等。",
   "Bond": "冻结",
   "Bond more funds": "质押更多资金",
-  "Bonded": "冰结",
+  "Bonded": "冻结",
   "Bonded The amount of tokens that cannot be operated directly but does not have a lock limit, which is used to gain power and can be taken out at any time(with a 14-day unbonding period) or add lock limit.": "冻结: 无法直接操作但无锁定期限的的 token 数量，用于获取 power，可以随时取出（需要14天等待期限）或添加锁定期限。",
   "Bonded amount": "绑定数量",
   "Bonding preferences": "冻结参数",

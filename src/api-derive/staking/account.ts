@@ -62,12 +62,9 @@ function parseResult(api: DeriveApi, best: BlockNumber, now: Moment, query: Deri
   const calcUnlocking = calculateUnlocking(api, stakingLedger, best, 'ring');
   const calcUnlockingKton = calculateUnlocking(api, stakingLedger, best, 'kton');
   const depositItems = stakingLedger?.depositItems?.filter(({ expireTime }) => expireTime.toBn().gt(now));
-
-  const total = depositItems?.reduce((accumulator: BN, item) => {
-    return accumulator.add(item.value.toBn());
-  }, new BN(0));
-
+  const total = depositItems?.reduce((accumulator: BN, item) => accumulator.add(item.value.toBn()), new BN(0));
   const activeDepositAmount: Balance = api.registry.createType('Balance', total);
+
   return {
     ...query,
     redeemable: redeemableSum(api, stakingLedger, best),
