@@ -41,7 +41,7 @@ export function SetSession({ label, type = 'text', className = '' }: StakingActi
         extrinsic={(values) => {
           const { key } = values;
 
-          return isSubstrateV2 ? api.tx.staking.setKeys([key, new Uint8Array()]) : api.tx.staking.setKey([key]);
+          return isSubstrateV2 ? api.tx.session.setKeys(key, new Uint8Array()) : api.tx.session.setKey([key]);
         }}
         onSuccess={() => {
           setIsVisible(false);

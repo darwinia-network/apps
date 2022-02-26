@@ -1,6 +1,5 @@
 import { QuestionCircleFilled } from '@ant-design/icons';
 import { Skeleton, Tooltip } from 'antd';
-import BN from 'bn.js';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useStaking } from '../../hooks';
@@ -26,42 +25,27 @@ export function AssetOverview({ asset }: AssetOverviewProps) {
       return { bonded: null, unbonding: null, locked: null, total: null };
     }
 
-    const { stakingLedger } = stakingDerive!;
+    const { stakingLedger, unlockingTotalValue, unlockingKtonTotalValue } = stakingDerive!;
+
     if (isRing(asset.token.symbol)) {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
       const locked = stakingLedger.activeDepositRing.toBn();
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       const bonded = (stakingLedger.active || stakingLedger.activeRing).toBn().sub(locked);
-      const { ringStakingLock } = stakingLedger.toJSON() as {
-        ringStakingLock: { unbondings: { amount: number; until: number }[] };
-      };
 
       return {
         bonded,
         locked,
-        // TODO: in old version, the value comes form stakingDerive.unlockingTotalValue
-        unbonding: ringStakingLock.unbondings.reduce(
-          (acc: BN, cur: { amount: number }) => acc.add(new BN(cur.amount)),
-          new BN(0)
-        ),
+        unbonding: unlockingTotalValue,
       };
     }
 
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
     const bonded = stakingLedger.activeKton?.toBn();
-    const { ktonStakingLock } = stakingLedger.toJSON() as {
-      ktonStakingLock: { unbondings: { amount: number; until: number }[] };
-    };
+
     return {
       bonded,
       locked: null,
-      unbonding: ktonStakingLock.unbondings.reduce(
-        (acc: BN, cur: { amount: number }) => acc.add(new BN(cur.amount)),
-        new BN(0)
-      ),
+      unbonding: unlockingKtonTotalValue,
     };
   }, [asset.token.symbol, isStakingLedgerEmpty, stakingDerive]);
 

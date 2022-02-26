@@ -1,6 +1,7 @@
 import { Exposure } from '@darwinia/types';
 import { StakingLedgerT as StakingLedger } from '@darwinia/types/interfaces';
 import { TimeDepositItem } from '@darwinia/types/interfaces/darwiniaInject';
+import { DeriveStakingKeys } from '@polkadot/api-derive/staking/types';
 import {
   AccountId,
   Balance,
@@ -57,21 +58,21 @@ export interface DeriveStakingQuery extends DeriveStakingStash {
   accountId: AccountId;
   nextSessionIds: AccountId[];
   sessionIds: AccountId[];
-  stakingLedger?: StakingLedger;
+  stakingLedger: StakingLedger;
 }
 
 interface DeriveStakingStash {
-  controllerId?: AccountId;
+  controllerId: AccountId | null;
   exposure?: Exposure;
-  nominators?: AccountId[];
+  nominators: AccountId[];
   nominateAt?: EraIndex;
-  rewardDestination?: RewardDestination;
+  rewardDestination: RewardDestination;
   nextKeys?: Keys;
-  stashId?: AccountId;
-  validatorPrefs?: ValidatorPrefs;
+  stashId: AccountId;
+  validatorPrefs: ValidatorPrefs;
 }
 
-export interface DeriveStakingAccount extends DeriveStakingQuery {
+export interface DeriveStakingAccount extends DeriveStakingQuery, DeriveStakingKeys {
   redeemable?: Balance;
   unlocking?: DeriveUnlocking[];
   activeDepositItems?: TimeDepositItem[];

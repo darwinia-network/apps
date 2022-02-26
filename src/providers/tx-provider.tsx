@@ -31,7 +31,7 @@ export const TxProvider = ({ children }: React.PropsWithChildren<unknown>) => {
     return {
       next: setTx,
       error: (error: RequiredPartial<Tx, 'error'>) => {
-        message.error(error.error.message);
+        message.error(error.error?.message || (error as unknown as Record<string, string>).message);
         setTx(null);
       },
       complete: () => {
