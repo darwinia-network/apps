@@ -3,7 +3,7 @@ import { useForm } from 'antd/lib/form/Form';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAccount, useApi } from '../../../hooks';
-import { Asset } from '../../../model';
+import { Fund } from '../../../model';
 import { fundParam } from '../../../utils';
 import { AddressItem } from '../../widget/form-control/AddressItem';
 import { FundItem } from '../../widget/form-control/FundItem';
@@ -12,6 +12,7 @@ import { Payee } from '../../widget/form-control/PayeeControl';
 import { PayeeItem } from '../../widget/form-control/PayeeItem';
 import { PromiseMonthItem } from '../../widget/form-control/PromiseMonthItem';
 import { FormModal } from '../../widget/FormModal';
+import { KtonReward } from './KtonReward';
 import { PowerReward } from './PowerReward';
 
 interface StakingFormValue {
@@ -30,11 +31,12 @@ export function StakingNow() {
   const [form] = useForm<StakingFormValue>();
   const { account, assets } = useAccount();
   const [isVisible, setIsVisible] = useState(false);
-  const [selectedAsset, setSelectedAsset] = useState<Asset | null>(null);
+  const [selectedAsset, setSelectedAsset] = useState<Fund | null>(null);
+  const [duration, setDuration] = useState(0);
 
   useEffect(() => {
     if (assets.length) {
-      setSelectedAsset(assets[0]);
+      setSelectedAsset({ ...assets[0], amount: '0' });
     }
   }, [form, assets]);
 
@@ -64,7 +66,7 @@ export function StakingNow() {
             promiseMonth,
             payee: { type, account: acc },
           } = value;
-          const balance = fundParam({ amount, ...selectedAsset! });
+          const balance = fundParam({ ...selectedAsset!, amount });
           const destination = type === 'Account' ? { Account: acc } : type;
 
           return api.tx.staking.bond(controller, balance, destination, promiseMonth);
@@ -99,9 +101,16 @@ export function StakingNow() {
           }
         />
 
-        <PromiseMonthItem name="promiseMonth" selectedAsset={selectedAsset} label={'Lock limit'} />
+        <PromiseMonthItem
+          name="promiseMonth"
+          selectedAsset={selectedAsset}
+          label={'Lock limit'}
+          onChange={(value) => setDuration(+value)}
+        />
 
         <PowerReward selectedAsset={selectedAsset} />
+
+        <KtonReward selectedAsset={selectedAsset} promiseMonth={duration} />
       </FormModal>
     </>
   );

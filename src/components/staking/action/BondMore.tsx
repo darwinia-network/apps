@@ -11,6 +11,7 @@ import { FundItem } from '../../widget/form-control/FundItem';
 import { Label } from '../../widget/form-control/Label';
 import { PromiseMonthItem } from '../../widget/form-control/PromiseMonthItem';
 import { FormModal } from '../../widget/FormModal';
+import { KtonReward } from '../power/KtonReward';
 import { PowerReward } from '../power/PowerReward';
 
 interface BondMoreFormValues {
@@ -29,6 +30,7 @@ export function BondMore() {
   const [balances, setBalances] = useState<DeriveBalancesAll | null>(null);
   const [selectedAsset, setSelectedAsset] = useState<Fund | null>(null);
   const hasFreeBalance = useMemo(() => balances && balances.freeBalance.gtn(0), [balances]);
+  const [duration, setDuration] = useState(0);
 
   useEffect(() => {
     const sub$$ = from(api.derive.balances.all(stashAccount)).subscribe((res) => {
@@ -78,9 +80,16 @@ export function BondMore() {
           onChange={setSelectedAsset}
         />
 
-        <PromiseMonthItem label="Lock limit" name="promiseMonth" selectedAsset={selectedAsset} />
+        <PromiseMonthItem
+          label="Lock limit"
+          name="promiseMonth"
+          selectedAsset={selectedAsset}
+          onChange={(value) => setDuration(+value)}
+        />
 
         <PowerReward selectedAsset={selectedAsset} />
+
+        <KtonReward selectedAsset={selectedAsset} promiseMonth={duration} />
       </FormModal>
     </>
   ) : null;
