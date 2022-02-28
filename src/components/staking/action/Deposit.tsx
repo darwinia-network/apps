@@ -1,14 +1,15 @@
 import { Button } from 'antd';
-import { useState } from 'react';
+import { upperCase } from 'lodash';
+import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useApi, useStaking } from '../../../hooks';
+import { useAccount, useApi, useStaking } from '../../../hooks';
 import { DarwiniaAsset, Fund } from '../../../model';
-import { getUnit, toWei } from '../../../utils';
-import { FormModal } from '../../widget/FormModal';
+import { fromWei, getUnit, isRing, toWei } from '../../../utils';
 import { AddressItem } from '../../widget/form-control/AddressItem';
 import { FundItem } from '../../widget/form-control/FundItem';
 import { Label } from '../../widget/form-control/Label';
 import { PromiseMonthItem } from '../../widget/form-control/PromiseMonthItem';
+import { FormModal } from '../../widget/FormModal';
 import { KtonReward } from '../power/KtonReward';
 
 interface DepositFormValues {
@@ -23,10 +24,24 @@ export function Deposit() {
   const { t } = useTranslation();
   const { api } = useApi();
   const [isVisible, setIsVisible] = useState(false);
-  const { isControllerAccountOwner } = useStaking();
+  const { isControllerAccountOwner, stakingDerive } = useStaking();
   const { stashAccount, updateValidators, updateStakingDerive } = useStaking();
   const [selectedAsset, setSelectedAsset] = useState<Fund | null>(null);
   const [duration, setDuration] = useState(0);
+  const { assets } = useAccount();
+
+  const max = useMemo(() => {
+    const { stakingLedger } = stakingDerive!;
+    const locked = stakingLedger.activeDepositRing.toBn();
+
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    const boundedRing = (stakingLedger.active || stakingLedger.activeRing).toBn().sub(locked);
+
+    return {
+      ring: boundedRing.toString(),
+    };
+  }, [stakingDerive]);
 
   return (
     <>
@@ -55,7 +70,21 @@ export function Deposit() {
         }}
         initialValues={{ stash: stashAccount, promiseMonth: 0, accept: false }}
       >
-        <AddressItem name="stash" label="Stash account" disabled />
+        <AddressItem
+          name="stash"
+          label="Stash account"
+          disabled
+          extra={
+            <span className="inline-flex items-center gap-2 text-xs">
+              <span>
+                {t('Bounded {{amount}} {{symbol}}', {
+                  amount: fromWei({ value: max.ring.toString() }),
+                  symbol: upperCase(assets.find((item) => isRing(item.asset))?.token.symbol ?? 'ring'),
+                })}
+              </span>
+            </span>
+          }
+        />
 
         <FundItem
           label={
@@ -69,6 +98,7 @@ export function Deposit() {
           name="fund"
           onChange={setSelectedAsset}
           hiddenAssets={[DarwiniaAsset.kton]}
+          max={max}
         />
 
         <PromiseMonthItem
