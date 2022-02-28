@@ -53,7 +53,7 @@ export function Connection() {
   return (
     <>
       {!!connection && !!account ? (
-        <section className={`flex items-center gap-2 ml-6`}>
+        <section className={`flex items-center gap-2 pl-6 connection`}>
           {account && (
             <>
               <ActiveAccount
