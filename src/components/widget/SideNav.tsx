@@ -158,7 +158,7 @@ export function SideNav({ collapsed, theme, toggle, children }: PropsWithChildre
           <a href="https://medium.com/@darwinianetwork" target="_blank" rel="noreferrer">
             <img className="w-6 mb-2" src="/image/medium.svg" />
           </a>
-          <a href="https://medium.com/@darwinianetwork" target="_blank" rel="noreferrer">
+          <a href="https://t.me/DarwiniaNetwork" target="_blank" rel="noreferrer">
             <img className="w-6 mb-2" src="/image/telegram.svg" />
           </a>
         </div>
