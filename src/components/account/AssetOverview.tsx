@@ -24,7 +24,25 @@ export function AssetOverview({ asset, refresh }: AssetOverviewProps) {
   } = useApi();
   const { account } = useAccount();
   const [isVisible, setIsVisible] = useState(false);
-  const as = useMemo(() => (isRing(asset.token?.symbol) ? 'ring' : 'kton'), [asset.token?.symbol]);
+  // eslint-disable-next-line complexity
+  const as = useMemo(() => {
+    switch (asset.token?.symbol || '') {
+      case 'RING':
+      case 'PRING':
+      case 'ORING':
+        return 'token-ring';
+      case 'KTON':
+      case 'PKTON':
+      case 'OKTON':
+        return 'token-kton';
+      case 'CRAB':
+        return 'token-crab';
+      case 'CKTON':
+        return 'token-ckton';
+      default:
+        return 'token-ring';
+    }
+  }, [asset.token?.symbol]);
 
   return (
     <>
