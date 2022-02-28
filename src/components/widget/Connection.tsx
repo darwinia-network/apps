@@ -37,7 +37,7 @@ function ActiveAccount({
 
   return (
     <div className={containerCls} onClick={onClick} style={containerStyle || {}}>
-      <img src={`/image/${network.name}-1.svg`} style={logoStyle || { height: 24 }} alt="" />
+      <img src={`/image/${network.name}-1.svg`} style={logoStyle || { width: 24 }} alt="" />
       <span className="text-white mx-2">{t(network.name)}</span>
       {children}
     </div>
@@ -53,7 +53,7 @@ export function Connection() {
   return (
     <>
       {!!connection && !!account ? (
-        <section className={`flex items-center gap-2 pl-6 connection`}>
+        <section className={`flex items-center gap-2 connection`}>
           {account && (
             <>
               <ActiveAccount
@@ -64,7 +64,7 @@ export function Connection() {
                   }
                 }}
                 className="max-w-xs text-white hidden lg:flex"
-                logoStyle={{ height: 24 }}
+                logoStyle={{ width: 24 }}
               >
                 <EllipsisMiddle className="text-white overflow-hidden mr-2" copyable>
                   {account}
