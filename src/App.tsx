@@ -149,7 +149,9 @@ function App() {
               <Logo withText />
             </div>
 
-            <h2 className={`text-lg font-bold bg-${network.name} text-transparent hidden lg:block bg-clip-text`}>
+            <h2
+              className={`font-semibold not-italic text-2xl bg-${network.name} text-transparent hidden lg:block bg-clip-text`}
+            >
               {t(activeNav.length ? activeNav[0].label : '')}
             </h2>
           </div>
