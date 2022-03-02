@@ -30,6 +30,7 @@ function Logo({ withText, className = '' }: { className?: string; withText?: boo
 
 function IntroGuide() {
   const { t } = useTranslation();
+  const { network } = useApi();
   const [stepsEnabled, setStepsEnabled] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
 
@@ -90,8 +91,8 @@ function IntroGuide() {
       }
     }
 
-    toggleTheme(THEME.LIGHT);
-  }, []);
+    toggleTheme(THEME.LIGHT, network.name);
+  }, [network.name]);
 
   return (
     <Steps
