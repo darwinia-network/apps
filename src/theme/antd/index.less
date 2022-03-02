@@ -66,10 +66,17 @@
 
 /* dropdown menu */
 .ant-dropdown-menu {
-  padding: 20px;
+  padding: 20px 10px;
 
   .ant-dropdown-menu-item {
     line-height: 32px;
+    border-radius: 10px;
+    padding: 5px 20px;
+    transition: all 200ms;
+
+    &:hover {
+      background: @project-item-hover-bg !important;
+    }
   }
 }
 
