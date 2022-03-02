@@ -44,23 +44,28 @@ export function AssetOverview({ asset, refresh }: AssetOverviewProps) {
     }
   }, [asset.token?.symbol]);
 
+  const totalToken = fromWei({ value: asset.total }, prettyNumber).split('.');
+  const availableToken = fromWei({ value: asset.max }, prettyNumber).split('.');
+
   return (
     <>
       <Card className="p-4 shadow-xxl">
         <div className="flex gap-4 items-center">
           <img src={`/image/${as}.svg`} className="w-12" />
           <div>
-            <h1 className="uppercase text-lg font-bold text-black dark:text-white">{asset.token?.symbol}</h1>
-            <span>{fromWei({ value: asset.total }, prettyNumber)}</span>
+            <h1 className="uppercase text-lg font-medium text-black dark:text-white">{asset.token?.symbol}</h1>
+            <span className="font-bold">{totalToken[0]}.</span>
+            <span className="opacity-60">{totalToken.length > 1 ? totalToken[1] : '0'}</span>
           </div>
         </div>
 
         <hr className={`my-6 opacity-20 h-0.5 bg-${network.name}`} />
 
         <div className="flex items-center justify-between">
-          <div className="inline-flex gap-2 opacity-60">
-            <span>{t('Available')}:</span>
-            <span>{fromWei({ value: asset.max }, prettyNumber)}</span>
+          <div className="inline-flex items-center">
+            <span className="opacity-60 font-normal text-base">{t('Available')}:</span>
+            <span className="ml-2 font-bold">{availableToken[0]}.</span>
+            <span className="opacity-60">{availableToken.length > 1 ? availableToken[1] : '0'}</span>
           </div>
 
           <Button onClick={() => setIsVisible(true)} className="lg:px-12">
