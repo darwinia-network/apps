@@ -63,7 +63,9 @@ export function AssetOverview({ asset, refresh }: AssetOverviewProps) {
             <span>{fromWei({ value: asset.max }, prettyNumber)}</span>
           </div>
 
-          <Button onClick={() => setIsVisible(true)}>{t('Transfer')}</Button>
+          <Button onClick={() => setIsVisible(true)} className="lg:px-12">
+            {t('Transfer')}
+          </Button>
         </div>
       </Card>
 
