@@ -46,7 +46,14 @@ function StatisticProgress({ label, block, data, className = '' }: StatisticProg
                 <span className="mx-2">/</span>
                 <span>{data.total}</span>
               </span>
-              <Progress percent={percent} showInfo={false} className="col-span-2" />
+              <Progress
+                percent={percent}
+                showInfo={false}
+                className="col-span-2"
+                status="normal"
+                strokeWidth={4}
+                trailColor="#EBEBEB"
+              />
             </div>
           ) : (
             <div>#{data.active}</div>
