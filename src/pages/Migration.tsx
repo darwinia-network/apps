@@ -11,6 +11,7 @@ import { LOCAL } from '../utils';
 function Page() {
   const { t } = useTranslation();
   const {
+    network,
     connection: { accounts },
   } = useApi();
   const localAccounts = accounts.filter((item) => item.meta.source === LOCAL);
@@ -30,7 +31,10 @@ function Page() {
         </Trans>
       </Card>
 
-      <Tabs accessKey="overview" className="px-0 lg:px-8 w-full mx-auto dark:shadow-none dark:border-transparent">
+      <Tabs
+        accessKey="overview"
+        className={`px-0 lg:px-8 w-full mx-auto dark:shadow-none dark:border-transparent pb-5 page-account-tabs page-account-tabs-${network.name}`}
+      >
         <Tabs.TabPane tab={t('overview')} key="overview" className="pb-8">
           <Card title={<span className="font-bold">{t('Local Accounts')}</span>} className="shadow-xxl">
             <List

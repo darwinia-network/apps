@@ -32,7 +32,7 @@ function Page() {
   return (
     <Tabs
       onChange={onTabPaneChange}
-      className={`lg:px-8 px-4 w-full mx-auto dark:shadow-none dark:border-transparent page-account-tabs page-account-tabs-${network.name}`}
+      className={`lg:px-8 px-4 w-full mx-auto dark:shadow-none dark:border-transparent pb-5 page-account-tabs page-account-tabs-${network.name}`}
     >
       <Tabs.TabPane
         key={TAB_KEY_ASSET}

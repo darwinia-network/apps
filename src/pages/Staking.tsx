@@ -40,7 +40,7 @@ function Page() {
           history.pushState({ url }, '', url);
           setActiveKey(active);
         }}
-        className={`lg:px-8 px-4 w-full mx-auto dark:shadow-none dark:border-transparent page-account-tabs page-account-tabs-${network.name}`}
+        className={`lg:px-8 px-4 w-full mx-auto dark:shadow-none dark:border-transparent pb-5 page-account-tabs page-account-tabs-${network.name}`}
       >
         <Tabs.TabPane
           tab={<CustomTab tabText={t('Power Manager')} tabKey={TAB_KEY_POWER} activeKey={activeKey} />}
