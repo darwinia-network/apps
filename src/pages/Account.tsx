@@ -4,7 +4,7 @@ import { withRouter } from 'react-router-dom';
 import { useState } from 'react';
 import { StakingHistory } from '../components/account/StakingHistory';
 import { AssetOverview } from '../components/account/AssetOverview';
-import { useAccount } from '../hooks';
+import { useAccount, useApi } from '../hooks';
 
 const TAB_KEY_ASSET = 'asset';
 const TAB_KEY_CROSS = 'cross';
@@ -21,6 +21,7 @@ const CustomTab = (props: { tabText: string; tabKey: string; activeKey: string }
 
 function Page() {
   const { t } = useTranslation();
+  const { network } = useApi();
   const { assets, getBalances } = useAccount();
   const [tabActiveKey, setTabActiveKey] = useState(TAB_KEY_ASSET);
 
@@ -31,7 +32,7 @@ function Page() {
   return (
     <Tabs
       onChange={onTabPaneChange}
-      className="lg:px-8 px-4 w-full mx-auto dark:shadow-none dark:border-transparent page-account-tabs"
+      className={`lg:px-8 px-4 w-full mx-auto dark:shadow-none dark:border-transparent page-account-tabs page-account-tabs-${network.name}`}
     >
       <Tabs.TabPane
         key={TAB_KEY_ASSET}

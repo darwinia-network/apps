@@ -208,3 +208,27 @@ body {
     border-bottom: none !important;
   }
 }
+
+.page-account-tabs-crab {
+  > .ant-tabs-nav::before {
+    background: #ec3783;
+  }
+}
+
+.page-account-tabs-darwinia {
+  > .ant-tabs-nav::before {
+    background: linear-gradient(315.52deg, #ff0050 0.88%, #7000ff 71.7%, #0027ff 100%);
+  }
+}
+
+.page-account-tabs-pangolin {
+  > .ant-tabs-nav::before {
+    background: #5745de;
+  }
+}
+
+.page-account-tabs-pangoro {
+  > .ant-tabs-nav::before {
+    background: #5745de;
+  }
+}
