@@ -7,5 +7,6 @@
   "@layout-header-background": "#fff",
   "@project-main-bg": "#5745de",
   "@project-radius-base": "12px",
-  "@project-primary": "#5745de"
+  "@project-primary": "#5745de",
+  "@tabs-ink-bar-color": "#5745de"
 }
