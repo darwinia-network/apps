@@ -73,6 +73,19 @@
   }
 }
 
+/* menu */
+.ant-menu-item::after {
+  left: 0 !important;
+  right: auto !important;
+  width: 6px !important;
+  border: none !important;
+  background: @project-main-bg;
+}
+
+.ant-menu:not(.ant-menu-horizontal) .ant-menu-item-selected {
+  background: @menu-item-active-bg !important;
+}
+
 /* ant-message */
 .ant-message .anticon {
   top: 0;

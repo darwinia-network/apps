@@ -8,5 +8,6 @@
   "@project-main-bg": "#5745de",
   "@project-radius-base": "12px",
   "@project-primary": "#5745de",
-  "@tabs-ink-bar-color": "#5745de"
+  "@tabs-ink-bar-color": "#5745de",
+  "@menu-item-active-bg": "rgba(87,69,222,0.2)"
 }
