@@ -57,6 +57,7 @@ export function Earnings({ updateEraIndex }: PowerDetailProps) {
   ) : (
     <Card className="my-8 shadow-xxl" bodyStyle={{ padding: '24px 32px' }}>
       <Radio.Group
+        buttonStyle="solid"
         value={eraSelection[eraSelectionIndex].value}
         onChange={(event) => {
           const value = +event.target.value;

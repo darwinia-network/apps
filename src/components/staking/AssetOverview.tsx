@@ -6,11 +6,15 @@ import { useStaking } from '../../hooks';
 import { AssetOverviewProps } from '../../model';
 import { fromWei, isRing, prettyNumber } from '../../utils';
 
-function Description({ title, value }: { title: string; value: string | number }) {
+function Description({ title, value }: { title: string; value: string }) {
+  const valueSplit = value.split('.');
   return (
-    <div className="inline-flex gap-4 opacity-60 dark:text-gray-700">
-      <span style={{ minWidth: '100px' }}>{title}</span>
-      <span className="font-bold">{value}</span>
+    <div className="inline-flex dark:text-gray-700">
+      <span className="opacity-60" style={{ minWidth: '100px' }}>
+        {title}
+      </span>
+      <span className="ml-4 text-sm font-semibold">{valueSplit[0]}.</span>
+      <span className="text-sm opacity-60">{valueSplit.length > 1 ? valueSplit[1] : '0'}</span>
     </div>
   );
 }
@@ -18,7 +22,25 @@ function Description({ title, value }: { title: string; value: string | number }
 export function AssetOverview({ asset }: AssetOverviewProps) {
   const { t } = useTranslation();
   const { stakingDerive, isStakingLedgerEmpty, isStakingDeriveLoading } = useStaking();
-  const as = useMemo(() => (isRing(asset.token?.symbol) ? 'ring' : 'kton'), [asset.token?.symbol]);
+  // eslint-disable-next-line complexity
+  const as = useMemo(() => {
+    switch (asset.token?.symbol || '') {
+      case 'RING':
+      case 'PRING':
+      case 'ORING':
+        return 'token-ring';
+      case 'KTON':
+      case 'PKTON':
+      case 'OKTON':
+        return 'token-kton';
+      case 'CRAB':
+        return 'token-crab';
+      case 'CKTON':
+        return 'token-ckton';
+      default:
+        return 'token-ring';
+    }
+  }, [asset.token?.symbol]);
 
   const ledger = useMemo(() => {
     if (isStakingLedgerEmpty) {
@@ -58,7 +80,7 @@ export function AssetOverview({ asset }: AssetOverviewProps) {
       <div className="grid grid-cols-3 p-6 pl-0">
         <div className="flex flex-col gap-4 items-center">
           <img src={`/image/${as}.svg`} className="w-14" />
-          <h1 className="uppercase text-lg font-bold text-black">{asset.token?.symbol}</h1>
+          <h1 className="uppercase text-lg font-medium text-black">{asset.token?.symbol}</h1>
         </div>
 
         <div className="flex flex-col col-span-2 justify-between">

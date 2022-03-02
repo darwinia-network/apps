@@ -55,8 +55,8 @@ export function Power() {
           >
             <div className="flex justify-between items-center p-6">
               <div className="text-white font-bold pl-4">
-                <h2 className="text-white text-lg mb-4">{t('Power')}</h2>
-                <b className="text-xl">{prettyNumber(power.toString())}</b>
+                <h2 className="text-white text-lg font-bold mb-4">{t('Power')}</h2>
+                <b className="text-3xl font-bold">{prettyNumber(power.toString())}</b>
               </div>
               <img src="/image/lightning.png" className="w-20" />
             </div>
