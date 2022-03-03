@@ -1,6 +1,6 @@
-import { SettingFilled } from '@ant-design/icons';
+import { SettingFilled, QuestionCircleFilled } from '@ant-design/icons';
 import BaseIdentityIcon from '@polkadot/react-identicon';
-import { Button, Empty, Modal, Radio } from 'antd';
+import { Button, Empty, Modal, Radio, Tooltip } from 'antd';
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAccount, useApi } from '../../../hooks';
@@ -43,7 +43,16 @@ export function ActiveAccount() {
         </>
       )}
       <Modal
-        title={t('Select active account')}
+        title={
+          <div className="inline-flex items-center space-x-1">
+            <span>{t('Select active account')}</span>
+            <Tooltip
+              title={`If your account in the old version cannot be found in your wallet, you can restore JSON which the account in the old version Apps through "Account Migration" and add the JSON to polkadot{.js}.`}
+            >
+              <QuestionCircleFilled className="cursor-pointer text-gray-400" />
+            </Tooltip>
+          </div>
+        }
         destroyOnClose
         visible={isVisible}
         maskClosable={false}
@@ -82,7 +91,11 @@ export function ActiveAccount() {
             }}
           >
             {displayAccounts.map((item) => (
-              <Radio.Button value={item.address} key={item.address} className="radio-list">
+              <Radio.Button
+                value={item.address}
+                key={item.address}
+                className={`radio-list account-select-btn-group-${network.name}`}
+              >
                 <BaseIdentityIcon
                   theme="substrate"
                   size={iconSize}

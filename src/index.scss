@@ -232,3 +232,54 @@ body {
     background: #5745de;
   }
 }
+
+.account-select-btn-group-crab:hover {
+  border-color: #ec3783 !important;
+}
+
+.account-select-btn-group-darwinia:hover {
+  border-color: transparent !important;
+  background: linear-gradient(#ffffff, #ffffff) padding-box, linear-gradient(to right, #5745de, #ec3783) border-box !important;
+}
+
+.account-select-btn-group-pangolin:hover {
+  border-color: #5745de !important;
+}
+
+.account-select-btn-group-pangoro:hover {
+  border-color: #5745de !important;
+}
+
+.staking-earnings-time {
+  border-radius: 10px !important;
+  background: #eaeaea !important;
+}
+
+.staking-earnings-time-btn {
+  border: none !important;
+  background: #eaeaea !important;
+
+  &::before {
+    display: none !important;
+  }
+}
+
+.staking-earnings-time-btn-checked-crab {
+  border-radius: 10px !important;
+  background: #ec3783 !important;
+}
+
+.staking-earnings-time-btn-checked-darwinia {
+  border-radius: 10px !important;
+  background: linear-gradient(-45deg, #fe3876 0%, #7c30dd 71%, #3a30dd 100%) !important;
+}
+
+.staking-earnings-time-btn-checked-pangolin {
+  border-radius: 10px !important;
+  background: #5745de !important;
+}
+
+.staking-earnings-time-btn-checked-pangoro {
+  border-radius: 10px !important;
+  background: #5745de !important;
+}

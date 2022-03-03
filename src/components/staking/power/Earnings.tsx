@@ -66,9 +66,16 @@ export function Earnings({ updateEraIndex }: PowerDetailProps) {
           setEraSelectionIndex(idx);
           updateEraIndex(idx);
         }}
+        className="staking-earnings-time"
       >
         {eraSelection.map((item, index) => (
-          <Radio.Button value={item.value} key={index}>
+          <Radio.Button
+            value={item.value}
+            key={index}
+            className={`staking-earnings-time-btn ${
+              eraSelectionIndex === index ? 'staking-earnings-time-btn-checked-' + network.name : ''
+            }`}
+          >
             {item.text}
           </Radio.Button>
         ))}
