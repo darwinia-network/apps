@@ -101,13 +101,12 @@ export function Earnings({ updateEraIndex }: PowerDetailProps) {
         />
 
         <div className="flex items-center justify-center gap-4 mt-4 md:mt-0">
-          <Button type="primary">
+          <ClaimRewards eraSelectionIndex={eraSelectionIndex} type="primary" />
+          <Button>
             <SubscanLink network={network.name} address={account} query="tab=reward">
               {t('Reward History')}
             </SubscanLink>
           </Button>
-
-          <ClaimRewards eraSelectionIndex={eraSelectionIndex} type="primary" />
         </div>
       </div>
     </Card>
