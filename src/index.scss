@@ -90,7 +90,7 @@ body {
   border-width: 1px !important;
 
   &.ant-radio-button-wrapper-checked {
-    @include main-border();
+    background: transparent !important;
   }
 
   .ant-radio-button + span {
