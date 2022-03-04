@@ -40,3 +40,23 @@ export async function getDarwiniaBalances(api: ApiPromise, account = ''): Promis
     return ['0', '0'];
   }
 }
+
+// eslint-disable-next-line complexity
+export const getTokenIconSrcBySymbol = (tokenSymbol = 'RING') => {
+  switch (tokenSymbol) {
+    case 'RING':
+    case 'PRING':
+    case 'ORING':
+      return '/image/token-ring.svg';
+    case 'KTON':
+    case 'PKTON':
+    case 'OKTON':
+      return '/image/token-kton.svg';
+    case 'CRAB':
+      return '/image/token-crab.svg';
+    case 'CKTON':
+      return '/image/token-ckton.svg';
+    default:
+      return '/image/token-ring.svg';
+  }
+};

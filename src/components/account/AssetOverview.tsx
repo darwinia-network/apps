@@ -3,7 +3,16 @@ import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAccount, useApi } from '../../hooks';
 import { AssetOverviewProps } from '../../model';
-import { fromWei, getUnit, insufficientBalanceRule, isRing, isSameAddress, prettyNumber, toWei } from '../../utils';
+import {
+  fromWei,
+  getUnit,
+  insufficientBalanceRule,
+  isRing,
+  isSameAddress,
+  prettyNumber,
+  toWei,
+  getTokenIconSrcBySymbol,
+} from '../../utils';
 import { FormModal } from '../widget/FormModal';
 import { BalanceControl } from '../widget/form-control/BalanceControl';
 import { AddressItem } from '../widget/form-control/AddressItem';
@@ -24,34 +33,17 @@ export function AssetOverview({ asset, refresh }: AssetOverviewProps) {
   } = useApi();
   const { account } = useAccount();
   const [isVisible, setIsVisible] = useState(false);
-  // eslint-disable-next-line complexity
-  const as = useMemo(() => {
-    switch (asset.token?.symbol || '') {
-      case 'RING':
-      case 'PRING':
-      case 'ORING':
-        return 'token-ring';
-      case 'KTON':
-      case 'PKTON':
-      case 'OKTON':
-        return 'token-kton';
-      case 'CRAB':
-        return 'token-crab';
-      case 'CKTON':
-        return 'token-ckton';
-      default:
-        return 'token-ring';
-    }
-  }, [asset.token?.symbol]);
 
   const totalToken = fromWei({ value: asset.total }, prettyNumber).split('.');
   const availableToken = fromWei({ value: asset.max }, prettyNumber).split('.');
+
+  const tokenIconSrc = useMemo(() => getTokenIconSrcBySymbol(asset.token?.symbol), [asset.token?.symbol]);
 
   return (
     <>
       <Card className="p-4 shadow-xxl">
         <div className="flex gap-4 items-center">
-          <img src={`/image/${as}.svg`} className="w-12" />
+          <img src={tokenIconSrc} className="w-12" />
           <div>
             <h1 className="uppercase text-lg font-medium text-black dark:text-white">{asset.token?.symbol}</h1>
             <span className="font-bold">{totalToken[0]}.</span>

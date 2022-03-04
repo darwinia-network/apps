@@ -4,7 +4,7 @@ import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useStaking } from '../../hooks';
 import { AssetOverviewProps } from '../../model';
-import { fromWei, isRing, prettyNumber } from '../../utils';
+import { fromWei, isRing, prettyNumber, getTokenIconSrcBySymbol } from '../../utils';
 
 function Description({ title, value }: { title: string; value: string }) {
   const valueSplit = value.split('.');
@@ -22,25 +22,7 @@ function Description({ title, value }: { title: string; value: string }) {
 export function AssetOverview({ asset }: AssetOverviewProps) {
   const { t } = useTranslation();
   const { stakingDerive, isStakingLedgerEmpty, isStakingDeriveLoading } = useStaking();
-  // eslint-disable-next-line complexity
-  const as = useMemo(() => {
-    switch (asset.token?.symbol || '') {
-      case 'RING':
-      case 'PRING':
-      case 'ORING':
-        return 'token-ring';
-      case 'KTON':
-      case 'PKTON':
-      case 'OKTON':
-        return 'token-kton';
-      case 'CRAB':
-        return 'token-crab';
-      case 'CKTON':
-        return 'token-ckton';
-      default:
-        return 'token-ring';
-    }
-  }, [asset.token?.symbol]);
+  const tokenIconSrc = useMemo(() => getTokenIconSrcBySymbol(asset.token?.symbol), [asset.token?.symbol]);
 
   const ledger = useMemo(() => {
     if (isStakingLedgerEmpty) {
@@ -79,7 +61,7 @@ export function AssetOverview({ asset }: AssetOverviewProps) {
     <div className="relative rounded-xl bg-white h-full shadow-xxl">
       <div className="grid grid-cols-3 p-6 pl-0">
         <div className="flex flex-col gap-4 items-center">
-          <img src={`/image/${as}.svg`} className="w-14" />
+          <img src={tokenIconSrc} className="w-14" />
           <h1 className="uppercase text-lg font-medium text-black">{asset.token?.symbol}</h1>
         </div>
 
