@@ -5,6 +5,7 @@ import { useForm } from 'antd/lib/form/Form';
 import Modal, { ModalProps } from 'antd/lib/modal';
 import { PropsWithChildren, useEffect, useMemo } from 'react';
 import { catchError, from, NEVER, switchMap, tap } from 'rxjs';
+import { useTranslation } from 'react-i18next';
 import { validateMessages } from '../../config';
 import i18n from '../../config/i18n';
 import { useAccount, useApi } from '../../hooks';
@@ -50,6 +51,7 @@ export function FormModal<V extends Record<string, unknown>>({
     () => createObserver({ next: afterTxSuccess(onSuccess), error: onFail }),
     [createObserver, onSuccess, onFail]
   );
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (defaultValues) {
@@ -88,10 +90,10 @@ export function FormModal<V extends Record<string, unknown>>({
                 .subscribe(observer);
             }}
           >
-            Ok
+            {modalProps?.okText || t('OK')}
           </Button>
           <Button onClick={onCancel} className="w-full ml-0 py-1">
-            Cancel
+            {modalProps?.cancelText || t('Cancel')}
           </Button>
         </div>
       }
