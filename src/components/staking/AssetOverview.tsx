@@ -4,7 +4,7 @@ import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useStaking } from '../../hooks';
 import { AssetOverviewProps } from '../../model';
-import { fromWei, isRing, prettyNumber, getTokenIconSrcBySymbol } from '../../utils';
+import { fromWei, isRing, prettyNumber } from '../../utils';
 
 function Description({ title, value }: { title: string; value: string }) {
   const valueSplited = value.split('.');
@@ -22,7 +22,10 @@ function Description({ title, value }: { title: string; value: string }) {
 export function AssetOverview({ asset }: AssetOverviewProps) {
   const { t } = useTranslation();
   const { stakingDerive, isStakingLedgerEmpty, isStakingDeriveLoading } = useStaking();
-  const tokenIconSrc = useMemo(() => getTokenIconSrcBySymbol(asset.token?.symbol), [asset.token?.symbol]);
+  const tokenIconSrc = useMemo(
+    () => `/image/token-${(asset.token?.symbol || 'RING').toLowerCase()}.svg`,
+    [asset.token?.symbol]
+  );
 
   const ledger = useMemo(() => {
     if (isStakingLedgerEmpty) {

@@ -3,16 +3,7 @@ import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAccount, useApi } from '../../hooks';
 import { AssetOverviewProps } from '../../model';
-import {
-  fromWei,
-  getUnit,
-  insufficientBalanceRule,
-  isRing,
-  isSameAddress,
-  prettyNumber,
-  toWei,
-  getTokenIconSrcBySymbol,
-} from '../../utils';
+import { fromWei, getUnit, insufficientBalanceRule, isRing, isSameAddress, prettyNumber, toWei } from '../../utils';
 import { FormModal } from '../widget/FormModal';
 import { BalanceControl } from '../widget/form-control/BalanceControl';
 import { AddressItem } from '../widget/form-control/AddressItem';
@@ -37,7 +28,10 @@ export function AssetOverview({ asset, refresh }: AssetOverviewProps) {
   const assetMax = fromWei({ value: asset.max }, prettyNumber).split('.');
   const assetTotal = fromWei({ value: asset.total }, prettyNumber).split('.');
 
-  const tokenIconSrc = useMemo(() => getTokenIconSrcBySymbol(asset.token?.symbol), [asset.token?.symbol]);
+  const tokenIconSrc = useMemo(
+    () => `/image/token-${(asset.token?.symbol || 'RING').toLowerCase()}.svg`,
+    [asset.token?.symbol]
+  );
 
   return (
     <>
