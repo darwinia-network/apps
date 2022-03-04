@@ -7,14 +7,14 @@ import { AssetOverviewProps } from '../../model';
 import { fromWei, isRing, prettyNumber, getTokenIconSrcBySymbol } from '../../utils';
 
 function Description({ title, value }: { title: string; value: string }) {
-  const valueSplit = value.split('.');
+  const valueSplited = value.split('.');
   return (
     <div className="inline-flex dark:text-gray-700">
       <span className="opacity-60" style={{ minWidth: '100px' }}>
         {title}
       </span>
-      <span className="ml-4 text-sm font-semibold">{valueSplit[0]}.</span>
-      <span className="text-sm opacity-60">{valueSplit.length > 1 ? valueSplit[1] : '0'}</span>
+      <span className="ml-4 text-sm font-semibold">{valueSplited[0]}.</span>
+      <span className="text-sm opacity-60">{valueSplited.length > 1 ? valueSplited[1] : '0'}</span>
     </div>
   );
 }

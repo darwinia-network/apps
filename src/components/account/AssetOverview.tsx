@@ -34,8 +34,8 @@ export function AssetOverview({ asset, refresh }: AssetOverviewProps) {
   const { account } = useAccount();
   const [isVisible, setIsVisible] = useState(false);
 
-  const totalToken = fromWei({ value: asset.total }, prettyNumber).split('.');
-  const availableToken = fromWei({ value: asset.max }, prettyNumber).split('.');
+  const assetMax = fromWei({ value: asset.max }, prettyNumber).split('.');
+  const assetTotal = fromWei({ value: asset.total }, prettyNumber).split('.');
 
   const tokenIconSrc = useMemo(() => getTokenIconSrcBySymbol(asset.token?.symbol), [asset.token?.symbol]);
 
@@ -46,8 +46,8 @@ export function AssetOverview({ asset, refresh }: AssetOverviewProps) {
           <img src={tokenIconSrc} className="w-12" />
           <div>
             <h1 className="uppercase text-lg font-medium text-black dark:text-white">{asset.token?.symbol}</h1>
-            <span className="font-bold">{totalToken[0]}.</span>
-            <span className="opacity-60">{totalToken.length > 1 ? totalToken[1] : '0'}</span>
+            <span className="font-bold">{assetTotal[0]}.</span>
+            <span className="opacity-60">{assetTotal.length > 1 ? assetTotal[1] : '0'}</span>
           </div>
         </div>
 
@@ -56,8 +56,8 @@ export function AssetOverview({ asset, refresh }: AssetOverviewProps) {
         <div className="flex items-center justify-between">
           <div className="inline-flex items-center">
             <span className="opacity-60 font-normal text-base">{t('Available')}:</span>
-            <span className="ml-2 font-bold">{availableToken[0]}.</span>
-            <span className="opacity-60">{availableToken.length > 1 ? availableToken[1] : '0'}</span>
+            <span className="ml-2 font-bold">{assetMax[0]}.</span>
+            <span className="opacity-60">{assetMax.length > 1 ? assetMax[1] : '0'}</span>
           </div>
 
           <Button onClick={() => setIsVisible(true)} className="lg:px-12">
