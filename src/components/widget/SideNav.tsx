@@ -69,7 +69,7 @@ export function SideNav({ collapsed, theme, toggle, children }: PropsWithChildre
         <span className="flex items-center">
           <img
             src={config.facade.logo}
-            className={`mr-2 h-6 rounded-full dark:bg-white ${collapsed ? 'collapsed' : ''}`}
+            className={`mr-2 rounded-full dark:bg-white ${collapsed ? 'collapsed h-4' : 'h-6'}`}
             alt=""
           />
           {!collapsed && (
