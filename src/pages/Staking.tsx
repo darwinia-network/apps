@@ -8,28 +8,16 @@ import { Targets } from '../components/staking/targets/Targets';
 import { Waiting } from '../components/staking/waiting/Waiting';
 import { StakingProvider } from '../providers/staking';
 import { useApi } from '../hooks';
+import { CustomTab } from '../components/widget/CustomTab';
 
-const TAB_KEY_POWER = 'power';
-const TAB_KEY_OVERVIEW = 'overview';
-const TAB_KEY_TARGETS = 'targets';
-const TAB_KEY_WAITING = 'waiting';
-
-const CustomTab = (props: { tabText: string; tabKey: string; activeKey: string }) => (
-  <span
-    className={`transition-opacity  hover:opacity-80 text-base not-italic text-black ${
-      props.tabKey === props.activeKey ? 'font-medium' : 'font-normal opacity-60'
-    }`}
-  >
-    {props.tabText}
-  </span>
-);
+type TypeTabKeys = 'power' | 'overview' | 'targets' | 'waiting';
 
 function Page() {
   const { t } = useTranslation();
   const { network } = useApi();
   const { search, pathname } = useLocation();
   const query = useMemo(() => new URLSearchParams(search), [search]);
-  const [activeKey, setActiveKey] = useState(query.get('active') || TAB_KEY_POWER);
+  const [activeKey, setActiveKey] = useState<TypeTabKeys>((query.get('active') as TypeTabKeys) || 'power');
 
   return (
     <StakingProvider>
@@ -38,32 +26,23 @@ function Page() {
         onChange={(active) => {
           const url = pathname + '?active=' + active;
           history.pushState({ url }, '', url);
-          setActiveKey(active);
+          setActiveKey(active as TypeTabKeys);
         }}
         className={`lg:px-8 px-4 w-full mx-auto dark:shadow-none dark:border-transparent pb-5 page-account-tabs page-account-tabs-${network.name}`}
       >
-        <Tabs.TabPane
-          tab={<CustomTab tabText={t('Power Manager')} tabKey={TAB_KEY_POWER} activeKey={activeKey} />}
-          key={TAB_KEY_POWER}
-        >
+        <Tabs.TabPane key="power" tab={<CustomTab text={t('Power Manager')} tabKey="power" activeKey={activeKey} />}>
           <Power />
         </Tabs.TabPane>
         <Tabs.TabPane
-          key={TAB_KEY_OVERVIEW}
-          tab={<CustomTab tabText={t('Staking Overview')} tabKey={TAB_KEY_OVERVIEW} activeKey={activeKey} />}
+          key="overview"
+          tab={<CustomTab text={t('Staking Overview')} tabKey="overview" activeKey={activeKey} />}
         >
           <StakingOverview />
         </Tabs.TabPane>
-        <Tabs.TabPane
-          key={TAB_KEY_TARGETS}
-          tab={<CustomTab tabText={t('Targets')} tabKey={TAB_KEY_TARGETS} activeKey={activeKey} />}
-        >
+        <Tabs.TabPane key="targets" tab={<CustomTab text={t('Targets')} tabKey="targets" activeKey={activeKey} />}>
           <Targets />
         </Tabs.TabPane>
-        <Tabs.TabPane
-          key={TAB_KEY_WAITING}
-          tab={<CustomTab tabText={t('Waiting')} tabKey={TAB_KEY_WAITING} activeKey={activeKey} />}
-        >
+        <Tabs.TabPane key="waiting" tab={<CustomTab text={t('Waiting')} tabKey="waiting" activeKey={activeKey} />}>
           <Waiting />
         </Tabs.TabPane>
       </Tabs>
