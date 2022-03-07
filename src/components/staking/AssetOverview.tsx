@@ -13,7 +13,7 @@ function Description({ title, value }: { title: string; value: string }) {
       <span className="opacity-60" style={{ minWidth: '100px' }}>
         {title}
       </span>
-      <PrettyAmount strAmount={value} integerClassName="ml-4 text-sm font-semibold" decimalClassName="text-sm" />
+      <PrettyAmount amount={value} integerClassName="ml-4 text-sm font-semibold" decimalClassName="text-sm" />
     </div>
   );
 }

@@ -1,13 +1,13 @@
 import React from 'react';
 
 type Props = {
-  strAmount: string;
+  amount: string;
   integerClassName?: string;
   decimalClassName?: string;
 };
 
-const Component: React.FC<Props> = ({ strAmount, integerClassName, decimalClassName }) => {
-  const amountSplited = strAmount.split('.');
+const Component: React.FC<Props> = ({ amount, integerClassName, decimalClassName }) => {
+  const amountSplited = amount.split('.');
   return (
     <>
       <span className={`font-bold ${integerClassName}`}>{amountSplited[0]}.</span>
