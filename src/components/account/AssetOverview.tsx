@@ -5,6 +5,7 @@ import { useAccount, useApi } from '../../hooks';
 import { AssetOverviewProps } from '../../model';
 import { fromWei, getUnit, insufficientBalanceRule, isRing, isSameAddress, prettyNumber, toWei } from '../../utils';
 import { FormModal } from '../widget/FormModal';
+import { PrettyAmount } from '../widget/PrettyAmount';
 import { BalanceControl } from '../widget/form-control/BalanceControl';
 import { AddressItem } from '../widget/form-control/AddressItem';
 
@@ -25,9 +26,6 @@ export function AssetOverview({ asset, refresh }: AssetOverviewProps) {
   const { account } = useAccount();
   const [isVisible, setIsVisible] = useState(false);
 
-  const assetMax = fromWei({ value: asset.max }, prettyNumber).split('.');
-  const assetTotal = fromWei({ value: asset.total }, prettyNumber).split('.');
-
   const tokenIconSrc = useMemo(
     () => `/image/token-${(asset.token?.symbol || 'RING').toLowerCase()}.svg`,
     [asset.token?.symbol]
@@ -40,8 +38,7 @@ export function AssetOverview({ asset, refresh }: AssetOverviewProps) {
           <img src={tokenIconSrc} className="w-12" />
           <div>
             <h1 className="uppercase text-lg font-medium text-black dark:text-white">{asset.token?.symbol}</h1>
-            <span className="font-bold">{assetTotal[0]}.</span>
-            <span className="opacity-60">{assetTotal.length > 1 ? assetTotal[1] : '0'}</span>
+            <PrettyAmount strAmount={fromWei({ value: asset.total }, prettyNumber)} />
           </div>
         </div>
 
@@ -50,8 +47,7 @@ export function AssetOverview({ asset, refresh }: AssetOverviewProps) {
         <div className="flex items-center justify-between">
           <div className="inline-flex items-center">
             <span className="opacity-60 font-normal text-base">{t('Available')}:</span>
-            <span className="ml-2 font-bold">{assetMax[0]}.</span>
-            <span className="opacity-60">{assetMax.length > 1 ? assetMax[1] : '0'}</span>
+            <PrettyAmount strAmount={fromWei({ value: asset.max }, prettyNumber)} integerClassName="ml-2" />
           </div>
 
           <Button onClick={() => setIsVisible(true)} className="lg:px-12">

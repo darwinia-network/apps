@@ -5,16 +5,15 @@ import { useTranslation } from 'react-i18next';
 import { useStaking } from '../../hooks';
 import { AssetOverviewProps } from '../../model';
 import { fromWei, isRing, prettyNumber } from '../../utils';
+import { PrettyAmount } from '../widget/PrettyAmount';
 
 function Description({ title, value }: { title: string; value: string }) {
-  const valueSplited = value.split('.');
   return (
     <div className="inline-flex dark:text-gray-700">
       <span className="opacity-60" style={{ minWidth: '100px' }}>
         {title}
       </span>
-      <span className="ml-4 text-sm font-semibold">{valueSplited[0]}.</span>
-      <span className="text-sm opacity-60">{valueSplited.length > 1 ? valueSplited[1] : '0'}</span>
+      <PrettyAmount strAmount={value} integerClassName="ml-4 text-sm font-semibold" decimalClassName="text-sm" />
     </div>
   );
 }
