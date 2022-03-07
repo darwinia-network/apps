@@ -67,7 +67,15 @@ export function UnbondRecords() {
               <span className="mx-2">-</span>
               <span>{format(new Date(record.expired_at), DATE_FORMAT)}</span>
             </div>
-            {bestNumber && <Progress percent={calcProgress(height, record.unbonding_block_end, bestNumber)} />}
+            {bestNumber && (
+              <Progress
+                percent={calcProgress(height, record.unbonding_block_end, bestNumber)}
+                showInfo={false}
+                status="normal"
+                strokeWidth={4}
+                trailColor="#EBEBEB"
+              />
+            )}
           </div>
         );
       },

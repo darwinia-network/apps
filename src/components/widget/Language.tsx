@@ -30,7 +30,7 @@ export function Language({
   const { t, i18n } = useTranslation();
   const [current, setCurrent] = useState(i18n.language.includes('-') ? i18n.language.split('-')[0] : i18n.language);
   const textColor = network ? 'text-' + network + '-main' : '';
-  const calcColor = network && NETWORK_THEME[theme][network]['@project-main-bg'];
+  const calcColor = network && NETWORK_THEME[theme][network]['@project-primary'];
 
   return (
     <Dropdown

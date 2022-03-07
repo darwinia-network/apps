@@ -11,7 +11,7 @@
     "i18next:scanner": "i18next-scanner --config i18next-scanner.config.js",
     "lint": "eslint ./src -c .eslintrc.js --fix",
     "changelog": "conventional-changelog -p angular -i CHANGELOG.md -s",
-    "format": "prettier ./src/**/*.tsx  --write"
+    "format": "prettier './src/**/*.tsx'  --write"
   },
   "husky": {
     "hooks": {

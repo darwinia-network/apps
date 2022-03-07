@@ -90,7 +90,13 @@ export function BondRecords({ tokens }: AccountHistoryProps) {
               <span className="mx-2">-</span>
               <span>{format(new Date(record.expired_at), DATE_FORMAT)}</span>
             </div>
-            <Progress percent={processTime(record.start_at, record.expired_at)} showInfo={false} />
+            <Progress
+              percent={processTime(record.start_at, record.expired_at)}
+              showInfo={false}
+              status="normal"
+              strokeWidth={4}
+              trailColor="#EBEBEB"
+            />
           </div>
         );
       },

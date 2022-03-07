@@ -51,7 +51,10 @@ function Page() {
         />
       )}
 
-      <Tabs accessKey="overview" className="px-0 lg:px-8 w-full mx-auto dark:shadow-none dark:border-transparent">
+      <Tabs
+        accessKey="overview"
+        className={`px-0 lg:px-8 w-full mx-auto dark:shadow-none dark:border-transparent pb-5 page-account-tabs page-account-tabs-${network.name}`}
+      >
         <Tabs.TabPane tab={t('overview')} key="overview" className="pb-8">
           {/* eslint-disable-next-line no-magic-numbers */}
           <Row justify="space-between" gutter={[32, 32]}>

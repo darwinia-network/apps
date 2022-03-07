@@ -1,13 +1,13 @@
 import { CaretLeftFilled } from '@ant-design/icons';
 import { Menu, Select } from 'antd';
 import { groupBy } from 'lodash';
-import { PropsWithChildren, useMemo } from 'react';
+import { PropsWithChildren, useMemo, useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useLocation } from 'react-router-dom';
 import { Network, PolkadotChainConfig } from '../..//model';
 import { THEME } from '../../config';
 import { Path, routes } from '../../config/routes';
-import { useAccount, useApi } from '../../hooks';
+import { useApi } from '../../hooks';
 import { getNetworkByName, NETWORK_CONFIGURATIONS, updateStorage } from '../../utils';
 import { AccountIcon, DarwiniaIcon, StakingIcon, ToolboxIcon, UsersIcon, ViewBrowserIcon } from '../icons';
 import { IconProps } from '../icons/icon-factory';
@@ -55,7 +55,6 @@ export const getActiveNav = (path: string) => {
 export function SideNav({ collapsed, theme, toggle, children }: PropsWithChildren<SideNavProps>) {
   const { t } = useTranslation();
   const { network, setNetwork } = useApi();
-  const { account } = useAccount();
   const location = useLocation();
   const selectedNavMenu = useMemo<string[]>(() => {
     const nav = getActiveNav(location.pathname);
@@ -63,13 +62,16 @@ export function SideNav({ collapsed, theme, toggle, children }: PropsWithChildre
     return [nav.length ? nav[0].path : ''];
   }, [location?.pathname]);
 
+  const [bestNumber, setBestNumber] = useState<string | undefined>(undefined);
+  const handleBestNumberChange = useCallback((num: string) => setBestNumber(num), []);
+
   const networkOptions = useMemo(() => {
     const ele = (config: PolkadotChainConfig) => (
       <Option value={config.name} key={config.name} className={`capitalize ${collapsed ? 'py-2' : ''}`}>
         <span className="flex items-center">
           <img
             src={config.facade.logo}
-            className={`mr-2 h-6 rounded-full dark:bg-white ${collapsed ? 'collapsed' : ''}`}
+            className={`mr-2 rounded-full dark:bg-white ${collapsed ? 'collapsed h-4' : 'h-6'}`}
             alt=""
           />
           {!collapsed && (
@@ -127,7 +129,12 @@ export function SideNav({ collapsed, theme, toggle, children }: PropsWithChildre
       >
         {navigators.map(({ Icon, path, label, className }) => (
           <Menu.Item icon={<Icon />} key={path} className={className}>
-            <Link to={path} className={`${collapsed ? 'text-white' : ''}`}>
+            <Link
+              to={path}
+              className={`${collapsed ? 'text-white' : ''} ${
+                path === selectedNavMenu[0] ? 'font-semibold' : 'font-normal'
+              }`}
+            >
               {t(label)}
             </Link>
           </Menu.Item>
@@ -139,9 +146,9 @@ export function SideNav({ collapsed, theme, toggle, children }: PropsWithChildre
           className="w-3/4 flex justify-between items-center rounded-2xl px-4 py-2 mx-auto mb-8 overflow-hidden"
           style={{ boxShadow: '0px 0px 24px rgba(191, 194, 234, 0.413501)' }}
         >
-          <BestNumber />
+          <BestNumber onChange={handleBestNumberChange} />
           {!collapsed && (
-            <SubscanLink network={network.name} address={account}>
+            <SubscanLink network={network.name} block={bestNumber}>
               <ViewBrowserIcon />
             </SubscanLink>
           )}
@@ -158,7 +165,7 @@ export function SideNav({ collapsed, theme, toggle, children }: PropsWithChildre
           <a href="https://medium.com/@darwinianetwork" target="_blank" rel="noreferrer">
             <img className="w-6 mb-2" src="/image/medium.svg" />
           </a>
-          <a href="https://medium.com/@darwinianetwork" target="_blank" rel="noreferrer">
+          <a href="https://t.me/DarwiniaNetwork" target="_blank" rel="noreferrer">
             <img className="w-6 mb-2" src="/image/telegram.svg" />
           </a>
         </div>

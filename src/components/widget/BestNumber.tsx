@@ -1,12 +1,12 @@
 import { Spin, Tooltip } from 'antd';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, memo } from 'react';
 import { from, startWith, switchMap, takeWhile, timer } from 'rxjs';
 import { useApi, useIsMounted } from '../../hooks';
 import { prettyNumber } from '../../utils';
 
 const duration = 6000;
 
-export function BestNumber() {
+function Component({ onChange = (num) => void num }: { onChange?: (num: string) => void }) {
   const { api } = useApi();
   const isMounted = useIsMounted();
   const [bestNumber, setBestNumber] = useState<string | null>(null);
@@ -19,13 +19,16 @@ export function BestNumber() {
         startWith(null)
       )
       .subscribe((num) => {
-        setBestNumber(num ? prettyNumber(num.toString(), { decimal: 0, ignoreZeroDecimal: true }) : num);
+        if (num) {
+          onChange(num.toString());
+          setBestNumber(num.toString());
+        }
       });
 
     return () => {
       sub$$?.unsubscribe();
     };
-  }, [api, isMounted]);
+  }, [api, isMounted, onChange]);
 
   return (
     <Tooltip title={bestNumber}>
@@ -33,7 +36,7 @@ export function BestNumber() {
         {bestNumber ? (
           <span className="inline-flex items-center gap-2">
             <span>#</span>
-            <span>{bestNumber}</span>
+            <span>{prettyNumber(bestNumber, { decimal: 0, ignoreZeroDecimal: true })}</span>
           </span>
         ) : (
           <Spin size="small" className="mx-auto" />
@@ -42,3 +45,5 @@ export function BestNumber() {
     </Tooltip>
   );
 }
+
+export const BestNumber = memo(Component);

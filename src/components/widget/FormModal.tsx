@@ -1,10 +1,11 @@
 import { SubmittableExtrinsic } from '@polkadot/api/types';
 import { ISubmittableResult } from '@polkadot/types/types';
-import { Form } from 'antd';
+import { Button, Form } from 'antd';
 import { useForm } from 'antd/lib/form/Form';
 import Modal, { ModalProps } from 'antd/lib/modal';
 import { PropsWithChildren, useEffect, useMemo } from 'react';
 import { catchError, from, NEVER, switchMap, tap } from 'rxjs';
+import { useTranslation } from 'react-i18next';
 import { validateMessages } from '../../config';
 import i18n from '../../config/i18n';
 import { useAccount, useApi } from '../../hooks';
@@ -50,6 +51,7 @@ export function FormModal<V extends Record<string, unknown>>({
     () => createObserver({ next: afterTxSuccess(onSuccess), error: onFail }),
     [createObserver, onSuccess, onFail]
   );
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (defaultValues) {
@@ -62,25 +64,39 @@ export function FormModal<V extends Record<string, unknown>>({
       {...others}
       destroyOnClose
       maskClosable={false}
-      onOk={() => {
-        from(form.validateFields())
-          .pipe(
-            catchError(() => NEVER),
-            tap((value) => {
-              if (beforeStart) {
-                beforeStart(value);
-              }
-            }),
-            switchMap((value) => {
-              const ext = extrinsic(value);
-
-              return signAndSendExtrinsic(api, signer ?? account, ext);
-            })
-          )
-          .subscribe(observer);
-      }}
       onCancel={onCancel}
-      okButtonProps={{ disabled: !!tx, ...modalProps.okButtonProps }}
+      footer={
+        <div className="flex flex-col space-y-2">
+          <Button
+            className="w-full py-1"
+            disabled={!!tx}
+            {...modalProps.okButtonProps}
+            type="primary"
+            onClick={() => {
+              from(form.validateFields())
+                .pipe(
+                  catchError(() => NEVER),
+                  tap((value) => {
+                    if (beforeStart) {
+                      beforeStart(value);
+                    }
+                  }),
+                  switchMap((value) => {
+                    const ext = extrinsic(value);
+
+                    return signAndSendExtrinsic(api, signer ?? account, ext);
+                  })
+                )
+                .subscribe(observer);
+            }}
+          >
+            {modalProps?.okText || t('OK')}
+          </Button>
+          <Button onClick={onCancel} className="w-full ml-0 py-1">
+            {modalProps?.cancelText || t('Cancel')}
+          </Button>
+        </div>
+      }
     >
       <Form
         form={form}

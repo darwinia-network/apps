@@ -71,7 +71,7 @@ export function Nominating() {
 
   return (
     <Card className="shadow-xxl">
-      <h1 className="text-lg font-bold">{t('Nominating')}</h1>
+      <h1 className="text-lg font-medium text-black">{t('Nominating')}</h1>
 
       {isValidating && <Nominators />}
 

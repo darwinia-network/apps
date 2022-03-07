@@ -5,6 +5,7 @@ import { useAccount, useApi } from '../../hooks';
 import { AssetOverviewProps } from '../../model';
 import { fromWei, getUnit, insufficientBalanceRule, isRing, isSameAddress, prettyNumber, toWei } from '../../utils';
 import { FormModal } from '../widget/FormModal';
+import { PrettyAmount } from '../widget/PrettyAmount';
 import { BalanceControl } from '../widget/form-control/BalanceControl';
 import { AddressItem } from '../widget/form-control/AddressItem';
 
@@ -24,28 +25,34 @@ export function AssetOverview({ asset, refresh }: AssetOverviewProps) {
   } = useApi();
   const { account } = useAccount();
   const [isVisible, setIsVisible] = useState(false);
-  const as = useMemo(() => (isRing(asset.token?.symbol) ? 'ring' : 'kton'), [asset.token?.symbol]);
+
+  const tokenIconSrc = useMemo(
+    () => `/image/token-${(asset.token?.symbol || 'RING').toLowerCase()}.svg`,
+    [asset.token?.symbol]
+  );
 
   return (
     <>
       <Card className="p-4 shadow-xxl">
         <div className="flex gap-4 items-center">
-          <img src={`/image/${as}.svg`} className="w-12" />
+          <img src={tokenIconSrc} className="w-12" />
           <div>
-            <h1 className="uppercase text-lg font-bold text-black dark:text-white">{asset.token?.symbol}</h1>
-            <span>{fromWei({ value: asset.total }, prettyNumber)}</span>
+            <h1 className="uppercase text-lg font-medium text-black dark:text-white">{asset.token?.symbol}</h1>
+            <PrettyAmount strAmount={fromWei({ value: asset.total }, prettyNumber)} />
           </div>
         </div>
 
         <hr className={`my-6 opacity-20 h-0.5 bg-${network.name}`} />
 
         <div className="flex items-center justify-between">
-          <div className="inline-flex gap-2 opacity-60">
-            <span>{t('Available')}:</span>
-            <span>{fromWei({ value: asset.max }, prettyNumber)}</span>
+          <div className="inline-flex items-center">
+            <span className="opacity-60 font-normal text-base">{t('Available')}:</span>
+            <PrettyAmount strAmount={fromWei({ value: asset.max }, prettyNumber)} integerClassName="ml-2" />
           </div>
 
-          <Button onClick={() => setIsVisible(true)}>{t('Transfer')}</Button>
+          <Button onClick={() => setIsVisible(true)} className="lg:px-12">
+            {t('Transfer')}
+          </Button>
         </div>
       </Card>
 

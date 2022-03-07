@@ -18,7 +18,9 @@ function Page() {
 
   return (
     <MetamaskProvider>
-      <Tabs className="lg:px-8 px-4 w-full mx-auto dark:shadow-none dark:border-transparent">
+      <Tabs
+        className={`lg:px-8 px-4 w-full mx-auto dark:shadow-none dark:border-transparent pb-5 page-account-tabs page-account-tabs-${name}`}
+      >
         <Tabs.TabPane tab={t('DVM Address')} key="address">
           <Form layout="vertical">
             <Form.Item

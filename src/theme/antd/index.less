@@ -3,12 +3,6 @@
 /* btn rest */
 .ant-btn-primary {
   border: none !important;
-
-  &:hover,
-  &:focus {
-    background: @project-main-bg;
-    opacity: 0.9;
-  }
 }
 
 .ant-btn:hover,
@@ -19,11 +13,20 @@
 
 /* Modal reset */
 .ant-modal-content {
-  border-radius: 0.75rem;
+  border-radius: 20px !important;
 }
 
 .ant-modal-header {
-  border-radius: 0.75rem 0.75rem 0 0;
+  border-radius: 20px 20px 0 0 !important;
+  border: none !important;
+  background: rgba(0, 0, 0, 0.02) !important;
+}
+
+.ant-modal-title {
+  font-weight: 500 !important;
+  font-size: 16px !important;
+  line-height: 21px !important;
+  color: rgba(0, 0, 0, 0.85) !important;
 }
 
 .ant-modal-close-x {
@@ -66,11 +69,40 @@
 
 /* dropdown menu */
 .ant-dropdown-menu {
-  padding: 20px;
+  padding: 20px 10px;
 
   .ant-dropdown-menu-item {
     line-height: 32px;
+    border-radius: 10px;
+    padding: 5px 20px;
+    transition: all 200ms;
+
+    &:hover {
+      background: @project-item-hover-bg !important;
+    }
   }
+}
+
+/* menu */
+.ant-menu-item::after {
+  left: 0 !important;
+  right: auto !important;
+  width: 6px !important;
+  border: none !important;
+  background: @project-main-bg;
+}
+
+.ant-menu:not(.ant-menu-horizontal) .ant-menu-item-selected {
+  background: @menu-item-active-bg !important;
+}
+
+/* select */
+.ant-select-item-option-active:not(.ant-select-item-option-disabled) {
+  background: @select-item-active-bg !important;
+}
+
+.ant-select-arrow {
+  right: 8px;
 }
 
 /* ant-message */
@@ -92,4 +124,25 @@
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+/* tabs */
+.ant-tabs-ink-bar {
+  height: 4px !important;
+  border-radius: 2px;
+}
+
+/* progress */
+.ant-progress-bg {
+  background: @project-main-bg !important;
+}
+
+/* pagination */
+.ant-pagination-item-active {
+  border: none !important;
+  background: @project-main-bg !important;
+
+  a {
+    color: #ffffff !important;
+  }
 }

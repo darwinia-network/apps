@@ -57,6 +57,7 @@ export function Earnings({ updateEraIndex }: PowerDetailProps) {
   ) : (
     <Card className="my-8 shadow-xxl" bodyStyle={{ padding: '24px 32px' }}>
       <Radio.Group
+        buttonStyle="solid"
         value={eraSelection[eraSelectionIndex].value}
         onChange={(event) => {
           const value = +event.target.value;
@@ -65,9 +66,16 @@ export function Earnings({ updateEraIndex }: PowerDetailProps) {
           setEraSelectionIndex(idx);
           updateEraIndex(idx);
         }}
+        className="staking-earnings-time"
       >
         {eraSelection.map((item, index) => (
-          <Radio.Button value={item.value} key={index}>
+          <Radio.Button
+            value={item.value}
+            key={index}
+            className={`staking-earnings-time-btn ${
+              eraSelectionIndex === index ? 'staking-earnings-time-btn-checked-' + network.name : ''
+            }`}
+          >
             {item.text}
           </Radio.Button>
         ))}
@@ -93,13 +101,12 @@ export function Earnings({ updateEraIndex }: PowerDetailProps) {
         />
 
         <div className="flex items-center justify-center gap-4 mt-4 md:mt-0">
-          <Button type="primary">
+          <ClaimRewards eraSelectionIndex={eraSelectionIndex} type="primary" />
+          <Button>
             <SubscanLink network={network.name} address={account} query="tab=reward">
               {t('Reward History')}
             </SubscanLink>
           </Button>
-
-          <ClaimRewards eraSelectionIndex={eraSelectionIndex} type="primary" />
         </div>
       </div>
     </Card>

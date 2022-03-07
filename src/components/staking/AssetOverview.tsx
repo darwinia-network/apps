@@ -5,12 +5,15 @@ import { useTranslation } from 'react-i18next';
 import { useStaking } from '../../hooks';
 import { AssetOverviewProps } from '../../model';
 import { fromWei, isRing, prettyNumber } from '../../utils';
+import { PrettyAmount } from '../widget/PrettyAmount';
 
-function Description({ title, value }: { title: string; value: string | number }) {
+function Description({ title, value }: { title: string; value: string }) {
   return (
-    <div className="inline-flex gap-4 opacity-60 dark:text-gray-700">
-      <span style={{ minWidth: '100px' }}>{title}</span>
-      <span className="font-bold">{value}</span>
+    <div className="inline-flex dark:text-gray-700">
+      <span className="opacity-60" style={{ minWidth: '100px' }}>
+        {title}
+      </span>
+      <PrettyAmount strAmount={value} integerClassName="ml-4 text-sm font-semibold" decimalClassName="text-sm" />
     </div>
   );
 }
@@ -18,7 +21,10 @@ function Description({ title, value }: { title: string; value: string | number }
 export function AssetOverview({ asset }: AssetOverviewProps) {
   const { t } = useTranslation();
   const { stakingDerive, isStakingLedgerEmpty, isStakingDeriveLoading } = useStaking();
-  const as = useMemo(() => (isRing(asset.token?.symbol) ? 'ring' : 'kton'), [asset.token?.symbol]);
+  const tokenIconSrc = useMemo(
+    () => `/image/token-${(asset.token?.symbol || 'RING').toLowerCase()}.svg`,
+    [asset.token?.symbol]
+  );
 
   const ledger = useMemo(() => {
     if (isStakingLedgerEmpty) {
@@ -57,8 +63,8 @@ export function AssetOverview({ asset }: AssetOverviewProps) {
     <div className="relative rounded-xl bg-white h-full shadow-xxl">
       <div className="grid grid-cols-3 p-6 pl-0">
         <div className="flex flex-col gap-4 items-center">
-          <img src={`/image/${as}.svg`} className="w-14" />
-          <h1 className="uppercase text-lg font-bold text-black">{asset.token?.symbol}</h1>
+          <img src={tokenIconSrc} className="w-14" />
+          <h1 className="uppercase text-lg font-medium text-black">{asset.token?.symbol}</h1>
         </div>
 
         <div className="flex flex-col col-span-2 justify-between">

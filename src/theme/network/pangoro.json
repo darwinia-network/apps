@@ -7,5 +7,9 @@
   "@layout-header-background": "#fff",
   "@project-main-bg": "#5745de",
   "@project-radius-base": "12px",
-  "@project-primary": "#5745de"
+  "@project-primary": "#5745de",
+  "@tabs-ink-bar-color": "#5745de",
+  "@project-item-hover-bg": "rgba(87,69,222,0.1)",
+  "@menu-item-active-bg": "rgba(87,69,222,0.2)",
+  "@select-item-active-bg": "rgba(87,69,222,0.1)"
 }

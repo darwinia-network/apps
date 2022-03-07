@@ -3,7 +3,7 @@ import { Drawer, Layout } from 'antd';
 import AntdLink from 'antd/lib/typography/Link';
 import { Steps } from 'intro.js-react';
 import isMobile from 'is-mobile';
-import React, { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { Route, Switch, useLocation } from 'react-router-dom';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
@@ -14,7 +14,7 @@ import { getActiveNav, SideNav } from './components/widget/SideNav';
 import { toggleTheme } from './components/widget/ThemeSwitch';
 import { THEME } from './config';
 import { routes } from './config/routes';
-import { useAccount, useApi } from './hooks';
+import { useApi } from './hooks';
 import { readStorage, updateStorage } from './utils';
 
 const { Sider, Content } = Layout;
@@ -30,10 +30,9 @@ function Logo({ withText, className = '' }: { className?: string; withText?: boo
 
 function IntroGuide() {
   const { t } = useTranslation();
+  const { network } = useApi();
   const [stepsEnabled, setStepsEnabled] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
-  const { account } = useAccount();
-  const { connection } = useApi();
 
   const steps = useMemo(() => {
     const stepConnection = {
@@ -76,15 +75,15 @@ function IntroGuide() {
       highlightClass: 'intro-step-heighlight',
     };
 
-    return !!connection && !!account ? [stepMigration] : [stepConnection, stepMigration];
-  }, [t, connection, account]);
+    return [stepConnection, stepMigration];
+  }, [t]);
 
   useEffect(() => {
     if (!isMobile()) {
       const index = readStorage().introIndex;
       if (index === 0) {
-        setStepsEnabled(true);
         setCurrentStep(1);
+        setStepsEnabled(true);
       } else if (index === 1) {
         setStepsEnabled(false);
       } else {
@@ -92,8 +91,8 @@ function IntroGuide() {
       }
     }
 
-    toggleTheme(THEME.LIGHT);
-  }, []);
+    toggleTheme(THEME.LIGHT, network.name);
+  }, [network.name]);
 
   return (
     <Steps
@@ -151,7 +150,9 @@ function App() {
               <Logo withText />
             </div>
 
-            <h2 className={`text-lg font-bold bg-${network.name} text-transparent hidden lg:block bg-clip-text`}>
+            <h2
+              className={`font-semibold not-italic text-2xl bg-${network.name} text-transparent hidden lg:block bg-clip-text`}
+            >
               {t(activeNav.length ? activeNav[0].label : '')}
             </h2>
           </div>

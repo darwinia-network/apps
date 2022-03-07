@@ -26,6 +26,7 @@ function ActiveAccount({
   onClick?: React.MouseEventHandler<HTMLDivElement>;
 }>) {
   const { network } = useApi();
+  const { accountWithMeta } = useAccount();
   const containerCls = useMemo(
     () =>
       `flex items-center justify-between leading-normal whitespace-nowrap p-1 overflow-hidden bg-${network.name} 
@@ -33,12 +34,13 @@ function ActiveAccount({
         ${className}`,
     [isLargeRounded, className, network]
   );
-  const { t } = useTranslation();
 
   return (
     <div className={containerCls} onClick={onClick} style={containerStyle || {}}>
-      <img src={`/image/${network.name}-1.svg`} style={logoStyle || { height: 24 }} alt="" />
-      <span className="text-white mx-2">{t(network.name)}</span>
+      <img src={`/image/${network.name}-1.svg`} style={logoStyle || { width: 24 }} alt="" />
+      <Typography.Text className="mx-2" style={{ color: 'inherit', maxWidth: '64px' }} ellipsis={true}>
+        {accountWithMeta.meta.name}
+      </Typography.Text>
       {children}
     </div>
   );
@@ -53,7 +55,7 @@ export function Connection() {
   return (
     <>
       {!!connection && !!account ? (
-        <section className={`flex items-center gap-2 ml-6`}>
+        <section className={`flex items-center gap-2 connection`}>
           {account && (
             <>
               <ActiveAccount
@@ -64,7 +66,7 @@ export function Connection() {
                   }
                 }}
                 className="max-w-xs text-white hidden lg:flex"
-                logoStyle={{ height: 24 }}
+                logoStyle={{ width: 24 }}
               >
                 <EllipsisMiddle className="text-white overflow-hidden mr-2" copyable>
                   {account}
