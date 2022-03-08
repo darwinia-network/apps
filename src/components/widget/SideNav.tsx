@@ -154,19 +154,19 @@ export function SideNav({ collapsed, theme, toggle, children }: PropsWithChildre
           )}
         </div>
 
-        <div className="w-full flex flex-wrap items-center justify-around px-2">
+        <div className="w-full flex flex-wrap items-center justify-around px-2 mb-2">
           {/* TODO: Icon can not display on drawer */}
           <a href="https://github.com/darwinia-network/apps" target="_blank" rel="noreferrer">
-            <img className="w-6 mb-2" src="/image/github.svg" />
+            <img className="w-5" src="/image/github.svg" />
           </a>
           <a href="https://twitter.com/DarwiniaNetwork" target="_blank" rel="noreferrer">
-            <img className="w-6 mb-2" src="/image/twitter.svg" />
+            <img className="w-5" src="/image/twitter.svg" />
           </a>
           <a href="https://medium.com/@darwinianetwork" target="_blank" rel="noreferrer">
-            <img className="w-6 mb-2" src="/image/medium.svg" />
+            <img className="w-5" src="/image/medium.svg" />
           </a>
           <a href="https://t.me/DarwiniaNetwork" target="_blank" rel="noreferrer">
-            <img className="w-6 mb-2" src="/image/telegram.svg" />
+            <img className="w-5" src="/image/telegram.svg" />
           </a>
         </div>
       </div>
