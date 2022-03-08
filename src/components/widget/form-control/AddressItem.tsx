@@ -1,10 +1,16 @@
-import { AutoComplete, Form, InputProps, Select } from 'antd';
+import { createRef, useEffect, useState } from 'react';
+import { AutoComplete, Form, Input, InputProps, Select } from 'antd';
 import { isString, upperFirst } from 'lodash';
 import { useTranslation } from 'react-i18next';
 import { useAccount, useApi } from '../../../hooks';
 import { CustomFormItemProps } from '../../../model';
 import { fromWei, isSpecifiedSS58Address, prettyNumber } from '../../../utils';
 import { IdentAccountAddress } from '../account/IdentAccountAddress';
+
+type AutoCompleteOption = {
+  value: string;
+  label: JSX.Element;
+};
 
 export function AddressItem({ label, disabled, rules = [], ...rest }: CustomFormItemProps & InputProps) {
   const { t } = useTranslation();
@@ -13,6 +19,19 @@ export function AddressItem({ label, disabled, rules = [], ...rest }: CustomForm
     network,
   } = useApi();
   const { assets } = useAccount();
+  const autoCompleteInputRef = createRef<Input>();
+  const [options, setOptions] = useState<AutoCompleteOption[]>([]);
+
+  useEffect(() => {
+    const o: AutoCompleteOption[] = [];
+    accounts.forEach((item) => {
+      o.push({
+        value: item.address,
+        label: <IdentAccountAddress account={item} />,
+      });
+    });
+    setOptions(o);
+  }, [accounts]);
 
   return (
     <Form.Item
@@ -49,12 +68,15 @@ export function AddressItem({ label, disabled, rules = [], ...rest }: CustomForm
           ))}
         </Select>
       ) : (
-        <AutoComplete placeholder={t('Enter or select one from these below')} size="large" className="flex-1">
-          {accounts.map((item) => (
-            <AutoComplete.Option value={item.address} key={item.address}>
-              <IdentAccountAddress account={item} />
-            </AutoComplete.Option>
-          ))}
+        <AutoComplete options={options} className="flex-1">
+          <Input
+            type="search"
+            size="large"
+            ref={autoCompleteInputRef}
+            placeholder={t('Enter or select one from these below')}
+            onFocus={() => autoCompleteInputRef.current?.select()}
+            onClick={() => autoCompleteInputRef.current?.select()}
+          />
         </AutoComplete>
       )}
     </Form.Item>
