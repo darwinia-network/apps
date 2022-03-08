@@ -3,13 +3,20 @@ import { IAccountMeta } from '../../../model';
 import { EllipsisMiddle } from '../EllipsisMiddle';
 
 interface IdentAccountProps {
-  account: IAccountMeta;
+  account: IAccountMeta | undefined;
   className?: string;
   iconSize?: number;
 }
 
-// eslint-disable-next-line no-magic-numbers
-export function IdentAccountAddress({ account: { address, meta }, className = '', iconSize = 32 }: IdentAccountProps) {
+const defaultSize = 32;
+
+export function IdentAccountAddress({ account, className = '', iconSize = defaultSize }: IdentAccountProps) {
+  if (!account) {
+    return null;
+  }
+
+  const { address, meta } = account;
+
   return (
     <div className={`flex items-center ${className}`}>
       <Identicon size={iconSize} value={address} className="rounded-full border border-gray-100" />

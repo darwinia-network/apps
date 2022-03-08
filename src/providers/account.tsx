@@ -31,6 +31,7 @@ export const AccountProvider = ({ children }: React.PropsWithChildren<unknown>) 
   );
 
   const getBalances = useCallback(
+    // eslint-disable-next-line complexity
     async (acc?: string) => {
       if (!api || !chain.tokens.length) {
         return [];
@@ -38,11 +39,19 @@ export const AccountProvider = ({ children }: React.PropsWithChildren<unknown>) 
 
       const [ring, kton] = await getDarwiniaBalances(api, acc ?? account);
       const info = await api.query.system.account(account);
-      const {
+
+      let {
         data: { free, freeKton },
       } = info.toJSON() as {
         data: { free: number; freeKton: number; reserved: number; reservedKton: number };
       };
+
+      // FIXME: free value of  api.query.system.account('') result is not 0, manual reset
+      if (!account) {
+        free = 0;
+        freeKton = 0;
+      }
+
       const res = [
         {
           max: ring,

@@ -2,7 +2,6 @@ import { Button, Modal } from 'antd';
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAccount, useApi } from '../../hooks';
-import { CloseIcon } from '../icons';
 
 export function ConnectPolkadot() {
   const { t } = useTranslation();
@@ -26,28 +25,34 @@ export function ConnectPolkadot() {
       </Button>
 
       <Modal
-        closeIcon={<CloseIcon />}
+        closable={false}
         title={t('Connect to Polkadot')}
         visible={isHelperModalVisible}
         footer={null}
         onCancel={() => setIsHelpModalVisible(false)}
       >
         <div className="flex flex-col items-center">
-          <p>{t('You are trying to connect to Polkadot extension, please authorize in the extension.')}</p>
+          <p>
+            {t(
+              'Make sure you you have installed the polkadot extension first, then create an account in it and authorize'
+            )}
+          </p>
 
-          <div className="flex items-center p-4 w-full rounded-xl mt-4 border border-gray-200">
-            <img src="/image/polkadot.svg" style={{ height: 44 }} alt="" />
-            <b className="ml-3 font-medium text-sm text-black opacity-80">{`polkadot{.js} extension`}</b>
+          <div className="flex items-center p-4 w-full rounded-xl mt-4 border border-gray-200 justify-between">
+            <div className="flex items-center">
+              <img src="/image/polkadot.svg" style={{ height: 44 }} alt="" />
+              <b className="ml-3 font-medium text-sm text-black opacity-80">{`polkadot{.js} extension`}</b>
+            </div>
+
+            <Button
+              type="link"
+              onClick={() => {
+                window.open('https://polkadot.js.org', 'blank');
+              }}
+            >
+              {t('How to use?')}
+            </Button>
           </div>
-
-          <Button
-            className="mt-4 w-2/5"
-            onClick={() => {
-              window.open('https://polkadot.js.org', 'blank');
-            }}
-          >
-            {t('How to use?')}
-          </Button>
         </div>
       </Modal>
     </>
