@@ -18,7 +18,7 @@ function Page() {
 
   return (
     <div className="lg:px-8 px-4">
-      <Card className="mx-0 lg:mx-8 shadow-xxl">
+      <Card className="mx-0 shadow-xxl">
         <Trans i18nKey="migrateRefers" className="m-8">
           If your account in the old version cannot be found in your wallet, you can restore JSON which the account in
           the old version apps through \u0022 Account Migration \u0022 and add the JSON to polkadot\u007b.js\u007d.
@@ -33,7 +33,7 @@ function Page() {
 
       <Tabs
         accessKey="overview"
-        className={`px-0 lg:px-8 w-full mx-auto dark:shadow-none dark:border-transparent pb-5 page-account-tabs page-account-tabs-${network.name}`}
+        className={`px-0 w-full mx-auto dark:shadow-none dark:border-transparent pb-5 page-account-tabs page-account-tabs-${network.name}`}
       >
         <Tabs.TabPane tab={t('overview')} key="overview" className="pb-8">
           <Card title={<span className="font-bold">{t('Local Accounts')}</span>} className="shadow-xxl">

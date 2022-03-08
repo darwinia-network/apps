@@ -65,8 +65,9 @@ export function Connection() {
                     setIsAccountDetailVisible(true);
                   }
                 }}
-                className="max-w-xs text-white hidden lg:flex"
+                className="max-w-xs text-white hidden lg:flex cursor-pointer"
                 logoStyle={{ width: 24 }}
+                isLargeRounded={false}
               >
                 <EllipsisMiddle className="text-white overflow-hidden mr-2" copyable>
                   {account}

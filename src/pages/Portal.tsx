@@ -47,13 +47,13 @@ function Page() {
           onClose={() => {
             updateStorage({ hidePortalWarning: true });
           }}
-          className="m-0 lg:m-8"
+          className="m-0 flex flex-col space-y-2 lg:flex-row lg:space-y-0"
         />
       )}
 
       <Tabs
         accessKey="overview"
-        className={`px-0 lg:px-8 w-full mx-auto dark:shadow-none dark:border-transparent pb-5 page-account-tabs page-account-tabs-${network.name}`}
+        className={`px-0 w-full mx-auto dark:shadow-none dark:border-transparent pb-5 page-account-tabs page-account-tabs-${network.name}`}
       >
         <Tabs.TabPane tab={t('overview')} key="overview" className="pb-8">
           {/* eslint-disable-next-line no-magic-numbers */}

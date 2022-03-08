@@ -154,26 +154,26 @@ export function SideNav({ collapsed, theme, toggle, children }: PropsWithChildre
           )}
         </div>
 
-        <div className="w-full flex flex-wrap items-center justify-around px-2">
+        <div className="w-full flex flex-wrap items-center justify-around px-2 mb-2">
           {/* TODO: Icon can not display on drawer */}
           <a href="https://github.com/darwinia-network/apps" target="_blank" rel="noreferrer">
-            <img className="w-6 mb-2" src="/image/github.svg" />
+            <img className="w-5" src="/image/github.svg" />
           </a>
           <a href="https://twitter.com/DarwiniaNetwork" target="_blank" rel="noreferrer">
-            <img className="w-6 mb-2" src="/image/twitter.svg" />
+            <img className="w-5" src="/image/twitter.svg" />
           </a>
           <a href="https://medium.com/@darwinianetwork" target="_blank" rel="noreferrer">
-            <img className="w-6 mb-2" src="/image/medium.svg" />
+            <img className="w-5" src="/image/medium.svg" />
           </a>
           <a href="https://t.me/DarwiniaNetwork" target="_blank" rel="noreferrer">
-            <img className="w-6 mb-2" src="/image/telegram.svg" />
+            <img className="w-5" src="/image/telegram.svg" />
           </a>
         </div>
       </div>
 
       <div
         onClick={toggle}
-        className="absolute top-1/2 -right-3.5 transform -translate-y-8 h-16 border border-solid border-gray-200 border-l-0 rounded-r-2xl lg:flex place-items-center bg-white cursor-pointer hidden"
+        className="absolute top-1/2 -right-3.5 transform -translate-y-8 h-16 border border-solid border-gray-200 border-l-0 rounded-r-lg lg:flex place-items-center bg-white cursor-pointer hidden"
         style={theme === THEME.DARK ? { background: '#0d101d', border: 'none' } : {}}
       >
         <CaretLeftFilled className={`light:opacity-40 transform ${collapsed ? 'rotate-180' : '0'}`} />
