@@ -67,6 +67,7 @@ export function Connection() {
                 }}
                 className="max-w-xs text-white hidden lg:flex"
                 logoStyle={{ width: 24 }}
+                isLargeRounded={false}
               >
                 <EllipsisMiddle className="text-white overflow-hidden mr-2" copyable>
                   {account}
