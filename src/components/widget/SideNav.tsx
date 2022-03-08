@@ -173,7 +173,7 @@ export function SideNav({ collapsed, theme, toggle, children }: PropsWithChildre
 
       <div
         onClick={toggle}
-        className="absolute top-1/2 -right-3.5 transform -translate-y-8 h-16 border border-solid border-gray-200 border-l-0 rounded-r-2xl lg:flex place-items-center bg-white cursor-pointer hidden"
+        className="absolute top-1/2 -right-3.5 transform -translate-y-8 h-16 border border-solid border-gray-200 border-l-0 rounded-r-lg lg:flex place-items-center bg-white cursor-pointer hidden"
         style={theme === THEME.DARK ? { background: '#0d101d', border: 'none' } : {}}
       >
         <CaretLeftFilled className={`light:opacity-40 transform ${collapsed ? 'rotate-180' : '0'}`} />
