@@ -1,4 +1,4 @@
-import { createRef, useEffect, useState } from 'react';
+import { createRef, useMemo } from 'react';
 import { AutoComplete, Form, Input, InputProps, Select } from 'antd';
 import { isString, upperFirst } from 'lodash';
 import { useTranslation } from 'react-i18next';
@@ -6,11 +6,6 @@ import { useAccount, useApi } from '../../../hooks';
 import { CustomFormItemProps } from '../../../model';
 import { fromWei, isSpecifiedSS58Address, prettyNumber } from '../../../utils';
 import { IdentAccountAddress } from '../account/IdentAccountAddress';
-
-type AutoCompleteOption = {
-  value: string;
-  label: JSX.Element;
-};
 
 export function AddressItem({ label, disabled, rules = [], ...rest }: CustomFormItemProps & InputProps) {
   const { t } = useTranslation();
@@ -20,18 +15,10 @@ export function AddressItem({ label, disabled, rules = [], ...rest }: CustomForm
   } = useApi();
   const { assets } = useAccount();
   const autoCompleteInputRef = createRef<Input>();
-  const [options, setOptions] = useState<AutoCompleteOption[]>([]);
-
-  useEffect(() => {
-    const o: AutoCompleteOption[] = [];
-    accounts.forEach((item) => {
-      o.push({
-        value: item.address,
-        label: <IdentAccountAddress account={item} />,
-      });
-    });
-    setOptions(o);
-  }, [accounts]);
+  const autoCompleteOptions = useMemo<{ value: string; label: JSX.Element }[]>(
+    () => accounts.map((item) => ({ value: item.address, label: <IdentAccountAddress account={item} /> })),
+    [accounts]
+  );
 
   return (
     <Form.Item
@@ -68,7 +55,7 @@ export function AddressItem({ label, disabled, rules = [], ...rest }: CustomForm
           ))}
         </Select>
       ) : (
-        <AutoComplete options={options} className="flex-1">
+        <AutoComplete options={autoCompleteOptions} className="flex-1">
           <Input
             type="search"
             size="large"
