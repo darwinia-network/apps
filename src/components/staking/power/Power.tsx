@@ -15,7 +15,7 @@ export function Power() {
   const { t } = useTranslation();
   const [eraSelectionIndex, setEraSelectionIndex] = useState(0);
   const { accountWithMeta, assets, getBalances } = useAccount();
-  const { stakingDerive, isStakingLedgerEmpty, stashAccount } = useStaking();
+  const { stakingDerive, isStakingLedgerEmpty } = useStaking();
   const { pool } = usePower();
 
   const power = useMemo(() => {
@@ -40,7 +40,7 @@ export function Power() {
         <div className="flex lg:flex-row flex-col lg:justify-between lg:items-center">
           <IdentAccountAddress account={accountWithMeta} className="mb-2 lg:mb-0" />
 
-          {stashAccount && <Actions eraSelectionIndex={eraSelectionIndex} />}
+          <Actions eraSelectionIndex={eraSelectionIndex} />
         </div>
       </Card>
 
