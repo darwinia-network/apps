@@ -1,4 +1,5 @@
-import { AutoComplete, Form, InputProps, Select } from 'antd';
+import { createRef, useMemo } from 'react';
+import { AutoComplete, Form, Input, InputProps, Select } from 'antd';
 import { isString, upperFirst } from 'lodash';
 import { useTranslation } from 'react-i18next';
 import { useAccount, useApi } from '../../../hooks';
@@ -13,6 +14,11 @@ export function AddressItem({ label, disabled, rules = [], ...rest }: CustomForm
     network,
   } = useApi();
   const { assets } = useAccount();
+  const autoCompleteInputRef = createRef<Input>();
+  const autoCompleteOptions = useMemo<{ value: string; label: JSX.Element }[]>(
+    () => accounts.map((item) => ({ value: item.address, label: <IdentAccountAddress account={item} /> })),
+    [accounts]
+  );
 
   return (
     <Form.Item
@@ -49,12 +55,15 @@ export function AddressItem({ label, disabled, rules = [], ...rest }: CustomForm
           ))}
         </Select>
       ) : (
-        <AutoComplete placeholder={t('Enter or select one from these below')} size="large" className="flex-1">
-          {accounts.map((item) => (
-            <AutoComplete.Option value={item.address} key={item.address}>
-              <IdentAccountAddress account={item} />
-            </AutoComplete.Option>
-          ))}
+        <AutoComplete options={autoCompleteOptions} className="flex-1">
+          <Input
+            type="search"
+            size="large"
+            ref={autoCompleteInputRef}
+            placeholder={t('Enter or select one from these below')}
+            onFocus={() => autoCompleteInputRef.current?.select()}
+            onClick={() => autoCompleteInputRef.current?.select()}
+          />
         </AutoComplete>
       )}
     </Form.Item>
