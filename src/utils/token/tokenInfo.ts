@@ -7,6 +7,11 @@ import { waitUntilConnected } from '../network';
  * @see https://github.com/darwinia-network/wormhole-ui/issues/142
  */
 export async function getDarwiniaBalances(api: ApiPromise, account = ''): Promise<[string, string]> {
+  // FIXME: (api.rpc as any).balances.usableBalance(0, '') result is not 0, manual reset
+  if (!account) {
+    return ['0', '0'];
+  }
+
   await waitUntilConnected(api);
 
   try {
