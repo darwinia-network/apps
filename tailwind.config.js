@@ -1,8 +1,4 @@
 module.exports = {
-  purge: {
-    enabled: process.env.REACT_APP_HOST_TYPE !== 'dev',
-    content: ['./src/**/*.tsx'],
-  },
   important: true,
   darkMode: 'class', // or 'media' or 'class'
   content: ['./src/**/*.{js,jsx,ts,tsx}'],
