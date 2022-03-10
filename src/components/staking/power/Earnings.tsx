@@ -82,11 +82,7 @@ export function Earnings({ updateEraIndex }: PowerDetailProps) {
       </Radio.Group>
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3 mt-8">
-        <Statistics
-          title={t('Claimed')}
-          value={`${claimed} ${upperCase(ringAsset?.token.symbol)}`}
-          className="border-none"
-        />
+        <Statistics title={t('Claimed')} value={`${claimed} ${upperCase(ringAsset?.token.symbol)}`} />
 
         <Statistics
           title={t('Unclaimed')}
@@ -97,7 +93,6 @@ export function Earnings({ updateEraIndex }: PowerDetailProps) {
               `${fromWei({ value: payoutTotal }, prettyNumber)} ${upperCase(ringAsset?.token.symbol)}`
             )
           }
-          className="border-none"
         />
 
         <div className="flex items-center justify-center gap-4 mt-4 md:mt-0">

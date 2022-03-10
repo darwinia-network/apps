@@ -68,16 +68,23 @@ export function Targets() {
     <>
       <Card className="shadow-xxl">
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
-          <Statistics title={t('total staked(Power)')} value={total ? prettyNumber(total) : <Spin />} />
           <Statistics
+            className="lg:border-r lg:justify-center"
+            title={t('total staked(Power)')}
+            value={total ? prettyNumber(total) : <Spin />}
+          />
+          <Statistics
+            className="lg:border-r lg:justify-center"
             title={t('total issuance({{symbol}})', { symbol: ringSymbol })}
             value={issuance ? fromWei({ value: issuance }, formatNum) : <Spin />}
           />
           <Statistics
+            className="lg:border-r lg:justify-center"
             title={t('total issuance({{symbol}})', { symbol: ktonSymbol })}
             value={issuance ? fromWei({ value: issuanceKton }, formatNum) : <Spin />}
           />
           <Statistics
+            className="lg:border-r lg:justify-center"
             title={t('validators/nominators')}
             value={
               nominators ? (
@@ -92,8 +99,8 @@ export function Targets() {
             }
           />
           <Statistics
+            className="lg:justify-center"
             title={t('last reward({{symbol}})', { symbol: ringSymbol })}
-            className="border-none"
             value={lastReward ? fromWei({ value: lastReward }, formatNum) : <Spin />}
           />
         </div>
