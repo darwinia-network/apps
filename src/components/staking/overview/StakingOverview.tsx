@@ -107,9 +107,10 @@ export function StakingOverview() {
   return (
     <>
       <Card className="shadow-xxl">
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 lg:gap-0 lg:justify-items-center">
           <Statistics
             title={t('validators')}
+            className="lg:border-r lg:justify-center"
             value={
               overview ? (
                 <span>
@@ -122,10 +123,19 @@ export function StakingOverview() {
               )
             }
           />
-          <Statistics title={t('waiting')} value={waiting ? waiting.info.length : <Spin />} />
-          <Statistics title={t('nominators')} value={nominators ? nominators.length : <Spin />} />
+          <Statistics
+            title={t('waiting')}
+            value={waiting ? waiting.info.length : <Spin />}
+            className="lg:border-r lg:justify-center"
+          />
+          <Statistics
+            title={t('nominators')}
+            value={nominators ? nominators.length : <Spin />}
+            className="lg:border-r lg:justify-center"
+          />
           <StatisticProgress
             label={t('epoch')}
+            className="lg:border-r lg:justify-center"
             block={progress?.sessionLength}
             data={
               progress && {
@@ -137,7 +147,7 @@ export function StakingOverview() {
           />
           <StatisticProgress
             label={t('era')}
-            className="border-none"
+            className="lg:justify-center"
             block={progress?.eraLength}
             data={
               progress && {

@@ -3,9 +3,10 @@ import { DeriveStakingOverview } from '@polkadot/api-derive/staking/types';
 import { DeriveHeartbeats } from '@polkadot/api-derive/types';
 import { EraRewardPoints } from '@polkadot/types/interfaces';
 import { Col, Collapse, Input, Row } from 'antd';
-import { Reducer, useEffect, useReducer, useState } from 'react';
+import { Reducer, useCallback, useEffect, useReducer, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { from, switchMap, timer } from 'rxjs';
+import { debounce } from 'lodash';
 import { MIDDLE_DURATION } from '../../../config';
 import { useApi, useIsMountedOperator, useStaking } from '../../../hooks';
 import { STAKING_FAV_KEY, useFavorites } from '../../../hooks/favorites';
@@ -22,7 +23,6 @@ import {
   StakerOther,
   StakerOwn,
 } from './overview-widgets';
-
 interface ValidatorsProps {
   overview: DeriveStakingOverview;
 }
@@ -88,12 +88,21 @@ export function Validators({ overview }: ValidatorsProps) {
     };
   }, [api, takeWhileIsMounted]);
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const handleInputChange = useCallback(
+    // eslint-disable-next-line no-magic-numbers
+    debounce((event) => setSearchName(event.target.value), 300),
+    []
+  );
+
+  useEffect(() => {
+    return handleInputChange.cancel;
+  }, [handleInputChange]);
+
   return (
     <>
       <Input
-        onChange={(event) => {
-          setSearchName(event.target.value);
-        }}
+        onChange={handleInputChange}
         size="large"
         placeholder={t('Flite by name, address or index')}
         className="my-8 lg:w-1/3"

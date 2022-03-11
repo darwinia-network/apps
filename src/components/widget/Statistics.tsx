@@ -15,11 +15,13 @@ export function Statistics({
   const { t } = useTranslation();
 
   return (
-    <div
-      className={`flex lg:flex-col justify-between items-center lg:justify-start lg:items-start gap-4 w-full lg:w-2/3 relative lg:border-r border-gray-100 dark:border-gray-700 ${className}`}
-    >
-      <h3 className="font-medium text-base text-black opacity-80">{t(title)}</h3>
-      <div className={`text-2xl font-medium whitespace-nowrap text-${network.name}-main`}>{value}</div>
+    <div className={`w-full flex border-gray-100 dark:border-gray-700 ${className}`}>
+      <div
+        className={`gap-4 w-full flex justify-between items-center lg:flex-col lg:justify-start lg:items-start lg:w-max`}
+      >
+        <h3 className="font-medium text-base text-black opacity-80">{t(title)}</h3>
+        <div className={`text-2xl font-medium whitespace-nowrap text-${network.name}-main`}>{value}</div>
+      </div>
     </div>
   );
 }
