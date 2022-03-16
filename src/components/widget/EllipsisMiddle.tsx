@@ -37,16 +37,17 @@ export function EllipsisMiddle({
   copyable = false,
 }: PropsWithChildren<EllipsisMiddleProps>) {
   // eslint-disable-next-line complexity
-  const prepEllipse = (node: HTMLDivElement) => {
+  const prepEllipse = (node: HTMLDivElement, txt: string) => {
     const parent = node.parentNode!;
     const child = node.childNodes[0];
     const txtToEllipse = parent.querySelector('.ellipseMe') || child;
 
     if (child !== null && txtToEllipse !== null) {
       // (Re)-set text back to data-original-text if it exists.
-      if ((txtToEllipse as HTMLElement).hasAttribute('data-original')) {
-        txtToEllipse.textContent = (txtToEllipse as HTMLElement).getAttribute('data-original');
-      }
+      // if ((txtToEllipse as HTMLElement).hasAttribute('data-original')) {
+      //   txtToEllipse.textContent = (txtToEllipse as HTMLElement).getAttribute('data-original');
+      // }
+      txtToEllipse.textContent = txt;
 
       ellipse(
         // Use the smaller width.
@@ -57,14 +58,17 @@ export function EllipsisMiddle({
     }
   };
 
-  const measuredParent = useCallback((node: HTMLDivElement) => {
-    if (node !== null) {
-      window.addEventListener('resize', () => {
-        prepEllipse(node);
-      });
-      prepEllipse(node);
-    }
-  }, []);
+  const measuredParent = useCallback(
+    (node: HTMLDivElement) => {
+      if (node !== null) {
+        window.addEventListener('resize', () => {
+          prepEllipse(node, children as string);
+        });
+        prepEllipse(node, children as string);
+      }
+    },
+    [children]
+  );
 
   return (
     <div
