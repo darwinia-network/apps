@@ -46,6 +46,7 @@ export function SetSession({ label, disabled, type = 'text', className = '' }: S
         onSuccess={() => {
           setIsVisible(false);
         }}
+        signer={controllerAccount}
         initialValues={{ controller: controllerAccount }}
       >
         <AddressItem name="controller" label="Controller account" disabled={true} extra={null} />

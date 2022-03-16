@@ -45,6 +45,7 @@ export function SetValidator({ disabled, type = 'text' }: StakingActionProps) {
         onSuccess={() => {
           setIsVisible(false);
         }}
+        signer={controllerAccount}
         initialValues={{
           stash: stashAccount,
           controller: controllerAccount,

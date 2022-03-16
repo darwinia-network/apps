@@ -94,6 +94,7 @@ export function Nominate({
           updateValidators();
           updateStakingDerive();
         }}
+        signer={controllerAccount}
         initialValues={{ controller: controllerAccount, stash: stashAccount, targets: defaultSelected }}
         defaultValues={{ targets: defaultSelects }}
       >
