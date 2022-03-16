@@ -66,7 +66,7 @@ export function StakingNow() {
             promiseMonth,
             payee: { type, account: acc },
           } = value;
-          const balance = fundParam({ ...selectedAsset!, amount });
+          const balance = fundParam({ ...selectedAsset!, amount: (amount as unknown as Fund).amount });
           const destination = type === 'Account' ? { Account: acc } : type;
 
           return api.tx.staking.bond(controller, balance, destination, promiseMonth);
