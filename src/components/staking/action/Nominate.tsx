@@ -25,11 +25,17 @@ export function Nominate({
 }: StakingActionProps & { defaultSelects?: string[] }) {
   const { t } = useTranslation();
   const { api } = useApi();
-  const { isControllerAccountOwner } = useStaking();
   const [isVisible, setIsVisible] = useState(false);
   const { account } = useAccount();
-  const { stashAccount, stakingDerive, stakingOverview, availableValidators, updateValidators, updateStakingDerive } =
-    useStaking();
+  const {
+    isInElection,
+    stashAccount,
+    stakingDerive,
+    stakingOverview,
+    availableValidators,
+    updateValidators,
+    updateStakingDerive,
+  } = useStaking();
   const [favorites] = useFavorites(STAKING_FAV_KEY);
 
   const defaultSelected = useMemo(
@@ -67,7 +73,7 @@ export function Nominate({
     <>
       <Button
         {...rest}
-        disabled={!isControllerAccountOwner || disabled}
+        disabled={disabled || isInElection || !stashAccount}
         onClick={() => {
           setIsVisible(true);
         }}
@@ -92,7 +98,7 @@ export function Nominate({
         defaultValues={{ targets: defaultSelects }}
       >
         <AddressItem name="controller" label="Controller account" disabled={!defaultSelects} />
-        <AddressItem name="stash" label="Stash account" disabled />
+        <AddressItem name="stash" label="Stash account" disabled={true} />
 
         <FormItem
           name="targets"

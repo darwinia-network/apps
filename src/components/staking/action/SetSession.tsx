@@ -15,10 +15,10 @@ interface SetSessionFormValues {
   [key: string]: unknown;
 }
 
-export function SetSession({ label, type = 'text', className = '' }: StakingActionProps) {
+export function SetSession({ label, disabled, type = 'text', className = '' }: StakingActionProps) {
   const { t } = useTranslation();
   const { api } = useApi();
-  const { isControllerAccountOwner, isNominating, controllerAccount, stashAccount } = useStaking();
+  const { isNominating, isInElection, controllerAccount, stashAccount } = useStaking();
   const [isVisible, setIsVisible] = useState(false);
   const isSubstrateV2 = useMemo(() => !!Object.keys(api.consts).length, [api]);
 
@@ -29,7 +29,7 @@ export function SetSession({ label, type = 'text', className = '' }: StakingActi
           setIsVisible(true);
         }}
         type={type}
-        disabled={!isControllerAccountOwner}
+        disabled={disabled || isInElection}
         className={className}
       >
         {t(label ?? 'Session Key')}
@@ -48,7 +48,7 @@ export function SetSession({ label, type = 'text', className = '' }: StakingActi
         }}
         initialValues={{ controller: controllerAccount }}
       >
-        <AddressItem name="controller" label="Controller account" disabled extra={null} />
+        <AddressItem name="controller" label="Controller account" disabled={true} extra={null} />
 
         {isSubstrateV2 ? (
           <FormItem

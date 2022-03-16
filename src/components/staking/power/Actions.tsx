@@ -21,11 +21,12 @@ import {
 } from '../action';
 
 interface ActionsProps {
+  disabled?: boolean;
   eraSelectionIndex: number;
 }
 
 // eslint-disable-next-line complexity
-export function Actions({ eraSelectionIndex }: ActionsProps) {
+export function Actions({ eraSelectionIndex, disabled }: ActionsProps) {
   const { t } = useTranslation();
   const { api } = useApi();
   const { createObserver } = useTx();
@@ -70,20 +71,22 @@ export function Actions({ eraSelectionIndex }: ActionsProps) {
             signAndSendExtrinsic(api, controllerAccount, api.tx.staking.chill()).subscribe(observer);
           }}
           className="w-full lg:w-auto"
+          disabled={disabled}
         >
           {t(isNominating ? 'Stop Nominating' : 'Stop Validating')}
         </Button>
       ) : (
         <>
           {!sessionAccounts.length || nextSessionAccount === '0x' ? (
-            <SetSession type="default" className="w-full lg:w-auto" />
+            <SetSession type="default" className="w-full lg:w-auto" disabled={disabled} />
           ) : (
-            <SetValidator type="default" className="w-full lg:w-auto" />
+            <SetValidator type="default" className="w-full lg:w-auto" disabled={disabled} />
           )}
-          <Nominate type="default" className="w-full lg:w-auto" />
+          <Nominate type="default" className="w-full lg:w-auto" disabled={disabled} />
         </>
       )}
       <Dropdown
+        disabled={disabled}
         overlay={
           <Menu>
             <Menu.Item key="claimRewards">
@@ -131,9 +134,9 @@ export function Actions({ eraSelectionIndex }: ActionsProps) {
             )}
           </Menu>
         }
-        className="lg:static absolute right-6 top-6"
+        className={`lg:static absolute right-6 top-6 ${disabled ? `cursor-not-allowed` : 'cursor-pointer'}`}
       >
-        <SettingFilled className="text-lg text-gray-400 cursor-pointer" />
+        <SettingFilled className="text-lg text-gray-400" />
       </Dropdown>
     </div>
   );
