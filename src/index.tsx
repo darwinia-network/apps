@@ -5,6 +5,7 @@ import { Suspense } from 'react';
 import ReactDOM from 'react-dom';
 import { BrowserRouter } from 'react-router-dom';
 import App from './App';
+import { ErrorBoundary } from './components/widget/ErrorBoundary';
 import { BallScalePulse } from './components/widget/BallScalePulse';
 import { THEME } from './config';
 import './index.scss';
@@ -27,13 +28,15 @@ ReactDOM.render(
     }
   >
     <BrowserRouter>
-      <ApiProvider>
-        <TxProvider>
-          <AccountProvider>
-            <App />
-          </AccountProvider>
-        </TxProvider>
-      </ApiProvider>
+      <ErrorBoundary>
+        <ApiProvider>
+          <TxProvider>
+            <AccountProvider>
+              <App />
+            </AccountProvider>
+          </TxProvider>
+        </ApiProvider>
+      </ErrorBoundary>
     </BrowserRouter>
   </Suspense>,
   document.getElementById('root')
