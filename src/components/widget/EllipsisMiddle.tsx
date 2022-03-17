@@ -1,5 +1,5 @@
 import { Typography } from 'antd';
-import { PropsWithChildren, useCallback } from 'react';
+import { PropsWithChildren, useCallback, ReactNode } from 'react';
 
 const ellipse = (parentNode: HTMLDivElement, childNode: HTMLSpanElement, txtNode: HTMLElement) => {
   const childWidth = childNode.offsetWidth;
@@ -37,17 +37,14 @@ export function EllipsisMiddle({
   copyable = false,
 }: PropsWithChildren<EllipsisMiddleProps>) {
   // eslint-disable-next-line complexity
-  const prepEllipse = (node: HTMLDivElement, txt: string) => {
+  const prepEllipse = (node: HTMLDivElement, textContent: ReactNode) => {
     const parent = node.parentNode!;
     const child = node.childNodes[0];
     const txtToEllipse = parent.querySelector('.ellipseMe') || child;
 
     if (child !== null && txtToEllipse !== null) {
       // (Re)-set text back to data-original-text if it exists.
-      // if ((txtToEllipse as HTMLElement).hasAttribute('data-original')) {
-      //   txtToEllipse.textContent = (txtToEllipse as HTMLElement).getAttribute('data-original');
-      // }
-      txtToEllipse.textContent = txt;
+      txtToEllipse.textContent = textContent?.toString() || '';
 
       ellipse(
         // Use the smaller width.
@@ -62,9 +59,9 @@ export function EllipsisMiddle({
     (node: HTMLDivElement) => {
       if (node !== null) {
         window.addEventListener('resize', () => {
-          prepEllipse(node, children as string);
+          prepEllipse(node, children);
         });
-        prepEllipse(node, children as string);
+        prepEllipse(node, children);
       }
     },
     [children]

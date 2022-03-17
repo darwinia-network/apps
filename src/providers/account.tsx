@@ -38,9 +38,9 @@ export const AccountProvider = ({ children }: React.PropsWithChildren<unknown>) 
       }
 
       // Be careful we are in a asynchronous function
-      const token1 = getToken(chain.tokens, network.name === 'crab' ? DarwiniaAsset.crab : DarwiniaAsset.ring);
-      const token2 = getToken(chain.tokens, DarwiniaAsset.kton);
-      if (token1.symbol === 'unknown') {
+      const tokenRing = getToken(chain.tokens, network.name === 'crab' ? DarwiniaAsset.crab : DarwiniaAsset.ring);
+      const tokenKton = getToken(chain.tokens, DarwiniaAsset.kton);
+      if (tokenRing.symbol === 'unknown') {
         return [];
       }
 
@@ -64,13 +64,13 @@ export const AccountProvider = ({ children }: React.PropsWithChildren<unknown>) 
           max: ring,
           asset: DarwiniaAsset.ring,
           total: free,
-          token: token1,
+          token: tokenRing,
         },
         {
           max: kton,
           asset: DarwiniaAsset.kton,
           total: freeKton,
-          token: token2,
+          token: tokenKton,
         },
       ];
 
