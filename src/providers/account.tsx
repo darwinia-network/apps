@@ -92,7 +92,11 @@ export const AccountProvider = ({ children }: React.PropsWithChildren<unknown>) 
   }, [account, api, getBalances]);
 
   useEffect(() => {
-    const acc = account || readStorage().activeAccount || connection?.accounts[0]?.address;
+    const accStorage = readStorage().activeAccount;
+    const acc =
+      account ||
+      connection?.accounts.find((value) => value.address === accStorage)?.address ||
+      connection?.accounts[0]?.address;
 
     if (!acc) {
       return;
