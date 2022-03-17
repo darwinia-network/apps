@@ -1,5 +1,6 @@
 import { DeriveStakingOverview } from '@polkadot/api-derive/staking/types';
 import { GenericAccountId, Option } from '@polkadot/types';
+import { ElectionStatus } from '@polkadot/types/interfaces';
 import { StakingLedger } from '@polkadot/types/interfaces/staking';
 import { PalletStakingValidatorPrefs } from '@polkadot/types/lookup';
 import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react';
@@ -17,6 +18,7 @@ export interface StakingCtx {
   isStakingLedgerEmpty: boolean;
   isStashAccountOwner: boolean;
   isValidating: boolean;
+  isInElection: boolean;
   stakingDerive: DeriveStakingAccount | null;
   stakingOverview: DeriveStakingOverview | null;
   stashAccount: string;
@@ -83,6 +85,7 @@ export const StakingProvider = ({ children }: React.PropsWithChildren<unknown>) 
   const [isStakingDeriveLoading, setIsStakingDeriveLoading] = useState<boolean>(false);
   const [validators, setValidators] = useState<PalletStakingValidatorPrefs | null>(null);
   const [stakingOverview, setStakingOverview] = useState<DeriveStakingOverview | null>(null);
+  const [isInElection, setIsInElection] = useState<boolean>(false);
 
   const availableValidators = useMemo(() => {
     if (stakingOverview && stashAccounts) {
@@ -191,6 +194,14 @@ export const StakingProvider = ({ children }: React.PropsWithChildren<unknown>) 
   }, [account, accounts, api]);
 
   useEffect(() => {
+    const sub$$ = from<Promise<ElectionStatus>>(
+      api.query.staking?.eraElectionStatus ? api.query.staking.eraElectionStatus() : Promise.resolve({ isOpen: false })
+    ).subscribe((status: ElectionStatus) => setIsInElection(status.isOpen));
+    return sub$$.unsubscribe;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
     updateStakingDerive();
     updateValidators();
     updateStakingOverview();
@@ -207,6 +218,7 @@ export const StakingProvider = ({ children }: React.PropsWithChildren<unknown>) 
         isStakingLedgerEmpty,
         isStashAccountOwner,
         isValidating,
+        isInElection,
         stakingDerive,
         stakingOverview,
         stashAccount,

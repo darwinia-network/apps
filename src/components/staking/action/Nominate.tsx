@@ -2,7 +2,7 @@ import { Button, Select } from 'antd';
 import FormItem from 'antd/lib/form/FormItem';
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useAccount, useApi, useStaking } from '../../../hooks';
+import { useApi, useStaking } from '../../../hooks';
 import { STAKING_FAV_KEY, useFavorites } from '../../../hooks/favorites';
 import { FormModal } from '../../widget/FormModal';
 import { IdentAccountName } from '../../widget/account/IdentAccountName';
@@ -26,11 +26,17 @@ export function Nominate({
 }: StakingActionProps & { defaultSelects?: string[] }) {
   const { t } = useTranslation();
   const { api } = useApi();
-  const { isControllerAccountOwner } = useStaking();
   const [isVisible, setIsVisible] = useState(false);
-  const { account } = useAccount();
-  const { stashAccount, stakingDerive, stakingOverview, availableValidators, updateValidators, updateStakingDerive } =
-    useStaking();
+  const {
+    isInElection,
+    stashAccount,
+    stakingDerive,
+    stakingOverview,
+    controllerAccount,
+    availableValidators,
+    updateValidators,
+    updateStakingDerive,
+  } = useStaking();
   const [favorites] = useFavorites(STAKING_FAV_KEY);
 
   const defaultSelected = useMemo(
@@ -69,7 +75,7 @@ export function Nominate({
       <Button
         type={type}
         {...rest}
-        disabled={!isControllerAccountOwner || disabled}
+        disabled={disabled || isInElection || !controllerAccount || !stashAccount}
         onClick={() => {
           setIsVisible(true);
         }}
@@ -90,7 +96,8 @@ export function Nominate({
           updateValidators();
           updateStakingDerive();
         }}
-        initialValues={{ controller: account, stash: stashAccount, targets: defaultSelected }}
+        signer={controllerAccount}
+        initialValues={{ controller: controllerAccount, stash: stashAccount, targets: defaultSelected }}
         defaultValues={{ targets: defaultSelects }}
       >
         <AddressItem name="controller" label="Controller account" disabled={!defaultSelects} />
