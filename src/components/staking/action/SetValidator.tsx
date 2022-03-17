@@ -52,8 +52,8 @@ export function SetValidator({ disabled, type = 'text' }: StakingActionProps) {
           percentage: 1,
         }}
       >
-        <AddressItem name="stash" label="Stash account" disabled={true} />
-        <AddressItem name="controller" label="Controller account" disabled={true} />
+        <AddressItem name="stash" label="Stash account" disabled />
+        <AddressItem name="controller" label="Controller account" disabled />
 
         <FormItem
           name="percentage"

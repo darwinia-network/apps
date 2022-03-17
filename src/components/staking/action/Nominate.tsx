@@ -99,7 +99,7 @@ export function Nominate({
         defaultValues={{ targets: defaultSelects }}
       >
         <AddressItem name="controller" label="Controller account" disabled={!defaultSelects} />
-        <AddressItem name="stash" label="Stash account" disabled={true} />
+        <AddressItem name="stash" label="Stash account" disabled />
 
         <FormItem
           name="targets"

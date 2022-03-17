@@ -194,11 +194,10 @@ export const StakingProvider = ({ children }: React.PropsWithChildren<unknown>) 
   }, [account, accounts, api]);
 
   useEffect(() => {
-    if (api.query.staking?.eraElectionStatus) {
-      from<Promise<ElectionStatus>>(api.query.staking.eraElectionStatus()).subscribe((status: ElectionStatus) =>
-        setIsInElection(status.isOpen)
-      );
-    }
+    const sub$$ = from<Promise<ElectionStatus>>(
+      api.query.staking?.eraElectionStatus ? api.query.staking.eraElectionStatus() : Promise.resolve({ isOpen: false })
+    ).subscribe((status: ElectionStatus) => setIsInElection(status.isOpen));
+    return sub$$.unsubscribe;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

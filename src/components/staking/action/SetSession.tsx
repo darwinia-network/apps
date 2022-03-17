@@ -49,7 +49,7 @@ export function SetSession({ label, disabled, type = 'text', className = '' }: S
         signer={controllerAccount}
         initialValues={{ controller: controllerAccount }}
       >
-        <AddressItem name="controller" label="Controller account" disabled={true} extra={null} />
+        <AddressItem name="controller" label="Controller account" disabled extra={null} />
 
         {isSubstrateV2 ? (
           <FormItem
