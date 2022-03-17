@@ -21,6 +21,7 @@ export function Nominate({
   label,
   defaultSelects,
   disabled,
+  type = 'text',
   ...rest
 }: StakingActionProps & { defaultSelects?: string[] }) {
   const { t } = useTranslation();
@@ -66,6 +67,7 @@ export function Nominate({
   return (
     <>
       <Button
+        type={type}
         {...rest}
         disabled={!isControllerAccountOwner || disabled}
         onClick={() => {
