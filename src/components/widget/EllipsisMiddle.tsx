@@ -18,12 +18,12 @@ const ellipse = (parentNode: HTMLDivElement, childNode: HTMLSpanElement, txtNode
     const startRight = Math.ceil(txtChars / 2 + delEachSide);
     /* eslint-enable no-magic-numbers */
 
-    txtNode.setAttribute('data-original', txtNode.textContent as string);
     txtNode.textContent = str.slice(0, endLeft) + '...' + str.slice(startRight);
   }
 };
 
 interface EllipsisMiddleProps {
+  value?: string;
   className?: string;
   percent?: number;
   width?: number;
@@ -32,20 +32,20 @@ interface EllipsisMiddleProps {
 
 export function EllipsisMiddle({
   children,
+  value,
   className,
   width,
   copyable = false,
 }: PropsWithChildren<EllipsisMiddleProps>) {
   // eslint-disable-next-line complexity
-  const prepEllipse = (node: HTMLDivElement) => {
+  const prepEllipse = (node: HTMLDivElement, text?: string) => {
     const parent = node.parentNode!;
     const child = node.childNodes[0];
     const txtToEllipse = parent.querySelector('.ellipseMe') || child;
 
     if (child !== null && txtToEllipse !== null) {
-      // (Re)-set text back to data-original-text if it exists.
-      if ((txtToEllipse as HTMLElement).hasAttribute('data-original')) {
-        txtToEllipse.textContent = (txtToEllipse as HTMLElement).getAttribute('data-original');
+      if (text) {
+        txtToEllipse.textContent = text;
       }
 
       ellipse(
@@ -57,14 +57,17 @@ export function EllipsisMiddle({
     }
   };
 
-  const measuredParent = useCallback((node: HTMLDivElement) => {
-    if (node !== null) {
-      window.addEventListener('resize', () => {
-        prepEllipse(node);
-      });
-      prepEllipse(node);
-    }
-  }, []);
+  const measuredParent = useCallback(
+    (node: HTMLDivElement) => {
+      if (node !== null) {
+        window.addEventListener('resize', () => {
+          prepEllipse(node, value);
+        });
+        prepEllipse(node, value);
+      }
+    },
+    [value]
+  );
 
   return (
     <div
@@ -77,7 +80,7 @@ export function EllipsisMiddle({
       className={`${className}`}
     >
       <Typography.Text copyable={copyable} style={{ color: 'inherit' }} className="ellipseMe whitespace-nowrap">
-        {children}
+        {value || children}
       </Typography.Text>
     </div>
   );
