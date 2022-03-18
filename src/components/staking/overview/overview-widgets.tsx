@@ -5,7 +5,7 @@ import { EraRewardPoints, Perbill } from '@polkadot/types/interfaces';
 import { BN_ZERO } from '@polkadot/util';
 import { Tag } from 'antd';
 import { useMemo } from 'react';
-import { getAddressMeta, isSameAddress, formatNum } from '../../../utils';
+import { getAddressMeta, isSameAddress, prettyNumber } from '../../../utils';
 import { IdentAccountAddress } from '../../widget/account/IdentAccountAddress';
 import { IdentAccountName } from '../../widget/account/IdentAccountName';
 import { Favorite } from '../../widget/Favorite';
@@ -47,7 +47,7 @@ export function StakerOther() {
 
   return (
     <span>
-      {formatNum(count)} {`(${nominators?.length})`}
+      {prettyNumber(count, { decimal: 0 })} {`(${nominators?.length})`}
     </span>
   );
 }
@@ -80,7 +80,7 @@ export function StakerOwn() {
     return exposure?.ownPower;
   }, [stakingInfo]);
 
-  return !count || count.lt(BN_ZERO) ? null : <span>{formatNum(count)}</span>;
+  return !count || count.lt(BN_ZERO) ? null : <span>{prettyNumber(count, { decimal: 0 })}</span>;
 }
 
 function Commission({ value }: { value: Perbill | null | undefined }) {

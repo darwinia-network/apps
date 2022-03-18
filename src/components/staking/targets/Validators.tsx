@@ -11,7 +11,7 @@ import { IDeriveStakingElected } from '../../../api-derive';
 import { THEME } from '../../../config';
 import { useApi, useIsAccountFuzzyMatch, useIsMountedOperator } from '../../../hooks';
 import { STAKING_FAV_KEY, useFavorites } from '../../../hooks/favorites';
-import { prettyNumber, formatNum, readStorage } from '../../../utils';
+import { prettyNumber, readStorage } from '../../../utils';
 import { IdentAccountName } from '../../widget/account/IdentAccountName';
 import { Favorite } from '../../widget/Favorite';
 import { Nominate } from '../action';
@@ -154,7 +154,7 @@ export function Validators({ data, lastReward }: ValidatorsProps) {
       sorter(a, b) {
         return a.bondedTotal.sub(b.bondedTotal).toNumber();
       },
-      render: (value) => formatNum(value),
+      render: (value) => prettyNumber(value, { decimal: 0 }),
     },
     {
       title: t('own stake(power)'),
@@ -162,7 +162,7 @@ export function Validators({ data, lastReward }: ValidatorsProps) {
       sorter(a, b) {
         return a.bondedOwn.sub(b.bondedOwn).toNumber();
       },
-      render: (value) => formatNum(value),
+      render: (value) => prettyNumber(value, { decimal: 0 }),
     },
     {
       title: t('other stake(power)'),
@@ -173,7 +173,7 @@ export function Validators({ data, lastReward }: ValidatorsProps) {
       render(_, record) {
         return (
           <span>
-            {formatNum(record.bondedTotal.sub(record.bondedOwn))} ({record.nominatorCount})
+            {prettyNumber(record.bondedTotal.sub(record.bondedOwn), { decimal: 0 })} ({record.nominatorCount})
           </span>
         );
       },

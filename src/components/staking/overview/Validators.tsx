@@ -10,7 +10,7 @@ import { debounce } from 'lodash';
 import { MIDDLE_DURATION } from '../../../config';
 import { useApi, useIsMountedOperator, useStaking } from '../../../hooks';
 import { STAKING_FAV_KEY, useFavorites } from '../../../hooks/favorites';
-import { AccountWithClassifiedInfo, createClassifiedStakingOverview, formatNum } from '../../../utils';
+import { AccountWithClassifiedInfo, createClassifiedStakingOverview, prettyNumber } from '../../../utils';
 import { ChartLink } from '../ChartLink';
 import { HidablePanel } from '../HidablePanel';
 import { OverviewProvider } from './overview';
@@ -74,7 +74,7 @@ export function Validators({ overview }: ValidatorsProps) {
       )
       .subscribe((lastHeader) => {
         if (lastHeader?.number && lastHeader?.author) {
-          const blockNumber = formatNum(lastHeader.number.unwrap());
+          const blockNumber = prettyNumber(lastHeader.number.unwrap(), { decimal: 0 });
           const author = lastHeader.author.toString();
 
           setByAuthor({ [author]: blockNumber });

@@ -6,9 +6,11 @@ import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { from, switchMap } from 'rxjs';
 import { useAccount, useApi, useElectedNominators, useIsMountedOperator, useWaitingNominators } from '../../../hooks';
-import { fromWei, isKton, isRing, formatNum } from '../../../utils';
+import { fromWei, isKton, isRing, prettyNumber } from '../../../utils';
 import { Statistics } from '../../widget/Statistics';
 import { Validators } from './Validators';
+
+const formatNum = (value: string) => prettyNumber(value, { decimal: 0 });
 
 // eslint-disable-next-line complexity
 export function Targets() {
@@ -21,7 +23,7 @@ export function Targets() {
   const ktonSymbol = useMemo(() => assets.find((item) => isKton(item.asset))?.token.symbol ?? 'kton', [assets]);
   const total = useMemo(() => totalStaked.add(totalWaiting), [totalStaked, totalWaiting]);
   const validatorCount = useMemo(
-    () => (elected && waiting ? formatNum(elected.info.length + waiting.info.length) : '0'),
+    () => (elected && waiting ? prettyNumber(elected.info.length + waiting.info.length, { decimal: 0 }) : '0'),
     [elected, waiting]
   );
 
@@ -69,7 +71,7 @@ export function Targets() {
           <Statistics
             className="lg:border-r lg:justify-center"
             title={t('total staked(Power)')}
-            value={total ? formatNum(total) : <Spin />}
+            value={total ? prettyNumber(total, { decimal: 0 }) : <Spin />}
           />
           <Statistics
             className="lg:border-r lg:justify-center"
