@@ -197,7 +197,9 @@ export const StakingProvider = ({ children }: React.PropsWithChildren<unknown>) 
     const sub$$ = from<Promise<ElectionStatus>>(
       api.query.staking?.eraElectionStatus ? api.query.staking.eraElectionStatus() : Promise.resolve({ isOpen: false })
     ).subscribe((status: ElectionStatus) => setIsInElection(status.isOpen));
-    return sub$$.unsubscribe;
+    return () => {
+      sub$$.unsubscribe();
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
