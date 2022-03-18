@@ -1,5 +1,5 @@
 import { Typography } from 'antd';
-import { PropsWithChildren, useCallback, ReactNode } from 'react';
+import { PropsWithChildren, useCallback } from 'react';
 
 const ellipse = (parentNode: HTMLDivElement, childNode: HTMLSpanElement, txtNode: HTMLElement) => {
   const childWidth = childNode.offsetWidth;
@@ -18,12 +18,12 @@ const ellipse = (parentNode: HTMLDivElement, childNode: HTMLSpanElement, txtNode
     const startRight = Math.ceil(txtChars / 2 + delEachSide);
     /* eslint-enable no-magic-numbers */
 
-    txtNode.setAttribute('data-original', txtNode.textContent as string);
     txtNode.textContent = str.slice(0, endLeft) + '...' + str.slice(startRight);
   }
 };
 
 interface EllipsisMiddleProps {
+  value?: string;
   className?: string;
   percent?: number;
   width?: number;
@@ -32,19 +32,21 @@ interface EllipsisMiddleProps {
 
 export function EllipsisMiddle({
   children,
+  value,
   className,
   width,
   copyable = false,
 }: PropsWithChildren<EllipsisMiddleProps>) {
   // eslint-disable-next-line complexity
-  const prepEllipse = (node: HTMLDivElement, textContent: ReactNode) => {
+  const prepEllipse = (node: HTMLDivElement, text?: string) => {
     const parent = node.parentNode!;
     const child = node.childNodes[0];
     const txtToEllipse = parent.querySelector('.ellipseMe') || child;
 
     if (child !== null && txtToEllipse !== null) {
-      // (Re)-set text back to data-original-text if it exists.
-      txtToEllipse.textContent = textContent?.toString() || '';
+      if (text) {
+        txtToEllipse.textContent = text;
+      }
 
       ellipse(
         // Use the smaller width.
@@ -59,12 +61,12 @@ export function EllipsisMiddle({
     (node: HTMLDivElement) => {
       if (node !== null) {
         window.addEventListener('resize', () => {
-          prepEllipse(node, children);
+          prepEllipse(node, value);
         });
-        prepEllipse(node, children);
+        prepEllipse(node, value);
       }
     },
-    [children]
+    [value]
   );
 
   return (
@@ -78,7 +80,7 @@ export function EllipsisMiddle({
       className={`${className}`}
     >
       <Typography.Text copyable={copyable} style={{ color: 'inherit' }} className="ellipseMe whitespace-nowrap">
-        {children}
+        {value || children}
       </Typography.Text>
     </div>
   );

@@ -44,7 +44,7 @@ function Page() {
                   <List.Item.Meta
                     avatar={<Identicon value={item.address} size={40} className="border rounded-full p-1" />}
                     title={<span className="font-bold text-lg">{item.meta.name}</span>}
-                    description={<EllipsisMiddle>{item.address}</EllipsisMiddle>}
+                    description={<EllipsisMiddle value={item.address} />}
                     className="flex item-center"
                   />
 

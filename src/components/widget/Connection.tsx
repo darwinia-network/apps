@@ -69,9 +69,7 @@ export function Connection() {
                 logoStyle={{ width: 24 }}
                 isLargeRounded={false}
               >
-                <EllipsisMiddle className="text-white overflow-hidden mr-2" copyable>
-                  {account}
-                </EllipsisMiddle>
+                <EllipsisMiddle className="text-white overflow-hidden mr-2" copyable value={account} />
               </ActiveAccount>
 
               <span onClick={() => setIsAccountDetailVisible(true)} className="lg:hidden flex">

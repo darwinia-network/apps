@@ -104,7 +104,7 @@ export function ActiveAccount() {
                 />
                 <span className="flex flex-col leading-5 overflow-hidden">
                   <b>{item.meta?.name}</b>
-                  <EllipsisMiddle className="opacity-60 w-full">{item.address}</EllipsisMiddle>
+                  <EllipsisMiddle className="opacity-60 w-full" value={item.address} />
                 </span>
               </Radio.Button>
             ))}
