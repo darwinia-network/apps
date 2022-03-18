@@ -31,16 +31,18 @@ export function Deposit() {
   const { assets } = useAccount();
 
   const max = useMemo(() => {
-    const { stakingLedger } = stakingDerive!;
-    const locked = stakingLedger.activeDepositRing.toBn();
+    let ring = '0';
+    const stakingLedger = stakingDerive?.stakingLedger;
+    if (stakingLedger) {
+      const locked = stakingLedger.activeDepositRing.toBn();
 
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    const boundedRing = (stakingLedger.active || stakingLedger.activeRing).toBn().sub(locked);
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      const boundedRing = (stakingLedger.active || stakingLedger.activeRing).toBn().sub(locked);
 
-    return {
-      ring: boundedRing.toString(),
-    };
+      ring = boundedRing.toString();
+    }
+    return { ring };
   }, [stakingDerive]);
 
   return (
