@@ -69,7 +69,11 @@ export function prettyNumber(
   prefix = prefix.replace(/\d{1,3}(?=(\d{3})+(\.\d*)?$)/g, '$&,');
 
   const result =
-    +suffix !== 0 ? `${prefix}.${suffix}` : ignoreZeroDecimal ? prefix : `${prefix}.${'0'.padEnd(decimal!, '0')}`;
+    +suffix !== 0
+      ? `${prefix}.${suffix}`
+      : ignoreZeroDecimal || !decimal
+      ? prefix
+      : `${prefix}.${'0'.padEnd(decimal!, '0')}`;
 
   return +result === 0 ? '0' : result;
 }
