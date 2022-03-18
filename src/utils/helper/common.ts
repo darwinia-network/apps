@@ -60,3 +60,5 @@ export function prettyNumber(
 
   return +result === 0 ? '0' : result;
 }
+
+export const formatNum = (value: number | string | BN) => prettyNumber(value, { decimal: 0 });
