@@ -154,7 +154,7 @@ export function Validators({ data, lastReward }: ValidatorsProps) {
       sorter(a, b) {
         return a.bondedTotal.sub(b.bondedTotal).toNumber();
       },
-      render: (value) => prettyNumber(value),
+      render: (value) => prettyNumber(value, { decimal: 0 }),
     },
     {
       title: t('own stake(power)'),
@@ -162,7 +162,7 @@ export function Validators({ data, lastReward }: ValidatorsProps) {
       sorter(a, b) {
         return a.bondedOwn.sub(b.bondedOwn).toNumber();
       },
-      render: (value) => prettyNumber(value),
+      render: (value) => prettyNumber(value, { decimal: 0 }),
     },
     {
       title: t('other stake(power)'),
@@ -173,7 +173,7 @@ export function Validators({ data, lastReward }: ValidatorsProps) {
       render(_, record) {
         return (
           <span>
-            {prettyNumber(record.bondedTotal.sub(record.bondedOwn))} ({record.nominatorCount})
+            {prettyNumber(record.bondedTotal.sub(record.bondedOwn), { decimal: 0 })} ({record.nominatorCount})
           </span>
         );
       },

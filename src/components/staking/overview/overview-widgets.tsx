@@ -47,7 +47,7 @@ export function StakerOther() {
 
   return (
     <span>
-      {prettyNumber(count)} {`(${nominators?.length})`}
+      {prettyNumber(count, { decimal: 0 })} {`(${nominators?.length})`}
     </span>
   );
 }
@@ -80,7 +80,7 @@ export function StakerOwn() {
     return exposure?.ownPower;
   }, [stakingInfo]);
 
-  return !count || count.lt(BN_ZERO) ? null : <span>{prettyNumber(count)}</span>;
+  return !count || count.lt(BN_ZERO) ? null : <span>{prettyNumber(count, { decimal: 0 })}</span>;
 }
 
 function Commission({ value }: { value: Perbill | null | undefined }) {

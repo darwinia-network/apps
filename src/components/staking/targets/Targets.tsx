@@ -23,7 +23,7 @@ export function Targets() {
   const ktonSymbol = useMemo(() => assets.find((item) => isKton(item.asset))?.token.symbol ?? 'kton', [assets]);
   const total = useMemo(() => totalStaked.add(totalWaiting), [totalStaked, totalWaiting]);
   const validatorCount = useMemo(
-    () => (elected && waiting ? prettyNumber(elected.info.length + waiting.info.length) : '0'),
+    () => (elected && waiting ? prettyNumber(elected.info.length + waiting.info.length, { decimal: 0 }) : '0'),
     [elected, waiting]
   );
 
@@ -71,7 +71,7 @@ export function Targets() {
           <Statistics
             className="lg:border-r lg:justify-center"
             title={t('total staked(Power)')}
-            value={total ? prettyNumber(total) : <Spin />}
+            value={total ? prettyNumber(total, { decimal: 0 }) : <Spin />}
           />
           <Statistics
             className="lg:border-r lg:justify-center"

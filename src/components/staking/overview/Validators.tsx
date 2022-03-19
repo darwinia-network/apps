@@ -74,7 +74,7 @@ export function Validators({ overview }: ValidatorsProps) {
       )
       .subscribe((lastHeader) => {
         if (lastHeader?.number && lastHeader?.author) {
-          const blockNumber = prettyNumber(lastHeader.number.unwrap());
+          const blockNumber = prettyNumber(lastHeader.number.unwrap(), { decimal: 0 });
           const author = lastHeader.author.toString();
 
           setByAuthor({ [author]: blockNumber });
