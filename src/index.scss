@@ -34,6 +34,10 @@ body {
 .crab-dark-select,
 .pangoro-dark-select,
 .pangolin-dark-select {
+  .ant-select-selector {
+    padding: 0 !important;
+  }
+
   .ant-select-selection-item {
     display: flex;
     text-transform: capitalize;
@@ -57,7 +61,6 @@ body {
 .darwinia-dark-select .ant-select-selector {
   background-origin: border-box;
   background-clip: content-box, border-box;
-  padding: 0 !important;
   border-color: transparent !important;
 }
 
