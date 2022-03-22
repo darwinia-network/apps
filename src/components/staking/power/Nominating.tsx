@@ -7,6 +7,7 @@ import { from, takeWhile } from 'rxjs';
 import { DeriveStakingQuery } from '../../../api-derive/types';
 import { useApi, useIsMounted, useStaking } from '../../../hooks';
 import { IdentAccountName } from '../../widget/account/IdentAccountName';
+import { prettyNumber } from '../../../utils';
 
 interface NominateItemProps {
   source: [string, Power | null][];
@@ -24,7 +25,9 @@ function NominateItem({ source }: NominateItemProps) {
       {source.map(([account, power], index) => (
         <div className="flex justify-between items-center border-b dark:border-gray-700 py-2" key={index}>
           <IdentAccountName account={account} />
-          <span>{t('{{amount}} Power', { amount: isNull(power) ? 0 : power })}</span>
+          <span>
+            {t('{{amount}} Power', { amount: isNull(power) ? 0 : prettyNumber(power.toString(), { decimal: 0 }) })}
+          </span>
         </div>
       ))}
     </>
