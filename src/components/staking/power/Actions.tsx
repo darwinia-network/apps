@@ -80,7 +80,7 @@ export function Actions({ eraSelectionIndex, disabled }: ActionsProps) {
           {!sessionAccounts.length || nextSessionAccount === '0x' ? (
             <SetSession type="default" className="w-full lg:w-auto" disabled={disabled} />
           ) : (
-            <SetValidator type="default" className="w-full lg:w-auto" disabled={disabled} />
+            <SetValidator type="default" className="w-full lg:w-auto" disabled={disabled} label="Validator" />
           )}
           <Nominate type="default" className="w-full lg:w-auto" disabled={disabled} />
         </>

@@ -18,20 +18,20 @@ interface SetValidatorFormValues {
 
 const COMM_MUL = 10000000;
 
-export function SetValidator({ disabled, type = 'text' }: StakingActionProps) {
+export function SetValidator({ disabled, label, type = 'text' }: StakingActionProps) {
   const { t } = useTranslation();
   const { api } = useApi();
-  const { isInElection, controllerAccount, stashAccount, isValidating } = useStaking();
+  const { isInElection, controllerAccount, stashAccount } = useStaking();
   const [isVisible, setIsVisible] = useState(false);
 
-  return isValidating ? (
+  return (
     <>
       <Button
         disabled={disabled || isInElection || !controllerAccount || !stashAccount}
         type={type}
         onClick={() => setIsVisible(true)}
       >
-        {t('Change validator preferences')}
+        {t(label ?? 'Change validator preferences')}
       </Button>
       <FormModal<SetValidatorFormValues>
         modalProps={{ visible: isVisible, title: t('Bonding preferences') }}
@@ -78,5 +78,5 @@ export function SetValidator({ disabled, type = 'text' }: StakingActionProps) {
         </FormItem>
       </FormModal>
     </>
-  ) : null;
+  );
 }
