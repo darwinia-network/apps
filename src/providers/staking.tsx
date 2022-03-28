@@ -25,6 +25,7 @@ export interface StakingCtx {
   stashAccounts: string[];
   updateStakingDerive: () => void;
   updateValidators: () => void;
+  updateControllerAndStash: () => void;
   validators: PalletStakingValidatorPrefs | null;
 }
 
@@ -157,7 +158,7 @@ export const StakingProvider = ({ children }: React.PropsWithChildren<unknown>) 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  useEffect(() => {
+  const updateControllerAndStash = useCallback(() => {
     if (!account) {
       return;
     }
@@ -168,7 +169,7 @@ export const StakingProvider = ({ children }: React.PropsWithChildren<unknown>) 
         from<Promise<Option<StakingLedger>>>(api.query.staking.ledger(address)),
       ]);
 
-    const sub$$ = getSource(account)
+    getSource(account)
       .pipe(
         map(([bonded, ledger]) => getControllerAccount(account, bonded, ledger)),
         switchMap((controller) =>
@@ -187,11 +188,11 @@ export const StakingProvider = ({ children }: React.PropsWithChildren<unknown>) 
         setStashAccount(stash);
         setIsStashAccountOwner(is);
       });
+  }, [account, api]);
 
-    return () => {
-      sub$$.unsubscribe();
-    };
-  }, [account, accounts, api]);
+  useEffect(() => {
+    updateControllerAndStash();
+  }, [updateControllerAndStash]);
 
   useEffect(() => {
     const sub$$ = from<Promise<ElectionStatus>>(
@@ -227,6 +228,7 @@ export const StakingProvider = ({ children }: React.PropsWithChildren<unknown>) 
         stashAccounts,
         updateStakingDerive,
         updateValidators,
+        updateControllerAndStash,
         validators,
       }}
     >
