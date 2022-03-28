@@ -3,7 +3,7 @@ import { Button } from 'antd';
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { from } from 'rxjs';
-import { useApi, useStaking } from '../../../hooks';
+import { useApi, useStaking, useAccount } from '../../../hooks';
 import { Fund } from '../../../model';
 import { fundParam } from '../../../utils';
 import { AddressItem } from '../../widget/form-control/AddressItem';
@@ -26,6 +26,7 @@ export function BondMore() {
   const { t } = useTranslation();
   const { api } = useApi();
   const [isVisible, setIsVisible] = useState(false);
+  const { getBalances } = useAccount();
   const { stashAccount, updateValidators, updateStakingDerive } = useStaking();
   const [balances, setBalances] = useState<DeriveBalancesAll | null>(null);
   const [selectedAsset, setSelectedAsset] = useState<Fund | null>(null);
@@ -62,6 +63,7 @@ export function BondMore() {
           setIsVisible(false);
           updateValidators();
           updateStakingDerive();
+          getBalances();
         }}
         initialValues={{ stash: stashAccount, promiseMonth: 0, accept: false }}
       >
