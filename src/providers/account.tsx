@@ -1,7 +1,7 @@
 import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react';
 import { from } from 'rxjs';
 import { useApi } from '../hooks';
-import { NETWORKS_TOKENS } from '../config';
+import { SYSTEM_NETWORK_CONFIGURATIONS } from '../config';
 import { Asset, DarwiniaAsset, IAccountMeta, Token, Network } from '../model';
 import { convertToSS58, getDarwiniaBalances, isSameAddress, readStorage, updateStorage } from '../utils';
 
@@ -14,8 +14,8 @@ export interface AccountCtx {
 }
 
 const getToken = (tokens: Token[], network: Network, target: DarwiniaAsset) => {
-  const networkTokens = NETWORKS_TOKENS[network];
-  const result = tokens.find((token) => networkTokens && token.symbol === networkTokens[target]);
+  const networkTokens = SYSTEM_NETWORK_CONFIGURATIONS.find((v) => v.name === network)?.tokens;
+  const result = tokens.find((token) => networkTokens && token.symbol === networkTokens[target].symbol);
   const unknown: Token = { symbol: 'unknown', decimal: '9' };
 
   return result || unknown;
