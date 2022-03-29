@@ -31,4 +31,8 @@ export const pangolinConfig: DVMChainConfig = {
   },
   ss58Prefix: 42,
   type: ['polkadot', 'darwinia'],
+  tokens: {
+    ring: { decimal: '9', symbol: 'PRING' },
+    kton: { decimal: '9', symbol: 'PKTON' },
+  },
 };

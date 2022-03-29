@@ -17,4 +17,8 @@ export const darwiniaConfig: PolkadotChainConfig = {
   },
   ss58Prefix: 18,
   type: ['polkadot', 'darwinia'],
+  tokens: {
+    ring: { decimal: '9', symbol: 'RING' },
+    kton: { decimal: '9', symbol: 'KTON' },
+  },
 };
