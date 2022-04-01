@@ -36,7 +36,6 @@ export function ActiveAccount() {
     network,
   } = useApi();
   const { t } = useTranslation();
-  const [selected, setSelected] = useState<string>();
   const { account, setAccount } = useAccount();
   const [isVisible, setIsVisible] = useState(false);
   const displayAccounts = useMemo(
@@ -78,36 +77,20 @@ export function ActiveAccount() {
         maskClosable={false}
         onCancel={() => setIsVisible(false)}
         bodyStyle={{
-          maxHeight: '50vh',
+          maxHeight: '70vh',
           overflow: 'scroll',
         }}
-        footer={
-          accounts?.length
-            ? [
-                <Button
-                  key="primary-btn"
-                  type="primary"
-                  size="large"
-                  onClick={() => {
-                    if (selected && selected !== account) {
-                      setAccount(selected);
-                    }
-                    setIsVisible(false);
-                  }}
-                  className="block mx-auto w-full border-none rounded-lg"
-                >
-                  {t('Confirm')}
-                </Button>,
-              ]
-            : null
-        }
+        footer={null}
       >
         {accounts?.length ? (
           <Radio.Group
             className="w-full"
             defaultValue={account}
             onChange={(event) => {
-              setSelected(event.target.value);
+              if (event.target.value !== account) {
+                setAccount(event.target.value);
+              }
+              setIsVisible(false);
             }}
           >
             {displayAccounts.map((item) => (
