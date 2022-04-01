@@ -26,7 +26,7 @@ function ActiveAccount({
   onClick?: React.MouseEventHandler<HTMLDivElement>;
 }>) {
   const { network } = useApi();
-  const { accountWithMeta } = useAccount();
+  const { name } = useAccount();
   const containerCls = useMemo(
     () =>
       `flex items-center justify-between leading-normal whitespace-nowrap p-1 overflow-hidden bg-${network.name} 
@@ -39,7 +39,7 @@ function ActiveAccount({
     <div className={containerCls} onClick={onClick} style={containerStyle || {}}>
       <img src={`/image/${network.name}-1.svg`} style={logoStyle || { width: 24 }} alt="" />
       <Typography.Text className="mx-2" style={{ color: 'inherit', maxWidth: '64px' }} ellipsis={true}>
-        {accountWithMeta.meta.name}
+        {name}
       </Typography.Text>
       {children}
     </div>

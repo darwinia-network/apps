@@ -1,11 +1,12 @@
 import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react';
 import { from } from 'rxjs';
-import { useApi } from '../hooks';
+import { useApi, useAccountName } from '../hooks';
 import { SYSTEM_NETWORK_CONFIGURATIONS } from '../config';
 import { Asset, DarwiniaAsset, IAccountMeta, Token, Network } from '../model';
 import { convertToSS58, getDarwiniaBalances, isSameAddress, readStorage, updateStorage } from '../utils';
 
 export interface AccountCtx {
+  name: string;
   account: string;
   setAccount: (account: string) => void;
   accountWithMeta: IAccountMeta;
@@ -31,6 +32,7 @@ export const AccountProvider = ({ children }: React.PropsWithChildren<unknown>) 
     () => connection.accounts.find((item) => isSameAddress(item.address, account)) ?? connection.accounts[0],
     [account, connection]
   );
+  const { name } = useAccountName(accountWithMeta.address, accountWithMeta.meta.name);
 
   const getBalances = useCallback(
     // eslint-disable-next-line complexity
@@ -117,6 +119,7 @@ export const AccountProvider = ({ children }: React.PropsWithChildren<unknown>) 
   return (
     <AccountContext.Provider
       value={{
+        name,
         account,
         accountWithMeta,
         assets,

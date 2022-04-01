@@ -3,11 +3,31 @@ import BaseIdentityIcon from '@polkadot/react-identicon';
 import { Button, Empty, Modal, Radio, Tooltip } from 'antd';
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useAccount, useApi } from '../../../hooks';
+import { useAccount, useApi, useAccountName } from '../../../hooks';
 import { convertToSS58 } from '../../../utils';
 import { EllipsisMiddle } from '../EllipsisMiddle';
+import { IAccountMeta } from '../../../model';
 
 const iconSize = 36;
+
+const AccountWithIdentify = ({ value }: { value: IAccountMeta }) => {
+  const { name } = useAccountName(value.address, value.meta.name);
+
+  return (
+    <>
+      <BaseIdentityIcon
+        theme="substrate"
+        size={iconSize}
+        className="mr-2 rounded-full border border-solid border-gray-100"
+        value={value.address}
+      />
+      <span className="flex flex-col leading-5 overflow-hidden">
+        <b>{name}</b>
+        <EllipsisMiddle className="opacity-60 w-full" value={value.address} />
+      </span>
+    </>
+  );
+};
 
 // eslint-disable-next-line complexity
 export function ActiveAccount() {
@@ -96,16 +116,7 @@ export function ActiveAccount() {
                 key={item.address}
                 className={`radio-list account-select-btn-group-${network.name}`}
               >
-                <BaseIdentityIcon
-                  theme="substrate"
-                  size={iconSize}
-                  className="mr-2 rounded-full border border-solid border-gray-100"
-                  value={item.address}
-                />
-                <span className="flex flex-col leading-5 overflow-hidden">
-                  <b>{item.meta?.name}</b>
-                  <EllipsisMiddle className="opacity-60 w-full" value={item.address} />
-                </span>
+                <AccountWithIdentify value={item} />
               </Radio.Button>
             ))}
           </Radio.Group>
