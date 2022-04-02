@@ -1,9 +1,8 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import BaseIdentityIcon from '@polkadot/react-identicon';
 import { Button, Empty, Modal, Radio } from 'antd';
 import { useTranslation } from 'react-i18next';
 import { useApi } from '../../../hooks';
-import { convertToSS58 } from '../../../utils';
 import { EllipsisMiddle } from '../EllipsisMiddle';
 import { IAccountMeta } from '../../../model';
 import { AccountName } from './AccountName';
@@ -42,10 +41,6 @@ export const SelectAccountModal: React.FC<Props> = ({ visible, defaultValue, tit
     network,
   } = useApi();
   const { t } = useTranslation();
-  const displayAccounts = useMemo(
-    () => accounts.map((item) => ({ ...item, address: convertToSS58(item.address, network.ss58Prefix) })),
-    [accounts, network.ss58Prefix]
-  );
 
   return (
     <Modal
@@ -62,7 +57,7 @@ export const SelectAccountModal: React.FC<Props> = ({ visible, defaultValue, tit
     >
       {accounts?.length ? (
         <Radio.Group className="w-full" defaultValue={defaultValue} onChange={(event) => onSelect(event.target.value)}>
-          {displayAccounts.map((item) => (
+          {accounts.map((item) => (
             <Radio.Button
               value={item.address}
               key={item.address}
