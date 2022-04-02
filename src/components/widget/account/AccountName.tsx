@@ -4,13 +4,14 @@ import { TypeRegistry } from '@polkadot/types/create';
 import { AccountId, AccountIndex, Address } from '@polkadot/types/interfaces';
 import { stringToU8a } from '@polkadot/util';
 import { isFunction } from 'lodash';
-import { ReactNode, useEffect, useState } from 'react';
+import { ReactNode, useEffect, useState, forwardRef } from 'react';
 import { from } from 'rxjs';
 import { useApi } from '../../../hooks';
 import { getAddressName } from '../../../utils';
 
 interface AccountNameProps {
   account: string;
+  className?: string;
 }
 
 const registry = new TypeRegistry();
@@ -122,7 +123,7 @@ function extractIdentity(address: string, identity: DeriveAccountRegistration): 
   return elem;
 }
 
-export function AccountName({ account }: AccountNameProps) {
+export const AccountName = forwardRef<HTMLSpanElement, AccountNameProps>(({ account, className }, ref) => {
   const [name, setName] = useState<ReactNode>(account);
   const { api } = useApi();
 
@@ -149,5 +150,9 @@ export function AccountName({ account }: AccountNameProps) {
     return () => sub$$.unsubscribe();
   }, [account, api]);
 
-  return <span>{name}</span>;
-}
+  return (
+    <span ref={ref} className={className}>
+      {name}
+    </span>
+  );
+});
