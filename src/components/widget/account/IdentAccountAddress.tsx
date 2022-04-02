@@ -1,7 +1,7 @@
 import Identicon from '@polkadot/react-identicon';
 import { IAccountMeta } from '../../../model';
 import { EllipsisMiddle } from '../EllipsisMiddle';
-import { useAccountName } from '../../../hooks';
+import { AccountName } from '../../../components/widget/account/AccountName';
 
 interface IdentAccountProps {
   account: IAccountMeta | undefined;
@@ -12,8 +12,6 @@ interface IdentAccountProps {
 const defaultSize = 32;
 
 export function IdentAccountAddress({ account, className = '', iconSize = defaultSize }: IdentAccountProps) {
-  const { name } = useAccountName(account?.address || '', account?.meta.name);
-
   if (!account) {
     return null;
   }
@@ -21,8 +19,8 @@ export function IdentAccountAddress({ account, className = '', iconSize = defaul
 
   return (
     <div className={`flex items-center ${className}`}>
-      <Identicon size={iconSize} value={address} className="rounded-full border border-gray-100" />
-      {name && <span className="ml-2">{name}</span>}
+      <Identicon size={iconSize} value={address} className="rounded-full border border-gray-100 mr-1" />
+      <AccountName account={address} />
       <span className="mx-1">-</span>
       <EllipsisMiddle className="lg:w-full w-1/2 dark:text-gray-700" value={address} />
     </div>

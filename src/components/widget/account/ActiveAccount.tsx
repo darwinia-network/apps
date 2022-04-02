@@ -3,16 +3,15 @@ import BaseIdentityIcon from '@polkadot/react-identicon';
 import { Button, Empty, Modal, Radio, Tooltip } from 'antd';
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useAccount, useApi, useAccountName } from '../../../hooks';
+import { useAccount, useApi } from '../../../hooks';
 import { convertToSS58 } from '../../../utils';
 import { EllipsisMiddle } from '../EllipsisMiddle';
 import { IAccountMeta } from '../../../model';
+import { AccountName } from './AccountName';
 
 const iconSize = 36;
 
 const AccountWithIdentify = ({ value }: { value: IAccountMeta }) => {
-  const { name } = useAccountName(value.address, value.meta.name);
-
   return (
     <>
       <BaseIdentityIcon
@@ -22,7 +21,7 @@ const AccountWithIdentify = ({ value }: { value: IAccountMeta }) => {
         value={value.address}
       />
       <span className="flex flex-col leading-5 overflow-hidden">
-        <b>{name}</b>
+        <AccountName account={value.address} />
         <EllipsisMiddle className="opacity-60 w-full" value={value.address} />
       </span>
     </>
