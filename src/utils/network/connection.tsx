@@ -51,6 +51,8 @@ export const getPolkadotConnection: (network: ChainConfig) => Observable<Polkado
         const injectedAddress = injected.map((item) => item.address);
         const source = keys.filter((key) => !injectedAddress.includes(key));
 
+        injected.forEach((item) => keyring.saveAddress(item.address, item.meta));
+
         const local: IAccountMeta[] = source.map((address) => {
           const meta = getAddressMeta(address);
 
