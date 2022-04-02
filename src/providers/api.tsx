@@ -3,6 +3,7 @@ import { Alert } from 'antd';
 import { createContext, useCallback, useEffect, useMemo, useReducer, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { EMPTY, Subscription } from 'rxjs';
+import keyring from '@polkadot/ui-keyring';
 import { BallScalePulse } from '../components/widget/BallScalePulse';
 import { crabConfig, THEME } from '../config';
 import {
@@ -53,10 +54,14 @@ function accountReducer(state: StoreState, action: Action<ActionType, any>): Sto
         ...state,
         connection: {
           ...rest,
-          accounts: accounts.map((item) => ({
-            ...item,
-            address: convertToSS58(item.address, state.network.ss58Prefix),
-          })),
+          accounts: accounts.map((item) => {
+            const address = convertToSS58(item.address, state.network.ss58Prefix);
+            keyring.saveAddress(address, item.meta);
+            return {
+              ...item,
+              address,
+            };
+          }),
         },
       };
     }

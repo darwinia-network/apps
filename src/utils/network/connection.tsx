@@ -29,7 +29,6 @@ import {
   IAccountMeta,
   PolkadotConnection,
 } from '../../model';
-import { getAddressMeta } from '../helper';
 import { entrance } from './entrance';
 import { isMetamaskInstalled, isNetworkConsistent } from './network';
 import { switchMetamaskNetwork } from './switch';
@@ -51,10 +50,8 @@ export const getPolkadotConnection: (network: ChainConfig) => Observable<Polkado
         const injectedAddress = injected.map((item) => item.address);
         const source = keys.filter((key) => !injectedAddress.includes(key));
 
-        injected.forEach((item) => keyring.saveAddress(item.address, item.meta));
-
         const local: IAccountMeta[] = source.map((address) => {
-          const meta = getAddressMeta(address);
+          const meta = injected.find((item) => item.address === address)?.meta || {};
 
           return {
             address,

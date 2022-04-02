@@ -124,7 +124,7 @@ function extractIdentity(address: string, identity: DeriveAccountRegistration): 
 }
 
 export const AccountName = forwardRef<HTMLSpanElement, AccountNameProps>(({ account, className }, ref) => {
-  const [name, setName] = useState<ReactNode>(account);
+  const [name, setName] = useState<ReactNode>(() => extractName(account));
   const { api } = useApi();
 
   useEffect(() => {
