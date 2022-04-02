@@ -1,11 +1,15 @@
 import { ApiPromise, SubmittableResult } from '@polkadot/api';
 import { SubmittableExtrinsic } from '@polkadot/api/types';
 import { Button, Tooltip } from 'antd';
-import { useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { QuestionCircleFilled } from '@ant-design/icons';
+import { Subject } from 'rxjs';
 import { PayoutValidator, useApi, useStakingRewards, useAccount } from '../../../hooks';
 import { useTx } from '../../../hooks/tx';
 import { fromWei, prettyNumber, signAndSendExtrinsic } from '../../../utils';
+import { SelectAccountModal } from '../../widget/account/SelectAccountModal';
+import { Tx } from '../../../model';
 import { StakingActionProps } from './interface';
 
 interface ClaimRewardsProps extends StakingActionProps {
@@ -47,31 +51,83 @@ const createPayout = (
 
 export function ClaimRewards({ eraSelectionIndex, type = 'text' }: ClaimRewardsProps) {
   const { t } = useTranslation();
-  const { api } = useApi();
+  const {
+    api,
+    connection: { accounts },
+  } = useApi();
   const { txProcessObserver } = useTx();
   const { account } = useAccount();
   const { stakingRewards, payoutValidators } = useStakingRewards(eraSelectionIndex);
   const hasPayoutValidator = useMemo(() => payoutValidators && payoutValidators.length, [payoutValidators]);
+  const [isVisible, setIsVisible] = useState(false);
+  const [signer, setSigner] = useState(account);
+  const [loading, setLoading] = useState<boolean>(false);
+  const subject = useMemo(() => new Subject<Tx>(), []);
+
+  useEffect(() => {
+    subject.subscribe({
+      complete: () => {
+        setLoading(false);
+        setIsVisible(false);
+      },
+      error: () => setLoading(false),
+    });
+    subject.subscribe(txProcessObserver);
+
+    return () => subject.unsubscribe();
+  }, [subject, txProcessObserver]);
 
   return (
-    <Tooltip
-      title={
-        stakingRewards.payoutEras.length
-          ? t('Unclaimed {{amount}}', { amount: fromWei({ value: stakingRewards.payoutTotal }, prettyNumber) })
-          : ''
-      }
-    >
-      <Button
-        type={type}
-        disabled={!hasPayoutValidator}
-        onClick={() => {
-          const extrinsic = createPayout(api, payoutValidators);
-
-          signAndSendExtrinsic(api, account, extrinsic).subscribe(txProcessObserver);
-        }}
+    <>
+      <Tooltip
+        title={
+          stakingRewards.payoutEras.length
+            ? t('Unclaimed {{amount}}', { amount: fromWei({ value: stakingRewards.payoutTotal }, prettyNumber) })
+            : ''
+        }
       >
-        <span>{t('Claim Reward')}</span>
-      </Button>
-    </Tooltip>
+        <Button type={type} disabled={!hasPayoutValidator} onClick={() => setIsVisible(true)}>
+          <span>{t('Claim Reward')}</span>
+        </Button>
+      </Tooltip>
+      <SelectAccountModal
+        visible={isVisible}
+        defaultValue={account}
+        onCancel={() => setIsVisible(false)}
+        onSelect={(acc) => {
+          setSigner(acc);
+        }}
+        title={
+          <div className="inline-flex items-center space-x-1">
+            <span>{t('Select a signer')}</span>
+            <Tooltip
+              title={`If your account in the old version cannot be found in your wallet, you can restore JSON which the account in the old version Apps through "Account Migration" and add the JSON to polkadot{.js}.`}
+            >
+              <QuestionCircleFilled className="cursor-pointer text-gray-400" />
+            </Tooltip>
+          </div>
+        }
+        footer={
+          accounts?.length
+            ? [
+                <Button
+                  key="primary-btn"
+                  type="primary"
+                  size="large"
+                  loading={loading}
+                  onClick={() => {
+                    setLoading(true);
+                    const extrinsic = createPayout(api, payoutValidators);
+                    signAndSendExtrinsic(api, signer, extrinsic).subscribe(subject);
+                  }}
+                  className="block mx-auto w-full border-none rounded-lg"
+                >
+                  {t('Confirm')}
+                </Button>,
+              ]
+            : null
+        }
+      />
+    </>
   );
 }
