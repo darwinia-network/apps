@@ -3,7 +3,7 @@ import { SubmittableExtrinsic } from '@polkadot/api/types';
 import { Button, Tooltip } from 'antd';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { PayoutValidator, useApi, useStaking, useStakingRewards } from '../../../hooks';
+import { PayoutValidator, useApi, useStakingRewards, useAccount } from '../../../hooks';
 import { useTx } from '../../../hooks/tx';
 import { fromWei, prettyNumber, signAndSendExtrinsic } from '../../../utils';
 import { StakingActionProps } from './interface';
@@ -48,8 +48,8 @@ const createPayout = (
 export function ClaimRewards({ eraSelectionIndex, type = 'text' }: ClaimRewardsProps) {
   const { t } = useTranslation();
   const { api } = useApi();
-  const { controllerAccount } = useStaking();
   const { txProcessObserver } = useTx();
+  const { account } = useAccount();
   const { stakingRewards, payoutValidators } = useStakingRewards(eraSelectionIndex);
   const hasPayoutValidator = useMemo(() => payoutValidators && payoutValidators.length, [payoutValidators]);
 
@@ -67,7 +67,7 @@ export function ClaimRewards({ eraSelectionIndex, type = 'text' }: ClaimRewardsP
         onClick={() => {
           const extrinsic = createPayout(api, payoutValidators);
 
-          signAndSendExtrinsic(api, controllerAccount, extrinsic).subscribe(txProcessObserver);
+          signAndSendExtrinsic(api, account, extrinsic).subscribe(txProcessObserver);
         }}
       >
         <span>{t('Claim Reward')}</span>
