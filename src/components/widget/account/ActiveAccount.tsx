@@ -6,8 +6,27 @@ import { useTranslation } from 'react-i18next';
 import { useAccount, useApi } from '../../../hooks';
 import { convertToSS58 } from '../../../utils';
 import { EllipsisMiddle } from '../EllipsisMiddle';
+import { IAccountMeta } from '../../../model';
+import { AccountName } from './AccountName';
 
 const iconSize = 36;
+
+const AccountWithIdentify = ({ value }: { value: IAccountMeta }) => {
+  return (
+    <>
+      <BaseIdentityIcon
+        theme="substrate"
+        size={iconSize}
+        className="mr-2 rounded-full border border-solid border-gray-100"
+        value={value.address}
+      />
+      <span className="flex flex-col leading-5 overflow-hidden">
+        <AccountName account={value.address} />
+        <EllipsisMiddle className="opacity-60 w-full" value={value.address} />
+      </span>
+    </>
+  );
+};
 
 // eslint-disable-next-line complexity
 export function ActiveAccount() {
@@ -16,7 +35,6 @@ export function ActiveAccount() {
     network,
   } = useApi();
   const { t } = useTranslation();
-  const [selected, setSelected] = useState<string>();
   const { account, setAccount } = useAccount();
   const [isVisible, setIsVisible] = useState(false);
   const displayAccounts = useMemo(
@@ -58,36 +76,20 @@ export function ActiveAccount() {
         maskClosable={false}
         onCancel={() => setIsVisible(false)}
         bodyStyle={{
-          maxHeight: '50vh',
+          maxHeight: '70vh',
           overflow: 'scroll',
         }}
-        footer={
-          accounts?.length
-            ? [
-                <Button
-                  key="primary-btn"
-                  type="primary"
-                  size="large"
-                  onClick={() => {
-                    if (selected && selected !== account) {
-                      setAccount(selected);
-                    }
-                    setIsVisible(false);
-                  }}
-                  className="block mx-auto w-full border-none rounded-lg"
-                >
-                  {t('Confirm')}
-                </Button>,
-              ]
-            : null
-        }
+        footer={null}
       >
         {accounts?.length ? (
           <Radio.Group
             className="w-full"
             defaultValue={account}
             onChange={(event) => {
-              setSelected(event.target.value);
+              if (event.target.value !== account) {
+                setAccount(event.target.value);
+              }
+              setIsVisible(false);
             }}
           >
             {displayAccounts.map((item) => (
@@ -96,16 +98,7 @@ export function ActiveAccount() {
                 key={item.address}
                 className={`radio-list account-select-btn-group-${network.name}`}
               >
-                <BaseIdentityIcon
-                  theme="substrate"
-                  size={iconSize}
-                  className="mr-2 rounded-full border border-solid border-gray-100"
-                  value={item.address}
-                />
-                <span className="flex flex-col leading-5 overflow-hidden">
-                  <b>{item.meta?.name}</b>
-                  <EllipsisMiddle className="opacity-60 w-full" value={item.address} />
-                </span>
+                <AccountWithIdentify value={item} />
               </Radio.Button>
             ))}
           </Radio.Group>
