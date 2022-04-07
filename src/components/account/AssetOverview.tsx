@@ -1,5 +1,7 @@
 import { Button, Card, Form } from 'antd';
-import { useMemo, useState } from 'react';
+import { DeriveBalancesAll } from '@polkadot/api-derive/types';
+import { BN_HUNDRED, BN, isFunction } from '@polkadot/util';
+import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAccount, useApi } from '../../hooks';
 import { AssetOverviewProps } from '../../model';
@@ -24,12 +26,49 @@ export function AssetOverview({ asset, refresh }: AssetOverviewProps) {
     connection: { accounts },
   } = useApi();
   const { account } = useAccount();
+  const [recipient, setRecipient] = useState<string>(accounts[0]?.address);
   const [isVisible, setIsVisible] = useState(false);
+  const [balances, setBalances] = useState<DeriveBalancesAll | null>(null);
+  const [maxTransfer, setMaxTransfer] = useState<BN | null>(null);
 
   const tokenIconSrc = useMemo(
     () => `/image/token-${(asset.token?.symbol || 'RING').toLowerCase()}.svg`,
     [asset.token?.symbol]
   );
+
+  useEffect(() => {
+    api.derive.balances
+      .all(account)
+      .then((res) => setBalances(res))
+      .catch(console.error);
+  }, [api, account]);
+
+  useEffect(() => {
+    const fromId = account;
+    const toId = recipient;
+
+    if (balances && balances.accountId?.eq(fromId) && toId && isFunction(api.rpc.payment?.queryInfo)) {
+      setTimeout((): void => {
+        try {
+          api.tx.balances
+            ?.transfer(toId, balances.availableBalance)
+            .paymentInfo(fromId)
+            .then(({ partialFee }: { partialFee: BN }): void => {
+              // eslint-disable-next-line no-magic-numbers
+              const adjFee = partialFee.muln(110).div(BN_HUNDRED);
+              const max = balances.availableBalance.sub(adjFee);
+
+              setMaxTransfer(max.gt(api.consts.balances?.existentialDeposit) ? max : null);
+            })
+            .catch(console.error);
+        } catch (error) {
+          console.error((error as Error).message);
+        }
+      }, 0);
+    } else {
+      setMaxTransfer(null);
+    }
+  }, [api, balances, account, recipient]);
 
   return (
     <>
@@ -81,9 +120,9 @@ export function AssetOverview({ asset, refresh }: AssetOverviewProps) {
           label={'Send from account'}
           extra={
             <span className="ml-4 mt-2 text-xs">
-              <span className="mr-2">{t('Available Balance')}:</span>
+              <span className="mr-2">{t('Max Transferrable')}:</span>
               <span>
-                {fromWei({ value: asset.max, unit: getUnit(Number(asset.token?.decimal)) || 'gwei' })}{' '}
+                {fromWei({ value: maxTransfer, unit: getUnit(Number(asset.token?.decimal)) || 'gwei' })}{' '}
                 {asset.token?.symbol}
               </span>
             </span>
@@ -97,6 +136,7 @@ export function AssetOverview({ asset, refresh }: AssetOverviewProps) {
           rules={[
             {
               validator(_, value) {
+                setRecipient(value);
                 return !isSameAddress(account, value) ? Promise.resolve() : Promise.reject();
               },
               message: t('The sending address and the receiving address cannot be the same'),
@@ -108,7 +148,7 @@ export function AssetOverview({ asset, refresh }: AssetOverviewProps) {
         <Form.Item
           name="amount"
           label={t('Amount')}
-          rules={[{ required: true }, insufficientBalanceRule({ t, compared: asset.max, token: asset.token })]}
+          rules={[{ required: true }, insufficientBalanceRule({ t, compared: maxTransfer, token: asset.token })]}
         >
           <BalanceControl compact size="large" className="flex-1">
             <div
