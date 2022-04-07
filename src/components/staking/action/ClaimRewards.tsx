@@ -4,12 +4,10 @@ import { Button, Tooltip } from 'antd';
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { QuestionCircleFilled } from '@ant-design/icons';
-import { Subject } from 'rxjs';
 import { PayoutValidator, useApi, useStakingRewards, useAccount } from '../../../hooks';
 import { useTx } from '../../../hooks/tx';
 import { fromWei, prettyNumber, signAndSendExtrinsic } from '../../../utils';
 import { SelectAccountModal } from '../../widget/account/SelectAccountModal';
-import { Tx } from '../../../model';
 import { StakingActionProps } from './interface';
 
 interface ClaimRewardsProps extends StakingActionProps {
@@ -55,27 +53,19 @@ export function ClaimRewards({ eraSelectionIndex, type = 'text' }: ClaimRewardsP
     api,
     connection: { accounts },
   } = useApi();
-  const { txProcessObserver } = useTx();
+  const { txProcessObserver, tx } = useTx();
   const { account } = useAccount();
   const { stakingRewards, payoutValidators } = useStakingRewards(eraSelectionIndex);
   const hasPayoutValidator = useMemo(() => payoutValidators && payoutValidators.length, [payoutValidators]);
   const [isVisible, setIsVisible] = useState(false);
   const [signer, setSigner] = useState(account);
-  const [loading, setLoading] = useState<boolean>(false);
-  const subject = useMemo(() => new Subject<Tx>(), []);
+  const loading = useMemo(() => !!tx && !(tx.status === 'finalized' || tx.status === 'error'), [tx]);
 
   useEffect(() => {
-    subject.subscribe({
-      complete: () => {
-        setLoading(false);
-        setIsVisible(false);
-      },
-      error: () => setLoading(false),
-    });
-    subject.subscribe(txProcessObserver);
-
-    return () => subject.unsubscribe();
-  }, [subject, txProcessObserver]);
+    if (tx?.status === 'finalized') {
+      setIsVisible(false);
+    }
+  }, [tx]);
 
   return (
     <>
@@ -86,7 +76,7 @@ export function ClaimRewards({ eraSelectionIndex, type = 'text' }: ClaimRewardsP
             : ''
         }
       >
-        <Button type={type} disabled={!hasPayoutValidator} onClick={() => setIsVisible(true)}>
+        <Button type={type} disabled={!hasPayoutValidator && account === 'k'} onClick={() => setIsVisible(true)}>
           <span>{t('Claim Reward')}</span>
         </Button>
       </Tooltip>
@@ -116,9 +106,8 @@ export function ClaimRewards({ eraSelectionIndex, type = 'text' }: ClaimRewardsP
                   size="large"
                   loading={loading}
                   onClick={() => {
-                    setLoading(true);
                     const extrinsic = createPayout(api, payoutValidators);
-                    signAndSendExtrinsic(api, signer, extrinsic).subscribe(subject);
+                    signAndSendExtrinsic(api, signer, extrinsic).subscribe(txProcessObserver);
                   }}
                   className="block mx-auto w-full border-none rounded-lg"
                 >
