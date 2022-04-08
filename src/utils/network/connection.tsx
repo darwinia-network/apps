@@ -43,7 +43,7 @@ keyring.loadAll({});
 export const LOCAL = 'local';
 
 export const getPolkadotConnection: (network: ChainConfig) => Observable<PolkadotConnection> = (network) =>
-  from(web3Enable('polkadot-js/apps')).pipe(
+  from(web3Enable('darwinia/apps')).pipe(
     concatMap((extensions) => {
       const result = combineLatest([from(web3Accounts()), accountsObs.subject.asObservable()], (injected, data) => {
         const keys = Object.keys(data);
