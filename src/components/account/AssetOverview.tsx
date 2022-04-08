@@ -1,11 +1,10 @@
 import { Button, Card, Form } from 'antd';
-import { DeriveBalancesAll } from '@polkadot/api-derive/types';
 import { BN_HUNDRED, BN, isFunction } from '@polkadot/util';
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { from, Subscription } from 'rxjs';
 import { useAccount, useApi } from '../../hooks';
-import { AssetOverviewProps } from '../../model';
+import { AssetOverviewProps, DarwiniaAsset } from '../../model';
 import { fromWei, getUnit, insufficientBalanceRule, isRing, isSameAddress, prettyNumber, toWei } from '../../utils';
 import { FormModal } from '../widget/FormModal';
 import { PrettyAmount } from '../widget/PrettyAmount';
@@ -26,11 +25,11 @@ export function AssetOverview({ asset, refresh }: AssetOverviewProps) {
     api,
     connection: { accounts },
   } = useApi();
-  const { account } = useAccount();
+  const { account, assets } = useAccount();
   const [recipient, setRecipient] = useState<string>(accounts[0]?.address);
   const [isVisible, setIsVisible] = useState(false);
-  const [balances, setBalances] = useState<DeriveBalancesAll | null>(null);
   const [transferrable, setTransferrable] = useState<BN | null>(null);
+  const ringBalance = useMemo(() => assets.find((item) => item.asset === DarwiniaAsset.ring)?.max, [assets]);
 
   const tokenIconSrc = useMemo(
     () => `/image/token-${(asset.token?.symbol || 'RING').toLowerCase()}.svg`,
@@ -38,21 +37,14 @@ export function AssetOverview({ asset, refresh }: AssetOverviewProps) {
   );
 
   useEffect(() => {
-    const sub$$ = from(api.derive.balances.all(account)).subscribe(setBalances);
-    return () => sub$$.unsubscribe();
-  }, [api, account]);
-
-  useEffect(() => {
     let sub$$: Subscription;
-    const fromId = account;
-    const toId = recipient;
 
-    if (balances && balances.accountId?.eq(fromId) && toId && isFunction(api.rpc.payment?.queryInfo)) {
-      sub$$ = from(api.tx.balances?.transfer(toId, balances.availableBalance).paymentInfo(fromId)).subscribe((res) => {
+    if (ringBalance && recipient && isFunction(api.rpc.payment?.queryInfo)) {
+      sub$$ = from(api.tx.balances?.transfer(recipient, ringBalance).paymentInfo(account)).subscribe((res) => {
         const { partialFee } = res as unknown as { partialFee: BN };
         // eslint-disable-next-line no-magic-numbers
         const adjFee = partialFee.muln(110).div(BN_HUNDRED);
-        const max = balances.availableBalance.sub(adjFee);
+        const max = new BN(ringBalance as string).sub(adjFee);
 
         setTransferrable(max.gt(api.consts.balances?.existentialDeposit) ? max : null);
       });
@@ -65,7 +57,7 @@ export function AssetOverview({ asset, refresh }: AssetOverviewProps) {
         sub$$.unsubscribe();
       }
     };
-  }, [api, balances, account, recipient]);
+  }, [api, ringBalance, account, recipient]);
 
   return (
     <>
