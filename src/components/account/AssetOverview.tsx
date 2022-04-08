@@ -3,6 +3,7 @@ import { DeriveBalancesAll } from '@polkadot/api-derive/types';
 import { BN_HUNDRED, BN, isFunction } from '@polkadot/util';
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { from } from 'rxjs';
 import { useAccount, useApi } from '../../hooks';
 import { AssetOverviewProps } from '../../model';
 import { fromWei, getUnit, insufficientBalanceRule, isRing, isSameAddress, prettyNumber, toWei } from '../../utils';
@@ -37,10 +38,8 @@ export function AssetOverview({ asset, refresh }: AssetOverviewProps) {
   );
 
   useEffect(() => {
-    api.derive.balances
-      .all(account)
-      .then((res) => setBalances(res))
-      .catch(console.error);
+    const sub$$ = from(api.derive.balances.all(account)).subscribe(setBalances);
+    return () => sub$$.unsubscribe();
   }, [api, account]);
 
   useEffect(() => {
