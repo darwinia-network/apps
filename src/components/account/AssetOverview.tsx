@@ -3,7 +3,7 @@ import { DeriveBalancesAll } from '@polkadot/api-derive/types';
 import { BN_HUNDRED, BN, isFunction } from '@polkadot/util';
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { from } from 'rxjs';
+import { from, Subscription } from 'rxjs';
 import { useAccount, useApi } from '../../hooks';
 import { AssetOverviewProps } from '../../model';
 import { fromWei, getUnit, insufficientBalanceRule, isRing, isSameAddress, prettyNumber, toWei } from '../../utils';
@@ -43,30 +43,28 @@ export function AssetOverview({ asset, refresh }: AssetOverviewProps) {
   }, [api, account]);
 
   useEffect(() => {
+    let sub$$: Subscription;
     const fromId = account;
     const toId = recipient;
 
     if (balances && balances.accountId?.eq(fromId) && toId && isFunction(api.rpc.payment?.queryInfo)) {
-      setTimeout((): void => {
-        try {
-          api.tx.balances
-            ?.transfer(toId, balances.availableBalance)
-            .paymentInfo(fromId)
-            .then(({ partialFee }: { partialFee: BN }): void => {
-              // eslint-disable-next-line no-magic-numbers
-              const adjFee = partialFee.muln(110).div(BN_HUNDRED);
-              const max = balances.availableBalance.sub(adjFee);
+      sub$$ = from(api.tx.balances?.transfer(toId, balances.availableBalance).paymentInfo(fromId)).subscribe((res) => {
+        const { partialFee } = res as unknown as { partialFee: BN };
+        // eslint-disable-next-line no-magic-numbers
+        const adjFee = partialFee.muln(110).div(BN_HUNDRED);
+        const max = balances.availableBalance.sub(adjFee);
 
-              setTransferrable(max.gt(api.consts.balances?.existentialDeposit) ? max : null);
-            })
-            .catch(console.error);
-        } catch (error) {
-          console.error((error as Error).message);
-        }
-      }, 0);
+        setTransferrable(max.gt(api.consts.balances?.existentialDeposit) ? max : null);
+      });
     } else {
       setTransferrable(null);
     }
+
+    return () => {
+      if (sub$$) {
+        sub$$.unsubscribe();
+      }
+    };
   }, [api, balances, account, recipient]);
 
   return (
