@@ -29,7 +29,7 @@ export function AssetOverview({ asset, refresh }: AssetOverviewProps) {
   const [recipient, setRecipient] = useState<string>(accounts[0]?.address);
   const [isVisible, setIsVisible] = useState(false);
   const [balances, setBalances] = useState<DeriveBalancesAll | null>(null);
-  const [maxTransfer, setMaxTransfer] = useState<BN | null>(null);
+  const [transferrable, setTransferrable] = useState<BN | null>(null);
 
   const tokenIconSrc = useMemo(
     () => `/image/token-${(asset.token?.symbol || 'RING').toLowerCase()}.svg`,
@@ -58,7 +58,7 @@ export function AssetOverview({ asset, refresh }: AssetOverviewProps) {
               const adjFee = partialFee.muln(110).div(BN_HUNDRED);
               const max = balances.availableBalance.sub(adjFee);
 
-              setMaxTransfer(max.gt(api.consts.balances?.existentialDeposit) ? max : null);
+              setTransferrable(max.gt(api.consts.balances?.existentialDeposit) ? max : null);
             })
             .catch(console.error);
         } catch (error) {
@@ -66,7 +66,7 @@ export function AssetOverview({ asset, refresh }: AssetOverviewProps) {
         }
       }, 0);
     } else {
-      setMaxTransfer(null);
+      setTransferrable(null);
     }
   }, [api, balances, account, recipient]);
 
@@ -122,7 +122,7 @@ export function AssetOverview({ asset, refresh }: AssetOverviewProps) {
             <span className="ml-4 mt-2 text-xs">
               <span className="mr-2">{t('Max Transferrable')}:</span>
               <span>
-                {fromWei({ value: maxTransfer, unit: getUnit(Number(asset.token?.decimal)) || 'gwei' })}{' '}
+                {fromWei({ value: transferrable, unit: getUnit(Number(asset.token?.decimal)) || 'gwei' })}{' '}
                 {asset.token?.symbol}
               </span>
             </span>
@@ -148,7 +148,7 @@ export function AssetOverview({ asset, refresh }: AssetOverviewProps) {
         <Form.Item
           name="amount"
           label={t('Amount')}
-          rules={[{ required: true }, insufficientBalanceRule({ t, compared: maxTransfer, token: asset.token })]}
+          rules={[{ required: true }, insufficientBalanceRule({ t, compared: transferrable, token: asset.token })]}
         >
           <BalanceControl compact size="large" className="flex-1">
             <div
