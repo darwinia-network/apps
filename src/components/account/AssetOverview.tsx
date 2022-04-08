@@ -114,7 +114,7 @@ export function AssetOverview({ asset, refresh }: AssetOverviewProps) {
       >
         <AddressItem
           name="from"
-          label={'Send from account'}
+          label={'Sender'}
           extra={
             <span className="ml-4 mt-2 text-xs">
               <span className="mr-2">{t('Max Transferrable')}:</span>
@@ -129,7 +129,7 @@ export function AssetOverview({ asset, refresh }: AssetOverviewProps) {
 
         <AddressItem
           name="to"
-          label={'Send to Address'}
+          label={'Receiver'}
           rules={[
             {
               validator(_, value) {
