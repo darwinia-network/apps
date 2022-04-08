@@ -76,7 +76,7 @@ export function ClaimRewards({ eraSelectionIndex, type = 'text' }: ClaimRewardsP
             : ''
         }
       >
-        <Button type={type} disabled={!hasPayoutValidator && account === 'k'} onClick={() => setIsVisible(true)}>
+        <Button type={type} disabled={!hasPayoutValidator} onClick={() => setIsVisible(true)}>
           <span>{t('Claim Reward')}</span>
         </Button>
       </Tooltip>
