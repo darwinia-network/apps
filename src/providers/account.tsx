@@ -13,6 +13,8 @@ export interface AccountCtx {
   getBalances: (acc?: string) => void;
 }
 
+const DEFAULT_ADDRESS_PREFIX = 42; // Substrate, 42
+
 const getToken = (tokens: Token[], network: Network, target: DarwiniaAsset) => {
   const networkTokens = SYSTEM_NETWORK_CONFIGURATIONS.find((v) => v.name === network)?.tokens;
   const result = tokens.find((token) => networkTokens && token.symbol === networkTokens[target].symbol);
@@ -94,7 +96,7 @@ export const AccountProvider = ({ children }: React.PropsWithChildren<unknown>) 
   }, [account, api, getBalances]);
 
   useEffect(() => {
-    const accStorage = readStorage().activeAccount;
+    const accStorage = convertToSS58(readStorage().activeAccount || '', network.ss58Prefix);
     const acc =
       account ||
       connection?.accounts.find((value) => value.address === accStorage)?.address ||
@@ -104,14 +106,12 @@ export const AccountProvider = ({ children }: React.PropsWithChildren<unknown>) 
       return;
     }
 
-    const ss58Account = convertToSS58(acc, network.ss58Prefix);
-
-    setAccount(ss58Account);
+    setAccount(acc);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [network.ss58Prefix, connection]);
 
   useEffect(() => {
-    updateStorage({ activeAccount: account });
+    updateStorage({ activeAccount: convertToSS58(account, DEFAULT_ADDRESS_PREFIX) });
   }, [account]);
 
   return (
