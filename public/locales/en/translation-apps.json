@@ -186,6 +186,7 @@
   "total issuance({{symbol}})": "total issuance({{symbol}})",
   "total staked(Power)": "total staked(Power)",
   "transferrable": "transferrable",
+  "Max Transferrable": "Max Transferrable",
   "twitter": "twitter",
   "unbond tokens for staking, unbonded tokens become available after 14 days": "unbond tokens for staking, unbonded tokens become available after 14 days",
   "validators": "validators",
