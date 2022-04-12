@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { from, Subscription } from 'rxjs';
 import { useAccount, useApi } from '../../hooks';
-import { AssetOverviewProps, DarwiniaAsset } from '../../model';
+import { AssetOverviewProps } from '../../model';
 import { fromWei, getUnit, insufficientBalanceRule, isRing, isSameAddress, prettyNumber, toWei } from '../../utils';
 import { FormModal } from '../widget/FormModal';
 import { PrettyAmount } from '../widget/PrettyAmount';
@@ -25,11 +25,10 @@ export function AssetOverview({ asset, refresh }: AssetOverviewProps) {
     api,
     connection: { accounts },
   } = useApi();
-  const { account, assets } = useAccount();
+  const { account } = useAccount();
   const [recipient, setRecipient] = useState<string>(accounts[0]?.address);
   const [isVisible, setIsVisible] = useState(false);
   const [transferrable, setTransferrable] = useState<BN | null>(null);
-  const ringBalance = useMemo(() => assets.find((item) => item.asset === DarwiniaAsset.ring)?.max, [assets]);
 
   const tokenIconSrc = useMemo(
     () => `/image/token-${(asset.token?.symbol || 'RING').toLowerCase()}.svg`,
@@ -39,12 +38,12 @@ export function AssetOverview({ asset, refresh }: AssetOverviewProps) {
   useEffect(() => {
     let sub$$: Subscription;
 
-    if (ringBalance && recipient && isFunction(api.rpc.payment?.queryInfo)) {
-      sub$$ = from(api.tx.balances?.transfer(recipient, ringBalance).paymentInfo(account)).subscribe((res) => {
+    if (recipient && isFunction(api.rpc.payment?.queryInfo)) {
+      sub$$ = from(api.tx.balances?.transfer(recipient, asset.max).paymentInfo(account)).subscribe((res) => {
         const { partialFee } = res as unknown as { partialFee: BN };
         // eslint-disable-next-line no-magic-numbers
         const adjFee = partialFee.muln(110).div(BN_HUNDRED);
-        const max = new BN(ringBalance as string).sub(adjFee);
+        const max = new BN(asset.max as string).sub(adjFee);
 
         setTransferrable(max.gt(api.consts.balances?.existentialDeposit) ? max : null);
       });
@@ -57,7 +56,7 @@ export function AssetOverview({ asset, refresh }: AssetOverviewProps) {
         sub$$.unsubscribe();
       }
     };
-  }, [api, ringBalance, account, recipient]);
+  }, [api, asset, account, recipient]);
 
   return (
     <>
