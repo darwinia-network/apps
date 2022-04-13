@@ -1,6 +1,8 @@
 import BigNumber from 'bignumber.js';
 import { Fund } from '../../model';
 import { getUnit, toWei } from '../helper';
+import { DeriveStakingAccount } from '../../api-derive/types';
+import { isRing } from '../helper';
 
 export function fundParam(data: Fund) {
   const { asset, amount, token } = data;
@@ -20,4 +22,31 @@ export function ringToKton(value: string | number, month: number): string {
       .integerValue()
       .toString()
   );
+}
+
+export function getLedger(symbol: string, empty: boolean, derive: DeriveStakingAccount | null) {
+  if (empty || !derive) {
+    return { bonded: null, unbonding: null, locked: null };
+  }
+
+  const { stakingLedger, unlockingTotalValue, unlockingKtonTotalValue } = derive;
+
+  if (isRing(symbol)) {
+    const locked = stakingLedger.activeDepositRing.toBn();
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    const bonded = (stakingLedger.active || stakingLedger.activeRing).toBn().sub(locked);
+
+    return {
+      bonded,
+      locked,
+      unbonding: unlockingTotalValue,
+    };
+  }
+
+  return {
+    bonded: stakingLedger.activeKton?.toBn(),
+    locked: null,
+    unbonding: unlockingKtonTotalValue,
+  };
 }
