@@ -1,11 +1,9 @@
 import { Button } from 'antd';
-import BN from 'bn.js';
-import { pickBy } from 'lodash';
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useAccount, useApi, useOwnStashes, useStaking } from '../../../hooks';
+import { useAccount, useApi, useStaking } from '../../../hooks';
 import { Fund } from '../../../model';
-import { fundParam, isSameAddress } from '../../../utils';
+import { fundParam, getLedger, fromWei, prettyNumber } from '../../../utils';
 import { FormModal } from '../../widget/FormModal';
 import { AddressItem } from '../../widget/form-control/AddressItem';
 import { FundItem } from '../../widget/form-control/FundItem';
@@ -21,30 +19,18 @@ export function Unbond() {
   const { t } = useTranslation();
   const { api } = useApi();
   const [isVisible, setIsVisible] = useState(false);
-  const { isControllerAccountOwner, controllerAccount } = useStaking();
-  const { account } = useAccount();
-  const { ownLedgers } = useOwnStashes();
-  const max = useMemo(() => {
-    const ledger = ownLedgers.find((item) => {
-      const { stash } = item.unwrap();
-      return isSameAddress(stash.toString(), account);
-    });
+  const { isControllerAccountOwner, controllerAccount, isStakingLedgerEmpty, stakingDerive } = useStaking();
+  const { assets } = useAccount();
 
-    if (!ledger) {
-      return undefined;
-    }
-
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    const { active, activeKton } = ledger.unwrap();
-    const ring = active?.unwrap();
-    const kton = activeKton?.unwrap();
-    const data = pickBy({ ring, kton }, (item: BN) => item && item.gt(new BN(0)));
-
-    return Object.entries(data)
-      .map(([key, value]: [string, BN]) => [key, value.toString()])
-      .reduce((acc, cur) => ({ ...acc, [cur[0]]: cur[1] }), {});
-  }, [account, ownLedgers]);
+  const ledgers = useMemo(
+    () =>
+      assets.map((item) => ({
+        asset: item.asset,
+        symbol: item.token.symbol,
+        ...getLedger(item.token.symbol, isStakingLedgerEmpty, stakingDerive),
+      })),
+    [assets, isStakingLedgerEmpty, stakingDerive]
+  );
 
   return (
     <>
@@ -74,7 +60,22 @@ export function Unbond() {
         }}
         initialValues={{ controller: controllerAccount }}
       >
-        <AddressItem label="Controller account" name="controller" disabled />
+        <AddressItem
+          label="Controller account"
+          name="controller"
+          disabled
+          extra={
+            <span className="inline-flex items-center gap-2 text-xs">
+              <span>{t('available')}: </span>
+              {ledgers.map((item) => (
+                <span key={item.asset}>
+                  <span>{fromWei({ value: item.bonded }, prettyNumber)}</span>
+                  <span className="uppercase">{item.symbol}</span>
+                </span>
+              ))}
+            </span>
+          }
+        />
 
         <FundItem
           label={
@@ -85,7 +86,7 @@ export function Unbond() {
           }
           name="fund"
           extra={null}
-          max={max}
+          max={ledgers.reduce((acc, cur) => ({ ...acc, [cur.asset]: cur.bonded }), {})}
         />
       </FormModal>
     </>
