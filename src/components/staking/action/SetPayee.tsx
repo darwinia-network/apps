@@ -43,6 +43,7 @@ export function SetPayee() {
           updateStakingDerive();
         }}
         initialValues={{ controller: controllerAccount, payee: { type: 'Staked', account: stashAccount } }}
+        defaultValues={{ controller: controllerAccount }}
       >
         <AddressItem
           name="controller"
@@ -55,6 +56,7 @@ export function SetPayee() {
             />
           }
           extra={null}
+          disabled
         />
 
         <PayeeItem
