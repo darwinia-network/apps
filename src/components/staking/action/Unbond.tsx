@@ -19,7 +19,14 @@ export function Unbond() {
   const { t } = useTranslation();
   const { api } = useApi();
   const [isVisible, setIsVisible] = useState(false);
-  const { isControllerAccountOwner, controllerAccount, isStakingLedgerEmpty, stakingDerive } = useStaking();
+  const {
+    isControllerAccountOwner,
+    controllerAccount,
+    isStakingLedgerEmpty,
+    stakingDerive,
+    updateValidators,
+    updateStakingDerive,
+  } = useStaking();
   const { assets } = useAccount();
 
   const ledgers = useMemo(
@@ -57,6 +64,8 @@ export function Unbond() {
         }}
         onSuccess={() => {
           setIsVisible(false);
+          updateValidators();
+          updateStakingDerive();
         }}
         initialValues={{ controller: controllerAccount }}
       >
