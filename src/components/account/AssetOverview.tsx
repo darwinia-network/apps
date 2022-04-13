@@ -108,7 +108,7 @@ export function AssetOverview({ asset, refresh }: AssetOverviewProps) {
           label={'Sender'}
           extra={
             <span className="ml-4 mt-2 text-xs">
-              <span className="mr-2">{t('Max Transferrable')}:</span>
+              <span className="mr-2">{t('transferrable')}:</span>
               <span>
                 {fromWei({ value: transferrable, unit: getUnit(Number(asset.token?.decimal)) || 'gwei' })}{' '}
                 {asset.token?.symbol}
