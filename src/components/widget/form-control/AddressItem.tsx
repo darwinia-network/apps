@@ -25,7 +25,7 @@ export function AddressItem({ label, disabled, rules = [], ...rest }: CustomForm
       label={isString(label) ? t(label) : label}
       extra={
         <span className="inline-flex items-center gap-2 text-xs">
-          <span>{t('transferrable')}: </span>
+          <span>{t('available')}: </span>
           {assets.map((item) => (
             <span key={item.asset}>
               <span>{fromWei({ value: item.max }, prettyNumber)}</span>
