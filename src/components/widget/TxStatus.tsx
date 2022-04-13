@@ -50,7 +50,7 @@ const getAlertProps = (tx: Tx, network: Network, cancel: () => void): AlertProps
               The transaction has been sent, please check the transaction progress in the history or explorer.
             </Trans>
           </p>
-          <SubscanLink network={network} txHash={tx.hash}>
+          <SubscanLink network={network} block={tx.hash}>
             <Typography.Text copyable underline>
               {tx.hash}
             </Typography.Text>
