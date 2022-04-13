@@ -1,10 +1,10 @@
 import { Button } from 'antd';
 import BN from 'bn.js';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useApi, useStaking } from '../../../hooks';
+import { useApi, useStaking, useAccount } from '../../../hooks';
 import { Fund } from '../../../model';
-import { getUnit, isRing, toWei } from '../../../utils';
+import { getUnit, getLedger, isRing, toWei, prettyNumber, fromWei } from '../../../utils';
 import { FormModal } from '../../widget/FormModal';
 import { AddressItem } from '../../widget/form-control/AddressItem';
 import { FundItem } from '../../widget/form-control/FundItem';
@@ -19,8 +19,19 @@ interface RebondFormValues {
 export function Rebond() {
   const { t } = useTranslation();
   const { api } = useApi();
+  const { assets } = useAccount();
   const [isVisible, setIsVisible] = useState(false);
-  const { stashAccount, updateValidators, updateStakingDerive } = useStaking();
+  const { stashAccount, stakingDerive, isStakingLedgerEmpty, updateValidators, updateStakingDerive } = useStaking();
+
+  const ledgers = useMemo(
+    () =>
+      assets.map((item) => ({
+        asset: item.asset,
+        symbol: item.token.symbol,
+        ...getLedger(item.token.symbol, isStakingLedgerEmpty, stakingDerive),
+      })),
+    [assets, isStakingLedgerEmpty, stakingDerive]
+  );
 
   return (
     <>
@@ -48,9 +59,29 @@ export function Rebond() {
         }}
         initialValues={{ stash: stashAccount }}
       >
-        <AddressItem name="stash" label="Stash account" disabled />
+        <AddressItem
+          name="stash"
+          label="Stash account"
+          disabled
+          extra={
+            <span className="inline-flex items-center gap-2 text-xs">
+              <span>{t('available')}: </span>
+              {ledgers.map((item) => (
+                <span key={item.asset}>
+                  <span>{fromWei({ value: item.unbonding }, prettyNumber)}</span>
+                  <span className="uppercase">{item.symbol}</span>
+                </span>
+              ))}
+            </span>
+          }
+        />
 
-        <FundItem label="Amount" name="fund" extra={null} />
+        <FundItem
+          label="Amount"
+          name="fund"
+          extra={null}
+          max={ledgers.reduce((acc, cur) => ({ ...acc, [cur.asset]: cur.unbonding }), {})}
+        />
       </FormModal>
     </>
   );
