@@ -42,6 +42,7 @@ export function SetPayee() {
           updateValidators();
           updateStakingDerive();
         }}
+        signer={controllerAccount}
         initialValues={{ controller: controllerAccount, payee: { type: 'Staked', account: stashAccount } }}
         defaultValues={{ controller: controllerAccount }}
       >
