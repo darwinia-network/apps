@@ -1,11 +1,13 @@
 import { Button } from 'antd';
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useApi, useStaking } from '../../../hooks';
+import { from } from 'rxjs';
+import { RewardDestination } from '@polkadot/types/interfaces';
+import { useApi, useStaking, useIsMountedOperator } from '../../../hooks';
 import { FormModal } from '../../widget/FormModal';
 import { AddressItem } from '../../widget/form-control/AddressItem';
 import { Label } from '../../widget/form-control/Label';
-import { Payee } from '../../widget/form-control/PayeeControl';
+import { Payee, PayeeType } from '../../widget/form-control/PayeeControl';
 import { PayeeItem } from '../../widget/form-control/PayeeItem';
 
 interface SetPayeeFormValues {
@@ -18,8 +20,21 @@ export function SetPayee() {
   const { t } = useTranslation();
   const { api } = useApi();
   const [isVisible, setIsVisible] = useState(false);
+  const [destination, setDestination] = useState<RewardDestination>();
   const { controllerAccount, updateValidators, updateStakingDerive, isControllerAccountOwner, stashAccount } =
     useStaking();
+  const { takeWhileIsMounted } = useIsMountedOperator();
+
+  const updateDestination = useCallback(() => {
+    return from(api.derive.staking.account(stashAccount))
+      .pipe(takeWhileIsMounted())
+      .subscribe((value) => setDestination(value.rewardDestination));
+  }, [api, stashAccount, takeWhileIsMounted]);
+
+  useEffect(() => {
+    const sub$$ = updateDestination();
+    return () => sub$$.unsubscribe();
+  }, [updateDestination]);
 
   return (
     <>
@@ -41,10 +56,17 @@ export function SetPayee() {
           setIsVisible(false);
           updateValidators();
           updateStakingDerive();
+          updateDestination();
         }}
         signer={controllerAccount}
-        initialValues={{ controller: controllerAccount, payee: { type: 'Staked', account: stashAccount } }}
-        defaultValues={{ controller: controllerAccount }}
+        defaultValues={{
+          controller: controllerAccount,
+          payee: destination
+            ? destination.isAccount
+              ? { type: 'Account', account: destination.asAccount.toString() }
+              : { type: destination.toString() as PayeeType, account: '' }
+            : { type: 'Staked', account: stashAccount },
+        }}
       >
         <AddressItem
           name="controller"
