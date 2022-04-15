@@ -21,7 +21,7 @@ function Content({ name, logo, description, link }: PortalData) {
       className="shadow-xxl transition-transform duration-300 transform hover:scale-105"
     >
       <div onClick={() => window.open(link, '_blank')} className="flex flex-col gap-4 items-center">
-        <img src={logo} style={{ height: 70 }} />
+        <img src={logo} style={{ height: 70, borderRadius: '50%' }} />
         <b className="fond-bold text-lg">{name}</b>
         <p>{description}</p>
       </div>
