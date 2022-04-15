@@ -47,25 +47,25 @@ function Page() {
       {
         name: 'MetaMask',
         logo: '/image/portal/metamask.png',
-        description: 'A crypto wallet & gateway to blockchain apps.',
+        description: t('A crypto wallet & gateway to blockchain apps.'),
         link: 'https://metamask.io/',
       },
       {
         name: 'MathWallet',
         logo: '/image/portal/mathwallet.png',
-        description: `World's First Insured Crypto Wallet.`,
+        description: t(`World's First Insured Crypto Wallet.`),
         link: 'https://www.mathwallet.org/en-us/',
       },
       {
         name: 'Subscan',
         logo: '/image/portal/subscan.png',
-        description: 'Subscan - Aggregate Substrate ecological network High-precision Web3 explorer.',
+        description: t('Subscan is aggregate Substrate ecological network High-precision Web3 explorer.'),
         link: 'https://www.subscan.io/',
       },
       {
         name: 'OnFinality',
         logo: '/image/portal/onfinality.png',
-        description: 'OnFinality is a leading infrastructure service for some of the largest blockchain projects.',
+        description: t('OnFinality is a leading infrastructure service for some of the largest blockchain projects.'),
         link: 'https://onfinality.io/',
       },
       {
@@ -77,19 +77,19 @@ function Page() {
       {
         name: 'Celer',
         logo: '/image/portal/celer.png',
-        description: 'Building the best inter-blockchain and cross-layer communication platform.',
+        description: t('Building the best inter-blockchain and cross-layer communication platform.'),
         link: 'https://cbridge.celer.network/#/transfer',
       },
       {
         name: 'Crust',
         logo: '/image/portal/crust.png',
-        description: 'Web3.0 Storage for the Metaverse.',
+        description: t('Web3.0 Storage for the Metaverse.'),
         link: 'https://crust.network/',
       },
       {
         name: 'Evolution Land',
         logo: '/image/portal/evolution-land.png',
-        description: 'Evolution Land is the first Metaverse+Gamefi+cross-chain game.',
+        description: t('Evolution Land is the first Metaverse+Gamefi+cross-chain game.'),
         link: 'https://www.evolution.land/',
       },
       {
@@ -103,13 +103,13 @@ function Page() {
       {
         name: 'Subview',
         logo: '/image/portal/subview.png',
-        description: 'Trade and earn without registration.',
+        description: t('A block explorer and analytics platform for Crab Smart Chain.'),
         link: 'https://subview.xyz/',
       },
       {
         name: 'SnowSwap',
         logo: '/image/portal/snowswap.png',
-        description: 'Trade and earn without registration.',
+        description: t('Trade and earn without registration.'),
         link: 'https://snowswap.xyz/#/',
       },
     ],
