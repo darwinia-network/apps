@@ -1,7 +1,9 @@
 import { CheckCircleOutlined, CloseCircleOutlined, InfoCircleOutlined, SyncOutlined } from '@ant-design/icons';
 import { Alert, AlertProps, Button, Typography } from 'antd';
 import { Trans } from 'react-i18next';
-import { Tx } from '../../model';
+import { Tx, Network } from '../../model';
+import { useApi } from '../../hooks';
+import { SubscanLink } from './SubscanLink';
 
 interface TxStatusProps extends Partial<AlertProps> {
   tx: Tx | null;
@@ -9,7 +11,7 @@ interface TxStatusProps extends Partial<AlertProps> {
 }
 
 // eslint-disable-next-line complexity
-const getAlertProps = (tx: Tx, cancel: () => void): AlertProps => {
+const getAlertProps = (tx: Tx, network: Network, cancel: () => void): AlertProps => {
   if (tx.status === 'signing') {
     return {
       type: 'info',
@@ -48,7 +50,11 @@ const getAlertProps = (tx: Tx, cancel: () => void): AlertProps => {
               The transaction has been sent, please check the transaction progress in the history or explorer.
             </Trans>
           </p>
-          <Typography.Text copyable>{tx.hash}</Typography.Text>
+          <SubscanLink network={network} block={tx.hash}>
+            <Typography.Text copyable underline>
+              {tx.hash}
+            </Typography.Text>
+          </SubscanLink>
         </div>
       ),
       icon: <CheckCircleOutlined />,
@@ -76,11 +82,13 @@ const getAlertProps = (tx: Tx, cancel: () => void): AlertProps => {
 };
 
 export function TxStatus({ tx, cancel, ...others }: TxStatusProps) {
+  const { network } = useApi();
+
   if (!tx) {
     return null;
   }
 
-  const { type, message, icon } = getAlertProps(tx, cancel);
+  const { type, message, icon } = getAlertProps(tx, network.name, cancel);
 
   return (
     <Alert
