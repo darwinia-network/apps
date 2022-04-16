@@ -1,3 +1,13 @@
+## [2.1.6](https://github.com/darwinia-network/apps/compare/v2.1.5...v2.1.6) (2022-04-16)
+
+### Bug Fixes
+
+- destination setup ([#115](https://github.com/darwinia-network/apps/issues/115)) ([19741fb](https://github.com/darwinia-network/apps/commit/19741fb72c0e0a1a55bedc5d29b67be8dcbf7fd5))
+- kton max transferrable ([#110](https://github.com/darwinia-network/apps/issues/110)) ([1ea2717](https://github.com/darwinia-network/apps/commit/1ea271777d49221779497dbe489969e5797fafae))
+- Rebond and unbond available and max check ([#112](https://github.com/darwinia-network/apps/issues/112)) ([8c073c1](https://github.com/darwinia-network/apps/commit/8c073c165eb2a7d362b886c193d65ace84e6ab42))
+- subscan hash link ([#113](https://github.com/darwinia-network/apps/issues/113)) ([2c00673](https://github.com/darwinia-network/apps/commit/2c006730a032a7885f16715b3cb5fc8e4ae8da4d))
+- tx success status add subscan link ([#114](https://github.com/darwinia-network/apps/issues/114)) ([b5a4048](https://github.com/darwinia-network/apps/commit/b5a404878369e7e4d2d750399ba11067e36e6927))
+
 ## [2.1.5](https://github.com/darwinia-network/apps/compare/v2.1.4...v2.1.5) (2022-04-08)
 
 ### Bug Fixes

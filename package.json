@@ -1,6 +1,6 @@
 {
   "name": "apps-light",
-  "version": "2.1.5",
+  "version": "2.1.6",
   "private": true,
   "scripts": {
     "start": "cross-env CHOKIDAR_USEPOLLING=1 PORT=3006 craco start",
