@@ -1,4 +1,5 @@
-import { Alert, Card, Tabs, Button } from 'antd';
+import { Alert, Card, Tabs, Tooltip } from 'antd';
+import { CloseOutlined } from '@ant-design/icons';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { withRouter } from 'react-router-dom';
@@ -125,8 +126,11 @@ function Page() {
           )}
           type="warning"
           closable
-          showIcon
-          closeText={<Button>{t('I know, do not show it anymore')}</Button>}
+          closeText={
+            <Tooltip title={t('I know, do not show it anymore')}>
+              <CloseOutlined />
+            </Tooltip>
+          }
           onClose={() => {
             updateStorage({ hidePortalWarning: true });
           }}
