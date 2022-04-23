@@ -1,6 +1,6 @@
 import { Alert, Card, Tabs, Tooltip } from 'antd';
 import { CloseOutlined } from '@ant-design/icons';
-import { useMemo } from 'react';
+import { useMemo, PropsWithChildren } from 'react';
 import { useTranslation } from 'react-i18next';
 import { withRouter } from 'react-router-dom';
 import { useApi } from '../hooks';
@@ -13,22 +13,21 @@ type PortalData = {
   link: string;
 };
 
-function Content({ name, logo, description, link }: PortalData) {
-  return (
-    <Card
-      bordered={false}
-      hoverable
-      style={{ minHeight: 250 }}
-      className="shadow-xxl transition-transform duration-300 transform hover:scale-105"
-    >
-      <div onClick={() => window.open(link, '_blank')} className="flex flex-col gap-4 items-center">
-        <img src={logo} style={{ height: 70, borderRadius: '50%' }} />
-        <b className="fond-bold text-lg">{name}</b>
-        <p>{description}</p>
-      </div>
-    </Card>
-  );
-}
+const PortalCard = ({
+  children,
+  className,
+  onClick,
+}: PropsWithChildren<{ className?: string; onClick?: () => void }>) => (
+  <Card
+    bordered={false}
+    hoverable
+    style={{ minHeight: 250 }}
+    className={`shadow-xxl transition-transform duration-300 transform hover:scale-105 ${className}`}
+    onClick={onClick}
+  >
+    {children}
+  </Card>
+);
 
 function Page() {
   const { t } = useTranslation();
@@ -144,9 +143,21 @@ function Page() {
       >
         <Tabs.TabPane tab={t('overview')} key="overview">
           <div className="mt-2 grid grid-cols-1 gap-x-0 gap-y-5 sm:grid-cols-2 sm:gap-x-3 sm:gap-y-5 lg:grid-cols-3 lg:gap-x-6 lg:gap-y-8 xl:grid-cols-5">
-            {portalData.map((item, index) => (
-              <Content key={index} name={item.name} logo={item.logo} description={item.description} link={item.link} />
+            {portalData.map(({ name, logo, description, link }, index) => (
+              <PortalCard key={index} onClick={() => window.open(link, '_blank', 'noopener noreferrer')}>
+                <div className="flex flex-col gap-4 items-center">
+                  <img src={logo} style={{ height: 70, borderRadius: '50%' }} />
+                  <b className="fond-bold text-lg">{name}</b>
+                  <p>{description}</p>
+                </div>
+              </PortalCard>
             ))}
+            <PortalCard
+              className="flex items-center justify-center"
+              onClick={() => window.open('#', '_blank', 'noopener noreferrer')}
+            >
+              <img src={'/image/portal/add.svg'} style={{ height: 70 }} />
+            </PortalCard>
           </div>
         </Tabs.TabPane>
       </Tabs>
