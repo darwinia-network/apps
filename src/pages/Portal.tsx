@@ -34,7 +34,7 @@ function Page() {
   const { network } = useApi();
   const hidePortalWarning = !!readStorage().hidePortalWarning;
 
-  const data = useMemo<PortalData[]>(
+  const portalData = useMemo<PortalData[]>(
     () => [
       {
         name: 'polkadot{.js}',
@@ -140,7 +140,7 @@ function Page() {
       >
         <Tabs.TabPane tab={t('overview')} key="overview">
           <div className="mt-2 grid grid-cols-1 gap-x-0 gap-y-5 sm:grid-cols-2 sm:gap-x-3 sm:gap-y-5 lg:grid-cols-3 lg:gap-x-6 lg:gap-y-8 xl:grid-cols-5">
-            {data.map((item, index) => (
+            {portalData.map((item, index) => (
               <Content key={index} name={item.name} logo={item.logo} description={item.description} link={item.link} />
             ))}
           </div>
