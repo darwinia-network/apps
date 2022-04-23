@@ -154,7 +154,7 @@ function Page() {
             ))}
             <PortalCard
               className="flex items-center justify-center"
-              onClick={() => window.open('#', '_blank', 'noopener noreferrer')}
+              onClick={() => window.open(t('Github link for add portal'), '_blank', 'noopener noreferrer')}
             >
               <img src={'/image/portal/add.svg'} style={{ height: 70 }} />
             </PortalCard>
