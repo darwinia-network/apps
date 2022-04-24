@@ -156,7 +156,9 @@ function Page() {
               className="flex items-center justify-center"
               onClick={() => window.open(t('Github link for add portal'), '_blank', 'noopener noreferrer')}
             >
-              <img src={'/image/portal/add.svg'} style={{ height: 70 }} />
+              <Tooltip title={t('Submit a project')} placement="bottom">
+                <img src={'/image/portal/add.svg'} style={{ height: 70 }} />
+              </Tooltip>
             </PortalCard>
           </div>
         </Tabs.TabPane>
