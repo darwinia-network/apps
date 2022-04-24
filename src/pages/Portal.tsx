@@ -126,7 +126,7 @@ function Page() {
           type="warning"
           closable
           closeText={
-            <Tooltip title={t('I know, do not show it anymore')}>
+            <Tooltip title={t(`I've known it, never show this again`)}>
               <CloseOutlined />
             </Tooltip>
           }
