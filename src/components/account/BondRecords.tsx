@@ -142,7 +142,6 @@ export function BondRecords({ tokens }: AccountHistoryProps) {
         if (getUnixTime(record.expired_at) < getUnixTime(new Date()) && !record.unlock) {
           return (
             <Button
-              size="small"
               onClick={() => {
                 const extrinsic = api.tx.staking.claimMatureDeposits();
                 const observer = createObserver({
@@ -153,6 +152,7 @@ export function BondRecords({ tokens }: AccountHistoryProps) {
 
                 signAndSendExtrinsic(api, account, extrinsic).subscribe(observer);
               }}
+              className="p-0 flex items-center justify-center w-28"
             >
               {t('Release')}
             </Button>
@@ -163,7 +163,11 @@ export function BondRecords({ tokens }: AccountHistoryProps) {
           return t('Lock limit canceled');
         }
 
-        return <Button onClick={() => setForceUnbondTarget(record)}>{t('Unlock earlier')}</Button>;
+        return (
+          <Button onClick={() => setForceUnbondTarget(record)} className="p-0 flex items-center justify-center w-28">
+            {t('Unlock earlier')}
+          </Button>
+        );
       },
     },
   ];
