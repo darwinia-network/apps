@@ -71,7 +71,7 @@
   "How to create?": "How to create?",
   "How to use?": "How to use?",
   "I Accept": "I Accept",
-  "I know, do not show it anymore": "I known, do not show it anymore",
+  "I've known it, never show this again": "I've known it, never show this again",
   "Intentions": "Intentions",
   "Keys from rotateKeys": "Keys from rotateKeys",
   "Legal name": "Legal name",
@@ -207,5 +207,7 @@
   "Web3.0 Storage for the Metaverse.": "Web3.0 Storage for the Metaverse.",
   "Evolution Land is the first Metaverse+Gamefi+cross-chain game.": "Evolution Land is the first Metaverse+Gamefi+cross-chain game.",
   "A block explorer and analytics platform for Crab Smart Chain.": "A block explorer and analytics platform for Crab Smart Chain.",
-  "Trade and earn without registration.": "Trade and earn without registration."
+  "Trade and earn without registration.": "Trade and earn without registration.",
+  "Github link for add portal": "https://github.com/darwinia-network/apps/blob/master/README.md#how-to-add-your-portal",
+  "Submit a project": "Submit a project"
 }
