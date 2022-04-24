@@ -7,5 +7,6 @@ export * from './network';
 export * from './route';
 export * from './storage';
 export * from './tx';
+export * from './queue';
 export * from './type-operator';
 export * from './webapi';

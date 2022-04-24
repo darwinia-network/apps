@@ -1,5 +1,8 @@
 import BN from 'bn.js';
 import { EMPTY } from 'rxjs';
+import { Abi } from '@polkadot/api-contract';
+import { ApiPromise } from '@polkadot/api';
+import { getAddressMeta } from './address';
 
 // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any
 export function empty(...args: any[]) {
@@ -59,4 +62,23 @@ export function prettyNumber(
       : `${prefix}.${'0'.padEnd(decimal!, '0')}`;
 
   return +result === 0 ? '0' : result;
+}
+
+export function getContractAbi(api: ApiPromise, address: string | null): Abi | null {
+  if (!address) {
+    return null;
+  }
+
+  let abi: Abi | undefined;
+  const meta = getAddressMeta(address, 'contract');
+
+  try {
+    const data = (meta.contract && JSON.parse(meta.contract.abi)) as string;
+
+    abi = new Abi(data, api.registry.getChainProperties());
+  } catch (error) {
+    console.error(error);
+  }
+
+  return abi || null;
 }
