@@ -1,7 +1,8 @@
 import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react';
 import { from } from 'rxjs';
 import { useApi } from '../hooks';
-import { Asset, DarwiniaAsset, IAccountMeta, Token } from '../model';
+import { SYSTEM_NETWORK_CONFIGURATIONS } from '../config';
+import { Asset, DarwiniaAsset, IAccountMeta, Token, Network } from '../model';
 import { convertToSS58, getDarwiniaBalances, isSameAddress, readStorage, updateStorage } from '../utils';
 
 export interface AccountCtx {
@@ -12,8 +13,11 @@ export interface AccountCtx {
   getBalances: (acc?: string) => void;
 }
 
-const getToken: (tokens: Token[], target: DarwiniaAsset) => Token = (tokens: Token[], target: DarwiniaAsset) => {
-  const result = tokens.find((token) => token.symbol.toLowerCase().includes(target.toLowerCase()));
+const DEFAULT_ADDRESS_PREFIX = 42; // Substrate, 42
+
+const getToken = (tokens: Token[], network: Network, target: DarwiniaAsset) => {
+  const networkTokens = SYSTEM_NETWORK_CONFIGURATIONS.find((v) => v.name === network)?.tokens;
+  const result = tokens.find((token) => networkTokens && token.symbol === networkTokens[target].symbol);
   const unknown: Token = { symbol: 'unknown', decimal: '9' };
 
   return result || unknown;
@@ -37,10 +41,10 @@ export const AccountProvider = ({ children }: React.PropsWithChildren<unknown>) 
         return [];
       }
 
-      // Be careful we are in a asynchronous function
-      const tokenRing = getToken(chain.tokens, network.name === 'crab' ? DarwiniaAsset.crab : DarwiniaAsset.ring);
-      const tokenKton = getToken(chain.tokens, DarwiniaAsset.kton);
-      if (tokenRing.symbol === 'unknown') {
+      // Be careful we are in an asynchronous function
+      const tokenRing = getToken(chain.tokens, network.name, DarwiniaAsset.ring);
+      const tokenKton = getToken(chain.tokens, network.name, DarwiniaAsset.kton);
+      if (tokenRing.symbol === 'unknown' || tokenKton.symbol === 'unknown') {
         return [];
       }
 
@@ -92,7 +96,7 @@ export const AccountProvider = ({ children }: React.PropsWithChildren<unknown>) 
   }, [account, api, getBalances]);
 
   useEffect(() => {
-    const accStorage = readStorage().activeAccount;
+    const accStorage = convertToSS58(readStorage().activeAccount || '', network.ss58Prefix);
     const acc =
       account ||
       connection?.accounts.find((value) => value.address === accStorage)?.address ||
@@ -102,14 +106,12 @@ export const AccountProvider = ({ children }: React.PropsWithChildren<unknown>) 
       return;
     }
 
-    const ss58Account = convertToSS58(acc, network.ss58Prefix);
-
-    setAccount(ss58Account);
+    setAccount(acc);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [network.ss58Prefix, connection]);
 
   useEffect(() => {
-    updateStorage({ activeAccount: account });
+    updateStorage({ activeAccount: convertToSS58(account, DEFAULT_ADDRESS_PREFIX) });
   }, [account]);
 
   return (

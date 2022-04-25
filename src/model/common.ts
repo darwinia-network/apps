@@ -10,7 +10,6 @@ export type CrossType = 'cross-chain' | 'airdrop';
 export enum DarwiniaAsset {
   ring = 'ring',
   kton = 'kton',
-  crab = 'crab',
 }
 
 export interface IModalProps<T = unknown> {

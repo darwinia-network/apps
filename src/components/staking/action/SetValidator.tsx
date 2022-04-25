@@ -40,7 +40,7 @@ export function SetValidator({ disabled, label, type = 'text' }: StakingActionPr
           const { percentage } = values;
           const commission = new BN(percentage).mul(new BN(COMM_MUL));
 
-          return api.tx.staking.validate([{ commission, blocked: false }]);
+          return api.tx.staking.validate({ commission, blocked: false });
         }}
         onSuccess={() => {
           setIsVisible(false);

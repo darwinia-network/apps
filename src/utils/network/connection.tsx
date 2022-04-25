@@ -29,7 +29,6 @@ import {
   IAccountMeta,
   PolkadotConnection,
 } from '../../model';
-import { getAddressMeta } from '../helper';
 import { entrance } from './entrance';
 import { isMetamaskInstalled, isNetworkConsistent } from './network';
 import { switchMetamaskNetwork } from './switch';
@@ -44,7 +43,7 @@ keyring.loadAll({});
 export const LOCAL = 'local';
 
 export const getPolkadotConnection: (network: ChainConfig) => Observable<PolkadotConnection> = (network) =>
-  from(web3Enable('polkadot-js/apps')).pipe(
+  from(web3Enable('darwinia/apps')).pipe(
     concatMap((extensions) => {
       const result = combineLatest([from(web3Accounts()), accountsObs.subject.asObservable()], (injected, data) => {
         const keys = Object.keys(data);
@@ -52,7 +51,7 @@ export const getPolkadotConnection: (network: ChainConfig) => Observable<Polkado
         const source = keys.filter((key) => !injectedAddress.includes(key));
 
         const local: IAccountMeta[] = source.map((address) => {
-          const meta = getAddressMeta(address);
+          const meta = injected.find((item) => item.address === address)?.meta || {};
 
           return {
             address,

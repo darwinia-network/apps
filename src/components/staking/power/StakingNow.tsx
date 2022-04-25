@@ -2,7 +2,7 @@ import { Button } from 'antd';
 import { useForm } from 'antd/lib/form/Form';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useAccount, useApi } from '../../../hooks';
+import { useAccount, useApi, useStaking } from '../../../hooks';
 import { Fund } from '../../../model';
 import { fundParam } from '../../../utils';
 import { AddressItem } from '../../widget/form-control/AddressItem';
@@ -29,7 +29,8 @@ export function StakingNow() {
   const { t } = useTranslation();
   const { api } = useApi();
   const [form] = useForm<StakingFormValue>();
-  const { account, assets } = useAccount();
+  const { account, assets, getBalances } = useAccount();
+  const { updateControllerAndStash } = useStaking();
   const [isVisible, setIsVisible] = useState(false);
   const [selectedAsset, setSelectedAsset] = useState<Fund | null>(null);
   const [duration, setDuration] = useState(0);
@@ -72,7 +73,11 @@ export function StakingNow() {
           return api.tx.staking.bond(controller, balance, destination, promiseMonth);
         }}
         onCancel={() => setIsVisible(false)}
-        onSuccess={() => setIsVisible(false)}
+        onSuccess={() => {
+          setIsVisible(false);
+          getBalances();
+          updateControllerAndStash();
+        }}
         initialValues={{
           stash: account,
           controller: account,

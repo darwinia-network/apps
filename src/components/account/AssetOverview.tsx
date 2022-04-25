@@ -1,8 +1,10 @@
 import { Button, Card, Form } from 'antd';
-import { useMemo, useState } from 'react';
+import { BN_HUNDRED, BN, isFunction } from '@polkadot/util';
+import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { from, Subscription } from 'rxjs';
 import { useAccount, useApi } from '../../hooks';
-import { AssetOverviewProps } from '../../model';
+import { AssetOverviewProps, DarwiniaAsset } from '../../model';
 import { fromWei, getUnit, insufficientBalanceRule, isRing, isSameAddress, prettyNumber, toWei } from '../../utils';
 import { FormModal } from '../widget/FormModal';
 import { PrettyAmount } from '../widget/PrettyAmount';
@@ -24,12 +26,41 @@ export function AssetOverview({ asset, refresh }: AssetOverviewProps) {
     connection: { accounts },
   } = useApi();
   const { account } = useAccount();
+  const [recipient, setRecipient] = useState<string>(accounts[0]?.address);
   const [isVisible, setIsVisible] = useState(false);
+  const [transferrable, setTransferrable] = useState<BN | null>(null);
 
   const tokenIconSrc = useMemo(
     () => `/image/token-${(asset.token?.symbol || 'RING').toLowerCase()}.svg`,
     [asset.token?.symbol]
   );
+
+  useEffect(() => {
+    let sub$$: Subscription;
+
+    if (recipient && isFunction(api.rpc.payment?.queryInfo)) {
+      if (asset.asset === DarwiniaAsset.ring) {
+        sub$$ = from(api.tx.balances?.transfer(recipient, asset.max).paymentInfo(account)).subscribe((res) => {
+          const { partialFee } = res as unknown as { partialFee: BN };
+          // eslint-disable-next-line no-magic-numbers
+          const adjFee = partialFee.muln(110).div(BN_HUNDRED);
+          const max = new BN(asset.max as string).sub(adjFee);
+
+          setTransferrable(max.gt(api.consts.balances?.existentialDeposit) ? max : null);
+        });
+      } else {
+        setTransferrable(new BN(asset.max as string));
+      }
+    } else {
+      setTransferrable(null);
+    }
+
+    return () => {
+      if (sub$$) {
+        sub$$.unsubscribe();
+      }
+    };
+  }, [api, asset, account, recipient]);
 
   return (
     <>
@@ -78,12 +109,12 @@ export function AssetOverview({ asset, refresh }: AssetOverviewProps) {
       >
         <AddressItem
           name="from"
-          label={'Send from account'}
+          label={'Sender'}
           extra={
             <span className="ml-4 mt-2 text-xs">
-              <span className="mr-2">{t('Available Balance')}:</span>
+              <span className="mr-2">{t('transferrable')}:</span>
               <span>
-                {fromWei({ value: asset.max, unit: getUnit(Number(asset.token?.decimal)) || 'gwei' })}{' '}
+                {fromWei({ value: transferrable, unit: getUnit(Number(asset.token?.decimal)) || 'gwei' })}{' '}
                 {asset.token?.symbol}
               </span>
             </span>
@@ -93,10 +124,11 @@ export function AssetOverview({ asset, refresh }: AssetOverviewProps) {
 
         <AddressItem
           name="to"
-          label={'Send to Address'}
+          label={'Receiver'}
           rules={[
             {
               validator(_, value) {
+                setRecipient(value);
                 return !isSameAddress(account, value) ? Promise.resolve() : Promise.reject();
               },
               message: t('The sending address and the receiving address cannot be the same'),
@@ -108,7 +140,7 @@ export function AssetOverview({ asset, refresh }: AssetOverviewProps) {
         <Form.Item
           name="amount"
           label={t('Amount')}
-          rules={[{ required: true }, insufficientBalanceRule({ t, compared: asset.max, token: asset.token })]}
+          rules={[{ required: true }, insufficientBalanceRule({ t, compared: transferrable, token: asset.token })]}
         >
           <BalanceControl compact size="large" className="flex-1">
             <div

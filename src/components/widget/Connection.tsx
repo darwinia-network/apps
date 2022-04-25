@@ -1,12 +1,16 @@
 import BaseIdentityIcon, { Identicon } from '@polkadot/react-identicon';
-import { Button, Card, Col, Modal, Row, Typography } from 'antd';
-import React, { CSSProperties, useMemo, useState } from 'react';
+import { Card, Col, Modal, Row, Typography } from 'antd';
+import React, { CSSProperties, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { CopyToClipboard } from 'react-copy-to-clipboard';
+import { delay, of } from 'rxjs';
 import { useAccount, useApi } from '../../hooks';
 import { convertToSS58 } from '../../utils';
-import { ViewBrowserIcon } from '../icons';
+import { ViewBrowserIcon, CopyIcon } from '../icons';
+import { SHORT_DURATION } from '../../config';
 import { ConnectPolkadot } from './ConnectPolkadot';
 import { EllipsisMiddle } from './EllipsisMiddle';
+import { AccountName } from './account/AccountName';
 
 function ActiveAccount({
   children,
@@ -25,8 +29,9 @@ function ActiveAccount({
   textClassName?: string;
   onClick?: React.MouseEventHandler<HTMLDivElement>;
 }>) {
+  const ref = useRef<HTMLSpanElement>(null);
   const { network } = useApi();
-  const { accountWithMeta } = useAccount();
+  const { account } = useAccount();
   const containerCls = useMemo(
     () =>
       `flex items-center justify-between leading-normal whitespace-nowrap p-1 overflow-hidden bg-${network.name} 
@@ -39,7 +44,8 @@ function ActiveAccount({
     <div className={containerCls} onClick={onClick} style={containerStyle || {}}>
       <img src={`/image/${network.name}-1.svg`} style={logoStyle || { width: 24 }} alt="" />
       <Typography.Text className="mx-2" style={{ color: 'inherit', maxWidth: '64px' }} ellipsis={true}>
-        {accountWithMeta.meta.name}
+        <AccountName account={account} ref={ref} className="hidden" />
+        {ref.current?.textContent}
       </Typography.Text>
       {children}
     </div>
@@ -51,6 +57,14 @@ export function Connection() {
   const [isAccountDetailVisible, setIsAccountDetailVisible] = useState(false);
   const { account } = useAccount();
   const { connection, network } = useApi();
+  const [isCopied, setIsCopied] = useState<boolean | null>(false);
+  const copyText = useMemo(() => (isCopied ? t('Copied') : t('Copy Address')), [isCopied, t]);
+
+  useEffect(() => {
+    if (isCopied) {
+      of(false).pipe(delay(SHORT_DURATION)).subscribe(setIsCopied);
+    }
+  }, [isCopied]);
 
   return (
     <>
@@ -103,24 +117,34 @@ export function Connection() {
             <Col span={20}>
               <Row>
                 <Col>
-                  <Typography.Text copyable className="mr-4 text-gray-600 text-base">
-                    {account}
-                  </Typography.Text>
+                  <AccountName account={account} />
+                  <EllipsisMiddle className="text-gray-600 overflow-hidden" value={account} />
                 </Col>
               </Row>
 
-              <Row className="my-2" gutter={8}>
-                <Button
-                  onClick={() => {
-                    const address = convertToSS58(account ?? '', network.ss58Prefix);
-
-                    window.open(`https://${network.name}.subscan.io/account/${address}`, 'blank');
-                  }}
-                  className="flex items-center cursor-pointer"
-                  icon={<ViewBrowserIcon className="text-xl" />}
-                >
-                  {t('View in Subscan')}
-                </Button>
+              <Row className="my-2" gutter={{ xs: 0, sm: 8 }}>
+                <Col xs={{ span: 24, order: 2 }} sm={{ span: 10, order: 1 }}>
+                  <a
+                    rel="noopener noreferrer"
+                    target="_blank"
+                    href={`https://${network.name}.subscan.io/account/${convertToSS58(
+                      account ?? '',
+                      network.ss58Prefix
+                    )}`}
+                    className="inline-flex items-center"
+                  >
+                    <ViewBrowserIcon className="text-sm mr-1" />
+                    <span>{t('View in Subscan')}</span>
+                  </a>
+                </Col>
+                <Col xs={{ span: 24, order: 1 }} sm={{ span: 12, order: 2 }}>
+                  <CopyToClipboard text={account} onCopy={() => setIsCopied(true)}>
+                    <a className="inline-flex items-center">
+                      <CopyIcon className="text-sm mr-1" />
+                      <span>{copyText}</span>
+                    </a>
+                  </CopyToClipboard>
+                </Col>
               </Row>
             </Col>
           </Row>

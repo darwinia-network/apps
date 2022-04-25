@@ -4,7 +4,7 @@ import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useStaking } from '../../hooks';
 import { AssetOverviewProps } from '../../model';
-import { fromWei, isRing, prettyNumber } from '../../utils';
+import { fromWei, isRing, prettyNumber, getLedger } from '../../utils';
 import { PrettyAmount } from '../widget/PrettyAmount';
 
 function Description({ title, value }: { title: string; value: string }) {
@@ -26,34 +26,10 @@ export function AssetOverview({ asset }: AssetOverviewProps) {
     [asset.token?.symbol]
   );
 
-  const ledger = useMemo(() => {
-    if (isStakingLedgerEmpty) {
-      return { bonded: null, unbonding: null, locked: null, total: null };
-    }
-
-    const { stakingLedger, unlockingTotalValue, unlockingKtonTotalValue } = stakingDerive!;
-
-    if (isRing(asset.token.symbol)) {
-      const locked = stakingLedger.activeDepositRing.toBn();
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      const bonded = (stakingLedger.active || stakingLedger.activeRing).toBn().sub(locked);
-
-      return {
-        bonded,
-        locked,
-        unbonding: unlockingTotalValue,
-      };
-    }
-
-    const bonded = stakingLedger.activeKton?.toBn();
-
-    return {
-      bonded,
-      locked: null,
-      unbonding: unlockingKtonTotalValue,
-    };
-  }, [asset.token.symbol, isStakingLedgerEmpty, stakingDerive]);
+  const ledger = useMemo(
+    () => getLedger(asset.token.symbol, isStakingLedgerEmpty, stakingDerive),
+    [asset.token.symbol, isStakingLedgerEmpty, stakingDerive]
+  );
 
   if (isStakingDeriveLoading) {
     return <Skeleton active />;

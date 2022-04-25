@@ -8,7 +8,7 @@ import { Network, PolkadotChainConfig } from '../..//model';
 import { THEME } from '../../config';
 import { Path, routes } from '../../config/routes';
 import { useApi } from '../../hooks';
-import { getNetworkByName, NETWORK_CONFIGURATIONS, updateStorage } from '../../utils';
+import { getNetworkByName, NETWORK_CONFIGURATIONS } from '../../utils';
 import { AccountIcon, DarwiniaIcon, StakingIcon, ToolboxIcon, UsersIcon, ViewBrowserIcon } from '../icons';
 import { IconProps } from '../icons/icon-factory';
 import { BestNumber } from './BestNumber';
@@ -112,7 +112,6 @@ export function SideNav({ collapsed, theme, toggle, children }: PropsWithChildre
 
             setNetwork(config);
             toggleTheme(theme, value);
-            updateStorage({ activeNetwork: config as PolkadotChainConfig });
           }}
           className={`w-full ${network.name}-${theme}-select`}
         >

@@ -3,18 +3,27 @@ import { Alert } from 'antd';
 import { createContext, useCallback, useEffect, useMemo, useReducer, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { EMPTY, Subscription } from 'rxjs';
+import keyring from '@polkadot/ui-keyring';
 import { BallScalePulse } from '../components/widget/BallScalePulse';
 import { crabConfig, THEME } from '../config';
 import {
   Action,
   Chain,
+  Network,
   ChainConfig,
   Connection,
   ConnectionStatus,
   PolkadotChainConfig,
   PolkadotConnection,
 } from '../model';
-import { convertToSS58, getPolkadotConnection, readStorage, waitUntilConnected } from '../utils';
+import {
+  convertToSS58,
+  getPolkadotConnection,
+  readStorage,
+  updateStorage,
+  waitUntilConnected,
+  getNetworkByName,
+} from '../utils';
 
 interface StoreState {
   connection: Connection;
@@ -26,6 +35,11 @@ type ActionType = 'setNetwork' | 'setConnection';
 
 const isDev = process.env.REACT_APP_HOST_TYPE === 'dev';
 
+const getInitNetwork = () => {
+  const name = new URL(window.location.href).searchParams.get('network');
+  return (getNetworkByName(name as Network) ?? readStorage().activeNetwork ?? crabConfig) as PolkadotChainConfig;
+};
+
 const initialConnection: Connection = {
   status: ConnectionStatus.pending,
   type: 'unknown',
@@ -35,7 +49,7 @@ const initialConnection: Connection = {
 
 const initialState: StoreState = {
   connection: initialConnection,
-  network: readStorage().activeNetwork ?? crabConfig,
+  network: getInitNetwork(),
   isDev,
 };
 
@@ -43,6 +57,7 @@ const initialState: StoreState = {
 function accountReducer(state: StoreState, action: Action<ActionType, any>): StoreState {
   switch (action.type) {
     case 'setNetwork': {
+      updateStorage({ activeNetwork: action.payload });
       return { ...state, network: action.payload };
     }
 
@@ -53,10 +68,14 @@ function accountReducer(state: StoreState, action: Action<ActionType, any>): Sto
         ...state,
         connection: {
           ...rest,
-          accounts: accounts.map((item) => ({
-            ...item,
-            address: convertToSS58(item.address, state.network.ss58Prefix),
-          })),
+          accounts: accounts.map((item) => {
+            const address = convertToSS58(item.address, state.network.ss58Prefix);
+            keyring.saveAddress(address, item.meta);
+            return {
+              ...item,
+              address,
+            };
+          }),
         },
       };
     }
@@ -81,7 +100,10 @@ let subscription: Subscription = EMPTY.subscribe();
 
 export const ApiProvider = ({ children }: React.PropsWithChildren<unknown>) => {
   const { t } = useTranslation();
-  const [state, dispatch] = useReducer(accountReducer, initialState);
+  const [state, dispatch] = useReducer(accountReducer, initialState, (initValue) => {
+    updateStorage({ activeNetwork: initValue.network });
+    return { ...initValue };
+  });
   const setNetwork = useCallback((payload: ChainConfig) => dispatch({ type: 'setNetwork', payload }), []);
   const setConnection = useCallback((payload: Connection) => dispatch({ type: 'setConnection', payload }), []);
   const [api, setApi] = useState<ApiPromise | null>(null);

@@ -1,4 +1,6 @@
 import { AddEthereumChainParameter } from '../metamask';
+import { DarwiniaAsset } from '../common';
+import type { Token } from '../account';
 import { Facade } from './facade';
 import { Network, NetworkCategory } from './network';
 
@@ -19,6 +21,9 @@ export interface ChainConfig {
   name: Network;
   provider: ProviderConfig;
   type: NetworkCategory[];
+  tokens: {
+    [key in DarwiniaAsset]: Token;
+  };
 }
 
 export interface EthereumChainConfig extends ChainConfig {

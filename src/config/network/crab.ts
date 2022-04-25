@@ -31,4 +31,8 @@ export const crabConfig: DVMChainConfig = {
   },
   type: ['polkadot', 'darwinia'],
   ss58Prefix: 42,
+  tokens: {
+    ring: { decimal: '9', symbol: 'CRAB' },
+    kton: { decimal: '9', symbol: 'CKTON' },
+  },
 };

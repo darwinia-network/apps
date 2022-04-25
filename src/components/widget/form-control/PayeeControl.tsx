@@ -1,8 +1,8 @@
 import { Select } from 'antd';
 import FormItem from 'antd/lib/form/FormItem';
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useApi } from '../../../hooks';
+import { useApi, useStaking } from '../../../hooks';
 import { CustomFormControlProps } from '../../../model';
 import { IdentAccountAddress } from '../account/IdentAccountAddress';
 import { Label } from './Label';
@@ -16,8 +16,8 @@ export interface Payee {
 
 export function PayeeControl({ onChange, value }: CustomFormControlProps<Payee>) {
   const { t } = useTranslation();
+  const { controllerAccount, stashAccount } = useStaking();
   const [type, setType] = useState<PayeeType>(value?.type ?? 'Staked');
-  const [account, setAccount] = useState<string>(value?.account ?? '');
   const {
     connection: { accounts },
   } = useApi();
@@ -29,6 +29,31 @@ export function PayeeControl({ onChange, value }: CustomFormControlProps<Payee>)
     },
     [onChange]
   );
+  const options = useMemo<(Payee & { label: string })[]>(
+    () => [
+      {
+        type: 'Staked',
+        account: stashAccount,
+        label: t('Stash account (increase the amount at stake)'),
+      },
+      {
+        type: 'Stash',
+        account: stashAccount,
+        label: t('Stash account (do not increase the amount at stake)'),
+      },
+      {
+        type: 'Controller',
+        account: controllerAccount,
+        label: t('Controller account'),
+      },
+      {
+        type: 'Account',
+        account: '',
+        label: t('Other Account'),
+      },
+    ],
+    [controllerAccount, stashAccount, t]
+  );
 
   return (
     <>
@@ -36,14 +61,15 @@ export function PayeeControl({ onChange, value }: CustomFormControlProps<Payee>)
         size="large"
         onChange={(opt) => {
           setType(opt);
-          triggerChange({ account, type: opt });
+          triggerChange({ account: options.find((item) => item.type === opt)?.account ?? stashAccount, type: opt });
         }}
         value={value?.type}
       >
-        <Select.Option value="Staked">{t('Stash account (increase the amount at stake)')}</Select.Option>
-        <Select.Option value="Stash">{t('Stash account (do not increase the amount at stake)')}</Select.Option>
-        <Select.Option value="Controller">{t('Controller account')}</Select.Option>
-        <Select.Option value="Account">{t('Other Account')}</Select.Option>
+        {options.map((item) => (
+          <Select.Option key={item.type} value={item.type}>
+            {item.label}
+          </Select.Option>
+        ))}
       </Select>
 
       {type === 'Account' && (
@@ -56,7 +82,6 @@ export function PayeeControl({ onChange, value }: CustomFormControlProps<Payee>)
           <Select
             size="large"
             onChange={(address: string) => {
-              setAccount(address);
               triggerChange({ account: address, type });
             }}
             value={value?.account}
