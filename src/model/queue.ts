@@ -58,7 +58,7 @@ export interface QueueTx extends AccountInfo {
   id: number;
   isUnsigned?: boolean;
   payload?: SignerPayloadJSON;
-  result?: any;
+  result?: unknown;
   removeItem: () => void;
   rpc: DefinitionRpcExt;
   signerCb?: SignerCallback;
@@ -78,7 +78,7 @@ export interface QueueStatus extends ActionStatus {
 
 export interface QueueTxResult {
   error?: Error;
-  result?: any;
+  result?: unknown;
   status: QueueTxStatus;
 }
 
@@ -117,6 +117,11 @@ export type QueueTxExtrinsicAdd = (value: PartialQueueTxExtrinsic) => void;
 
 export type QueueTxPayloadAdd = (registry: Registry, payload: SignerPayloadJSON, signerCb: SignerCallback) => void;
 
-export type QueueTxMessageSetStatus = (id: number, status: QueueTxStatus, result?: any, error?: Error) => void;
+export type QueueTxMessageSetStatus = (
+  id: number,
+  status: QueueTxStatus,
+  result?: SubmittableResult,
+  error?: Error
+) => void;
 
 export type QueueAction$Add = (status: ActionStatus | ActionStatus[]) => void;
