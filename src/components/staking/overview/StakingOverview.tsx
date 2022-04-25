@@ -1,7 +1,7 @@
 import { DeriveSessionProgress } from '@polkadot/api-derive/session/types';
 import { DeriveStakingOverview, DeriveStakingWaiting } from '@polkadot/api-derive/staking/types';
 import { Card, Progress, Skeleton, Spin } from 'antd';
-import BN from 'bn.js';
+import { BN } from '@polkadot/util';
 import { isNull } from 'lodash';
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';

@@ -11,8 +11,7 @@ import { memo } from '@polkadot/api-derive/util';
 import { ApiInterfaceRx } from '@polkadot/api/types';
 import { AccountId, EraIndex } from '@polkadot/types/interfaces';
 import { PalletStakingStakingLedger } from '@polkadot/types/lookup';
-import { BN_ZERO, BN_BILLION } from '@polkadot/util';
-import BN from 'bn.js';
+import { BN_ZERO, BN_BILLION, BN } from '@polkadot/util';
 import { combineLatest, Observable, of } from 'rxjs';
 import { map, switchMap } from 'rxjs/operators';
 import { DeriveStakerExposure, DeriveStakerReward } from './types';
@@ -29,7 +28,6 @@ function parseRewards(
   return exposures.map(({ era, isEmpty, isValidator, nominating, validators: eraValidators }): DeriveStakerReward => {
     const { eraPoints, validators: allValPoints } = erasPoints.find((p) => p.era.eq(era)) || {
       eraPoints: BN_ZERO,
-      validators: {},
     };
     const { eraReward } = erasRewards.find((r) => r.era.eq(era)) || { eraReward: api.registry.createType('Balance') };
     const { validators: allValPrefs } = erasPrefs.find((p) => p.era.eq(era)) || { validators: {} as DeriveEraValPrefs };
@@ -39,7 +37,7 @@ function parseRewards(
 
     // eslint-disable-next-line complexity
     Object.entries(eraValidators).forEach(([validatorId, exposure]): void => {
-      const valPoints = allValPoints[validatorId] || BN_ZERO;
+      const valPoints = (allValPoints && allValPoints[validatorId]) || BN_ZERO;
       const valComm = allValPrefs[validatorId]?.commission.unwrap() || BN_ZERO;
       const expTotal = exposure.totalPower;
       let avail = BN_ZERO;

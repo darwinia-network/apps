@@ -3,7 +3,7 @@ import { DeriveAccountInfo, DeriveStakingWaiting } from '@polkadot/api-derive/ty
 import { ValidatorPrefs, ValidatorPrefsTo196 } from '@polkadot/types/interfaces';
 import { Card, Input, Table } from 'antd';
 import { ColumnsType } from 'antd/lib/table';
-import BN from 'bn.js';
+import { BN } from '@polkadot/util';
 import { Reducer, useEffect, useMemo, useReducer, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { from, map, mergeMap, reduce } from 'rxjs';

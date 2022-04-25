@@ -2,7 +2,7 @@ import { DeriveStakerReward } from '@polkadot/api-derive/types';
 import { GenericAccountId, Option } from '@polkadot/types';
 import { Balance, EraIndex } from '@polkadot/types/interfaces';
 import { StakingLedger } from '@polkadot/types/interfaces/staking';
-import BN from 'bn.js';
+import { BN } from '@polkadot/util';
 import { has } from 'lodash';
 import { useEffect, useMemo, useState } from 'react';
 import { from, Subscription, takeWhile, zip } from 'rxjs';
