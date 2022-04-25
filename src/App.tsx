@@ -8,6 +8,7 @@ import { Trans, useTranslation } from 'react-i18next';
 import { Route, Switch, useLocation } from 'react-router-dom';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import { Signer } from './components/widget/Signer';
+import { QueueStatus } from './components/widget/QueueStatus';
 import { ActiveAccount } from './components/widget/account/ActiveAccount';
 import { Connection } from './components/widget/Connection';
 import { Language } from './components/widget/Language';
@@ -185,6 +186,7 @@ function App() {
         <IntroGuide />
       </Layout>
       <Signer />
+      <QueueStatus />
     </>
   );
 }

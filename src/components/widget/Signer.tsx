@@ -10,7 +10,7 @@ import type { KeyringPair } from '@polkadot/keyring/types';
 import type { SignerOptions } from '@polkadot/api/submittable/types';
 import type { Multisig, Timepoint } from '@polkadot/types/interfaces';
 import type { Option } from '@polkadot/types';
-import { web3FromSource } from '@polkadot/extension-dapp';
+import { web3FromAddress } from '@polkadot/extension-dapp';
 import { handleTxResults, extractExternal } from '../../utils';
 import { QueueTx, QueueTxResult, QueueTxMessageSetStatus, AddressProxy } from '../../model';
 import { useQueue, useApi } from '../../hooks';
@@ -32,14 +32,7 @@ async function extractParams(
   address: string,
   options: Partial<SignerOptions>
 ): Promise<['qr' | 'signing', string, Partial<SignerOptions>]> {
-  const pair = keyring.getPair(address);
-  const {
-    meta: { isInjected, source },
-  } = pair;
-
-  assert(isInjected, `Unable to find a injected`);
-
-  const injected = await web3FromSource(source as string);
+  const injected = await web3FromAddress(address);
   assert(injected, `Unable to find a signer for ${address}`);
 
   return ['signing', address, { ...options, signer: injected.signer }];
@@ -286,6 +279,10 @@ export const Signer = () => {
   useEffect((): void => {
     isRpc && currentItem && sendRpc(api, queueSetTxStatus, currentItem).catch(console.error);
   }, [api, isRpc, currentItem, queueSetTxStatus]);
+
+  useEffect(() => {
+    !isVisible && setBusy(false);
+  }, [isVisible]);
 
   return (
     <>

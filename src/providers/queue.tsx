@@ -1,5 +1,6 @@
 import React, { useState, useCallback, createContext, useRef } from 'react';
 import { SubmittableResult, ApiPromise } from '@polkadot/api';
+import { notification } from 'antd';
 import type { SubmittableExtrinsic } from '@polkadot/api/promise/types';
 import type { DispatchError } from '@polkadot/types/interfaces';
 import type { ITuple, Registry, SignerPayloadJSON } from '@polkadot/types/types';
@@ -268,6 +269,8 @@ export const QueueProvider = ({ children }: React.PropsWithChildren<unknown>) =>
 
   const queueSetTxStatus = useCallback(
     (id: number, status: QueueTxStatus, result?: SubmittableResult, error?: Error): void => {
+      notification.close(id.toString());
+
       setTxQueue([
         ...txRef.current.map(
           (item): QueueTx =>
@@ -289,6 +292,7 @@ export const QueueProvider = ({ children }: React.PropsWithChildren<unknown>) =>
           const item = txRef.current.find((value) => value.id === id);
           if (item) {
             item.removeItem();
+            notification.close(id.toString());
           }
         }, REMOVE_TIMEOUT);
       }
