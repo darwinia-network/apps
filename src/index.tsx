@@ -9,7 +9,7 @@ import { ErrorBoundary } from './components/widget/ErrorBoundary';
 import { BallScalePulse } from './components/widget/BallScalePulse';
 import { THEME } from './config';
 import './index.scss';
-import { AccountProvider, ApiProvider } from './providers';
+import { AccountProvider, ApiProvider, QueueProvider } from './providers';
 import { TxProvider } from './providers/tx-provider';
 import reportWebVitals from './reportWebVitals';
 import './theme/antd/index.less';
@@ -31,9 +31,11 @@ ReactDOM.render(
       <ErrorBoundary>
         <ApiProvider>
           <TxProvider>
-            <AccountProvider>
-              <App />
-            </AccountProvider>
+            <QueueProvider>
+              <AccountProvider>
+                <App />
+              </AccountProvider>
+            </QueueProvider>
           </TxProvider>
         </ApiProvider>
       </ErrorBoundary>

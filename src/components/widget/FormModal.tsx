@@ -8,7 +8,7 @@ import { catchError, from, NEVER, switchMap, tap } from 'rxjs';
 import { useTranslation } from 'react-i18next';
 import { validateMessages } from '../../config';
 import i18n from '../../config/i18n';
-import { useAccount, useApi } from '../../hooks';
+import { useAccount, useApi, useQueue } from '../../hooks';
 import { useTx } from '../../hooks/tx';
 import { Tx } from '../../model';
 import { afterTxSuccess } from '../../providers';
@@ -46,6 +46,7 @@ export function FormModal<V extends Record<string, unknown>>({
   const { api } = useApi();
   const { account } = useAccount();
   const { createObserver, tx } = useTx();
+  const { queueExtrinsic } = useQueue();
   const { ...others } = modalProps;
   const observer = useMemo(
     () => createObserver({ next: afterTxSuccess(onSuccess), error: onFail }),
@@ -73,6 +74,24 @@ export function FormModal<V extends Record<string, unknown>>({
             {...modalProps.okButtonProps}
             type="primary"
             onClick={() => {
+              from(form.validateFields())
+                .pipe(catchError(() => NEVER))
+                .subscribe((value) => {
+                  queueExtrinsic({
+                    accountId: signer ?? account,
+                    extrinsic: extrinsic(value),
+                    isUnsigned: false,
+                    txFailedCb: (status) => console.log('tx fail:', status),
+                    txStartCb: () => console.log('tx start'),
+                    txSuccessCb: (status) => console.log('tx success:', status),
+                    txUpdateCb: (status) => console.log('tx update:', status),
+                  });
+                  onCancel && onCancel();
+                });
+
+              if (api) {
+                return;
+              }
               from(form.validateFields())
                 .pipe(
                   catchError(() => NEVER),

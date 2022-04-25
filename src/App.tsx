@@ -7,6 +7,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { Route, Switch, useLocation } from 'react-router-dom';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
+import { Signer } from './components/widget/Signer';
 import { ActiveAccount } from './components/widget/account/ActiveAccount';
 import { Connection } from './components/widget/Connection';
 import { Language } from './components/widget/Language';
@@ -124,64 +125,67 @@ function App() {
   const activeNav = useMemo(() => getActiveNav(location.pathname), [location.pathname]);
 
   return (
-    <Layout style={{ height: '100vh' }} className="overflow-hidden">
-      <Sider theme={theme} trigger={null} collapsible collapsed={collapsed} className="hidden lg:block">
-        <SideNav collapsed={collapsed} theme={theme} toggle={() => setCollapsed(!collapsed)}>
-          <Logo withText={!collapsed} className="mb-4" />
-        </SideNav>
-      </Sider>
+    <>
+      <Layout style={{ height: '100vh' }} className="overflow-hidden">
+        <Sider theme={theme} trigger={null} collapsible collapsed={collapsed} className="hidden lg:block">
+          <SideNav collapsed={collapsed} theme={theme} toggle={() => setCollapsed(!collapsed)}>
+            <Logo withText={!collapsed} className="mb-4" />
+          </SideNav>
+        </Sider>
 
-      <Drawer
-        placement="right"
-        onClose={() => setCollapsed(true)}
-        closable={false}
-        visible={!collapsed}
-        bodyStyle={{ padding: 0 }}
-        className="block lg:hidden"
-      >
-        <SideNav collapsed={collapsed} theme={theme} toggle={() => setCollapsed(!collapsed)} />
-      </Drawer>
+        <Drawer
+          placement="right"
+          onClose={() => setCollapsed(true)}
+          closable={false}
+          visible={!collapsed}
+          bodyStyle={{ padding: 0 }}
+          className="block lg:hidden"
+        >
+          <SideNav collapsed={collapsed} theme={theme} toggle={() => setCollapsed(!collapsed)} />
+        </Drawer>
 
-      <Layout className="overflow-scroll">
-        <header className="flex justify-between items-center lg:p-8 p-4 sticky top-0 z-10 bg-gray-100 dark:bg-black">
-          <div className="flex items-center">
-            <div className={`lg:hidden flex items-center gap-2 mr-4 text-${network.name}-main text-xl`}>
-              <BarsOutlined onClick={() => setCollapsed(!collapsed)} />
-              <Logo withText />
+        <Layout className="overflow-scroll">
+          <header className="flex justify-between items-center lg:p-8 p-4 sticky top-0 z-10 bg-gray-100 dark:bg-black">
+            <div className="flex items-center">
+              <div className={`lg:hidden flex items-center gap-2 mr-4 text-${network.name}-main text-xl`}>
+                <BarsOutlined onClick={() => setCollapsed(!collapsed)} />
+                <Logo withText />
+              </div>
+
+              <h2
+                className={`font-semibold not-italic text-2xl bg-${network.name} text-transparent hidden lg:block bg-clip-text`}
+              >
+                {t(activeNav.length ? activeNav[0].label : '')}
+              </h2>
             </div>
 
-            <h2
-              className={`font-semibold not-italic text-2xl bg-${network.name} text-transparent hidden lg:block bg-clip-text`}
-            >
-              {t(activeNav.length ? activeNav[0].label : '')}
-            </h2>
-          </div>
+            <div className="flex items-center gap-4">
+              <Connection />
+              <ActiveAccount />
 
-          <div className="flex items-center gap-4">
-            <Connection />
-            <ActiveAccount />
-
-            <div className="hidden lg:flex items-center">
-              {/* <ThemeSwitch mode="btn" network={network.name} onThemeChange={setTheme} /> */}
-              <Language mode="icon" network={network.name} theme={theme} />
+              <div className="hidden lg:flex items-center">
+                {/* <ThemeSwitch mode="btn" network={network.name} onThemeChange={setTheme} /> */}
+                <Language mode="icon" network={network.name} theme={theme} />
+              </div>
             </div>
-          </div>
-        </header>
+          </header>
 
-        <Content>
-          <TransitionGroup>
-            <CSSTransition key={location.pathname} timeout={300} classNames="fade">
-              <Switch location={location}>
-                {routes.map((item, index) => (
-                  <Route key={index} {...item}></Route>
-                ))}
-              </Switch>
-            </CSSTransition>
-          </TransitionGroup>
-        </Content>
+          <Content>
+            <TransitionGroup>
+              <CSSTransition key={location.pathname} timeout={300} classNames="fade">
+                <Switch location={location}>
+                  {routes.map((item, index) => (
+                    <Route key={index} {...item}></Route>
+                  ))}
+                </Switch>
+              </CSSTransition>
+            </TransitionGroup>
+          </Content>
+        </Layout>
+        <IntroGuide />
       </Layout>
-      <IntroGuide />
-    </Layout>
+      <Signer />
+    </>
   );
 }
 
