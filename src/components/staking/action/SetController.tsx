@@ -15,7 +15,8 @@ export function SetController() {
   const { t } = useTranslation();
   const { api } = useApi();
   const [isVisible, setIsVisible] = useState(false);
-  const { stashAccount, controllerAccount, updateValidators, updateStakingDerive } = useStaking();
+  const { stashAccount, controllerAccount, updateValidators, updateStakingDerive, updateControllerAndStash } =
+    useStaking();
 
   return (
     <>
@@ -33,6 +34,7 @@ export function SetController() {
         }}
         onSuccess={() => {
           setIsVisible(false);
+          updateControllerAndStash();
           updateValidators();
           updateStakingDerive();
         }}
