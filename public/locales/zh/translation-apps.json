@@ -28,7 +28,7 @@
   "Bonded The amount of tokens that cannot be operated directly but does not have a lock limit, which is used to gain power and can be taken out at any time(with a 14-day unbonding period) or add lock limit.": "冻结: 无法直接操作但无锁定期限的的 token 数量，用于获取 power，可以随时取出（需要14天等待期限）或添加锁定期限。",
   "Bonded amount": "绑定数量",
   "Bonding preferences": "冻结参数",
-  "Bounded {{amount}} {{symbol}}": "已冻结 {{amount}} {{symbol}}",
+  "Bonded {{amount}} {{symbol}}": "已冻结 {{amount}} {{symbol}}",
   "Cancel": "取消",
   "Change controller account": "更改控制账户",
   "Change reward destination": "修改收款账户",
