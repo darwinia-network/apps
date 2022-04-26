@@ -38,9 +38,9 @@ export function Deposit() {
 
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
-      const boundedRing = (stakingLedger.active || stakingLedger.activeRing).toBn().sub(locked);
+      const bondedRing = (stakingLedger.active || stakingLedger.activeRing).toBn().sub(locked);
 
-      ring = boundedRing.toString();
+      ring = bondedRing.toString();
     }
     return { ring };
   }, [stakingDerive]);
@@ -79,7 +79,7 @@ export function Deposit() {
           extra={
             <span className="inline-flex items-center gap-2 text-xs">
               <span>
-                {t('Bounded {{amount}} {{symbol}}', {
+                {t('Bonded {{amount}} {{symbol}}', {
                   amount: fromWei({ value: max.ring.toString() }),
                   symbol: upperCase(assets.find((item) => isRing(item.asset))?.token.symbol ?? 'ring'),
                 })}
