@@ -59,13 +59,13 @@ export function UnbondRecords() {
       title: 'Progress',
       key: 'progress',
       render(_, record) {
-        const height = parseInt(record.extrinsic_index.split('-')[0], 10);
+        const height = parseInt(record.unbonding_extrinsic_index.split('-')[0], 10);
         return (
           <div className="px-4">
             <div className="flex justify-between items-center">
-              <span>{format(new Date(record.start_at), DATE_FORMAT)}</span>
+              <span>{format(new Date(record.unbonding_at), DATE_FORMAT)}</span>
               <span className="mx-2">-</span>
-              <span>{format(new Date(record.expired_at), DATE_FORMAT)}</span>
+              <span>{format(new Date(record.unbonding_end), DATE_FORMAT)}</span>
             </div>
             {bestNumber && (
               <Progress
