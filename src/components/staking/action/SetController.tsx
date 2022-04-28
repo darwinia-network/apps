@@ -41,7 +41,6 @@ export function SetController() {
           updateStakingDerive();
         }}
         initialValues={{ controller: controllerAccount, stash: stashAccount }}
-        defaultValues={{ controller: controllerAccount }}
       >
         <AddressItem name="stash" label="Stash account" disabled extra={null} />
 

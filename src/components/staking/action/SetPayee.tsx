@@ -59,7 +59,7 @@ export function SetPayee() {
           updateDestination();
         }}
         signer={controllerAccount}
-        defaultValues={{
+        initialValues={{
           controller: controllerAccount,
           payee: destination
             ? destination.isAccount

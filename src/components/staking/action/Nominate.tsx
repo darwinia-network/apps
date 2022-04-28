@@ -98,7 +98,6 @@ export function Nominate({
         }}
         signer={controllerAccount}
         initialValues={{ controller: controllerAccount, stash: stashAccount, targets: defaultSelected }}
-        defaultValues={{ targets: defaultSelects }}
       >
         <AddressItem name="controller" label="Controller account" disabled={!defaultSelects} />
         <AddressItem name="stash" label="Stash account" disabled />
