@@ -57,7 +57,6 @@ module.exports = {
         },
       },
     ],
-    '@typescript-eslint/no-shadow': ['error'],
     '@typescript-eslint/no-unused-expressions': 'error',
     '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
     '@typescript-eslint/prefer-for-of': 'error',
