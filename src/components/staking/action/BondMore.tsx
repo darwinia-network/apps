@@ -41,9 +41,9 @@ export function BondMore() {
     return () => sub$$.unsubscribe();
   }, [api, stashAccount]);
 
-  return hasFreeBalance ? (
+  return (
     <>
-      <Button onClick={() => setIsVisible(true)} type="text">
+      <Button onClick={() => setIsVisible(true)} type="text" disabled={!hasFreeBalance}>
         {t('Bond more funds')}
       </Button>
 
@@ -94,5 +94,5 @@ export function BondMore() {
         <KtonReward selectedAsset={selectedAsset} promiseMonth={duration} />
       </FormModal>
     </>
-  ) : null;
+  );
 }
