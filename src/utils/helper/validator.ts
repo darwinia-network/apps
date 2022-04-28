@@ -1,8 +1,12 @@
 import { decodeAddress, encodeAddress } from '@polkadot/keyring';
-import { hexToU8a, isHex } from '@polkadot/util';
-import BN from 'bn.js';
+import { hexToU8a, isHex, BN } from '@polkadot/util';
 import type { ValidatorRule } from 'rc-field-form/lib/interface';
 import { TFunction } from 'react-i18next';
+import { from, forkJoin } from 'rxjs';
+import type { DeriveBalancesAll } from '@polkadot/api-derive/types';
+import type { Option } from '@polkadot/types';
+import type { AccountId, StakingLedger } from '@polkadot/types/interfaces';
+import { ApiPromise } from '@polkadot/api';
 import { Token } from '../../model';
 import { convertToSS58 } from './address';
 import { getUnit, toWei } from './balance';
@@ -92,4 +96,43 @@ export const insufficientBalanceRule: ValidatorRuleFactory = (options) => {
   const validator = insufficientBalanceValidatorFactory(options);
 
   return { validator, message: t('Insufficient balance') };
+};
+
+export const validateController = (
+  api: ApiPromise,
+  t: TFunction,
+  accountId: string,
+  controllerId: string,
+  defaultControllerId: string
+) => {
+  return new Promise<string | void>((resolve, reject) => {
+    const sub$$ = forkJoin(
+      [
+        from(api.query.staking.bonded(controllerId) as Promise<Option<AccountId>>),
+        from(api.query.staking.ledger(controllerId) as Promise<Option<StakingLedger>>),
+        from(api.derive.balances?.all(controllerId)),
+      ],
+      (bonded, ledger, all) =>
+        [
+          bonded.isSome ? bonded.unwrap().toString() : null,
+          ledger.isSome ? ledger.unwrap().stash.toString() : null,
+          all,
+        ] as [string | null, string | null, DeriveBalancesAll | null]
+      // eslint-disable-next-line complexity
+    ).subscribe(([bondedId, stashId, allBalances]) => {
+      sub$$.unsubscribe();
+
+      if (controllerId === defaultControllerId) {
+        resolve();
+      } else if (bondedId && controllerId !== accountId) {
+        reject(t('The account is a stash, controlled by {{bondedId}}', { replace: { bondedId } }));
+      } else if (stashId) {
+        reject(t('The account is already controlling {{stashId}}', { replace: { stashId } }));
+      } else if (allBalances?.freeBalance.isZero()) {
+        reject(t('The account does not have sufficient funds available to cover transaction fees'));
+      } else {
+        resolve();
+      }
+    });
+  });
 };
