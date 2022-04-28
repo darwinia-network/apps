@@ -29,5 +29,5 @@ jobs:
           enable_notify_comment: true
           enable_notify_slack: true
           slack_channel: darwinia-apps
-          slack_webhook: ${{ secrets.SLACK_INCOMING_WEBHOOK_URL }}
+          # slack_webhook: ${{ secrets.SLACK_INCOMING_WEBHOOK_URL }}
 
