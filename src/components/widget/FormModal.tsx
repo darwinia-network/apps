@@ -62,6 +62,7 @@ export function FormModal<V extends Record<string, unknown>>({
   return (
     <Modal
       {...others}
+      forceRender
       destroyOnClose
       maskClosable={false}
       onCancel={onCancel}
