@@ -25,6 +25,7 @@ jobs:
           vercel_token: ${{ secrets.VERCEL_TOKEN }}
           vercel_group: itering
           preview_output: true
+          project_name: apps
           enable_cache: true
           enable_notify_slack: true
           slack_channel: darwinia-apps

@@ -24,6 +24,7 @@ jobs:
           vercel_token: ${{ secrets.VERCEL_TOKEN }}
           vercel_group: itering
           preview_output: true
+          project_name: apps
           script_build: yarn build:dev
           enable_cache: true
           enable_notify_comment: true
