@@ -11,82 +11,46 @@ export const QueueStatus = () => {
     // eslint-disable-next-line complexity
     txqueue.forEach(({ error, status, extrinsic, rpc, id }) => {
       let { method, section } = rpc;
-
       if (extrinsic) {
         const found = extrinsic.registry.findMetaCall(extrinsic.callIndex);
-
         if (found.section !== 'unknown') {
           method = found.method;
           section = found.section;
         }
       }
 
+      const config = {
+        key: id.toString(),
+        message: `${section}.${method}`,
+        duration: null,
+      };
+
       if (status === 'error') {
-        return notification.error({
-          message: `${section}.${method}`,
+        notification.error({
+          ...config,
           description: error?.message,
-          duration: null,
-          key: id.toString(),
         });
-      }
-
-      if (status === 'signing') {
-        return notification.info({
-          message: `${section}.${method}`,
+      } else if (status === 'signing') {
+        notification.info({
+          ...config,
           description: <Trans>Waiting for approve, you need to approve this transaction in your wallet</Trans>,
-          duration: null,
-          key: id.toString(),
         });
-      }
-
-      if (status === 'broadcast') {
-        return notification.info({
-          message: `${section}.${method}`,
+      } else if (status === 'broadcast') {
+        notification.info({
+          ...config,
           description: <Trans>Has been broadcast, waiting for the node to receive</Trans>,
           icon: <SyncOutlined spin />,
-          duration: null,
-          key: id.toString(),
         });
-      }
-
-      if (status === 'queued') {
-        return notification.info({
-          message: `${section}.${method}`,
-          description: <Trans>Has been added to the queue, waiting to be packaged</Trans>,
-          duration: null,
-          key: id.toString(),
-        });
-      }
-
-      if (status === 'inblock') {
-        return notification.info({
-          message: `${section}.${method}`,
+      } else if (status === 'inblock') {
+        notification.info({
+          ...config,
           description: <Trans>The transaction has been packaged</Trans>,
           icon: <SyncOutlined spin />,
-          duration: null,
-          key: id.toString(),
         });
-      }
-
-      if (status === 'cancelled') {
-        return notification.warning({
-          message: `${section}.${method}`,
+      } else if (status === 'cancelled') {
+        notification.warning({
+          ...config,
           description: <Trans>The transaction has been cancelled</Trans>,
-          duration: null,
-          key: id.toString(),
-        });
-      }
-
-      if (status === 'finalized') {
-        return notification.success({
-          message: `${section}.${method}`,
-          description: (
-            <Trans>
-              The transaction has been sent, please check the transaction progress in the history or explorer.
-            </Trans>
-          ),
-          duration: null,
-          key: id.toString(),
         });
       }
     });

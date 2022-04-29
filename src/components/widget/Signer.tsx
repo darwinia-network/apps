@@ -11,6 +11,7 @@ import type { SignerOptions } from '@polkadot/api/submittable/types';
 import type { Multisig, Timepoint } from '@polkadot/types/interfaces';
 import type { Option } from '@polkadot/types';
 import { web3FromAddress } from '@polkadot/extension-dapp';
+import { useTranslation } from 'react-i18next';
 import { handleTxResults, extractExternal } from '../../utils';
 import { QueueTx, QueueTxResult, QueueTxMessageSetStatus, AddressProxy } from '../../model';
 import { useQueue, useApi } from '../../hooks';
@@ -184,7 +185,8 @@ function extractCurrent(txqueue: QueueTx[]): ItemState {
 }
 
 export const Signer = () => {
-  const { api } = useApi();
+  const { api, network } = useApi();
+  const { t } = useTranslation();
   const { txqueue, queueSetTxStatus } = useQueue();
   const { count, currentItem, isRpc, isVisible, requestAddress } = useMemo(() => extractCurrent(txqueue), [txqueue]);
   const senderInfo = useMemo<AddressProxy>(
@@ -198,33 +200,6 @@ export const Signer = () => {
     }),
     [requestAddress]
   );
-  const [section, method] = useMemo(() => {
-    if (currentItem) {
-      const { extrinsic, rpc } = currentItem;
-      let { section, method } = rpc;
-      if (extrinsic) {
-        const found = extrinsic.registry.findMetaCall(extrinsic.callIndex);
-        if (found.section !== 'unknown') {
-          method = found.method;
-          section = found.section;
-        }
-      }
-      return [section, method];
-    }
-
-    return ['unknown', 'unknown'];
-  }, [currentItem]);
-
-  const onCancel = useCallback((): void => {
-    if (currentItem) {
-      const { id, signerCb = NOOP, txFailedCb = NOOP } = currentItem;
-
-      queueSetTxStatus(id, 'cancelled');
-      signerCb(id, null);
-      txFailedCb(null);
-    }
-  }, [currentItem, queueSetTxStatus]);
-  void onCancel;
 
   const doSendPayload = useCallback(
     (queueSetTxStatus: QueueTxMessageSetStatus, currentItem: QueueTx, senderInfo: AddressProxy): void => {
@@ -282,20 +257,45 @@ export const Signer = () => {
     }
   }, [currentItem, isVisible, confirmSend]);
 
+  const color = useMemo(
+    () =>
+      network.name === 'darwinia'
+        ? 'text-darwinia-main'
+        : network.name === 'crab'
+        ? 'text-crab-main'
+        : network.name === 'pangolin'
+        ? 'text-pangolin-main'
+        : network.name === 'pangoro'
+        ? 'text-pangoro-main'
+        : '',
+    [network]
+  );
+
   useEffect(() => {
-    const key = 'queue length notification';
-    if (count) {
+    const key = 'Queue notification';
+
+    if (currentItem) {
+      const { extrinsic, rpc } = currentItem;
+      let { section, method } = rpc;
+      if (extrinsic) {
+        const found = extrinsic.registry.findMetaCall(extrinsic.callIndex);
+        if (found.section !== 'unknown') {
+          method = found.method;
+          section = found.section;
+        }
+      }
+
       notification.open({
-        icon: <ClockCircleOutlined />,
-        message: `Queue transactions (1/${count})`,
-        description: `Current: ${section}.${method}`,
+        icon: <ClockCircleOutlined className={color} />,
+        message: `${t('Authorize transaction')} (1/${count})`,
+        description: `${t('Current')}: ${section}.${method}`,
         key,
         duration: null,
       });
     } else {
       notification.close(key);
     }
-  }, [count, section, method]);
+  }, [t, color, count, currentItem, network]);
 
   return null;
 };
