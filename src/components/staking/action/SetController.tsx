@@ -1,6 +1,8 @@
 import { Button } from 'antd';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import type { Option } from '@polkadot/types';
+import type { AccountId, StakingLedger } from '@polkadot/types/interfaces';
 import { useApi, useStaking, useAccount } from '../../../hooks';
 import { FormModal } from '../../widget/FormModal';
 import { AddressItem } from '../../widget/form-control/AddressItem';
@@ -57,8 +59,24 @@ export function SetController() {
           extra={null}
           rules={[
             {
-              validator(_, value) {
-                return validateController(api, t, account, value, controllerAccount);
+              validator: async (_, value) => {
+                if (value !== controllerAccount) {
+                  const bonded = (await api.query.staking.bonded(value)) as Option<AccountId>;
+                  const ledger = (await api.query.staking.ledger(value)) as Option<StakingLedger>;
+                  const allBalances = await api.derive.balances?.all(value);
+                  const bondedId = bonded.isSome ? bonded.unwrap().toString() : null;
+                  const stashId = ledger.isSome ? ledger.unwrap().stash.toString() : null;
+
+                  const message = validateController({
+                    t,
+                    bondedId,
+                    stashId,
+                    allBalances,
+                    controllerId: value,
+                    accountId: account,
+                  });
+                  return message ? Promise.reject(message) : Promise.resolve();
+                }
               },
             },
           ]}
