@@ -18,7 +18,6 @@ interface ModalFormProps<Values = Record<string, unknown>> {
   beforeStart?: (val: Values) => void;
   extrinsic: (val: Values) => SubmittableExtrinsic<'promise', ISubmittableResult>;
   initialValues?: Partial<Values>;
-  defaultValues?: Partial<Values>;
   modalProps: ModalProps;
   onFail?: (err: Record<string, unknown>) => void;
   onSuccess?: (tx: Tx) => void;
@@ -30,7 +29,6 @@ export function FormModal<V extends Record<string, unknown>>({
   modalProps,
   children,
   initialValues,
-  defaultValues,
   extrinsic,
   signer,
   onSuccess = () => {
@@ -46,7 +44,7 @@ export function FormModal<V extends Record<string, unknown>>({
   const { api } = useApi();
   const { account } = useAccount();
   const { createObserver, tx } = useTx();
-  const { ...others } = modalProps;
+  const { visible, ...others } = modalProps;
   const observer = useMemo(
     () => createObserver({ next: afterTxSuccess(onSuccess), error: onFail }),
     [createObserver, onSuccess, onFail]
@@ -54,14 +52,17 @@ export function FormModal<V extends Record<string, unknown>>({
   const { t } = useTranslation();
 
   useEffect(() => {
-    if (defaultValues) {
-      form.setFieldsValue(defaultValues as unknown as never);
+    if (visible) {
+      // Reset to 「initialValues」 every time we open the modal
+      form.resetFields();
     }
-  }, [defaultValues, form]);
+  }, [form, visible]);
 
   return (
     <Modal
       {...others}
+      visible={visible}
+      forceRender
       destroyOnClose
       maskClosable={false}
       onCancel={onCancel}

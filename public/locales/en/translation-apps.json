@@ -1,4 +1,7 @@
 {
+  "The account is a stash, controlled by {{bondedId}}": "The account is a stash, controlled by {{bondedId}}",
+  "The account is already controlling {{stashId}}": "The account is already controlling {{stashId}}",
+  "The account does not have sufficient funds available to cover transaction fees": "The account does not have sufficient funds available to cover transaction fees",
   "1 day": "1 day",
   "1 hr": "1 hr",
   "1 min": "1 min",

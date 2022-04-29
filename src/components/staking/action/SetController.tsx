@@ -1,10 +1,13 @@
 import { Button } from 'antd';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useApi, useStaking } from '../../../hooks';
+import type { Option } from '@polkadot/types';
+import type { AccountId, StakingLedger } from '@polkadot/types/interfaces';
+import { useApi, useStaking, useAccount } from '../../../hooks';
 import { FormModal } from '../../widget/FormModal';
 import { AddressItem } from '../../widget/form-control/AddressItem';
 import { Label } from '../../widget/form-control/Label';
+import { validateController } from '../../../utils';
 interface SetControllerFormValues {
   stash: string;
   controller: string;
@@ -14,6 +17,7 @@ interface SetControllerFormValues {
 export function SetController() {
   const { t } = useTranslation();
   const { api } = useApi();
+  const { account } = useAccount();
   const [isVisible, setIsVisible] = useState(false);
   const { stashAccount, controllerAccount, updateValidators, updateStakingDerive, updateControllerAndStash } =
     useStaking();
@@ -39,7 +43,6 @@ export function SetController() {
           updateStakingDerive();
         }}
         initialValues={{ controller: controllerAccount, stash: stashAccount }}
-        defaultValues={{ controller: controllerAccount }}
       >
         <AddressItem name="stash" label="Stash account" disabled extra={null} />
 
@@ -54,6 +57,29 @@ export function SetController() {
             />
           }
           extra={null}
+          rules={[
+            {
+              validator: async (_, value) => {
+                if (value !== controllerAccount) {
+                  const bonded = (await api.query.staking.bonded(value)) as Option<AccountId>;
+                  const ledger = (await api.query.staking.ledger(value)) as Option<StakingLedger>;
+                  const allBalances = await api.derive.balances?.all(value);
+                  const bondedId = bonded.isSome ? bonded.unwrap().toString() : null;
+                  const stashId = ledger.isSome ? ledger.unwrap().stash.toString() : null;
+
+                  const message = validateController({
+                    t,
+                    bondedId,
+                    stashId,
+                    allBalances,
+                    controllerId: value,
+                    accountId: account,
+                  });
+                  return message ? Promise.reject(message) : Promise.resolve();
+                }
+              },
+            },
+          ]}
         />
       </FormModal>
     </>
