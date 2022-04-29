@@ -1,9 +1,9 @@
-import { Modal, Button, Typography } from 'antd';
+import { notification } from 'antd';
+import { ClockCircleOutlined } from '@ant-design/icons';
 import { ApiPromise, SubmittableResult } from '@polkadot/api';
 import type { DefinitionRpcExt } from '@polkadot/types/types';
 import { assert, isFunction, loggerFormat, BN_ZERO } from '@polkadot/util';
-import { useState, useMemo, useEffect, useCallback } from 'react';
-import { useTranslation } from 'react-i18next';
+import { useMemo, useEffect, useCallback } from 'react';
 import { keyring } from '@polkadot/ui-keyring';
 import type { SubmittableExtrinsic } from '@polkadot/api/types';
 import type { KeyringPair } from '@polkadot/keyring/types';
@@ -186,8 +186,6 @@ function extractCurrent(txqueue: QueueTx[]): ItemState {
 export const Signer = () => {
   const { api } = useApi();
   const { txqueue, queueSetTxStatus } = useQueue();
-  const { t } = useTranslation();
-  const [busy, setBusy] = useState(false);
   const { count, currentItem, isRpc, isVisible, requestAddress } = useMemo(() => extractCurrent(txqueue), [txqueue]);
   const senderInfo = useMemo<AddressProxy>(
     () => ({
@@ -226,6 +224,7 @@ export const Signer = () => {
       txFailedCb(null);
     }
   }, [currentItem, queueSetTxStatus]);
+  void onCancel;
 
   const doSendPayload = useCallback(
     (queueSetTxStatus: QueueTxMessageSetStatus, currentItem: QueueTx, senderInfo: AddressProxy): void => {
@@ -261,12 +260,9 @@ export const Signer = () => {
     [api]
   );
 
-  const handleClickConfirm = useCallback(() => {
-    setBusy(true);
-
+  const confirmSend = useCallback(() => {
     const errorHandler = (error: Error): void => {
       console.error(error);
-      setBusy(false);
     };
 
     if (currentItem?.payload) {
@@ -281,37 +277,25 @@ export const Signer = () => {
   }, [api, isRpc, currentItem, queueSetTxStatus]);
 
   useEffect(() => {
-    !isVisible && setBusy(false);
-  }, [isVisible]);
+    if (currentItem && isVisible) {
+      confirmSend();
+    }
+  }, [currentItem, isVisible, confirmSend]);
 
-  return (
-    <>
-      {currentItem && isVisible ? (
-        <Modal
-          title={
-            <>
-              {t('Authorize transaction')}
-              {count === 1 ? undefined : <>&nbsp;1/{count}</>}
-            </>
-          }
-          visible={isVisible}
-          destroyOnClose
-          maskClosable={false}
-          onCancel={onCancel}
-          key={currentItem.id}
-          footer={
-            <Button disabled={busy} onClick={handleClickConfirm}>
-              {t('Confirm')}
-            </Button>
-          }
-        >
-          <div>
-            <Typography.Paragraph>
-              Sign and send <Typography.Text strong code>{`${section}.${method}`}</Typography.Text>
-            </Typography.Paragraph>
-          </div>
-        </Modal>
-      ) : null}
-    </>
-  );
+  useEffect(() => {
+    const key = 'queue length notification';
+    if (count) {
+      notification.open({
+        icon: <ClockCircleOutlined />,
+        message: `Queue transactions (1/${count})`,
+        description: `Current: ${section}.${method}`,
+        key,
+        duration: null,
+      });
+    } else {
+      notification.close(key);
+    }
+  }, [count, section, method]);
+
+  return null;
 };
