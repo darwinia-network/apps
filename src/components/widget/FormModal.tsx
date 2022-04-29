@@ -86,24 +86,6 @@ export function FormModal<V extends Record<string, unknown>>({
                     txSuccessCb: (status) => console.log('tx success:', status),
                     txUpdateCb: (status) => console.log('tx update:', status),
                   });
-                  queueExtrinsic({
-                    accountId: signer ?? account,
-                    extrinsic: extrinsic(value),
-                    isUnsigned: false,
-                    txFailedCb: (status) => console.log('tx fail:', status),
-                    txStartCb: () => console.log('tx start'),
-                    txSuccessCb: (status) => console.log('tx success:', status),
-                    txUpdateCb: (status) => console.log('tx update:', status),
-                  });
-                  queueExtrinsic({
-                    accountId: signer ?? account,
-                    extrinsic: extrinsic(value),
-                    isUnsigned: false,
-                    txFailedCb: (status) => console.log('tx fail:', status),
-                    txStartCb: () => console.log('tx start'),
-                    txSuccessCb: (status) => console.log('tx success:', status),
-                    txUpdateCb: (status) => console.log('tx update:', status),
-                  });
                   onCancel && onCancel();
                 });
 
