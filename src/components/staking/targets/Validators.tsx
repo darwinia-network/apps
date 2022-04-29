@@ -166,7 +166,7 @@ export function Validators({ data, lastReward }: ValidatorsProps) {
     },
     {
       title: t('other stake(power)'),
-      key: 'boundedOther',
+      key: 'bondedOther',
       sorter(a, b) {
         return a.bondedTotal.sub(a.bondedOwn).sub(b.bondedTotal.sub(b.bondedOwn)).toNumber();
       },
