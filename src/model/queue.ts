@@ -12,10 +12,6 @@ export interface ActionStatusBase {
   status: 'error' | 'event' | 'eventWarn' | 'queued' | 'received' | 'success';
 }
 
-export interface ActionStatusPartial extends ActionStatusBase {
-  action: Actions | string;
-}
-
 export interface ActionStatus extends ActionStatusBase {
   action: Actions | string | string[];
 }
@@ -123,5 +119,3 @@ export type QueueTxMessageSetStatus = (
   result?: SubmittableResult,
   error?: Error
 ) => void;
-
-export type QueueAction$Add = (status: ActionStatus | ActionStatus[]) => void;
