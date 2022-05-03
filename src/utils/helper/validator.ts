@@ -1,8 +1,8 @@
 import { decodeAddress, encodeAddress } from '@polkadot/keyring';
-import { hexToU8a, isHex } from '@polkadot/util';
-import BN from 'bn.js';
+import { hexToU8a, isHex, BN } from '@polkadot/util';
 import type { ValidatorRule } from 'rc-field-form/lib/interface';
 import { TFunction } from 'react-i18next';
+import type { DeriveBalancesAll } from '@polkadot/api-derive/types';
 import { Token } from '../../model';
 import { convertToSS58 } from './address';
 import { getUnit, toWei } from './balance';
@@ -92,4 +92,31 @@ export const insufficientBalanceRule: ValidatorRuleFactory = (options) => {
   const validator = insufficientBalanceValidatorFactory(options);
 
   return { validator, message: t('Insufficient balance') };
+};
+
+export const validateController = ({
+  t,
+  bondedId,
+  stashId,
+  allBalances,
+  controllerId,
+  accountId,
+}: {
+  t: TFunction;
+  bondedId: string | null;
+  stashId: string | null;
+  allBalances: DeriveBalancesAll;
+  controllerId: string;
+  accountId: string;
+}) => {
+  if (bondedId && controllerId !== accountId) {
+    return t('The account is a stash, controlled by {{bondedId}}', { replace: { bondedId } });
+  }
+  if (stashId) {
+    return t('The account is already controlling {{stashId}}', { replace: { stashId } });
+  }
+  if (allBalances?.freeBalance.isZero()) {
+    return t('The account does not have sufficient funds available to cover transaction fees');
+  }
+  return null;
 };

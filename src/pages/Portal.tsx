@@ -69,10 +69,10 @@ function Page() {
         link: 'https://onfinality.io/',
       },
       {
-        name: 'Wormhole',
-        logo: '/image/portal/darwinia.png',
-        description: t('Cross-chain transfer of assets between multiple networks can be realized through Wormhole.'),
-        link: 'https://wormhole.darwinia.network/',
+        name: 'Helix',
+        logo: '/image/portal/helix.png',
+        description: t('A safe community tool for cross-chain assets.'),
+        link: 'https://helixbridge.app/',
       },
       {
         name: 'Celer',

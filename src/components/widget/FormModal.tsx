@@ -14,7 +14,6 @@ import { TxFailedCallback, TxCallback } from '../../model';
 interface ModalFormProps<Values = Record<string, unknown>> {
   extrinsic: (val: Values) => SubmittableExtrinsic<'promise', ISubmittableResult>;
   initialValues?: Partial<Values>;
-  defaultValues?: Partial<Values>;
   modalProps: ModalProps;
   onFail?: TxFailedCallback;
   onSuccess?: TxCallback;
@@ -26,7 +25,6 @@ export function FormModal<V extends Record<string, unknown>>({
   modalProps,
   children,
   initialValues,
-  defaultValues,
   extrinsic,
   signer,
   onSuccess = () => {
@@ -40,19 +38,22 @@ export function FormModal<V extends Record<string, unknown>>({
   const [form] = useForm<V>();
   const { account } = useAccount();
   const { queueExtrinsic } = useQueue();
-  const { ...others } = modalProps;
+  const { visible, ...others } = modalProps;
   const { t } = useTranslation();
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
-    if (defaultValues) {
-      form.setFieldsValue(defaultValues as unknown as never);
+    if (visible) {
+      // Reset to 「initialValues」 every time we open the modal
+      form.resetFields();
     }
-  }, [defaultValues, form]);
+  }, [form, visible]);
 
   return (
     <Modal
       {...others}
+      visible={visible}
+      forceRender
       destroyOnClose
       maskClosable={false}
       onCancel={onCancel}
@@ -61,6 +62,7 @@ export function FormModal<V extends Record<string, unknown>>({
           <Button
             className="w-full py-1"
             disabled={busy}
+            size="large"
             {...modalProps.okButtonProps}
             type="primary"
             onClick={() => {
@@ -91,7 +93,7 @@ export function FormModal<V extends Record<string, unknown>>({
           >
             {modalProps?.okText || t('OK')}
           </Button>
-          <Button onClick={onCancel} className="w-full ml-0 py-1">
+          <Button onClick={onCancel} className="w-full ml-0 py-1" size="large">
             {modalProps?.cancelText || t('Cancel')}
           </Button>
         </div>
