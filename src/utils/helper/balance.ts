@@ -1,4 +1,4 @@
-import BN from 'bn.js';
+import { BN } from '@polkadot/util';
 import { isString, isNumber, isUndefined, isNull } from 'lodash';
 import { Unit, fromWei as web3FromWei, toWei as web3ToWei, unitMap, Units } from 'web3-utils';
 

@@ -1,4 +1,4 @@
-import BN from 'bn.js';
+import { BN } from '@polkadot/util';
 import { EMPTY } from 'rxjs';
 import { Abi } from '@polkadot/api-contract';
 import { ApiPromise } from '@polkadot/api';

@@ -1,6 +1,6 @@
 import { Balance } from '@polkadot/types/interfaces';
 import Bignumber from 'bignumber.js';
-import BN from 'bn.js';
+import type { BN } from '@polkadot/util';
 
 const ZERO = new Bignumber(0);
 export const POWER_CAP = 1000000000;

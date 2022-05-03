@@ -3,7 +3,7 @@ import { Option, StorageKey } from '@polkadot/types';
 import { Nominations } from '@polkadot/types/interfaces';
 import { DeriveStakingWaiting } from '@polkadot/api-derive/types';
 import { BN_ZERO } from '@polkadot/util';
-import BN from 'bn.js';
+import type { BN } from '@polkadot/util';
 import { useEffect, useState } from 'react';
 import { from, takeWhile } from 'rxjs';
 import { useIsMountedOperator } from '..';

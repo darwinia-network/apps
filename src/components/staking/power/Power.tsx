@@ -1,6 +1,6 @@
 import { QuestionCircleFilled } from '@ant-design/icons';
 import { Card, Col, Row, Tooltip } from 'antd';
-import BN from 'bn.js';
+import { BN } from '@polkadot/util';
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAccount, usePower, useStaking } from '../../../hooks';

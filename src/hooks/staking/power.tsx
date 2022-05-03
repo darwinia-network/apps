@@ -1,5 +1,5 @@
 import { KtonBalance, RingBalance } from '@darwinia/types';
-import BN from 'bn.js';
+import { BN } from '@polkadot/util';
 import { useCallback, useEffect, useState } from 'react';
 import { from, zip } from 'rxjs';
 import { Asset, Fund } from '../../model';

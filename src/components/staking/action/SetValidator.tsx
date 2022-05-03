@@ -1,6 +1,6 @@
 import { Button, InputNumber } from 'antd';
 import FormItem from 'antd/lib/form/FormItem';
-import BN from 'bn.js';
+import { BN } from '@polkadot/util';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useApi, useStaking } from '../../../hooks';

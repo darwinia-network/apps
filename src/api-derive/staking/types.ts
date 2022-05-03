@@ -11,7 +11,7 @@ import {
   RewardDestination,
   ValidatorPrefs,
 } from '@polkadot/types/interfaces';
-import type BN from 'bn.js';
+import type { BN } from '@polkadot/util';
 
 export interface DeriveStakerReward {
   era: EraIndex;
