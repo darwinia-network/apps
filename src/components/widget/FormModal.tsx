@@ -76,12 +76,15 @@ export function FormModal<V extends Record<string, unknown>>({
                     accountId: signer ?? account,
                     extrinsic: extrinsic(value),
                     isUnsigned: false,
-                    txUpdateCb: () => {
+                    txSuccessCb: (status) => {
                       setBusy(false);
                       onCancel && onCancel();
+                      onSuccess && onSuccess(status);
                     },
-                    txSuccessCb: onSuccess,
-                    txFailedCb: onFail,
+                    txFailedCb: (status) => {
+                      setBusy(false);
+                      onFail && onFail(status);
+                    },
                   });
                 });
             }}
