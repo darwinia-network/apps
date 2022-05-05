@@ -98,10 +98,15 @@ export function ClaimRewards({ eraSelectionIndex, type = 'text' }: ClaimRewardsP
                       queueExtrinsic({
                         accountId: signer,
                         extrinsic,
-                        txUpdateCb: () => {
+                        txFailedCb: () => {
                           if (index + 1 === extrinsics.length) {
                             setBusy(false);
+                          }
+                        },
+                        txSuccessCb: () => {
+                          if (index + 1 === extrinsics.length) {
                             setIsVisible(false);
+                            setBusy(false);
                           }
                         },
                       });
