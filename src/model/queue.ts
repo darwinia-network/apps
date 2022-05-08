@@ -1,8 +1,7 @@
 import { SubmittableExtrinsic } from '@polkadot/api/promise/types';
-import { SignerResult } from '@polkadot/api/types';
 import { SubmittableResult } from '@polkadot/api';
 import { AccountId, Address } from '@polkadot/types/interfaces';
-import { SignerPayloadJSON, Registry, DefinitionRpcExt } from '@polkadot/types/types';
+import { DefinitionRpcExt } from '@polkadot/types/types';
 
 export type Actions = 'create' | 'edit' | 'restore' | 'forget' | 'backup' | 'changePassword' | 'transfer';
 
@@ -42,8 +41,6 @@ export type QueueTxStatus =
   | 'sent'
   | 'blocked';
 
-export type SignerCallback = (id: number, result: SignerResult | null) => void;
-
 export type TxCallback = (status: SubmittableResult) => void;
 
 export type TxFailedCallback = (status: Error | SubmittableResult | null) => void;
@@ -53,11 +50,9 @@ export interface QueueTx extends AccountInfo {
   extrinsic?: SubmittableExtrinsic;
   id: number;
   isUnsigned?: boolean;
-  payload?: SignerPayloadJSON;
   result?: unknown;
   removeItem: () => void;
   rpc: DefinitionRpcExt;
-  signerCb?: SignerCallback;
   txFailedCb?: TxFailedCallback;
   txSuccessCb?: TxCallback;
   txStartCb?: () => void;
@@ -93,8 +88,6 @@ export interface PartialAccountInfo {
 
 export interface PartialQueueTxExtrinsic extends PartialAccountInfo {
   extrinsic?: SubmittableExtrinsic;
-  payload?: SignerPayloadJSON;
-  signerCb?: SignerCallback;
   txFailedCb?: TxFailedCallback;
   txSuccessCb?: TxCallback;
   txStartCb?: () => void;
@@ -110,8 +103,6 @@ export interface PartialQueueTxRpc extends PartialAccountInfo {
 export type QueueTxRpcAdd = (value: PartialQueueTxRpc) => void;
 
 export type QueueTxExtrinsicAdd = (value: PartialQueueTxExtrinsic) => void;
-
-export type QueueTxPayloadAdd = (registry: Registry, payload: SignerPayloadJSON, signerCb: SignerCallback) => void;
 
 export type QueueTxMessageSetStatus = (
   id: number,

@@ -1,20 +1,16 @@
 import React, { useState, useCallback, createContext, useRef } from 'react';
 import { SubmittableResult } from '@polkadot/api';
 import { notification } from 'antd';
-import type { SubmittableExtrinsic } from '@polkadot/api/promise/types';
-import type { Registry, SignerPayloadJSON } from '@polkadot/types/types';
 import jsonrpc from '@polkadot/types/interfaces/jsonrpc';
 import {
   QueueTx,
   QueueTxStatus,
-  QueueTxPayloadAdd,
   QueueTxExtrinsicAdd,
   QueueTxRpcAdd,
   QueueTxMessageSetStatus,
   QueueTxExtrinsic,
   QueueTxRpc,
   PartialQueueTxRpc,
-  SignerCallback,
   PartialQueueTxExtrinsic,
 } from '../model';
 
@@ -39,7 +35,6 @@ export const STATUS_COMPLETE: QueueTxStatus[] = [
 export interface QueueCtx {
   txqueue: QueueTx[];
   queueExtrinsic: QueueTxExtrinsicAdd;
-  queuePayload: QueueTxPayloadAdd;
   queueRpc: QueueTxRpcAdd;
   queueSetTxStatus: QueueTxMessageSetStatus;
 }
@@ -83,23 +78,6 @@ export const QueueProvider = ({ children }: React.PropsWithChildren<unknown>) =>
 
   const queueExtrinsic = useCallback((value: PartialQueueTxExtrinsic) => addToTxQueue({ ...value }), [addToTxQueue]);
 
-  const queuePayload = useCallback(
-    (registry: Registry, payload: SignerPayloadJSON, signerCb: SignerCallback): void => {
-      addToTxQueue({
-        accountId: payload.address,
-        // this is not great, but the Extrinsic doesn't need a submittable
-        extrinsic: registry.createType(
-          'Extrinsic',
-          { method: registry.createType('Call', payload.method) },
-          { version: payload.version }
-        ) as unknown as SubmittableExtrinsic,
-        payload,
-        signerCb,
-      });
-    },
-    [addToTxQueue]
-  );
-
   const queueRpc = useCallback((value: PartialQueueTxRpc) => addToTxQueue({ ...value }), [addToTxQueue]);
 
   const queueSetTxStatus = useCallback(
@@ -137,7 +115,6 @@ export const QueueProvider = ({ children }: React.PropsWithChildren<unknown>) =>
     <QueueContext.Provider
       value={{
         queueExtrinsic,
-        queuePayload,
         queueRpc,
         queueSetTxStatus,
         txqueue,

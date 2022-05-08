@@ -4,7 +4,6 @@ import { ApiPromise, SubmittableResult } from '@polkadot/api';
 import type { DefinitionRpcExt } from '@polkadot/types/types';
 import { assert, isFunction, loggerFormat, BN_ZERO } from '@polkadot/util';
 import { useMemo, useEffect, useCallback } from 'react';
-import { keyring } from '@polkadot/ui-keyring';
 import type { SubmittableExtrinsic } from '@polkadot/api/types';
 import type { KeyringPair } from '@polkadot/keyring/types';
 import type { SignerOptions } from '@polkadot/api/submittable/types';
@@ -23,8 +22,6 @@ interface ItemState {
   isVisible: boolean;
   requestAddress: string | null;
 }
-
-const NOOP = () => undefined;
 
 const AVAIL_STATUS = ['queued', 'qr', 'signing'];
 
@@ -168,7 +165,7 @@ function extractCurrent(txqueue: QueueTx[]): ItemState {
   let isVisible = false;
 
   if (currentItem) {
-    if (currentItem.status === 'queued' && !(currentItem.extrinsic || currentItem.payload)) {
+    if (currentItem.status === 'queued' && !currentItem.extrinsic) {
       isRpc = true;
     } else if (currentItem.status !== 'signing') {
       isVisible = true;
@@ -201,20 +198,6 @@ export const Signer = () => {
     [requestAddress]
   );
 
-  const doSendPayload = useCallback(
-    (queueSetTxStatus: QueueTxMessageSetStatus, currentItem: QueueTx, senderInfo: AddressProxy): void => {
-      if (senderInfo.signAddress && currentItem.payload) {
-        const { id, payload, signerCb = NOOP } = currentItem;
-        const pair = keyring.getPair(senderInfo.signAddress);
-        const result = api.createType('ExtrinsicPayload', payload, { version: payload.version }).sign(pair);
-
-        signerCb(id, { id, ...result });
-        queueSetTxStatus(id, 'completed');
-      }
-    },
-    [api]
-  );
-
   const doSend = useCallback(
     async (
       queueSetTxStatus: QueueTxMessageSetStatus,
@@ -240,12 +223,10 @@ export const Signer = () => {
       console.error(error);
     };
 
-    if (currentItem?.payload) {
-      doSendPayload(queueSetTxStatus, currentItem, senderInfo);
-    } else if (currentItem) {
+    if (currentItem) {
       doSend(queueSetTxStatus, currentItem, senderInfo).catch(errorHandler);
     }
-  }, [currentItem, senderInfo, doSendPayload, doSend, queueSetTxStatus]);
+  }, [currentItem, senderInfo, doSend, queueSetTxStatus]);
 
   useEffect((): void => {
     if (isRpc && currentItem) {
