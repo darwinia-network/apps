@@ -1,10 +1,19 @@
 import { Typography, notification } from 'antd';
 import { SyncOutlined } from '@ant-design/icons';
 import { Trans } from 'react-i18next';
-import { useEffect, ReactElement } from 'react';
+import { useEffect, ReactNode } from 'react';
 import { SubmittableResult } from '@polkadot/api';
 import { useQueue, useApi, useNetworkColor } from '../../hooks';
 import { SubscanLink } from './SubscanLink';
+
+type NotificationConfig = {
+  key?: string;
+  message?: ReactNode;
+  duration?: number;
+  icon?: ReactNode;
+  description: ReactNode;
+  type: 'success' | 'error' | 'info' | 'warning' | 'open';
+};
 
 export const QueueStatus = () => {
   const { txqueue } = useQueue();
@@ -14,52 +23,42 @@ export const QueueStatus = () => {
   useEffect(() => {
     // eslint-disable-next-line complexity
     txqueue.forEach(({ error, status, extrinsic, rpc, id, result }) => {
-      let { method, section } = rpc;
-      if (extrinsic) {
-        const found = extrinsic.registry.findMetaCall(extrinsic.callIndex);
-        if (found.section !== 'unknown') {
-          method = found.method;
-          section = found.section;
-        }
-      }
-
-      const config = {
-        key: id.toString(),
-        message: `${section}.${method}`,
-        duration: null,
-      };
+      let config: NotificationConfig | undefined = undefined;
 
       if (status === 'error') {
-        notification.error({
-          ...config,
+        config = {
+          type: 'error',
           description: error?.message,
-        });
+        };
       } else if (status === 'signing') {
-        notification.info({
-          ...config,
+        config = {
+          type: 'info',
           description: <Trans>Waiting for approve, you need to approve this transaction in your wallet</Trans>,
-        });
+        };
       } else if (status === 'broadcast') {
-        notification.info({
-          ...config,
+        config = {
+          type: 'info',
           description: <Trans>Has been broadcast, waiting for the node to receive</Trans>,
           icon: <SyncOutlined spin className={color} />,
-        });
+        };
       } else if (status === 'cancelled') {
-        notification.warning({
-          ...config,
+        config = {
+          type: 'warning',
           description: <Trans>The transaction has been cancelled</Trans>,
-        });
+        };
       } else if (status === 'finalized' || status === 'inblock') {
         (result as SubmittableResult).events
           .filter(({ event: { section } }) => section === 'system')
           .forEach(({ event: { method } }): void => {
-            const notice = (type: 'success' | 'error', message: ReactElement, txHash: string) =>
-              notification[type]({
-                ...config,
+            const txHash = (result as SubmittableResult).txHash.toHex();
+            if (method === 'ExtrinsicFailed') {
+              config = {
+                type: 'error',
                 description: (
                   <div>
-                    <p>{message}</p>
+                    <p>
+                      <Trans>The transaction has been failed, you can check the transaction in the explorer.</Trans>
+                    </p>
                     <SubscanLink network={network.name} txHash={txHash}>
                       <Typography.Text copyable underline>
                         {txHash}
@@ -67,24 +66,48 @@ export const QueueStatus = () => {
                     </SubscanLink>
                   </div>
                 ),
-              });
-
-            if (method === 'ExtrinsicFailed') {
-              notice(
-                'error',
-                <Trans>The transaction has been failed, you can check the transaction in the explorer.</Trans>,
-                (result as SubmittableResult).txHash.toHex()
-              );
+              };
             } else if (method === 'ExtrinsicSuccess') {
-              notice(
-                'success',
-                <Trans>
-                  The transaction has been sent, please check the transaction progress in the history or explorer.
-                </Trans>,
-                (result as SubmittableResult).txHash.toHex()
-              );
+              config = {
+                type: 'success',
+                description: (
+                  <div>
+                    <p>
+                      <Trans>
+                        The transaction has been sent, please check the transaction progress in the history or explorer.
+                      </Trans>
+                    </p>
+                    <SubscanLink network={network.name} txHash={txHash}>
+                      <Typography.Text copyable underline>
+                        {txHash}
+                      </Typography.Text>
+                    </SubscanLink>
+                  </div>
+                ),
+              };
             }
           });
+      }
+
+      if (config) {
+        let { method, section } = rpc;
+        const { key, message, duration, icon, description, type } = config;
+
+        if (extrinsic) {
+          const found = extrinsic.registry.findMetaCall(extrinsic.callIndex);
+          if (found.section !== 'unknown') {
+            method = found.method;
+            section = found.section;
+          }
+        }
+
+        notification[type]({
+          key: key ?? id.toString(),
+          message: message ?? `${section}.${method}`,
+          duration: duration ?? null,
+          description,
+          icon,
+        });
       }
     });
   }, [txqueue, network.name, color]);
