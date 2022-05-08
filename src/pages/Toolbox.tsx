@@ -1,4 +1,4 @@
-import { Form, Input, Tabs, Typography } from 'antd';
+import { Form, Input, Tabs, Typography, Alert } from 'antd';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { withRouter } from 'react-router-dom';
@@ -22,6 +22,11 @@ function Page() {
         className={`lg:px-8 px-4 w-full mx-auto dark:shadow-none dark:border-transparent pb-5 page-account-tabs page-account-tabs-${name}`}
       >
         <Tabs.TabPane tab={t('DVM Address')} key="address">
+          <Alert
+            message={t(`Darwinia will support DVM soon, but please don't transfer assets to this address now`)}
+            type="warning"
+            className="mb-2"
+          />
           <Form layout="vertical">
             <Form.Item
               label={<Label text={t('DVM account')} info={t('DVM format account ID to Darwinia network account ID')} />}
