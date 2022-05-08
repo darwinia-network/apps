@@ -3,12 +3,13 @@ import { SyncOutlined } from '@ant-design/icons';
 import { Trans } from 'react-i18next';
 import { useEffect, ReactElement } from 'react';
 import { SubmittableResult } from '@polkadot/api';
-import { useQueue, useApi } from '../../hooks';
+import { useQueue, useApi, useNetworkColor } from '../../hooks';
 import { SubscanLink } from './SubscanLink';
 
 export const QueueStatus = () => {
   const { txqueue } = useQueue();
   const { network } = useApi();
+  const { color } = useNetworkColor();
 
   useEffect(() => {
     // eslint-disable-next-line complexity
@@ -42,7 +43,7 @@ export const QueueStatus = () => {
         notification.info({
           ...config,
           description: <Trans>Has been broadcast, waiting for the node to receive</Trans>,
-          icon: <SyncOutlined spin />,
+          icon: <SyncOutlined spin className={color} />,
         });
       } else if (status === 'cancelled') {
         notification.warning({
@@ -86,7 +87,7 @@ export const QueueStatus = () => {
           });
       }
     });
-  }, [txqueue, network.name]);
+  }, [txqueue, network.name, color]);
 
   return null;
 };

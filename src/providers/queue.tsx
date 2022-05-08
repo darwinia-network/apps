@@ -2,6 +2,7 @@ import React, { useState, useCallback, createContext, useRef } from 'react';
 import { SubmittableResult } from '@polkadot/api';
 import { notification } from 'antd';
 import jsonrpc from '@polkadot/types/interfaces/jsonrpc';
+import { timer } from 'rxjs';
 import {
   QueueTx,
   QueueTxStatus,
@@ -10,12 +11,10 @@ import {
   QueueTxMessageSetStatus,
   QueueTxExtrinsic,
   QueueTxRpc,
-  PartialQueueTxRpc,
-  PartialQueueTxExtrinsic,
 } from '../model';
+import { MIDDLE_DURATION } from '../config';
 
 let nextId = 0;
-const REMOVE_TIMEOUT = 7500;
 const SUBMIT_RPC = jsonrpc.author.submitAndWatchExtrinsic;
 
 export const STATUS_COMPLETE: QueueTxStatus[] = [
@@ -76,9 +75,9 @@ export const QueueProvider = ({ children }: React.PropsWithChildren<unknown>) =>
     [setTxQueue]
   );
 
-  const queueExtrinsic = useCallback((value: PartialQueueTxExtrinsic) => addToTxQueue({ ...value }), [addToTxQueue]);
+  const queueExtrinsic = useCallback((value: QueueTxExtrinsic) => addToTxQueue({ ...value }), [addToTxQueue]);
 
-  const queueRpc = useCallback((value: PartialQueueTxRpc) => addToTxQueue({ ...value }), [addToTxQueue]);
+  const queueRpc = useCallback((value: QueueTxRpc) => addToTxQueue({ ...value }), [addToTxQueue]);
 
   const queueSetTxStatus = useCallback(
     (id: number, status: QueueTxStatus, result?: SubmittableResult, error?: Error): void => {
@@ -99,13 +98,13 @@ export const QueueProvider = ({ children }: React.PropsWithChildren<unknown>) =>
       ]);
 
       if (STATUS_COMPLETE.includes(status)) {
-        setTimeout((): void => {
+        timer(MIDDLE_DURATION).subscribe(() => {
           const item = txRef.current.find((value) => value.id === id);
           if (item) {
             item.removeItem();
             notification.close(id.toString());
           }
-        }, REMOVE_TIMEOUT);
+        });
       }
     },
     [setTxQueue]

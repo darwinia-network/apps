@@ -13,7 +13,7 @@ import { web3FromAddress } from '@polkadot/extension-dapp';
 import { useTranslation } from 'react-i18next';
 import { handleTxResults, extractExternal } from '../../utils';
 import { QueueTx, QueueTxResult, QueueTxMessageSetStatus, AddressProxy } from '../../model';
-import { useQueue, useApi } from '../../hooks';
+import { useQueue, useApi, useNetworkColor } from '../../hooks';
 
 interface ItemState {
   count: number;
@@ -182,6 +182,7 @@ function extractCurrent(txqueue: QueueTx[]): ItemState {
 }
 
 export const Signer = () => {
+  const { color } = useNetworkColor();
   const { api, network } = useApi();
   const { t } = useTranslation();
   const { txqueue, queueSetTxStatus } = useQueue();
@@ -240,22 +241,8 @@ export const Signer = () => {
     }
   }, [currentItem, isVisible, confirmSend]);
 
-  const color = useMemo(
-    () =>
-      network.name === 'darwinia'
-        ? 'text-darwinia-main'
-        : network.name === 'crab'
-        ? 'text-crab-main'
-        : network.name === 'pangolin'
-        ? 'text-pangolin-main'
-        : network.name === 'pangoro'
-        ? 'text-pangoro-main'
-        : '',
-    [network]
-  );
-
   useEffect(() => {
-    const key = 'Queue notification';
+    const key = 'Authorize transaction';
 
     if (currentItem) {
       const { extrinsic, rpc } = currentItem;
