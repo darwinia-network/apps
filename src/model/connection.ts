@@ -11,6 +11,7 @@ export enum ConnectionStatus {
   fail = 'fail',
   disconnected = 'disconnected',
   error = 'error',
+  complete = 'complete',
 }
 
 export type ConnectionType = 'polkadot' | 'metamask' | 'tron' | 'unknown';

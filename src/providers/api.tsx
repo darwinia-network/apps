@@ -119,6 +119,7 @@ export const ApiProvider = ({ children }: React.PropsWithChildren<unknown>) => {
         if (nApi) {
           nApi?.isReady.then(() => {
             setApi(nApi);
+            setConnection({ ...connection, status: ConnectionStatus.complete });
           });
         }
       },
@@ -189,7 +190,7 @@ export const ApiProvider = ({ children }: React.PropsWithChildren<unknown>) => {
     })();
   }, [api]);
 
-  if (!api || state.connection.status !== 'success') {
+  if (!api || state.connection.status !== ConnectionStatus.complete) {
     return (
       <div
         className={`flex justify-center items-center w-screen h-screen relative ${
