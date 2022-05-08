@@ -177,7 +177,7 @@ function extractCurrent(txqueue: QueueTx[]): ItemState {
     currentItem,
     isRpc,
     isVisible,
-    requestAddress: (currentItem && currentItem.accountId) || null,
+    requestAddress: (currentItem && currentItem.signer) || null,
   };
 }
 

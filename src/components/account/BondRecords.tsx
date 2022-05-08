@@ -43,7 +43,7 @@ export function BondRecords({ tokens }: AccountHistoryProps) {
 
     const extrinsic = api.tx.staking.tryClaimDepositsWithPunish(forceUnbondTarget.expired_at);
     queueExtrinsic({
-      accountId: account,
+      signer: account,
       extrinsic,
       txSuccessCb: () => {
         setForceUnbondTarget(null);
@@ -140,7 +140,7 @@ export function BondRecords({ tokens }: AccountHistoryProps) {
               onClick={() => {
                 const extrinsic = api.tx.staking.claimMatureDeposits();
                 queueExtrinsic({
-                  accountId: account,
+                  signer: account,
                   extrinsic,
                   txSuccessCb: () => {
                     refreshStakingRecords().subscribe(updateStakingRecord);

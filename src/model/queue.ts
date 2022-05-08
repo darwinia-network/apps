@@ -15,10 +15,6 @@ export interface ActionStatus extends ActionStatusBase {
   action: Actions | string | string[];
 }
 
-export interface AccountInfo {
-  accountId?: string | null;
-}
-
 export type QueueTxStatus =
   | 'future'
   | 'ready'
@@ -45,11 +41,11 @@ export type TxCallback = (status: SubmittableResult) => void;
 
 export type TxFailedCallback = (status: Error | SubmittableResult | null) => void;
 
-export interface QueueTx extends AccountInfo {
+export interface QueueTx {
   error?: Error;
   extrinsic?: SubmittableExtrinsic;
   id: number;
-  isUnsigned?: boolean;
+  signer: string;
   result?: unknown;
   removeItem: () => void;
   rpc: DefinitionRpcExt;
@@ -73,31 +69,30 @@ export interface QueueTxResult {
   status: QueueTxStatus;
 }
 
-export interface QueueTxExtrinsic extends AccountInfo {
+export interface QueueTxExtrinsic {
   extrinsic?: SubmittableExtrinsic;
+  signer: string;
 }
 
-export interface QueueTxRpc extends AccountInfo {
+export interface QueueTxRpc {
   rpc: DefinitionRpcExt;
   values: unknown[];
+  signer: string;
 }
 
-export interface PartialAccountInfo {
-  accountId?: string | null;
-}
-
-export interface PartialQueueTxExtrinsic extends PartialAccountInfo {
+export interface PartialQueueTxExtrinsic {
   extrinsic?: SubmittableExtrinsic;
   txFailedCb?: TxFailedCallback;
   txSuccessCb?: TxCallback;
   txStartCb?: () => void;
   txUpdateCb?: TxCallback;
-  isUnsigned?: boolean;
+  signer: string;
 }
 
-export interface PartialQueueTxRpc extends PartialAccountInfo {
+export interface PartialQueueTxRpc {
   rpc: DefinitionRpcExt;
   values: unknown[];
+  signer: string;
 }
 
 export type QueueTxRpcAdd = (value: PartialQueueTxRpc) => void;
