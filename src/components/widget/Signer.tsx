@@ -248,7 +248,9 @@ export const Signer = () => {
   }, [currentItem, senderInfo, doSendPayload, doSend, queueSetTxStatus]);
 
   useEffect((): void => {
-    isRpc && currentItem && sendRpc(api, queueSetTxStatus, currentItem).catch(console.error);
+    if (isRpc && currentItem) {
+      sendRpc(api, queueSetTxStatus, currentItem).catch(console.error);
+    }
   }, [api, isRpc, currentItem, queueSetTxStatus]);
 
   useEffect(() => {

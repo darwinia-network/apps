@@ -80,12 +80,12 @@ export function FormModal<V extends Record<string, unknown>>({
                     isUnsigned: false,
                     txSuccessCb: (status) => {
                       setBusy(false);
-                      onCancel && onCancel();
-                      onSuccess && onSuccess(status);
+                      onCancel();
+                      onSuccess(status);
                     },
                     txFailedCb: (status) => {
                       setBusy(false);
-                      onFail && onFail(status);
+                      onFail(status);
                     },
                   });
                 });
