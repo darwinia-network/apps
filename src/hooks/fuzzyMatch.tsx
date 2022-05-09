@@ -1,4 +1,5 @@
 import { useCallback } from 'react';
+import { isFunction } from '@polkadot/util';
 import { DeriveAccountInfo } from '@polkadot/api-derive/types';
 import { isSameAddress } from '../utils';
 import { useApi } from './api';
@@ -12,28 +13,31 @@ export function useIsAccountFuzzyMatch() {
   const predicate = useCallback(
     // eslint-disable-next-line complexity
     (account: string, compare: string, accountInfo?: DeriveAccountInfo) => {
-      const filterLower = compare.toLowerCase();
+      const compareLower = compare.toLowerCase();
       let isVisible = false;
 
-      if (filterLower) {
+      if (compareLower) {
         if (accountInfo) {
           const { accountId, accountIndex, identity, nickname } = accountInfo;
 
-          if (accountId?.toString().includes(compare) || accountIndex?.toString().includes(compare)) {
+          if (
+            accountId?.toString().toLowerCase().includes(compareLower) ||
+            accountIndex?.toString().toLowerCase().includes(compareLower)
+          ) {
             isVisible = true;
-          } else if (api.query.identity && api.query.identity.identityOf) {
+          } else if (isFunction(api.query.identity?.identityOf)) {
             isVisible =
-              (!!identity?.display && identity.display.toLowerCase().includes(filterLower)) ||
-              (!!identity?.displayParent && identity.displayParent.toLowerCase().includes(filterLower));
+              !!identity.display &&
+              `${identity.displayParent}/${identity.display}`.toLowerCase().includes(compareLower);
           } else if (nickname) {
-            isVisible = nickname.toLowerCase().includes(filterLower);
+            isVisible = nickname.toLowerCase().includes(compareLower);
           }
         }
 
         if (!isVisible) {
           const acc = accounts.find((item) => isSameAddress(item.address, account));
 
-          isVisible = acc?.meta?.name ? acc.meta.name.toLowerCase().includes(filterLower) : false;
+          isVisible = acc?.meta?.name ? acc.meta.name.toLowerCase().includes(compareLower) : false;
         }
       } else {
         isVisible = true;

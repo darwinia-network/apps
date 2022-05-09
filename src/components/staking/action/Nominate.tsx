@@ -2,12 +2,19 @@ import { Button, Select } from 'antd';
 import FormItem from 'antd/lib/form/FormItem';
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useApi, useStaking } from '../../../hooks';
+import { combineLatest, map } from 'rxjs';
+import { DeriveAccountInfo } from '@polkadot/api-derive/accounts/types';
+import { useApi, useStaking, useIsAccountFuzzyMatch } from '../../../hooks';
 import { STAKING_FAV_KEY, useFavorites } from '../../../hooks/favorites';
 import { FormModal } from '../../widget/FormModal';
 import { IdentAccountName } from '../../widget/account/IdentAccountName';
 import { AddressItem } from '../../widget/form-control/AddressItem';
 import { StakingActionProps } from './interface';
+
+type AvailableState = {
+  address: string;
+  info: DeriveAccountInfo;
+};
 
 interface NominateFormValues {
   controller: string;
@@ -27,6 +34,8 @@ export function Nominate({
   const { t } = useTranslation();
   const { api } = useApi();
   const [isVisible, setIsVisible] = useState(false);
+  const [searchName, setSearchName] = useState('');
+  const [available, setAvailable] = useState<AvailableState[]>([]);
   const {
     isInElection,
     stashAccount,
@@ -37,6 +46,7 @@ export function Nominate({
     updateValidators,
     updateStakingDerive,
   } = useStaking();
+  const isMatch = useIsAccountFuzzyMatch();
   const [favorites] = useFavorites(STAKING_FAV_KEY);
 
   const defaultSelected = useMemo(
@@ -54,7 +64,10 @@ export function Nominate({
     [stakingDerive]
   );
 
-  const [available, setAvailable] = useState<string[]>([]);
+  const list = useMemo(
+    () => available.filter((item) => isMatch(item.address, searchName, item.info)),
+    [searchName, available, isMatch]
+  );
 
   useEffect(() => {
     // ensure that the favorite is included in the list of stashes and  the nominee is not in our favorites
@@ -63,12 +76,22 @@ export function Nominate({
       ...(nominees || []).filter((acc): boolean => !favorites.includes(acc)),
     ];
 
-    setAvailable([
+    const addresses = [
       ...shortlist,
       ...validators.filter((acc): boolean => !shortlist.includes(acc)),
       ...availableValidators.filter((acc): boolean => !shortlist.includes(acc)),
-    ]);
-  }, [favorites, availableValidators, nominees, validators]);
+    ];
+
+    const sub$$ = combineLatest(addresses.map((address) => api.derive.accounts.info(address)))
+      .pipe(
+        map((infos) =>
+          infos.reduce((acc, info, idx) => acc.concat({ address: addresses[idx], info }), [] as AvailableState[])
+        )
+      )
+      .subscribe(setAvailable);
+
+    return () => sub$$.unsubscribe();
+  }, [api, favorites, availableValidators, nominees, validators]);
 
   return (
     <>
@@ -118,10 +141,12 @@ export function Nominate({
             placeholder={t('Please select from list')}
             size="large"
             disabled={!!defaultSelects}
+            filterOption={false}
+            onSearch={setSearchName}
           >
-            {available.map((item) => (
-              <Select.Option key={item} value={item}>
-                <IdentAccountName account={item} iconSize={24} />
+            {list.map((item) => (
+              <Select.Option key={item.address} value={item.address}>
+                <IdentAccountName account={item.address} iconSize={24} />
               </Select.Option>
             ))}
           </Select>
