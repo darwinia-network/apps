@@ -1,105 +1,126 @@
-import { SubmittableResult } from '@polkadot/api';
-import { keyring } from '@polkadot/ui-keyring';
-import type { QueueTx, QueueTxMessageSetStatus, QueueTxStatus, AddressFlags } from '../../model';
+import { web3FromAddress } from '@polkadot/extension-dapp';
+import { Observable, Subscriber, from, tap, switchMap } from 'rxjs';
+import { ApiPromise, SubmittableResult } from '@polkadot/api';
+import { assert, isFunction, loggerFormat } from '@polkadot/util';
+import { QueueTx, QueueTxMessageSetStatus, QueueTxStatus } from '../../model';
 
 const NOOP = () => undefined;
 
-const NO_FLAGS = {
-  accountOffset: 0,
-  addressOffset: 0,
-  isHardware: false,
-  isMultisig: false,
-  isProxied: false,
-  isQr: false,
-  isUnlockable: false,
-  threshold: 0,
-  who: [],
+const AVAIL_STATUS = ['queued', 'qr', 'signing'];
+
+type ItemState = {
+  count: number;
+  currentItem: QueueTx | null;
+  isRpc: boolean;
+  isExtrinsic: boolean;
 };
 
-const lockCountdown: Record<string, number> = {};
+export function extractCurrent(txqueue: QueueTx[]): ItemState {
+  const available = txqueue.filter(({ status }) => AVAIL_STATUS.includes(status));
+  const currentItem = available[0] || null;
+  let isRpc = false;
+  let isExtrinsic = false;
 
-export function recodeAddress(address: string | Uint8Array): string {
-  return keyring.encodeAddress(keyring.decodeAddress(address));
-}
-
-// eslint-disable-next-line complexity
-export function extractExternal(accountId: string | null): AddressFlags {
-  if (!accountId) {
-    return NO_FLAGS;
-  }
-
-  let publicKey;
-
-  try {
-    publicKey = keyring.decodeAddress(accountId);
-  } catch (error) {
-    console.error(error);
-
-    return NO_FLAGS;
-  }
-
-  const pair = keyring.getPair(publicKey);
-  const { isExternal, isHardware, isInjected, isMultisig, isProxied } = pair.meta;
-  const isUnlockable = !isExternal && !isHardware && !isInjected;
-
-  if (isUnlockable) {
-    const entry = lockCountdown[pair.address];
-
-    if (entry && Date.now() > entry && !pair.isLocked) {
-      pair.lock();
-      lockCountdown[pair.address] = 0;
-    }
+  if (currentItem?.status === 'queued' && !currentItem.extrinsic) {
+    isRpc = true;
+  } else if (currentItem?.status !== 'signing') {
+    isExtrinsic = true;
   }
 
   return {
-    accountOffset: (pair.meta.accountOffset as number) || 0,
-    addressOffset: (pair.meta.addressOffset as number) || 0,
-    hardwareType: pair.meta.hardwareType as string,
-    isHardware: !!isHardware,
-    isMultisig: !!isMultisig,
-    isProxied: !!isProxied,
-    isQr: !!isExternal && !isMultisig && !isProxied && !isHardware && !isInjected,
-    isUnlockable: isUnlockable && pair.isLocked,
-    threshold: (pair.meta.threshold as number) || 0,
-    who: ((pair.meta.who as string[]) || []).map(recodeAddress),
+    count: available.length,
+    currentItem,
+    isRpc,
+    isExtrinsic,
   };
 }
 
-export function handleTxResults(
-  handler: 'send' | 'signAndSend',
-  queueSetTxStatus: QueueTxMessageSetStatus,
-  { id, txFailedCb = NOOP, txSuccessCb = NOOP, txUpdateCb = NOOP }: QueueTx,
-  unsubscribe: () => void
-): (result: SubmittableResult) => void {
-  // eslint-disable-next-line complexity
-  return (result: SubmittableResult): void => {
-    if (!result || !result.status) {
-      return;
-    }
+export const signAndSendTx = (currentItem: QueueTx, queueSetTxStatus: QueueTxMessageSetStatus) => {
+  const {
+    id,
+    extrinsic,
+    signAddress,
+    txStartCb = NOOP,
+    txUpdateCb = NOOP,
+    txSuccessCb = NOOP,
+    txFailedCb = NOOP,
+  } = currentItem;
 
-    const status = result.status.type.toLowerCase() as QueueTxStatus;
+  if (extrinsic) {
+    from(web3FromAddress(signAddress))
+      .pipe(
+        tap((injected) => assert(injected, `Unable to find a signer for ${signAddress}`)),
+        tap(() => {
+          queueSetTxStatus(id, 'signing');
+          txStartCb();
+        }),
+        switchMap((injected) => extrinsic.signAsync(signAddress, { signer: injected.signer })),
+        tap(() => queueSetTxStatus(id, 'sending')),
+        switchMap(
+          () =>
+            new Observable((subscriber: Subscriber<SubmittableResult>) => {
+              (async () => {
+                const unsub = await extrinsic.send((result) => {
+                  subscriber.next(result);
+                  if (result.isCompleted) {
+                    unsub();
+                    subscriber.complete();
+                  }
+                });
+              })();
+            })
+        )
+      )
+      .subscribe({
+        next: (result) => {
+          const status = result.status.type.toLowerCase() as QueueTxStatus;
 
-    console.log(`${handler}: status :: ${JSON.stringify(result)}`);
+          console.log(`[tx result]: status :: ${JSON.stringify(result)}`);
 
-    queueSetTxStatus(id, status, result);
-    txUpdateCb(result);
+          queueSetTxStatus(id, status, result);
+          txUpdateCb(result);
 
-    if (result.status.isFinalized || result.status.isInBlock) {
-      result.events
-        .filter(({ event: { section } }) => section === 'system')
-        .forEach(({ event: { method } }): void => {
-          if (method === 'ExtrinsicFailed') {
+          if (result.status.isFinalized || result.status.isInBlock) {
+            result.events
+              .filter(({ event: { section } }) => section === 'system')
+              .forEach(({ event: { method } }): void => {
+                if (method === 'ExtrinsicFailed') {
+                  txFailedCb(result);
+                } else if (method === 'ExtrinsicSuccess') {
+                  txSuccessCb(result);
+                }
+              });
+          } else if (result.isError) {
             txFailedCb(result);
-          } else if (method === 'ExtrinsicSuccess') {
-            txSuccessCb(result);
           }
-        });
-    } else if (result.isError) {
-      txFailedCb(result);
-    }
+        },
+        error: (error) => {
+          txFailedCb(error);
+          queueSetTxStatus(id, 'error', undefined, error);
+        },
+      });
+  }
+};
 
-    if (result.isCompleted) {
-      unsubscribe();
-    }
-  };
-}
+export const sendRpc = (api: ApiPromise, currentItem: QueueTx, queueSetTxStatus: QueueTxMessageSetStatus) => {
+  const { id, rpc, values = [] } = currentItem;
+
+  if (rpc) {
+    from([currentItem])
+      .pipe(
+        tap(() => queueSetTxStatus(id, 'sending')),
+        switchMap(({ rpc: { section, method } }) => {
+          const apiRpc = api.rpc as Record<string, Record<string, (...params: unknown[]) => Promise<unknown>>>;
+
+          assert(isFunction(apiRpc[section] && apiRpc[section][method]), `api.rpc.${section}.${method} does not exist`);
+
+          return apiRpc[section][method](...values);
+        }),
+        tap((result) => console.log('sendRpc: result ::', loggerFormat(result)))
+      )
+      .subscribe({
+        next: (result) => queueSetTxStatus(id, 'sent', result as SubmittableResult),
+        error: (error) => queueSetTxStatus(id, 'error', undefined, error),
+      });
+  }
+};

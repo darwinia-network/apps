@@ -75,7 +75,7 @@ export function FormModal<V extends Record<string, unknown>>({
                 )
                 .subscribe((value) => {
                   queueExtrinsic({
-                    signer: signer ?? account,
+                    signAddress: signer ?? account,
                     extrinsic: extrinsic(value),
                     txSuccessCb: (status) => {
                       setBusy(false);

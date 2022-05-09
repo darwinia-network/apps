@@ -58,7 +58,7 @@ export function Actions({ eraSelectionIndex, disabled }: ActionsProps) {
         <Button
           onClick={() => {
             queueExtrinsic({
-              signer: controllerAccount,
+              signAddress: controllerAccount,
               extrinsic: api.tx.staking.chill(),
               txSuccessCb: () => {
                 updateValidators();
