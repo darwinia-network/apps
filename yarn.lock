@@ -2249,20 +2249,6 @@
     "@polkadot/util" "^9.0.1"
     rxjs "^7.5.5"
 
-"@polkadot/api-contract@^8.1.1":
-  version "8.1.1"
-  resolved "https://registry.yarnpkg.com/@polkadot/api-contract/-/api-contract-8.1.1.tgz#8e289ff6fe70a5ea022de56350e851d7885cee3e"
-  integrity sha512-CpdHr99DV+vFOafKJ2jN4m1G38zo4cazEEYZuOJFoCUkP7MZTXFuvkd/RSwQwfdNJdRBW3tAFSkBOqi161o2Kw==
-  dependencies:
-    "@babel/runtime" "^7.17.9"
-    "@polkadot/api" "8.1.1"
-    "@polkadot/types" "8.1.1"
-    "@polkadot/types-codec" "8.1.1"
-    "@polkadot/types-create" "8.1.1"
-    "@polkadot/util" "^9.0.1"
-    "@polkadot/util-crypto" "^9.0.1"
-    rxjs "^7.5.5"
-
 "@polkadot/api-derive@8.1.1":
   version "8.1.1"
   resolved "https://registry.yarnpkg.com/@polkadot/api-derive/-/api-derive-8.1.1.tgz#4e945738bf9374943aa86bb643e3ae0ec020e8ba"
