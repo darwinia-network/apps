@@ -213,5 +213,11 @@
   "Trade and earn without registration.": "Trade and earn without registration.",
   "Github link for add portal": "https://github.com/darwinia-network/apps/blob/master/README.md#how-to-add-your-portal",
   "Submit a project": "Submit a project",
-  "Darwinia will support DVM soon, but please don't transfer assets to this address now": "Darwinia will support DVM soon, but please don't transfer assets to this address now"
+  "Darwinia will support DVM soon, but please don't transfer assets to this address now": "Darwinia will support DVM soon, but please don't transfer assets to this address now",
+  "Deposits Claim": "Deposits Claim",
+  "Deposit list": "Deposit list",
+  "Claim": "Claim",
+  "Search deposit failed": "Search deposit failed",
+  "No record": "No record",
+  "Please select deposit": "Please select deposit"
 }

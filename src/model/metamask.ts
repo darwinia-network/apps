@@ -1,7 +1,9 @@
+import { EthereumTypeNetwork } from './network/network';
+
 /* eslint-disable no-magic-numbers */
 export interface AddEthereumChainParameter {
   chainId: string; // A 0x-prefixed hexadecimal string when add or switch chain; Save in decimal in other situation.
-  chainName: string;
+  chainName: EthereumTypeNetwork;
   nativeCurrency: {
     name?: string;
     symbol?: string; // 2-6 characters long

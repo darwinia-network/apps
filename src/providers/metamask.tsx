@@ -1,6 +1,6 @@
 import { createContext, useCallback, useMemo, useReducer } from 'react';
 import { EMPTY, Subscription } from 'rxjs';
-import { Action, ChainConfig, Connection, ConnectionStatus } from '../model';
+import { Action, Connection, ConnectionStatus, AddEthereumChainParameter } from '../model';
 import { connectToEth } from '../utils';
 
 interface StoreState {
@@ -33,7 +33,7 @@ function accountReducer(state: StoreState, action: Action<ActionType, any>): Sto
 }
 
 export type MetamaskCtx = StoreState & {
-  connectNetwork: (network: ChainConfig) => void;
+  connectNetwork: (network: AddEthereumChainParameter) => void;
   disconnect: () => void;
 };
 
@@ -60,7 +60,7 @@ export const MetamaskProvider = ({ children }: React.PropsWithChildren<unknown>)
     [setConnection]
   );
   const connectNetwork = useCallback(
-    (config: ChainConfig) => {
+    (config: AddEthereumChainParameter) => {
       subscription.unsubscribe();
 
       subscription = connectToEth(config).subscribe(observer);
