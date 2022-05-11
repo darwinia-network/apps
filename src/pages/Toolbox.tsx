@@ -70,9 +70,11 @@ function Page() {
           <Withdraw />
         </Tabs.TabPane>
 
-        <Tabs.TabPane tab={t('Deposits Claim')} key="deposits" disabled={name !== 'darwinia'}>
-          <Deposits />
-        </Tabs.TabPane>
+        {name === 'darwinia' && (
+          <Tabs.TabPane tab={t('Deposits Claim')} key="deposits">
+            <Deposits />
+          </Tabs.TabPane>
+        )}
       </Tabs>
     </MetamaskProvider>
   );
