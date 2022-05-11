@@ -1,5 +1,5 @@
 import { Form, Input, Tabs, Typography } from 'antd';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { withRouter } from 'react-router-dom';
 import web3 from 'web3';
@@ -16,13 +16,14 @@ function Page() {
     network: { ss58Prefix, name },
   } = useApi();
   const [address, setAddress] = useState('');
+  const displayDvm = useMemo(() => name === 'crab' || name === 'pangolin', [name]);
 
   return (
     <MetamaskProvider>
       <Tabs
         className={`lg:px-8 px-4 w-full mx-auto dark:shadow-none dark:border-transparent pb-5 page-account-tabs page-account-tabs-${name}`}
       >
-        {(name === 'crab' || name === 'pangolin') && (
+        {displayDvm && (
           <Tabs.TabPane tab={t('DVM Address')} key="address">
             <Form layout="vertical">
               <Form.Item
@@ -65,9 +66,11 @@ function Page() {
           </Tabs.TabPane>
         )}
 
-        <Tabs.TabPane tab={t('DVM Withdraw')} key="withdraw" disabled={name === 'pangoro' || name === 'darwinia'}>
-          <Withdraw />
-        </Tabs.TabPane>
+        {displayDvm && (
+          <Tabs.TabPane tab={t('DVM Withdraw')} key="withdraw">
+            <Withdraw />
+          </Tabs.TabPane>
+        )}
 
         <Tabs.TabPane tab={t('Deposits Claim')} key="deposits" disabled={name !== 'darwinia'}>
           <Deposits />
