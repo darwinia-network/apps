@@ -3,7 +3,7 @@ import { AddEthereumChainParameter } from '../../model/metamask';
 export const ethereumConfig: AddEthereumChainParameter = {
   blockExplorerUrls: ['https://etherscan.io/'],
   chainId: '1',
-  chainName: 'crab',
+  chainName: 'Ethereum Mainnet',
   nativeCurrency: {
     symbol: 'ETH',
     decimals: 18,
