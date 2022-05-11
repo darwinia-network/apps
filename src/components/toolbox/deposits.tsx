@@ -3,16 +3,16 @@ import { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { decodeAddress } from '@polkadot/util-crypto';
 import { from, Observable, Subscriber } from 'rxjs';
-import { useAccount, useApi } from '../../hooks';
+import { useAccount, useApi, useRecordsQuery } from '../../hooks';
 import { useMetamask } from '../../hooks/ metamask';
 import { AddressItem } from '../widget/form-control/AddressItem';
 import { DepositItem } from '../widget/form-control/DepositItem';
-import { validateMessages, ETHEREUM_CLAIM_DEPOSIT, ethereumConfig } from '../../config';
+import { validateMessages, ETHEREUM_CLAIM_DEPOSIT, ethereumConfig, EvoApiPath, EVOLUTION_DOMAIN } from '../../config';
 import i18n from '../../config/i18n';
 import { abi } from '../../config/abi';
-import { buf2hex } from '../../utils';
+import { buf2hex, apiUrl } from '../../utils';
 import { entrance } from '../../utils/network';
-import { Deposit } from '../../model';
+import { Deposit, DepositResponse } from '../../model';
 
 type DepositForm = {
   deposit: Deposit;
@@ -31,6 +31,11 @@ export const Deposits = () => {
   const [busy, setBusy] = useState(false);
 
   const activeAccount = useMemo(() => accounts[0]?.address, [accounts]);
+
+  const response = useRecordsQuery<DepositResponse>({
+    url: apiUrl(EVOLUTION_DOMAIN.product, EvoApiPath.deposit),
+    params: { activeAccount },
+  });
 
   const disableConnect = useMemo(() => status !== 'success' && status !== 'pending', [status]);
 
@@ -99,7 +104,7 @@ export const Deposits = () => {
         validateMessages={validateMessages[i18n.language as 'en' | 'zh-CN' | 'zh']}
         onFinish={handleClaim}
       >
-        <DepositItem label="Deposit list" name="deposit" address={activeAccount} />
+        <DepositItem label="Deposit list" name="deposit" response={response} />
         <AddressItem label={'Receive account'} name="recipient" extra={null} />
 
         <Form.Item>
@@ -108,7 +113,7 @@ export const Deposits = () => {
             type="primary"
             htmlType="submit"
             loading={busy}
-            disabled={!activeAccount}
+            disabled={!activeAccount || !response.data?.list.length}
             className="flex items-center justify-center w-28"
           >
             {t('Claim')}

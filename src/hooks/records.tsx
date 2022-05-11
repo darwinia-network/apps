@@ -2,7 +2,7 @@ import { useState, useCallback, useEffect } from 'react';
 import { Subscription } from 'rxjs';
 import { RecordsQueryRequest, rxGet } from '../utils';
 
-interface RecordsHook<T> {
+export interface RecordsHook<T> {
   loading: boolean;
   error?: Record<string, unknown> | null;
   data: T | null;
