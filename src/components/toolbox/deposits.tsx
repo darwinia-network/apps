@@ -1,5 +1,5 @@
 import { Form, Card, Button } from 'antd';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { decodeAddress } from '@polkadot/util-crypto';
 import { from, Observable, Subscriber } from 'rxjs';
@@ -36,6 +36,16 @@ export const Deposits = () => {
     url: apiUrl(EVOLUTION_DOMAIN.product, EvoApiPath.deposit),
     params: { address: activeAccount },
   });
+  const { refetch } = response;
+
+  useEffect(() => {
+    if (refetch && activeAccount) {
+      refetch({
+        url: apiUrl(EVOLUTION_DOMAIN.product, EvoApiPath.deposit),
+        params: { address: activeAccount },
+      });
+    }
+  }, [refetch, activeAccount]);
 
   const disableConnect = useMemo(() => status !== 'success' && status !== 'pending', [status]);
 
