@@ -70,7 +70,7 @@ function Page() {
           <Withdraw />
         </Tabs.TabPane>
 
-        <Tabs.TabPane tab={t('Deposits Claim')} key="deposits" disabled={name === 'pangoro'}>
+        <Tabs.TabPane tab={t('Deposits Claim')} key="deposits" disabled={name !== 'darwinia'}>
           <Deposits />
         </Tabs.TabPane>
       </Tabs>
