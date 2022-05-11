@@ -3,16 +3,23 @@ import { useCallback, useMemo, useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { decodeAddress } from '@polkadot/util-crypto';
 import { from, Observable, Subscriber } from 'rxjs';
-import { useAccount, useApi, useRecordsQuery } from '../../hooks';
-import { useMetamask } from '../../hooks/ metamask';
-import { AddressItem } from '../widget/form-control/AddressItem';
-import { DepositItem } from '../widget/form-control/DepositItem';
-import { validateMessages, ETHEREUM_CLAIM_DEPOSIT, ethereumConfig, EvoApiPath, EVOLUTION_DOMAIN } from '../../config';
-import i18n from '../../config/i18n';
-import { abi } from '../../config/abi';
-import { buf2hex, apiUrl } from '../../utils';
-import { entrance } from '../../utils/network';
-import { Deposit, DepositResponse } from '../../model';
+import { useAccount, useApi, useRecordsQuery } from '../../../hooks';
+import { useMetamask } from '../../../hooks/ metamask';
+import { AddressItem } from '../../widget/form-control/AddressItem';
+import { DepositItem } from '../../widget/form-control/DepositItem';
+import {
+  validateMessages,
+  ETHEREUM_CLAIM_DEPOSIT,
+  ethereumConfig,
+  EvoApiPath,
+  EVOLUTION_DOMAIN,
+} from '../../../config';
+import i18n from '../../../config/i18n';
+import { abi } from '../../../config/abi';
+import { buf2hex, apiUrl } from '../../../utils';
+import { entrance } from '../../../utils/network';
+import { Deposit, DepositResponse } from '../../../model';
+import { ClaimHistory } from './history';
 
 type DepositForm = {
   deposit: Deposit;
@@ -34,7 +41,7 @@ export const Deposits = () => {
 
   const response = useRecordsQuery<DepositResponse>({
     url: apiUrl(EVOLUTION_DOMAIN.product, EvoApiPath.deposit),
-    params: { address: activeAccount },
+    params: { owner: activeAccount, 'EVO-NETWORK': 'Eth' },
   });
   const { refetch } = response;
 
@@ -130,6 +137,8 @@ export const Deposits = () => {
           </Button>
         </Form.Item>
       </Form>
+
+      <ClaimHistory response={response} />
     </Card>
   );
 };

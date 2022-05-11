@@ -1,5 +1,5 @@
 export enum EvoApiPath {
-  deposit = 'bank/gringotts',
+  deposit = 'bank/trade_list',
 }
 
 export const EVOLUTION_DOMAIN = {

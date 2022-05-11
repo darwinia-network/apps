@@ -219,5 +219,6 @@
   "Claim": "领取",
   "Search deposit failed": "查询存单失败",
   "No record": "没有存单",
-  "Please select deposit": "请选择存单"
+  "Please select deposit": "请选择存单",
+  "Claim History": "领取记录"
 }
