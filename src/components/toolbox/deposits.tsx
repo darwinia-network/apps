@@ -34,7 +34,7 @@ export const Deposits = () => {
 
   const response = useRecordsQuery<DepositResponse>({
     url: apiUrl(EVOLUTION_DOMAIN.product, EvoApiPath.deposit),
-    params: { activeAccount },
+    params: { address: activeAccount },
   });
 
   const disableConnect = useMemo(() => status !== 'success' && status !== 'pending', [status]);
