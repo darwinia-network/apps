@@ -28,12 +28,13 @@ import {
   EthereumConnection,
   IAccountMeta,
   PolkadotConnection,
+  AddEthereumChainParameter,
 } from '../../model';
 import { entrance } from './entrance';
 import { isMetamaskInstalled, isNetworkConsistent } from './network';
 import { switchMetamaskNetwork } from './switch';
 
-type ConnectFn<T extends Connection> = (network: ChainConfig, chainId?: string) => Observable<T>;
+type ConnectEthFn<T extends Connection> = (network: AddEthereumChainParameter, chainId?: string) => Observable<T>;
 
 /**
  * keyring must be loaded before use
@@ -172,7 +173,7 @@ const showWarning = (plugin: string, downloadUrl: string) =>
     okText: <Trans>OK</Trans>,
   });
 
-export const connectToEth: ConnectFn<EthereumConnection> = (network, chainId?) => {
+export const connectToEth: ConnectEthFn<EthereumConnection> = (network, chainId?) => {
   if (!isMetamaskInstalled()) {
     showWarning(
       'metamask',
@@ -181,9 +182,9 @@ export const connectToEth: ConnectFn<EthereumConnection> = (network, chainId?) =
     return EMPTY;
   }
 
-  return from(isNetworkConsistent(network.name, chainId)).pipe(
+  return from(isNetworkConsistent(network, chainId)).pipe(
     switchMap((isMatch) =>
-      isMatch ? getEthereumConnection() : switchMetamaskNetwork(network.name).pipe(switchMapTo(getEthereumConnection()))
+      isMatch ? getEthereumConnection() : switchMetamaskNetwork(network).pipe(switchMapTo(getEthereumConnection()))
     )
   );
 };

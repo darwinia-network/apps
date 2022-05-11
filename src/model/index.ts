@@ -9,3 +9,4 @@ export * from './storage';
 export * from './tx';
 export * from './type-operator';
 export * from './webapi';
+export * from './deposit';

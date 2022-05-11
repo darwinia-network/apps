@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { withRouter } from 'react-router-dom';
 import web3 from 'web3';
 import { Withdraw } from '../components/toolbox/withdraw';
+import { Deposits } from '../components/toolbox/deposits';
 import { Label } from '../components/widget/form-control/Label';
 import { useApi } from '../hooks';
 import { MetamaskProvider } from '../providers/metamask';
@@ -67,6 +68,10 @@ function Page() {
 
         <Tabs.TabPane tab={t('DVM Withdraw')} key="withdraw" disabled={name === 'pangoro' || name === 'darwinia'}>
           <Withdraw />
+        </Tabs.TabPane>
+
+        <Tabs.TabPane tab={t('Deposits Claim')} key="deposits" disabled={name !== 'darwinia'}>
+          <Deposits />
         </Tabs.TabPane>
       </Tabs>
     </MetamaskProvider>

@@ -2,7 +2,7 @@ import { ApiPromise } from '@polkadot/api';
 import { omit, once, pick } from 'lodash';
 import Web3 from 'web3';
 import { SYSTEM_NETWORK_CONFIGURATIONS } from '../../config';
-import { ChainConfig, EthereumChainConfig, MetamaskNativeNetworkIds, Network } from '../../model';
+import { ChainConfig, MetamaskNativeNetworkIds, Network, AddEthereumChainParameter } from '../../model';
 import { getCustomNetworkConfig } from '../helper';
 
 export const NETWORK_CONFIGURATIONS = SYSTEM_NETWORK_CONFIGURATIONS.map((item) => {
@@ -40,7 +40,7 @@ export async function waitUntilConnected(api: ApiPromise): Promise<null> {
   });
 }
 
-export function isNativeMetamaskChain(network: Network): boolean {
+export function isNativeMetamaskChain(network: AddEthereumChainParameter): boolean {
   const ids = [
     MetamaskNativeNetworkIds.ethereum,
     MetamaskNativeNetworkIds.ropsten,
@@ -48,17 +48,15 @@ export function isNativeMetamaskChain(network: Network): boolean {
     MetamaskNativeNetworkIds.goerli,
     MetamaskNativeNetworkIds.kovan,
   ];
-  const chain = getNetworkByName(network) as EthereumChainConfig;
 
-  return ids.includes(+chain.ethereumChain.chainId);
+  return ids.includes(+network.chainId);
 }
 
-export async function isNetworkConsistent(network: Network, id = ''): Promise<boolean> {
+export async function isNetworkConsistent(network: AddEthereumChainParameter, id = ''): Promise<boolean> {
   id = id && Web3.utils.isHex(id) ? parseInt(id, 16).toString() : id;
   // id 1: eth mainnet 3: ropsten 4: rinkeby 5: goerli 42: kovan  43: pangolin 44: crab
   const actualId: string = id ? await Promise.resolve(id) : await window.ethereum.request({ method: 'net_version' });
-  const chain = getNetworkByName(network) as EthereumChainConfig;
-  const storedId = chain.ethereumChain.chainId;
+  const storedId = network.chainId;
 
   return storedId === actualId;
 }
