@@ -4,39 +4,38 @@ import { useTranslation } from 'react-i18next';
 import { Form, Select } from 'antd';
 import { format } from 'date-fns';
 import { Deposit, DepositResponse, CustomFormItemProps } from '../../../model';
-import { useRecordsQuery } from '../../../hooks';
-import { apiUrl, getTimeRange } from '../../../utils';
-import { EvoApiPath, EVOLUTION_DOMAIN } from '../../../config';
+import { RecordsHook } from '../../../hooks';
+import { getTimeRange } from '../../../utils';
+import { DATE_FORMAT } from '../../../config';
 
 const Selector = ({
-  address,
+  response,
   onChange = () => undefined,
 }: {
   onChange?: (value: Deposit) => void;
-  address: string;
+  response: RecordsHook<DepositResponse>;
 }) => {
-  const { loading, error, data } = useRecordsQuery<DepositResponse>({
-    url: apiUrl(EVOLUTION_DOMAIN.product, EvoApiPath.deposit),
-    params: { address },
-  });
   const { t } = useTranslation();
+  const { loading, error, data } = response;
+
+  const unclaim = useMemo(() => data?.list.filter((item) => !item.withdraw_time) || [], [data?.list]);
 
   const [disableDeposit, placeholderDeposit] = useMemo(
     () => [
-      !!error || !data?.list.length,
-      error ? t('Search deposit failed') : data?.list.length ? t('Please select deposit') : t('No record'),
+      !!error || !unclaim.length,
+      error ? t('Search deposit failed') : unclaim.length ? t('Please select deposit') : t('No record'),
     ],
-    [error, data, t]
+    [error, unclaim, t]
   );
 
   const triggerChange = useCallback(
     (id: number) => {
-      const deposit = data?.list.find((item) => item.deposit_id === id);
+      const deposit = unclaim.find((item) => item.deposit_id === id);
       if (deposit) {
         onChange(deposit);
       }
     },
-    [data, onChange]
+    [unclaim, onChange]
   );
 
   return (
@@ -47,10 +46,9 @@ const Selector = ({
       placeholder={placeholderDeposit}
       onChange={triggerChange}
     >
-      {data?.list.map((item) => {
+      {unclaim.map((item) => {
         const { deposit_id, amount } = item;
         const { start, end } = getTimeRange(item.deposit_time, item.duration);
-        const DATE_FORMAT = 'yyyy/MM/dd';
 
         return (
           <Select.Option key={deposit_id} value={deposit_id}>
@@ -67,12 +65,16 @@ const Selector = ({
   );
 };
 
-export const DepositItem = ({ label, name, address }: CustomFormItemProps<Deposit> & { address: string }) => {
+export const DepositItem = ({
+  label,
+  name,
+  response,
+}: CustomFormItemProps<Deposit> & { response: RecordsHook<DepositResponse> }) => {
   const { t } = useTranslation();
 
   return (
     <Form.Item label={isString(label) ? t(label) : label} name={name} rules={[{ required: true }]}>
-      <Selector address={address} />
+      <Selector response={response} />
     </Form.Item>
   );
 };
