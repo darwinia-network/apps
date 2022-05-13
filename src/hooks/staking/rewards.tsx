@@ -1,6 +1,6 @@
 import { ApiPromise } from '@polkadot/api';
 import { EraIndex } from '@polkadot/types/interfaces';
-import BN from 'bn.js';
+import { BN } from '@polkadot/util';
 import { TFunction } from 'i18next';
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';

@@ -1,16 +1,14 @@
 import { TypeRegistry } from '@polkadot/types';
-import { Button, Card } from 'antd';
+import { Button, Card, notification } from 'antd';
 import Form from 'antd/lib/form';
 import { useForm } from 'antd/lib/form/Form';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import web3 from 'web3';
 import { validateMessages } from '../../config';
 import i18n from '../../config/i18n';
-import { useAccount, useApi, useIsMountedOperator } from '../../hooks';
+import { useAccount, useApi } from '../../hooks';
 import { useMetamask } from '../../hooks/ metamask';
-import { useTx } from '../../hooks/tx';
-import { getSendTransactionObs } from '../../utils';
+import { entrance } from '../../utils';
 import { AddressItem } from '../widget/form-control/AddressItem';
 import { BalanceControl } from '../widget/form-control/BalanceControl';
 import { DVMChainConfig } from '../../model';
@@ -29,14 +27,13 @@ export function Withdraw() {
   const { t } = useTranslation();
   const { network } = useApi();
   const { account } = useAccount();
-  const { txProcessObserver } = useTx();
   const [form] = useForm();
   const {
     connection: { status, accounts },
     connectNetwork,
     disconnect,
   } = useMetamask();
-  const { takeWhileIsMounted } = useIsMountedOperator();
+  const [busy, setBusy] = useState(false);
 
   const activeAccount = useMemo(() => accounts[0]?.address, [accounts]);
 
@@ -82,15 +79,43 @@ export function Withdraw() {
           const accountHex = registry.createType('AccountId', acc).toHex();
 
           if (status === 'success' && accountHex !== EMPTY_ADDRESS) {
-            getSendTransactionObs({
-              from: accounts[0]?.address,
-              to: DVM_WITHDRAW_ADDRESS,
-              data: accountHex,
-              value: web3.utils.toWei(amount, 'ether'),
-              gas: 55000,
-            })
-              .pipe(takeWhileIsMounted())
-              .subscribe(txProcessObserver);
+            try {
+              setBusy(true);
+              const web3 = entrance.web3.getInstance(entrance.web3.defaultProvider);
+              web3.eth
+                .sendTransaction({
+                  from: accounts[0]?.address,
+                  to: DVM_WITHDRAW_ADDRESS,
+                  data: accountHex,
+                  value: web3.utils.toWei(amount, 'ether'),
+                  gas: 55000,
+                })
+                .on('transactionHash', (hash: string) => {
+                  void hash;
+                })
+                .on('receipt', ({ transactionHash }) => {
+                  setBusy(false);
+                  notification.success({
+                    message: 'Transaction success',
+                    description: `Transaction hash: ${transactionHash}`,
+                  });
+                })
+                .catch((error: { code: number; message: string }) => {
+                  setBusy(false);
+                  console.error(error);
+                  notification.error({
+                    message: 'Transaction failed',
+                    description: error.message,
+                  });
+                });
+            } catch (error) {
+              setBusy(false);
+              console.error(error);
+              notification.error({
+                message: 'Transaction failed',
+                description: (error as Error).message,
+              });
+            }
           }
         }}
       >
@@ -106,6 +131,7 @@ export function Withdraw() {
             type="primary"
             htmlType="submit"
             disabled={!activeAccount}
+            loading={busy}
             className="flex items-center justify-center w-28"
           >
             {t('Withdraw')}

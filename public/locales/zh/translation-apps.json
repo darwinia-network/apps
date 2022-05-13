@@ -1,4 +1,7 @@
 {
+  "Current": "当前",
+  "Authorize transaction": "批准交易",
+  "Sending transaction": "正在发送交易",
   "The account is a stash, controlled by {{bondedId}}": "这是个资金账户，控制账户是 {{bondedId}}",
   "The account is already controlling {{stashId}}": "这个账号正在控制着 {{stashId}}",
   "The account does not have sufficient funds available to cover transaction fees": "该帐户没有足够的资金来支付交易费用",

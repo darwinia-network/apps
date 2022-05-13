@@ -1,4 +1,4 @@
-import BN from 'bn.js';
+import { BN } from '@polkadot/util';
 import { EMPTY } from 'rxjs';
 import { addDays, fromUnixTime } from 'date-fns';
 

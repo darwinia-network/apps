@@ -1,12 +1,11 @@
 import { ApiPromise, SubmittableResult } from '@polkadot/api';
 import { SubmittableExtrinsic } from '@polkadot/api/types';
 import { Button, Tooltip } from 'antd';
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { QuestionCircleFilled } from '@ant-design/icons';
-import { PayoutValidator, useApi, useStakingRewards, useAccount } from '../../../hooks';
-import { useTx } from '../../../hooks/tx';
-import { fromWei, prettyNumber, signAndSendExtrinsic } from '../../../utils';
+import { PayoutValidator, useApi, useStakingRewards, useAccount, useQueue } from '../../../hooks';
+import { fromWei, prettyNumber } from '../../../utils';
 import { SelectAccountModal } from '../../widget/account/SelectAccountModal';
 import { StakingActionProps } from './interface';
 
@@ -19,32 +18,25 @@ const PAYOUT_MAX_AMOUNT = 30;
 const createPayout = (
   api: ApiPromise,
   payout: PayoutValidator | PayoutValidator[]
-): SubmittableExtrinsic<'promise', SubmittableResult> => {
-  if (Array.isArray(payout)) {
-    if (payout.length === 1) {
-      return createPayout(api, payout[0]);
+): SubmittableExtrinsic<'promise', SubmittableResult>[] => {
+  const payouts = Array.isArray(payout) ? payout : [payout];
+
+  const callList = payouts.reduce(
+    (calls: SubmittableExtrinsic<'promise'>[], { eras, validatorId }): SubmittableExtrinsic<'promise'>[] =>
+      calls.concat(...eras.map(({ era }) => api.tx.staking.payoutStakers(validatorId, era))),
+    []
+  );
+
+  if (callList.length === 1) {
+    return callList;
+  } else {
+    const batchList: SubmittableExtrinsic<'promise', SubmittableResult>[] = [];
+    while (callList.length) {
+      batchList.push(api.tx.utility.batch(callList.splice(0, PAYOUT_MAX_AMOUNT)));
     }
 
-    const callList = payout.reduce(
-      (calls: SubmittableExtrinsic<'promise'>[], { eras, validatorId }): SubmittableExtrinsic<'promise'>[] =>
-        calls.concat(...eras.map(({ era }) => api.tx.staking.payoutStakers(validatorId, era))),
-      []
-    );
-
-    if (callList.length > PAYOUT_MAX_AMOUNT) {
-      callList.length = PAYOUT_MAX_AMOUNT;
-    }
-
-    return api.tx.utility.batch(callList);
+    return batchList;
   }
-
-  const { eras, validatorId } = payout;
-
-  const limitEras = eras.slice(0, PAYOUT_MAX_AMOUNT);
-
-  return eras.length === 1
-    ? api.tx.staking.payoutStakers(validatorId, eras[0].era)
-    : api.tx.utility.batch(limitEras.map(({ era }) => api.tx.staking.payoutStakers(validatorId, era)));
 };
 
 export function ClaimRewards({ eraSelectionIndex, type = 'text' }: ClaimRewardsProps) {
@@ -53,19 +45,13 @@ export function ClaimRewards({ eraSelectionIndex, type = 'text' }: ClaimRewardsP
     api,
     connection: { accounts },
   } = useApi();
-  const { txProcessObserver, tx } = useTx();
+  const { queueExtrinsic } = useQueue();
   const { account } = useAccount();
   const { stakingRewards, payoutValidators } = useStakingRewards(eraSelectionIndex);
   const hasPayoutValidator = useMemo(() => payoutValidators && payoutValidators.length, [payoutValidators]);
+  const [busy, setBusy] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
   const [signer, setSigner] = useState(account);
-  const loading = useMemo(() => !!tx && !(tx.status === 'finalized' || tx.status === 'error'), [tx]);
-
-  useEffect(() => {
-    if (tx?.status === 'finalized') {
-      setIsVisible(false);
-    }
-  }, [tx]);
 
   return (
     <>
@@ -104,10 +90,27 @@ export function ClaimRewards({ eraSelectionIndex, type = 'text' }: ClaimRewardsP
                   key="primary-btn"
                   type="primary"
                   size="large"
-                  loading={loading}
+                  loading={busy}
                   onClick={() => {
-                    const extrinsic = createPayout(api, payoutValidators);
-                    signAndSendExtrinsic(api, signer, extrinsic).subscribe(txProcessObserver);
+                    const extrinsics = createPayout(api, payoutValidators);
+                    extrinsics.forEach((extrinsic, index) => {
+                      setBusy(true);
+                      queueExtrinsic({
+                        signAddress: signer,
+                        extrinsic,
+                        txFailedCb: () => {
+                          if (index + 1 === extrinsics.length) {
+                            setBusy(false);
+                          }
+                        },
+                        txSuccessCb: () => {
+                          if (index + 1 === extrinsics.length) {
+                            setIsVisible(false);
+                            setBusy(false);
+                          }
+                        },
+                      });
+                    });
                   }}
                   className="block mx-auto w-full border-none rounded-lg"
                 >

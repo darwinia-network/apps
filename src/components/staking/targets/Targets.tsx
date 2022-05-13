@@ -1,7 +1,6 @@
 import { Balance } from '@polkadot/types/interfaces';
-import { BN_ZERO } from '@polkadot/util';
+import { BN_ZERO, BN } from '@polkadot/util';
 import { Card, Skeleton, Spin } from 'antd';
-import BN from 'bn.js';
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { from, switchMap } from 'rxjs';

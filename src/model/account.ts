@@ -1,6 +1,6 @@
 import type ExtType from '@polkadot/extension-inject/types';
 import { KeyringJson } from '@polkadot/ui-keyring/types';
-import BN from 'bn.js';
+import type { BN } from '@polkadot/util';
 import { DarwiniaAsset } from './common';
 
 export type InjectedAccountWithMeta = ExtType.InjectedAccountWithMeta;

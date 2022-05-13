@@ -3,10 +3,7 @@ import { u8aConcat, u8aToHex } from '@polkadot/util';
 import { Button, Dropdown, Menu } from 'antd';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useApi, useStaking } from '../../../hooks';
-import { useTx } from '../../../hooks/tx';
-import { afterTxSuccess } from '../../../providers';
-import { signAndSendExtrinsic } from '../../../utils';
+import { useApi, useStaking, useQueue } from '../../../hooks';
 import {
   BondMore,
   ClaimRewards,
@@ -29,7 +26,7 @@ interface ActionsProps {
 export function Actions({ eraSelectionIndex, disabled }: ActionsProps) {
   const { t } = useTranslation();
   const { api } = useApi();
-  const { createObserver } = useTx();
+  const { queueExtrinsic } = useQueue();
   const { stakingDerive, isValidating, isNominating, controllerAccount, updateStakingDerive, updateValidators } =
     useStaking();
 
@@ -55,20 +52,19 @@ export function Actions({ eraSelectionIndex, disabled }: ActionsProps) {
     return u8aToHex(nextConcat, len);
   }, [stakingDerive]);
 
-  const observer = useMemo(
-    () =>
-      createObserver({
-        next: afterTxSuccess(updateValidators, updateStakingDerive),
-      }),
-    [createObserver, updateStakingDerive, updateValidators]
-  );
-
   return (
     <div className="flex lg:flex-row flex-col gap-2 items-center">
       {isNominating || isValidating ? (
         <Button
           onClick={() => {
-            signAndSendExtrinsic(api, controllerAccount, api.tx.staking.chill()).subscribe(observer);
+            queueExtrinsic({
+              signAddress: controllerAccount,
+              extrinsic: api.tx.staking.chill(),
+              txSuccessCb: () => {
+                updateValidators();
+                updateStakingDerive();
+              },
+            });
           }}
           className="w-full lg:w-auto"
           disabled={disabled}

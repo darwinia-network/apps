@@ -93,7 +93,6 @@ export function AssetOverview({ asset, refresh }: AssetOverviewProps) {
           setIsVisible(false);
           refresh();
         }}
-        onFail={() => setIsVisible(false)}
         onCancel={() => setIsVisible(false)}
         initialValues={{ from: account, to: accounts[0]?.address, amount: 0 }}
         extrinsic={(values) => {

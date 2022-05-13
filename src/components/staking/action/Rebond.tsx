@@ -1,5 +1,5 @@
 import { Button } from 'antd';
-import BN from 'bn.js';
+import { BN } from '@polkadot/util';
 import { useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useApi, useStaking, useAccount } from '../../../hooks';
