@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAccount } from '../../../hooks';
 import { Fund } from '../../../model';
-import { fromWei, isKton, ringToKton, toWei } from '../../../utils';
+import { fromWei, isKton, isRing, ringToKton, toWei } from '../../../utils';
 
 interface KtonRewardProps {
   selectedAsset: Fund | null;
@@ -14,10 +14,10 @@ export function KtonReward({ selectedAsset, promiseMonth }: KtonRewardProps) {
   const { assets } = useAccount();
   const target = useMemo(() => assets.find((item) => isKton(item.asset))!, [assets]);
 
-  return selectedAsset && promiseMonth > 0 ? (
+  return isRing(selectedAsset?.asset) && promiseMonth > 0 ? (
     <p>
       {t('You will get {{amount}} {{symbol}}', {
-        amount: fromWei({ value: ringToKton(toWei({ value: selectedAsset.amount }), promiseMonth) }),
+        amount: fromWei({ value: ringToKton(toWei({ value: selectedAsset?.amount }), promiseMonth) }),
         symbol: target.token.symbol.toUpperCase(),
       })}
     </p>

@@ -73,7 +73,7 @@
   "Flite by name, address or index": "Flite by name, address or index",
   "For fund security, your session key should not match your stash key.": "For fund security, your session key should not match your stash key.",
   "Get Power": "Get Power",
-  "Go to Wormhole": "Go to Wormhole",
+  "Go to Helix": "Go to Helix",
   "How to create?": "How to create?",
   "How to use?": "How to use?",
   "I Accept": "I Accept",
@@ -165,6 +165,9 @@
   "Withdraw": "Withdraw",
   "Withdraw amount": "Withdraw amount",
   "You can transfer RING/KTON through the cross-chain bridge between Ethereum and Darwinia.": "You can transfer RING/KTON through the cross-chain bridge between Ethereum and Darwinia.",
+  "You can transfer CRAB/CKTON through the bridge between Crab Chain and Crab Smart Chain.": "You can transfer CRAB/CKTON through the bridge between Crab Chain and Crab Smart Chain.",
+  "You can transfer PRING/PKTON through the cross-chain bridge between Pangolin and Ropsten.": "You can transfer PRING/PKTON through the cross-chain bridge between Pangolin and Ropsten.",
+  "You can transfer ORING through the cross-chain bridge between Pangoro and Pangolin Smart Chain.": "You can transfer ORING through the cross-chain bridge between Pangoro and Pangolin Smart Chain.",
   "You haven’t created an address yet, please create a address first.": "You haven’t created an address yet, please create a address first.",
   "You must set a payee account": "You must set a payee account",
   "You need to stake some KTON or RING to get POWER. The higher the POWER, the greater the share of reward.": "You need to stake some KTON or RING to get POWER. The higher the POWER, the greater the share of reward.",
@@ -215,5 +218,12 @@
   "A block explorer and analytics platform for Crab Smart Chain.": "A block explorer and analytics platform for Crab Smart Chain.",
   "Trade and earn without registration.": "Trade and earn without registration.",
   "Github link for add portal": "https://github.com/darwinia-network/apps/blob/master/README.md#how-to-add-your-portal",
-  "Submit a project": "Submit a project"
+  "Submit a project": "Submit a project",
+  "Deposits Claim": "Deposits Claim",
+  "Deposit list": "Deposit list",
+  "Claim": "Claim",
+  "Search deposit failed": "Search deposit failed",
+  "No record": "No record",
+  "Please select deposit": "Please select deposit",
+  "Claim History": "Claim History"
 }

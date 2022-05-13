@@ -1,5 +1,6 @@
 import { BN } from '@polkadot/util';
 import { EMPTY } from 'rxjs';
+import { addDays, fromUnixTime } from 'date-fns';
 
 // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any
 export function empty(...args: any[]) {
@@ -59,4 +60,23 @@ export function prettyNumber(
       : `${prefix}.${'0'.padEnd(decimal!, '0')}`;
 
   return +result === 0 ? '0' : result;
+}
+
+export function getTimeRange(
+  startTime: number,
+  duration: number
+): {
+  start: Date;
+  end: Date;
+} {
+  const base = 30;
+  const start = fromUnixTime(startTime);
+  const end = addDays(start, base * duration);
+
+  return { start, end };
+}
+
+export function buf2hex(buffer: ArrayBuffer) {
+  // eslint-disable-next-line no-magic-numbers
+  return '0x' + Array.prototype.map.call(new Uint8Array(buffer), (x) => ('00' + x.toString(16)).slice(-2)).join('');
 }

@@ -1,4 +1,3 @@
-import { KeyOutlined } from '@ant-design/icons';
 import { TypeRegistry } from '@polkadot/types';
 import { Button, Card, notification } from 'antd';
 import Form from 'antd/lib/form';
@@ -12,6 +11,7 @@ import { useMetamask } from '../../hooks/ metamask';
 import { entrance } from '../../utils';
 import { AddressItem } from '../widget/form-control/AddressItem';
 import { BalanceControl } from '../widget/form-control/BalanceControl';
+import { DVMChainConfig } from '../../model';
 
 interface WithdrawFormValues {
   account: string;
@@ -58,7 +58,11 @@ export function Withdraw() {
         )}
 
         {status === 'pending' && (
-          <Button type="primary" onClick={() => connectNetwork(network)} disabled={disableConnect}>
+          <Button
+            type="primary"
+            onClick={() => connectNetwork((network as DVMChainConfig).ethereumChain)}
+            disabled={disableConnect}
+          >
             {t('Connect to Metamask')}
           </Button>
         )}
@@ -123,14 +127,14 @@ export function Withdraw() {
 
         <Form.Item>
           <Button
+            size="large"
             type="primary"
             htmlType="submit"
             disabled={!activeAccount}
             loading={busy}
-            className="flex items-center"
+            className="flex items-center justify-center w-28"
           >
-            <KeyOutlined />
-            <span>{t('Withdraw')}</span>
+            {t('Withdraw')}
           </Button>
         </Form.Item>
       </Form>

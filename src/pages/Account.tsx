@@ -6,6 +6,7 @@ import { StakingHistory } from '../components/account/StakingHistory';
 import { AssetOverview } from '../components/account/AssetOverview';
 import { useAccount, useApi } from '../hooks';
 import { CustomTab } from '../components/widget/CustomTab';
+import { PolkadotTypeNetwork } from '../model';
 
 type TypeTabKeys = 'asset' | 'cross';
 
@@ -14,6 +15,13 @@ function Page() {
   const { network } = useApi();
   const { assets, getBalances } = useAccount();
   const [activeKey, setActiveKey] = useState<TypeTabKeys>('asset');
+
+  const crossChainPrompt: Record<PolkadotTypeNetwork, string> = {
+    crab: t('You can transfer CRAB/CKTON through the bridge between Crab Chain and Crab Smart Chain.'),
+    darwinia: t('You can transfer RING/KTON through the cross-chain bridge between Ethereum and Darwinia.'),
+    pangolin: t('You can transfer PRING/PKTON through the cross-chain bridge between Pangolin and Ropsten.'),
+    pangoro: t('You can transfer ORING through the cross-chain bridge between Pangoro and Pangolin Smart Chain.'),
+  };
 
   return (
     <Tabs
@@ -32,16 +40,14 @@ function Page() {
 
       <Tabs.TabPane key="cross" tab={<CustomTab text={t('Cross Chain')} tabKey="cross" activeKey={activeKey} />}>
         <Card className="shadow-xxl">
-          <p className="mb-4 opacity-60">
-            {t('You can transfer RING/KTON through the cross-chain bridge between Ethereum and Darwinia.')}
-          </p>
+          <p className="mb-4 opacity-60">{crossChainPrompt[network.name as PolkadotTypeNetwork]}</p>
           <Button
             type="primary"
             onClick={() => {
               window.open('https://wormhole.darwinia.network', '_blank');
             }}
           >
-            {t('Go to Wormhole')}
+            {t('Go to Helix')}
           </Button>
         </Card>
       </Tabs.TabPane>

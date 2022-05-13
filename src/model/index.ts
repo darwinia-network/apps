@@ -10,3 +10,4 @@ export * from './tx';
 export * from './queue';
 export * from './type-operator';
 export * from './webapi';
+export * from './deposit';
