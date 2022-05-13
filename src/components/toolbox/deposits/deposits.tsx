@@ -49,7 +49,7 @@ export const Deposits = () => {
     if (refetch && activeAccount) {
       refetch({
         url: apiUrl(EVOLUTION_DOMAIN.product, EvoApiPath.deposit),
-        params: { address: activeAccount },
+        params: { owner: activeAccount, 'EVO-NETWORK': 'Eth' },
       });
     }
   }, [refetch, activeAccount]);
