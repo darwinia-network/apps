@@ -66,10 +66,8 @@ export function SetValidator({ disabled, label, type = 'text' }: StakingActionPr
           required
           rules={[
             {
-              validator(_, val) {
-                return val ? Promise.resolve() : Promise.reject();
-              },
-              message: t('Percentage is Required'),
+              required: true,
+              message: t('percentage is required'),
             },
             { type: 'number', min: 0, max: 100 },
           ]}
