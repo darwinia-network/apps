@@ -5,6 +5,7 @@ import { Migration } from '../pages/Migration';
 import { Portal } from '../pages/Portal';
 import { Staking } from '../pages/Staking';
 import { Toolbox } from '../pages/Toolbox';
+import { FeeMarket } from '../pages/FeeMarket';
 
 export enum Path {
   root = '/',
@@ -13,6 +14,7 @@ export enum Path {
   toolbox = '/toolbox',
   portal = '/portal',
   migration = '/migration',
+  feemarket = '/feemarket',
 }
 
 export const routes: RouteProps[] = [
@@ -45,6 +47,11 @@ export const routes: RouteProps[] = [
     exact: true,
     path: Path.migration,
     children: Migration,
+  },
+  {
+    exact: true,
+    path: Path.feemarket,
+    children: FeeMarket,
   },
   {
     path: '*',

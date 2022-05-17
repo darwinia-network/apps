@@ -36,6 +36,7 @@
     "craco-antd": "^1.19.0",
     "date-fns": "^2.22.1",
     "date-fns-tz": "^1.1.6",
+    "echarts": "^5.3.2",
     "file-saver": "^2.0.5",
     "graphql-hooks": "^5.2.0",
     "i18next": "^20.3.1",

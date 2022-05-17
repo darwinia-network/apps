@@ -38,6 +38,7 @@ const navigators: Nav[] = [
   { label: 'Toolbox', path: Path.toolbox, Icon: ToolboxIcon },
   { label: 'Darwinia Portal', path: Path.portal, Icon: DarwiniaIcon },
   { label: 'Account Migration', path: Path.migration, Icon: UsersIcon, className: 'migration' },
+  { label: 'Fee Market', path: Path.feemarket, Icon: UsersIcon },
 ];
 
 export const getActiveNav = (path: string) => {
