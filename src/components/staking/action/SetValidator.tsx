@@ -67,7 +67,6 @@ export function SetValidator({ disabled, label, type = 'text' }: StakingActionPr
           rules={[
             {
               required: true,
-              message: t('percentage is required'),
             },
             { type: 'number', min: 0, max: 100 },
           ]}

@@ -105,7 +105,6 @@
   "POWER = your stake / total stake": "POWER = 你的质押 / 总质押",
   "Payment account": "支付账户",
   "Payment destination": "收益账户",
-  "percentage is required": "必须设置百分比",
   "Please enter a valid {{network}} address": "请输入正确的 {{network}} 地址",
   "Please keep a little {{token}} as fee": "请保留少许 {{token}} 作为手续费",
   "Please make sure that you have some excess RING in this account as gas fee.": "请确保你在这个账户里有一些多余的RING作为手续费。",
