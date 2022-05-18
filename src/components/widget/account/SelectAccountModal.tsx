@@ -2,9 +2,11 @@ import React from 'react';
 import BaseIdentityIcon from '@polkadot/react-identicon';
 import { Button, Empty, Modal, Radio } from 'antd';
 import { useTranslation } from 'react-i18next';
-import { useApi } from '../../../hooks';
+import { useApi, useAssets } from '../../../hooks';
 import { EllipsisMiddle } from '../EllipsisMiddle';
 import { IAccountMeta } from '../../../model';
+import { PrettyAmount } from '../PrettyAmount';
+import { fromWei, prettyNumber } from '../../../utils';
 import { AccountName } from './AccountName';
 
 type Props = {
@@ -19,6 +21,8 @@ type Props = {
 const iconSize = 36;
 
 const AccountWithIdentify = ({ value }: { value: IAccountMeta }) => {
+  const { assets } = useAssets(value.address);
+
   return (
     <>
       <BaseIdentityIcon
@@ -27,8 +31,19 @@ const AccountWithIdentify = ({ value }: { value: IAccountMeta }) => {
         className="mr-2 rounded-full border border-solid border-gray-100"
         value={value.address}
       />
-      <span className="flex flex-col leading-5 overflow-hidden">
-        <AccountName account={value.address} />
+      <span className="flex flex-col leading-5 overflow-hidden w-full">
+        <div className="flex items-center justify-between">
+          <AccountName account={value.address} />
+          <div className="flex items-center">
+            {assets.map((item, index) => (
+              <React.Fragment key={item.token.symbol}>
+                {index > 0 && <span className="inline-flex justify-center w-3">/</span>}
+                <PrettyAmount amount={fromWei({ value: item.max }, prettyNumber)} />
+                <span>{item.token.symbol}</span>
+              </React.Fragment>
+            ))}
+          </div>
+        </div>
         <EllipsisMiddle className="opacity-60 w-full" value={value.address} />
       </span>
     </>
