@@ -62,7 +62,6 @@ export const SelectAccountModal: React.FC<Props> = ({ visible, defaultValue, tit
       title={title}
       destroyOnClose
       visible={visible}
-      maskClosable={false}
       onCancel={onCancel}
       bodyStyle={{
         maxHeight: '70vh',
