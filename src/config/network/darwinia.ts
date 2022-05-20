@@ -21,4 +21,7 @@ export const darwiniaConfig: PolkadotChainConfig = {
     ring: { decimal: '9', symbol: 'RING' },
     kton: { decimal: '9', symbol: 'KTON' },
   },
+  subquery: {
+    endpoint: 'https://api.subquery.network/sq/darwinia-network/apps-darwinia',
+  },
 };

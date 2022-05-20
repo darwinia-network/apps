@@ -35,4 +35,7 @@ export const crabConfig: DVMChainConfig = {
     ring: { decimal: '9', symbol: 'CRAB' },
     kton: { decimal: '9', symbol: 'CKTON' },
   },
+  subquery: {
+    endpoint: 'https://api.subquery.network/sq/darwinia-network/apps-crab',
+  },
 };

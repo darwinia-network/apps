@@ -35,4 +35,7 @@ export const pangolinConfig: DVMChainConfig = {
     ring: { decimal: '9', symbol: 'PRING' },
     kton: { decimal: '9', symbol: 'PKTON' },
   },
+  subquery: {
+    endpoint: 'https://api.subquery.network/sq/darwinia-network/apps-pangolin',
+  },
 };

@@ -3,38 +3,40 @@ import { ColumnType } from 'antd/lib/table';
 import { format } from 'date-fns';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { DATE_FORMAT } from '../../config';
-import { useApi } from '../../hooks';
-import { AccountRecord } from '../../model';
+import { from } from 'rxjs';
+import { DATE_FORMAT, STAKING_RECORD_PAGE_SIZE, DARWINIA_UNBONDING_PERIOD } from '../../config';
+import { useApi, useStakingRecords, useAccount } from '../../hooks';
+import { StakingRecord, StakingType } from '../../model';
 import { fromWei, prettyNumber } from '../../utils';
 import { SubscanLink } from '../widget/SubscanLink';
-import { useStakingRecords } from './stakingRecords';
 
-const calcProgress = (start: number, expire: number, bestNumber: number): number => {
-  if (!bestNumber) {
+const calcProgress = (start: number, expire: number, chainTime: number): number => {
+  if (chainTime < start) {
     return 0;
   }
 
-  if (bestNumber < start) {
-    return 0;
-  }
-
-  if (expire <= bestNumber) {
+  if (expire <= chainTime) {
     return 100;
   } else {
     const decimals = 2;
-
-    return parseFloat((100 - ((expire - bestNumber) / (expire - start)) * 100).toFixed(decimals));
+    return parseFloat((100 - ((expire - chainTime) / (expire - start)) * 100).toFixed(decimals));
   }
 };
 
 export function UnbondRecords() {
   const { t } = useTranslation();
+  const { account } = useAccount();
   const { network, api } = useApi();
-  const { pagination, setPagination, stakingRecord } = useStakingRecords('unbonding');
-  const [bestNumber, setBestNumber] = useState<number>(0);
+  const [chainTime, setChainTime] = useState<number>();
+  const [current, setCurrent] = useState(1);
+  const { loading, data } = useStakingRecords({
+    first: STAKING_RECORD_PAGE_SIZE,
+    offset: (current - 1) * STAKING_RECORD_PAGE_SIZE,
+    account,
+    types: [StakingType.Unbond],
+  });
 
-  const columns: ColumnType<AccountRecord>[] = [
+  const columns: ColumnType<StakingRecord>[] = [
     {
       title: 'No.',
       key: 'index',
@@ -44,13 +46,12 @@ export function UnbondRecords() {
     },
     {
       title: 'Extrinsic ID',
-      dataIndex: 'extrinsic_index',
-      render: (value: string) => {
-        const [height, index] = value.split('-');
-
+      dataIndex: 'extrinsicIndex',
+      align: 'center',
+      render: (_, { blockNumber, extrinsicIndex }) => {
         return (
-          <SubscanLink network={network.name} extrinsic={{ height, index }}>
-            {value}
+          <SubscanLink network={network.name} extrinsic={{ height: blockNumber, index: extrinsicIndex }}>
+            {`${blockNumber}-${extrinsicIndex}`}
           </SubscanLink>
         );
       },
@@ -58,18 +59,22 @@ export function UnbondRecords() {
     {
       title: 'Progress',
       key: 'progress',
-      render(_, record) {
-        const height = parseInt(record.unbonding_extrinsic_index.split('-')[0], 10);
+      width: '15%',
+      align: 'center',
+      render(_, { blockTime }) {
+        const start = Number(blockTime);
+        const expired = start + DARWINIA_UNBONDING_PERIOD;
+
         return (
           <div className="px-4">
             <div className="flex justify-between items-center">
-              <span>{format(new Date(record.unbonding_at), DATE_FORMAT)}</span>
+              <span>{format(new Date(start), DATE_FORMAT)}</span>
               <span className="mx-2">-</span>
-              <span>{format(new Date(record.unbonding_end), DATE_FORMAT)}</span>
+              <span>{format(new Date(expired), DATE_FORMAT)}</span>
             </div>
-            {bestNumber && (
+            {chainTime && (
               <Progress
-                percent={calcProgress(height, record.unbonding_block_end, bestNumber)}
+                percent={calcProgress(start, expired, chainTime)}
                 showInfo={false}
                 status="normal"
                 strokeWidth={4}
@@ -83,11 +88,12 @@ export function UnbondRecords() {
     {
       title: 'Amount',
       dataIndex: 'amount',
-      render: (value, record) => {
+      align: 'center',
+      render: (value, { tokenSymbol }) => {
         return (
           <span className="inline-flex items-center">
             <span>{fromWei({ value }, prettyNumber)}</span>
-            <span className="uppercase ml-2">{record.currency}</span>
+            <span className="uppercase ml-2">{tokenSymbol}</span>
           </span>
         );
       },
@@ -95,27 +101,33 @@ export function UnbondRecords() {
     {
       title: 'status',
       dataIndex: 'status',
-      render: (_, record) => {
-        return <span>{record.unbonding_block_end > bestNumber ? t('Unbonding') : t('Unbonded')}</span>;
+      align: 'center',
+      width: '20%',
+      render: (_, { blockTime }) => {
+        const expired = Number(blockTime) + DARWINIA_UNBONDING_PERIOD;
+
+        return <span>{expired > (chainTime ?? 0) ? t('Unbonding') : t('Unbonded')}</span>;
       },
     },
   ];
 
   useEffect(() => {
-    api.derive.chain.bestNumber().then((res) => {
-      setBestNumber(res.toJSON());
-    });
-  }, [api]);
+    const sub$$ = from<Promise<number>>(api.query.timestamp.now()).subscribe(setChainTime);
+    return () => sub$$.unsubscribe();
+  }, [api.query.timestamp]);
 
   return (
     <Table
-      rowKey={'Id'}
+      rowKey={'id'}
       columns={columns}
-      pagination={{ ...pagination, total: stakingRecord.count }}
-      dataSource={stakingRecord.list ?? undefined}
-      onChange={({ pageSize = 0, current = 0 }) => {
-        setPagination({ ...pagination, pageSize, current });
+      loading={loading}
+      pagination={{
+        pageSize: DARWINIA_UNBONDING_PERIOD,
+        current,
+        total: data?.stakingRecordEntities.totalCount,
+        onChange: (page) => setCurrent(page),
       }}
+      dataSource={data?.stakingRecordEntities.nodes}
       className="whitespace-nowrap"
     />
   );

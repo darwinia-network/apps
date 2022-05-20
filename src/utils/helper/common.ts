@@ -1,6 +1,6 @@
 import { BN } from '@polkadot/util';
 import { EMPTY } from 'rxjs';
-import { addDays, fromUnixTime } from 'date-fns';
+import { addDays, fromUnixTime, getUnixTime } from 'date-fns';
 
 // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any
 export function empty(...args: any[]) {
@@ -80,3 +80,18 @@ export function buf2hex(buffer: ArrayBuffer) {
   // eslint-disable-next-line no-magic-numbers
   return '0x' + Array.prototype.map.call(new Uint8Array(buffer), (x) => ('00' + x.toString(16)).slice(-2)).join('');
 }
+
+export const calcMonths = (startTime: string | number, expiredTime: string | number) => {
+  const start = typeof startTime === 'number' ? startTime : Number(startTime);
+  const expired = typeof expiredTime === 'number' ? expiredTime : Number(expiredTime);
+
+  // eslint-disable-next-line no-magic-numbers
+  return start >= expired ? 0 : (expired - start) / 1000 / 60 / 60 / 24 / 30;
+};
+
+export const processTime = (start: number, expire: number): number => {
+  const now = getUnixTime(new Date());
+  const end = getUnixTime(expire);
+
+  return end <= now ? 100 : 100 - ((end - now) / (end - getUnixTime(start))) * 100;
+};
