@@ -84,20 +84,20 @@ export const Overview = () => {
           <Statistics className="lg:justify-center" title={t('Total Orders')} value={99988} />
         </div>
       </Card>
-      <div className="flex items-center justify-between space-x-2 mt-8">
-        <Card className="w-2/4 shadow-xxl">
+      <div className="flex items-center justify-between mt-8">
+        <Card className="shadow-xxl" style={{ width: '49.5%' }}>
           <div className="flex items-center justify-between">
             <h3 className="font-medium text-base text-black opacity-80">Total orders</h3>
             <Segmented />
           </div>
-          <div ref={totalOrdersRef} className="h-96" />
+          <div ref={totalOrdersRef} className="h-96 w-11/12" />
         </Card>
-        <Card className="w-2/4 shadow-xxl">
+        <Card className="shadow-xxl" style={{ width: '49.5%' }}>
           <div className="flex items-center justify-between">
             <h3 className="font-medium text-base text-black opacity-80">Fee History</h3>
             <Segmented />
           </div>
-          <div ref={feeHistoryRef} className="h-96" />
+          <div ref={feeHistoryRef} className="h-96 w-11/12" />
         </Card>
       </div>
     </>
