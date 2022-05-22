@@ -1,5 +1,6 @@
 import { Table, Input, Radio, Card } from 'antd';
 import { ColumnsType } from 'antd/lib/table';
+import { NavLink } from 'react-router-dom';
 
 type RelayerData = {
   relayer: string;
@@ -16,6 +17,11 @@ export const Relayers = () => {
       title: 'Relayer',
       key: 'relayer',
       dataIndex: 'relayer',
+      render: (value) => {
+        const searchParams = new URL(window.location.href).searchParams;
+        searchParams.set('relayer', '0x8765');
+        return <NavLink to={`?${searchParams.toString()}`}>{value}</NavLink>;
+      },
     },
     {
       title: 'Count(orders)',

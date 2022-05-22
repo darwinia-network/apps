@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Overview } from '../components/feemarket/Overview';
 import { Relayers } from '../components/feemarket/Relayers';
+import { RelayerDetail } from '../components/feemarket/RelayerDetail';
 import { Orders } from '../components/feemarket/Orders';
 import { OrderDetail } from '../components/feemarket/OrderDetail';
 import { useApi } from '../hooks';
@@ -19,6 +20,7 @@ function Page() {
   const searchParams = new URL(window.location.href).searchParams;
   const tab = searchParams.get('tab');
   const orderId = searchParams.get('orderid');
+  const relayer = searchParams.get('relayer');
 
   const { network } = useApi();
   const { t } = useTranslation();
@@ -42,7 +44,7 @@ function Page() {
         key={TabsKeys.relayers}
         tab={<CustomTab text={t('Relayers')} tabKey={TabsKeys.relayers} activeKey={activeKey} />}
       >
-        <Relayers />
+        {relayer ? <RelayerDetail /> : <Relayers />}
       </Tabs.TabPane>
       <Tabs.TabPane
         key={TabsKeys.orders}
