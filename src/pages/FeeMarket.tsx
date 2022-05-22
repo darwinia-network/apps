@@ -17,7 +17,7 @@ enum TabsKeys {
 function Page() {
   const { network } = useApi();
   const { t } = useTranslation();
-  const [activeKey, setActiveKey] = useState<TabsKeys>(TabsKeys.relayers);
+  const [activeKey, setActiveKey] = useState<TabsKeys>(TabsKeys.orders);
 
   return (
     <Tabs
