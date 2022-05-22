@@ -2,6 +2,7 @@ import { Card, Statistic, Table, Select, Input, Button, Form, DatePicker, Badge,
 import { ColumnsType } from 'antd/lib/table';
 import { CheckCircleOutlined, ClockCircleOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
 import { useEffect, useRef, useState } from 'react';
+import { NavLink } from 'react-router-dom';
 
 import * as echarts from 'echarts/core';
 import { TooltipComponent, TooltipComponentOption, LegendComponent, LegendComponentOption } from 'echarts/components';
@@ -24,51 +25,6 @@ type OrderData = {
   time: string;
 };
 
-const columns: ColumnsType<OrderData> = [
-  {
-    title: 'Order ID',
-    key: 'orderId',
-    dataIndex: 'orderId',
-    align: 'center',
-  },
-  {
-    title: 'Delivery Relayer',
-    key: 'deliveryRelayer',
-    dataIndex: 'deliveryRelayer',
-    align: 'center',
-  },
-  {
-    title: 'Confirmation Relayer',
-    key: 'confirmationRelayer',
-    dataIndex: 'confirmationRelayer',
-    align: 'center',
-  },
-  {
-    title: 'Assigned Relayer',
-    key: 'assignedRelayer',
-    dataIndex: 'assignedRelayer',
-    align: 'center',
-  },
-  {
-    title: 'Start Block',
-    key: 'startBlock',
-    dataIndex: 'startBlock',
-    align: 'center',
-  },
-  {
-    title: 'Confirm Block',
-    key: 'confirmBlock',
-    dataIndex: 'confirmBlock',
-    align: 'center',
-  },
-  {
-    title: 'Time',
-    key: 'time',
-    dataIndex: 'time',
-    align: 'center',
-  },
-];
-
 const dataSource: OrderData[] = [
   {
     key: 1,
@@ -85,6 +41,56 @@ const dataSource: OrderData[] = [
 export const Orders = () => {
   const ref = useRef<HTMLDivElement>(null);
   const [timeDimension, setTimeDimension] = useState(1);
+
+  const columns: ColumnsType<OrderData> = [
+    {
+      title: 'Order ID',
+      key: 'orderId',
+      dataIndex: 'orderId',
+      align: 'center',
+      render: (value) => {
+        const searchParams = new URL(window.location.href).searchParams;
+        searchParams.set('orderid', '0x8765');
+        return <NavLink to={`?${searchParams.toString()}`}>{value}</NavLink>;
+      },
+    },
+    {
+      title: 'Delivery Relayer',
+      key: 'deliveryRelayer',
+      dataIndex: 'deliveryRelayer',
+      align: 'center',
+    },
+    {
+      title: 'Confirmation Relayer',
+      key: 'confirmationRelayer',
+      dataIndex: 'confirmationRelayer',
+      align: 'center',
+    },
+    {
+      title: 'Assigned Relayer',
+      key: 'assignedRelayer',
+      dataIndex: 'assignedRelayer',
+      align: 'center',
+    },
+    {
+      title: 'Start Block',
+      key: 'startBlock',
+      dataIndex: 'startBlock',
+      align: 'center',
+    },
+    {
+      title: 'Confirm Block',
+      key: 'confirmBlock',
+      dataIndex: 'confirmBlock',
+      align: 'center',
+    },
+    {
+      title: 'Time',
+      key: 'time',
+      dataIndex: 'time',
+      align: 'center',
+    },
+  ];
 
   useEffect(() => {
     const chart = ref.current ? echarts.init(ref.current) : null;

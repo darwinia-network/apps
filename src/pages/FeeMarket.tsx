@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { Overview } from '../components/feemarket/Overview';
 import { Relayers } from '../components/feemarket/Relayers';
 import { Orders } from '../components/feemarket/Orders';
+import { OrderDetail } from '../components/feemarket/OrderDetail';
 import { useApi } from '../hooks';
 import { CustomTab } from '../components/widget/CustomTab';
 
@@ -15,9 +16,15 @@ enum TabsKeys {
 }
 
 function Page() {
+  const searchParams = new URL(window.location.href).searchParams;
+  const tab = searchParams.get('tab');
+  const orderId = searchParams.get('orderid');
+
   const { network } = useApi();
   const { t } = useTranslation();
-  const [activeKey, setActiveKey] = useState<TabsKeys>(TabsKeys.orders);
+  const [activeKey, setActiveKey] = useState<TabsKeys>(
+    Object.values(TabsKeys).includes(tab as TabsKeys) ? (tab as TabsKeys) : TabsKeys.orders
+  );
 
   return (
     <Tabs
@@ -41,7 +48,7 @@ function Page() {
         key={TabsKeys.orders}
         tab={<CustomTab text={t('Orders')} tabKey={TabsKeys.orders} activeKey={activeKey} />}
       >
-        <Orders />
+        {orderId ? <OrderDetail orderId={orderId} /> : <Orders />}
       </Tabs.TabPane>
     </Tabs>
   );
