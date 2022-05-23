@@ -3,7 +3,7 @@ import type { AccountId, AccountIndex, Address } from '@polkadot/types/interface
 import type { Codec, DetectCodec } from '@polkadot/types/types';
 import { keyring } from '@polkadot/ui-keyring';
 import type { KeyringItemType, KeyringJson$Meta } from '@polkadot/ui-keyring/types';
-import { hexToU8a, numberToU8a, stringToU8a, u8aToHex } from '@polkadot/util';
+import { hexToU8a, numberToU8a, stringToU8a, u8aToHex, isHex } from '@polkadot/util';
 import { decodeAddress, encodeAddress } from '@polkadot/util-crypto';
 import { isNull } from 'lodash';
 
@@ -117,3 +117,13 @@ export function getAddressName(
     ? [false, true, defaultName.toUpperCase()]
     : [true, false, toShortAddress(address)];
 }
+
+export const isValidAddress = (address: string) => {
+  try {
+    encodeAddress(isHex(address) ? hexToU8a(address) : decodeAddress(address));
+
+    return true;
+  } catch (error) {
+    return false;
+  }
+};
