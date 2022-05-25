@@ -60,13 +60,17 @@ export const signAndSendTx = (currentItem: QueueTx, queueSetTxStatus: QueueTxMes
           () =>
             new Observable((subscriber: Subscriber<SubmittableResult>) => {
               (async () => {
-                const unsub = await extrinsic.send((result) => {
-                  subscriber.next(result);
-                  if (result.isCompleted) {
-                    unsub();
-                    subscriber.complete();
-                  }
-                });
+                try {
+                  const unsub = await extrinsic.send((result) => {
+                    subscriber.next(result);
+                    if (result.isCompleted) {
+                      unsub();
+                      subscriber.complete();
+                    }
+                  });
+                } catch (err) {
+                  subscriber.error(err);
+                }
               })();
             })
         )
