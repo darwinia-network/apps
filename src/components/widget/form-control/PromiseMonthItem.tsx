@@ -11,7 +11,7 @@ import { Label } from './Label';
 const MAX_PERIOD = 36;
 const LOCK_PERIOD = [0, ...new Array(MAX_PERIOD).fill(0).map((_, index) => index + 1)];
 
-interface PromiseMonthItemProps extends CustomFormItemProps {
+interface PromiseMonthItemProps extends CustomFormItemProps<number> {
   selectedAsset: Asset | null;
 }
 
@@ -35,10 +35,10 @@ export function PromiseMonthItem({ selectedAsset, label, name, onChange }: Promi
           rules={[{ required: true }]}
           extra={<p className="text-xs">{t('The funds status will become locked after freezing period set')}</p>}
         >
-          <Select
+          <Select<number>
             size="large"
-            onChange={(value: string) => {
-              setDuration(Number(value));
+            onChange={(value) => {
+              setDuration(value);
 
               if (onChange) {
                 onChange(value);
