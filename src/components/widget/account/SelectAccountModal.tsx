@@ -1,6 +1,6 @@
 import React from 'react';
 import BaseIdentityIcon from '@polkadot/react-identicon';
-import { Button, Empty, Modal, Radio } from 'antd';
+import { Button, Empty, Modal, Radio, Spin } from 'antd';
 import { useTranslation } from 'react-i18next';
 import { useApi, useAssets } from '../../../hooks';
 import { EllipsisMiddle } from '../EllipsisMiddle';
@@ -34,15 +34,15 @@ const AccountWithIdentify = ({ value }: { value: IAccountMeta }) => {
       <span className="flex flex-col leading-5 overflow-hidden w-full">
         <div className="flex items-center justify-between">
           <AccountName account={value.address} />
-          <div className="flex items-center">
+          <Spin className="flex items-center" spinning={!assets.length} size="small">
             {assets.map((item, index) => (
               <React.Fragment key={item.token.symbol}>
                 {index > 0 && <span className="inline-flex justify-center w-3">/</span>}
-                <PrettyAmount amount={fromWei({ value: item.max }, prettyNumber)} />
+                <PrettyAmount amount={fromWei({ value: item.total }, prettyNumber)} />
                 <span>{item.token.symbol}</span>
               </React.Fragment>
             ))}
-          </div>
+          </Spin>
         </div>
         <EllipsisMiddle className="opacity-60 w-full" value={value.address} />
       </span>
