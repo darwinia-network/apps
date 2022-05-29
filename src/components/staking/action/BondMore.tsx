@@ -65,7 +65,7 @@ export function BondMore() {
           updateStakingDerive();
           getBalances();
         }}
-        initialValues={{ stash: stashAccount, promiseMonth: 0, accept: false }}
+        initialValues={{ stash: stashAccount, promiseMonth: duration, accept: false }}
       >
         <AddressItem name="stash" label="Stash account" disabled />
 
@@ -86,7 +86,7 @@ export function BondMore() {
           label="Lock limit"
           name="promiseMonth"
           selectedAsset={selectedAsset}
-          onChange={(value) => setDuration(+value)}
+          onChange={(value) => setDuration(value)}
         />
 
         <PowerReward selectedAsset={selectedAsset} />

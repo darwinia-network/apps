@@ -1,11 +1,11 @@
 import BaseIdentityIcon, { Identicon } from '@polkadot/react-identicon';
-import { Card, Col, Modal, Row, Typography } from 'antd';
+import { Card, Col, Modal, Row, Typography, Badge } from 'antd';
 import React, { CSSProperties, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import { delay, of } from 'rxjs';
 import { useAccount, useApi } from '../../hooks';
-import { convertToSS58 } from '../../utils';
+import { convertToSS58, SEARCH_PARAMS } from '../../utils';
 import { ViewBrowserIcon, CopyIcon } from '../icons';
 import { SHORT_DURATION } from '../../config';
 import { ConnectPolkadot } from './ConnectPolkadot';
@@ -66,25 +66,36 @@ export function Connection() {
     }
   }, [isCopied]);
 
+  const isReadOnly = useMemo(
+    () => connection.accounts.find((item) => item.address === account)?.meta.source === SEARCH_PARAMS,
+    [connection.accounts, account]
+  );
+
   return (
     <>
       {!!connection && !!account ? (
         <section className={`flex items-center gap-2 connection`}>
           {account && (
             <>
-              <ActiveAccount
-                onClick={(event) => {
-                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                  if ((event.target as any).tagName === 'SPAN') {
-                    setIsAccountDetailVisible(true);
-                  }
-                }}
-                className="max-w-xs text-white hidden lg:flex cursor-pointer"
-                logoStyle={{ width: 24 }}
-                isLargeRounded={false}
+              <Badge.Ribbon
+                color="red"
+                text={t('Read only')}
+                className={`-top-1 -right-2 ${isReadOnly ? '' : 'hidden'}`}
               >
-                <EllipsisMiddle className="text-white overflow-hidden mr-2" copyable value={account} />
-              </ActiveAccount>
+                <ActiveAccount
+                  onClick={(event) => {
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    if ((event.target as any).tagName === 'SPAN') {
+                      setIsAccountDetailVisible(true);
+                    }
+                  }}
+                  className="max-w-xs text-white hidden lg:flex cursor-pointer"
+                  logoStyle={{ width: 24 }}
+                  isLargeRounded={false}
+                >
+                  <EllipsisMiddle className="text-white overflow-hidden mr-2" copyable value={account} />
+                </ActiveAccount>
+              </Badge.Ribbon>
 
               <span onClick={() => setIsAccountDetailVisible(true)} className="lg:hidden flex">
                 <Identicon value={account} size={20} className="rounded-full border p-1" />
@@ -127,10 +138,7 @@ export function Connection() {
                   <a
                     rel="noopener noreferrer"
                     target="_blank"
-                    href={`https://${network.name}.subscan.io/account/${convertToSS58(
-                      account ?? '',
-                      network.ss58Prefix
-                    )}`}
+                    href={`https://${network.name}.subscan.io/account/${convertToSS58(account, network.ss58Prefix)}`}
                     className="inline-flex items-center"
                   >
                     <ViewBrowserIcon className="text-sm mr-1" />

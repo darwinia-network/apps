@@ -30,6 +30,7 @@ import {
   PolkadotConnection,
   AddEthereumChainParameter,
 } from '../../model';
+import { isValidAddress } from '../../utils';
 import { entrance } from './entrance';
 import { isMetamaskInstalled, isNetworkConsistent } from './network';
 import { switchMetamaskNetwork } from './switch';
@@ -42,6 +43,8 @@ type ConnectEthFn<T extends Connection> = (network: AddEthereumChainParameter, c
 keyring.loadAll({});
 
 export const LOCAL = 'local';
+
+export const SEARCH_PARAMS = 'search-params';
 
 export const getPolkadotConnection: (network: ChainConfig) => Observable<PolkadotConnection> = (network) =>
   from(web3Enable('darwinia/apps')).pipe(
@@ -61,7 +64,18 @@ export const getPolkadotConnection: (network: ChainConfig) => Observable<Polkado
           };
         });
 
-        return [...injected, ...local];
+        const readOnlyAddress = new URL(window.location.href).searchParams.get('address');
+        const readOnly =
+          readOnlyAddress && isValidAddress(readOnlyAddress)
+            ? [
+                {
+                  address: readOnlyAddress,
+                  meta: { name: 'Read-Only', source: SEARCH_PARAMS },
+                },
+              ]
+            : [];
+
+        return [...injected, ...local, ...readOnly];
       }).pipe(
         map(
           (accounts) =>

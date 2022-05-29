@@ -21,7 +21,14 @@ export function Rebond() {
   const { api } = useApi();
   const { assets } = useAccount();
   const [isVisible, setIsVisible] = useState(false);
-  const { stashAccount, stakingDerive, isStakingLedgerEmpty, updateValidators, updateStakingDerive } = useStaking();
+  const {
+    stashAccount,
+    controllerAccount,
+    stakingDerive,
+    isStakingLedgerEmpty,
+    updateValidators,
+    updateStakingDerive,
+  } = useStaking();
 
   const ledgers = useMemo(
     () =>
@@ -57,6 +64,7 @@ export function Rebond() {
           updateValidators();
           updateStakingDerive();
         }}
+        signer={controllerAccount}
         initialValues={{ stash: stashAccount }}
       >
         <AddressItem
