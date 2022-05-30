@@ -21,12 +21,17 @@ function redeemableSum(api: ApiInterfaceRx, stakingLedger: StakingLedger | undef
     return api.registry.createType('Balance');
   }
 
-  return api.registry.createType(
-    'Balance',
+  const ring =
     stakingLedger.ringStakingLock?.unbondings.reduce((total, { amount, until }): BN => {
-      return until.gte(best) ? total.add(amount) : total;
-    }, new BN(0)) ?? new BN(0)
-  );
+      return best.gte(until) ? total.add(amount) : total;
+    }, new BN(0)) ?? new BN(0);
+
+  const kton =
+    stakingLedger.ktonStakingLock?.unbondings.reduce((total, { amount, until }): BN => {
+      return best.gte(until) ? total.add(amount) : total;
+    }, new BN(0)) ?? new BN(0);
+
+  return api.registry.createType('Balance', ring.add(kton));
 }
 
 function calculateUnlocking(
