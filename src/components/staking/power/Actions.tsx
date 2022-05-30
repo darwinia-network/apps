@@ -71,6 +71,11 @@ export function Actions({ eraSelectionIndex, disabled }: ActionsProps) {
     [accounts, controllerAccount]
   );
 
+  const refreshStakingAccount = useCallback(
+    () => from(api.derive.staking.account(stashAccount)).subscribe(setStakingAccount),
+    [api, stashAccount]
+  );
+
   const withdrawFunds = useCallback(() => {
     queueExtrinsic({
       signAddress: controllerAccount,
@@ -78,13 +83,16 @@ export function Actions({ eraSelectionIndex, disabled }: ActionsProps) {
         api.tx.staking.withdrawUnbonded?.meta.args.length === 1
           ? api.tx.staking.withdrawUnbonded(spanCount)
           : api.tx.staking.withdrawUnbonded(),
+      txSuccessCb: () => {
+        refreshStakingAccount();
+      },
     });
-  }, [api, controllerAccount, queueExtrinsic, spanCount]);
+  }, [api, controllerAccount, queueExtrinsic, refreshStakingAccount, spanCount]);
 
   useEffect(() => {
-    const sub$$ = from(api.derive.staking.account(stashAccount)).subscribe(setStakingAccount);
+    const sub$$ = refreshStakingAccount();
     return () => sub$$.unsubscribe();
-  }, [api, stashAccount]);
+  }, [refreshStakingAccount]);
 
   return (
     <div className="flex lg:flex-row flex-col gap-2 items-center">
