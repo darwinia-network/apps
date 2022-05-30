@@ -28,7 +28,7 @@ export function AssetOverview({ asset }: AssetOverviewProps) {
 
   const ledger = useMemo(
     () => getLedger(asset.token.symbol, isStakingLedgerEmpty, stakingDerive),
-    [asset.token.symbol, isStakingLedgerEmpty, stakingDerive]
+    [asset, isStakingLedgerEmpty, stakingDerive]
   );
 
   if (isStakingDeriveLoading) {

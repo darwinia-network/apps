@@ -5,7 +5,7 @@ import { useMemo, useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { from } from 'rxjs';
 import type { DeriveStakingAccount } from '@polkadot/api-derive/types';
-import { useApi, useStaking, useQueue, useSlashingSpans } from '../../../hooks';
+import { useApi, useStaking, useQueue, useSlashingSpans, useAccount } from '../../../hooks';
 import {
   BondMore,
   ClaimRewards,
@@ -31,6 +31,7 @@ export function Actions({ eraSelectionIndex, disabled }: ActionsProps) {
     api,
     connection: { accounts },
   } = useApi();
+  const { getBalances } = useAccount();
   const { queueExtrinsic } = useQueue();
   const {
     stakingDerive,
@@ -84,10 +85,11 @@ export function Actions({ eraSelectionIndex, disabled }: ActionsProps) {
           ? api.tx.staking.withdrawUnbonded(spanCount)
           : api.tx.staking.withdrawUnbonded(),
       txSuccessCb: () => {
+        getBalances();
         refreshStakingAccount();
       },
     });
-  }, [api, controllerAccount, queueExtrinsic, refreshStakingAccount, spanCount]);
+  }, [api, controllerAccount, queueExtrinsic, refreshStakingAccount, getBalances, spanCount]);
 
   useEffect(() => {
     const sub$$ = refreshStakingAccount();
