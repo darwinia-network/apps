@@ -1,14 +1,15 @@
 import { TypeRegistry } from '@polkadot/types';
-import { Button, Card, notification } from 'antd';
+import { Button, Card, Select, notification } from 'antd';
 import Form from 'antd/lib/form';
 import { useForm } from 'antd/lib/form/Form';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { from } from 'rxjs';
 import { validateMessages } from '../../config';
 import i18n from '../../config/i18n';
 import { useAccount, useApi } from '../../hooks';
 import { useMetamask } from '../../hooks/ metamask';
-import { entrance } from '../../utils';
+import { entrance, getDvmBalance, fromWei } from '../../utils';
 import { AddressItem } from '../widget/form-control/AddressItem';
 import { BalanceControl } from '../widget/form-control/BalanceControl';
 import { DVMChainConfig } from '../../model';
@@ -26,7 +27,6 @@ const registry = new TypeRegistry();
 export function Withdraw() {
   const { t } = useTranslation();
   const { network } = useApi();
-  const { account } = useAccount();
   const [form] = useForm();
   const {
     connection: { status, accounts },
@@ -34,10 +34,27 @@ export function Withdraw() {
     disconnect,
   } = useMetamask();
   const [busy, setBusy] = useState(false);
+  const [balances, setBalances] = useState(['0', '0']);
+
+  const { ring, kton } = (network as DVMChainConfig).dvm;
+
+  const { account } = useAccount();
+  const [asset, setAsset] = useState(ring.symbol);
 
   const activeAccount = useMemo(() => accounts[0]?.address, [accounts]);
 
   const disableConnect = status !== 'success' && status !== 'pending';
+
+  useEffect(() => {
+    const amount = asset === ring.symbol ? balances[0] : balances[1];
+    form.setFieldsValue({ amount: fromWei({ value: amount, unit: 'ether' }) });
+  }, [asset, balances, ring.symbol, form]);
+
+  useEffect(() => {
+    const sub$$ = from(getDvmBalance(kton.address, activeAccount || '')).subscribe(setBalances);
+
+    return () => sub$$.unsubscribe();
+  }, [activeAccount, kton.address]);
 
   return (
     <Card>
@@ -72,10 +89,17 @@ export function Withdraw() {
         form={form}
         initialValues={{
           account,
+          asset,
+          amount: '0',
         }}
         className="max-w-xl"
         validateMessages={validateMessages[i18n.language as 'en' | 'zh-CN' | 'zh']}
         layout="vertical"
+        onValuesChange={({ asset }) => {
+          if (asset) {
+            setAsset(asset);
+          }
+        }}
         onFinish={({ account: acc, amount }) => {
           const accountHex = registry.createType('AccountId', acc).toHex();
 
@@ -121,6 +145,15 @@ export function Withdraw() {
         }}
       >
         <AddressItem label={'Receive account'} name="account" extra={null} />
+        <Form.Item label={'Asset'} name="asset" rules={[{ required: true }]}>
+          <Select
+            size="large"
+            options={[
+              { label: ring.symbol, value: ring.symbol },
+              { label: kton.symbol, value: kton.symbol },
+            ]}
+          />
+        </Form.Item>
         <Form.Item label={t('Withdraw amount')} name="amount" rules={[{ required: true }, { min: 0 }]}>
           <BalanceControl size="large" className="w-full" />
         </Form.Item>
@@ -142,7 +175,6 @@ export function Withdraw() {
             className="ml-3"
             disabled={!activeAccount}
             onClick={async () => {
-              const { kton } = (network as DVMChainConfig).dvm;
               try {
                 window.ethereum.request({
                   method: 'wallet_watchAsset',
@@ -160,7 +192,7 @@ export function Withdraw() {
               }
             }}
           >
-            {`Import ${(network as DVMChainConfig).dvm.kton.symbol}`}
+            {`Import ${kton.symbol}`}
           </Button>
         </Form.Item>
       </Form>
