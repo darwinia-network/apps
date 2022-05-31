@@ -2,20 +2,23 @@ import { TypeRegistry } from '@polkadot/types';
 import { Button, Card, Select, notification } from 'antd';
 import Form from 'antd/lib/form';
 import { useForm } from 'antd/lib/form/Form';
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { from } from 'rxjs';
+import { PromiEvent, TransactionReceipt } from 'web3-core';
 import { validateMessages } from '../../config';
+import { abi } from '../../config/abi';
 import i18n from '../../config/i18n';
 import { useAccount, useApi } from '../../hooks';
 import { useMetamask } from '../../hooks/ metamask';
-import { entrance, getDvmBalance, fromWei } from '../../utils';
+import { entrance, getDvmBalance, fromWei, toWei, convertToDvm } from '../../utils';
 import { AddressItem } from '../widget/form-control/AddressItem';
 import { BalanceControl } from '../widget/form-control/BalanceControl';
 import { DVMChainConfig } from '../../model';
 
 interface WithdrawFormValues {
-  account: string;
+  destination: string;
+  asset: string;
   amount: string;
 }
 
@@ -43,7 +46,79 @@ export function Withdraw() {
 
   const activeAccount = useMemo(() => accounts[0]?.address, [accounts]);
 
-  const disableConnect = status !== 'success' && status !== 'pending';
+  const disableConnect = useMemo(() => status !== 'success' && status !== 'pending', [status]);
+
+  const handleTxResult = (
+    tx: PromiEvent<TransactionReceipt>,
+    { txSuccessCb = () => undefined, txFailedCb = () => undefined }: { txSuccessCb: () => void; txFailedCb: () => void }
+  ) => {
+    tx.on('transactionHash', (hash: string) => {
+      void hash;
+    })
+      .on('receipt', ({ transactionHash }) => {
+        txSuccessCb();
+        notification.success({
+          message: 'Transaction success',
+          description: `Transaction hash: ${transactionHash}`,
+        });
+      })
+      .catch((error: { code: number; message: string }) => {
+        txFailedCb();
+        console.error(error);
+        notification.error({
+          message: 'Transaction failed',
+          description: error.message,
+        });
+      });
+  };
+
+  const handleWithdraw = useCallback(
+    (destination: string, asset: string, amount: string) => {
+      try {
+        setBusy(true);
+
+        const web3 = entrance.web3.getInstance(entrance.web3.defaultProvider);
+
+        if (asset === ring.symbol) {
+          const accountHex = registry.createType('AccountId', destination).toHex();
+
+          if (accountHex !== EMPTY_ADDRESS) {
+            const tx = web3.eth.sendTransaction({
+              from: activeAccount,
+              to: DVM_WITHDRAW_ADDRESS,
+              data: accountHex,
+              value: web3.utils.toWei(amount, 'ether'),
+              gas: 55000,
+            });
+
+            handleTxResult(tx, {
+              txSuccessCb: () => setBusy(false),
+              txFailedCb: () => setBusy(false),
+            });
+          }
+        } else if (asset === kton.symbol) {
+          const contract = new web3.eth.Contract(abi.ktonABI, kton.address);
+
+          const tx = contract.methods
+            .withdraw(convertToDvm(destination), toWei({ value: amount, unit: 'ether' }))
+            .send({ from: activeAccount });
+
+          handleTxResult(tx, {
+            txSuccessCb: () => setBusy(false),
+            txFailedCb: () => setBusy(false),
+          });
+        }
+      } catch (err) {
+        setBusy(false);
+        console.error(err);
+        notification.error({
+          message: 'Transaction failed',
+          description: (err as Error).message,
+        });
+      }
+    },
+    [activeAccount, ring, kton]
+  );
 
   useEffect(() => {
     const amount = asset === ring.symbol ? balances[0] : balances[1];
@@ -88,7 +163,7 @@ export function Withdraw() {
       <Form<WithdrawFormValues>
         form={form}
         initialValues={{
-          account,
+          destination: account,
           asset,
           amount: '0',
         }}
@@ -100,51 +175,11 @@ export function Withdraw() {
             setAsset(asset);
           }
         }}
-        onFinish={({ account: acc, amount }) => {
-          const accountHex = registry.createType('AccountId', acc).toHex();
-
-          if (status === 'success' && accountHex !== EMPTY_ADDRESS) {
-            try {
-              setBusy(true);
-              const web3 = entrance.web3.getInstance(entrance.web3.defaultProvider);
-              web3.eth
-                .sendTransaction({
-                  from: accounts[0]?.address,
-                  to: DVM_WITHDRAW_ADDRESS,
-                  data: accountHex,
-                  value: web3.utils.toWei(amount, 'ether'),
-                  gas: 55000,
-                })
-                .on('transactionHash', (hash: string) => {
-                  void hash;
-                })
-                .on('receipt', ({ transactionHash }) => {
-                  setBusy(false);
-                  notification.success({
-                    message: 'Transaction success',
-                    description: `Transaction hash: ${transactionHash}`,
-                  });
-                })
-                .catch((error: { code: number; message: string }) => {
-                  setBusy(false);
-                  console.error(error);
-                  notification.error({
-                    message: 'Transaction failed',
-                    description: error.message,
-                  });
-                });
-            } catch (error) {
-              setBusy(false);
-              console.error(error);
-              notification.error({
-                message: 'Transaction failed',
-                description: (error as Error).message,
-              });
-            }
-          }
+        onFinish={({ destination, asset, amount }) => {
+          handleWithdraw(destination, asset, amount);
         }}
       >
-        <AddressItem label={'Receive account'} name="account" extra={null} />
+        <AddressItem label={'Destination address'} name="destination" extra={null} />
         <Form.Item label={'Asset'} name="asset" rules={[{ required: true }]}>
           <Select
             size="large"
@@ -162,7 +197,7 @@ export function Withdraw() {
             size="large"
             type="primary"
             htmlType="submit"
-            disabled={!activeAccount}
+            disabled={status !== 'success' || !activeAccount}
             loading={busy}
             className="w-28"
           >
