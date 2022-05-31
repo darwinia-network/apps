@@ -25,7 +25,7 @@ function Page() {
       >
         {displayDvm && (
           <Tabs.TabPane tab={t('DVM Address')} key="address">
-            <Form layout="vertical">
+            <Form layout="vertical" className="max-w-xl">
               <Form.Item
                 label={
                   <Label text={t('DVM account')} info={t('DVM format account ID to Darwinia network account ID')} />

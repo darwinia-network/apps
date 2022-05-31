@@ -73,6 +73,7 @@ export function Withdraw() {
         initialValues={{
           account,
         }}
+        className="max-w-xl"
         validateMessages={validateMessages[i18n.language as 'en' | 'zh-CN' | 'zh']}
         layout="vertical"
         onFinish={({ account: acc, amount }) => {
