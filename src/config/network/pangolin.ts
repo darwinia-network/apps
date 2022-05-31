@@ -2,8 +2,16 @@ import { DVMChainConfig } from '../../model';
 
 export const pangolinConfig: DVMChainConfig = {
   dvm: {
-    kton: '0xDCd3bC4138afE6F324eaA12C356A20cD576edF08',
-    ring: '0xcfDEb76be514c8B8DC8B509E63f95E34ebafD81e',
+    kton: {
+      address: '0x8809f9b3ACEF1dA309f49b5Ab97A4C0faA64E6Ae',
+      symbol: 'WPKTON',
+      decimals: 18,
+    },
+    ring: {
+      address: '0x0000000000000000000000000000000000000015',
+      symbol: 'WPRING',
+      decimals: 18,
+    },
   },
   ethereumChain: {
     blockExplorerUrls: ['https://pangolin.subscan.io/'],

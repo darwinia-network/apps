@@ -4,10 +4,15 @@ import type { Token } from '../account';
 import { Facade } from './facade';
 import { Network, NetworkCategory } from './network';
 
+interface DVMToken {
+  address: string; // The address of the token contract
+  symbol: string; // A ticker symbol or shorthand, up to 5 characters
+  decimals: number; // The number of token decimals
+}
+
 interface DVMTokenConfig {
-  ring: string;
-  kton: string;
-  [key: string]: string;
+  ring: DVMToken;
+  kton: DVMToken;
 }
 
 interface ProviderConfig {
