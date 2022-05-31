@@ -3,6 +3,8 @@ import { ApiPromise } from '@polkadot/api';
 import { PalletBalancesBalanceLock } from '@polkadot/types/lookup';
 import { BN_ZERO, bnMax, BN } from '@polkadot/util';
 import { waitUntilConnected } from '../network';
+import { entrance } from '../network';
+import { abi } from '../../config/abi';
 
 // eslint-disable-next-line
 const calcMax = (lockItem: any, current: BN) => {
@@ -59,4 +61,28 @@ export async function getDarwiniaBalances(api: ApiPromise, account = ''): Promis
     console.error(err);
     return ['0', '0'];
   }
+}
+
+export async function getDvmBalance(ktonTokenAddress: string, account: string): Promise<[string, string]> {
+  let ring = '0';
+  let kton = '0';
+
+  if (account) {
+    const web3 = entrance.web3.getInstance(entrance.web3.defaultProvider);
+
+    try {
+      ring = await web3.eth.getBalance(account);
+    } catch (err) {
+      console.error(err);
+    }
+
+    try {
+      const contract = new web3.eth.Contract(abi.ktonABI, ktonTokenAddress);
+      kton = await contract.methods.balanceOf(account).call();
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  return [ring, kton];
 }
