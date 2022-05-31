@@ -8,7 +8,7 @@ export const pangolinConfig: DVMChainConfig = {
       decimals: 18,
     },
     ring: {
-      address: '0x0000000000000000000000000000000000000015',
+      address: '0xc52287b259b2431ba0f61BC7EBD0eD793B0b7044',
       symbol: 'WPRING',
       decimals: 18,
     },
