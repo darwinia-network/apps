@@ -120,11 +120,9 @@ export function Withdraw() {
         }}
       >
         <AddressItem label={'Receive account'} name="account" extra={null} />
-
         <Form.Item label={t('Withdraw amount')} name="amount" rules={[{ required: true }, { min: 0 }]}>
           <BalanceControl size="large" className="w-full" />
         </Form.Item>
-
         <Form.Item>
           <Button
             size="large"
@@ -132,9 +130,36 @@ export function Withdraw() {
             htmlType="submit"
             disabled={!activeAccount}
             loading={busy}
-            className="flex items-center justify-center w-28"
+            className="w-28"
           >
             {t('Withdraw')}
+          </Button>
+
+          <Button
+            size="large"
+            htmlType="button"
+            className="ml-3"
+            disabled={!activeAccount}
+            onClick={async () => {
+              const { kton } = (network as DVMChainConfig).dvm;
+              try {
+                window.ethereum.request({
+                  method: 'wallet_watchAsset',
+                  params: {
+                    type: 'ERC20',
+                    options: {
+                      address: kton.address,
+                      symbol: kton.symbol,
+                      decimals: kton.decimals,
+                    },
+                  },
+                });
+              } catch (err) {
+                console.error(err);
+              }
+            }}
+          >
+            {`Import ${(network as DVMChainConfig).dvm.kton.symbol}`}
           </Button>
         </Form.Item>
       </Form>
