@@ -65,6 +65,7 @@ export function BondMore() {
           updateStakingDerive();
           getBalances();
         }}
+        signer={stashAccount}
         initialValues={{ stash: stashAccount, promiseMonth: duration, accept: false }}
       >
         <AddressItem name="stash" label="Stash account" disabled />
