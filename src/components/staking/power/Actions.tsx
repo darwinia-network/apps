@@ -29,6 +29,7 @@ export function Actions({ eraSelectionIndex, disabled }: ActionsProps) {
   const { t } = useTranslation();
   const {
     api,
+    network,
     connection: { accounts },
   } = useApi();
   const { getBalances } = useAccount();
@@ -149,17 +150,17 @@ export function Actions({ eraSelectionIndex, disabled }: ActionsProps) {
               <Rebond />
             </Menu.Item>
 
-            <Menu.Item key="withdrawUnbonded">
-              <Button
-                type="text"
-                disabled={
-                  !isOwnController || !stakingAccount || !stakingAccount.redeemable || !stakingAccount.redeemable.gtn(0)
-                }
-                onClick={withdrawFunds}
-              >
-                {t('Withdraw unbonded funds')}
-              </Button>
-            </Menu.Item>
+            {(network.name === 'crab' || network.name === 'pangolin') && (
+              <Menu.Item key="withdrawUnbonded">
+                <Button
+                  type="text"
+                  disabled={!isOwnController || !stakingAccount?.redeemable?.gtn(0)}
+                  onClick={withdrawFunds}
+                >
+                  {t('Withdraw unbonded funds')}
+                </Button>
+              </Menu.Item>
+            )}
 
             <Menu.Item key="controller">
               <SetController />
