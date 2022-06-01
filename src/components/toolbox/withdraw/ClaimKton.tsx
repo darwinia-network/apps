@@ -14,7 +14,13 @@ import { DVMChainConfig } from '../../../model';
 
 const DVM_CLAIM_ADDRESS = '0x0000000000000000000000000000000000000015';
 
-export const ClaimKton = ({ dvmAddress }: { dvmAddress: string }) => {
+export const ClaimKton = ({
+  dvmAddress,
+  onSuccess = () => undefined,
+}: {
+  dvmAddress: string;
+  onSuccess?: () => void;
+}) => {
   const { api, network } = useApi();
   const {
     assets: [, assetKton],
@@ -65,6 +71,7 @@ export const ClaimKton = ({ dvmAddress }: { dvmAddress: string }) => {
         txFailedCb: () => setBusy(false),
         txSuccessCb: () => {
           getKtonToClaim();
+          onSuccess();
           setBusy(false);
         },
       });
@@ -76,7 +83,7 @@ export const ClaimKton = ({ dvmAddress }: { dvmAddress: string }) => {
         description: (error as Error).message,
       });
     }
-  }, [dvmAddress, kton.address, ktonToClaim, getKtonToClaim]);
+  }, [dvmAddress, kton.address, ktonToClaim, getKtonToClaim, onSuccess]);
 
   useEffect(() => {
     const sub$$ = getKtonToClaim();

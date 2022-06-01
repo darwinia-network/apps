@@ -11,7 +11,7 @@ import { abi } from '../../../config/abi';
 import i18n from '../../../config/i18n';
 import { useAccount, useApi } from '../../../hooks';
 import { useMetamask } from '../../../hooks/ metamask';
-import { entrance, getDvmBalance, fromWei, toWei, convertToDvm, handleEthTxResult } from '../../../utils';
+import { entrance, getDvmBalances, fromWei, toWei, convertToDvm, handleEthTxResult } from '../../../utils';
 import { AddressItem } from '../../widget/form-control/AddressItem';
 import { BalanceControl } from '../../widget/form-control/BalanceControl';
 import { DVMChainConfig } from '../../../model';
@@ -99,11 +99,21 @@ export function Withdraw() {
     [activeAccount, ring, kton]
   );
 
-  useEffect(() => {
-    const amount = asset === ring.symbol ? dvmBalances[0] : dvmBalances[1];
-    const value = new BN(amount).sub(new BN(WITHDRAW_GAS));
+  const refreshDvmBalances = useCallback(
+    () => from(getDvmBalances(kton.address, activeAccount || '')).subscribe(setDvmBalances),
+    [activeAccount, kton.address]
+  );
 
-    const [integer, decimal = ''] = fromWei({ value: value.isNeg() ? BN_ZERO : value, unit: 'ether' }).split('.');
+  useEffect(() => {
+    const sub$$ = refreshDvmBalances();
+
+    return () => sub$$.unsubscribe();
+  }, [refreshDvmBalances]);
+
+  useEffect(() => {
+    const amount = asset === ring.symbol ? new BN(dvmBalances[0]).sub(new BN(WITHDRAW_GAS)) : new BN(dvmBalances[1]);
+
+    const [integer, decimal = ''] = fromWei({ value: amount.isNeg() ? BN_ZERO : amount, unit: 'ether' }).split('.');
 
     form.setFieldsValue({
       // eslint-disable-next-line no-magic-numbers
@@ -111,15 +121,9 @@ export function Withdraw() {
     });
   }, [asset, dvmBalances, ring.symbol, form]);
 
-  useEffect(() => {
-    const sub$$ = from(getDvmBalance(kton.address, activeAccount || '')).subscribe(setDvmBalances);
-
-    return () => sub$$.unsubscribe();
-  }, [activeAccount, kton.address]);
-
   return (
     <Card>
-      <ClaimKton dvmAddress={activeAccount} />
+      <ClaimKton dvmAddress={activeAccount} onSuccess={refreshDvmBalances} />
 
       <div className="my-8 flex items-center gap-4">
         {activeAccount ? (

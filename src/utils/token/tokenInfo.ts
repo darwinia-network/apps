@@ -63,7 +63,7 @@ export async function getDarwiniaBalances(api: ApiPromise, account = ''): Promis
   }
 }
 
-export async function getDvmBalance(ktonTokenAddress: string, account: string): Promise<[string, string]> {
+export async function getDvmBalances(ktonTokenAddress: string, account: string): Promise<[string, string]> {
   let ring = '0';
   let kton = '0';
 
