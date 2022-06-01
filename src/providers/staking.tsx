@@ -121,7 +121,7 @@ export const StakingProvider = ({ children }: React.PropsWithChildren<unknown>) 
   const { takeWhileIsMounted } = useIsMountedOperator();
 
   const updateStakingDerive = useCallback(() => {
-    from(api.derive.staking.account(stashAccount))
+    from(api.derive.staking.account(account))
       .pipe(
         tap(() => setIsStakingDeriveLoading(true)),
         takeWhileIsMounted()
@@ -133,7 +133,7 @@ export const StakingProvider = ({ children }: React.PropsWithChildren<unknown>) 
         },
         error: () => setIsStakingDeriveLoading(false),
       });
-  }, [api, stashAccount, takeWhileIsMounted]);
+  }, [api, account, takeWhileIsMounted]);
 
   const updateValidators = useCallback(() => {
     from<Promise<PalletStakingValidatorPrefs>>(api.query.staking.validators(stashAccount))
