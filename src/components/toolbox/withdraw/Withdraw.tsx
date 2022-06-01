@@ -1,20 +1,22 @@
 import { TypeRegistry } from '@polkadot/types';
+import { BN, BN_ZERO } from '@polkadot/util';
 import { Button, Card, Select, notification } from 'antd';
 import Form from 'antd/lib/form';
 import { useForm } from 'antd/lib/form/Form';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { from } from 'rxjs';
-import { PromiEvent, TransactionReceipt } from 'web3-core';
-import { validateMessages } from '../../config';
-import { abi } from '../../config/abi';
-import i18n from '../../config/i18n';
-import { useAccount, useApi } from '../../hooks';
-import { useMetamask } from '../../hooks/ metamask';
-import { entrance, getDvmBalance, fromWei, toWei, convertToDvm } from '../../utils';
-import { AddressItem } from '../widget/form-control/AddressItem';
-import { BalanceControl } from '../widget/form-control/BalanceControl';
-import { DVMChainConfig } from '../../model';
+import { validateMessages } from '../../../config';
+import { abi } from '../../../config/abi';
+import i18n from '../../../config/i18n';
+import { useAccount, useApi } from '../../../hooks';
+import { useMetamask } from '../../../hooks/ metamask';
+import { entrance, getDvmBalance, fromWei, toWei, convertToDvm, handleEthTxResult } from '../../../utils';
+import { AddressItem } from '../../widget/form-control/AddressItem';
+import { BalanceControl } from '../../widget/form-control/BalanceControl';
+import { DVMChainConfig } from '../../../model';
+import { ClaimKton } from './ClaimKton';
+import { ImportToken } from './ImportToken';
 
 interface WithdrawFormValues {
   destination: string;
@@ -22,6 +24,7 @@ interface WithdrawFormValues {
   amount: string;
 }
 
+const WITHDRAW_GAS = 55000;
 const DVM_WITHDRAW_ADDRESS = '0x0000000000000000000000000000000000000015';
 const EMPTY_ADDRESS = '0x0000000000000000000000000000000000000000000000000000000000000000';
 
@@ -37,7 +40,7 @@ export function Withdraw() {
     disconnect,
   } = useMetamask();
   const [busy, setBusy] = useState(false);
-  const [balances, setBalances] = useState(['0', '0']);
+  const [dvmBalances, setDvmBalances] = useState(['0', '0']); // [ring, kton]
 
   const { ring, kton } = (network as DVMChainConfig).dvm;
 
@@ -47,30 +50,6 @@ export function Withdraw() {
   const activeAccount = useMemo(() => accounts[0]?.address, [accounts]);
 
   const disableConnect = useMemo(() => status !== 'success' && status !== 'pending', [status]);
-
-  const handleTxResult = (
-    tx: PromiEvent<TransactionReceipt>,
-    { txSuccessCb = () => undefined, txFailedCb = () => undefined }: { txSuccessCb: () => void; txFailedCb: () => void }
-  ) => {
-    tx.on('transactionHash', (hash: string) => {
-      void hash;
-    })
-      .on('receipt', ({ transactionHash }) => {
-        txSuccessCb();
-        notification.success({
-          message: 'Transaction success',
-          description: `Transaction hash: ${transactionHash}`,
-        });
-      })
-      .catch((error: { code: number; message: string }) => {
-        txFailedCb();
-        console.error(error);
-        notification.error({
-          message: 'Transaction failed',
-          description: error.message,
-        });
-      });
-  };
 
   const handleWithdraw = useCallback(
     (destination: string, asset: string, amount: string) => {
@@ -88,10 +67,10 @@ export function Withdraw() {
               to: DVM_WITHDRAW_ADDRESS,
               data: accountHex,
               value: web3.utils.toWei(amount, 'ether'),
-              gas: 55000,
+              gas: WITHDRAW_GAS,
             });
 
-            handleTxResult(tx, {
+            handleEthTxResult(tx, {
               txSuccessCb: () => setBusy(false),
               txFailedCb: () => setBusy(false),
             });
@@ -103,17 +82,17 @@ export function Withdraw() {
             .withdraw(convertToDvm(destination), toWei({ value: amount, unit: 'ether' }))
             .send({ from: activeAccount });
 
-          handleTxResult(tx, {
+          handleEthTxResult(tx, {
             txSuccessCb: () => setBusy(false),
             txFailedCb: () => setBusy(false),
           });
         }
-      } catch (err) {
+      } catch (error) {
         setBusy(false);
-        console.error(err);
+        console.error(error);
         notification.error({
           message: 'Transaction failed',
-          description: (err as Error).message,
+          description: (error as Error).message,
         });
       }
     },
@@ -121,18 +100,27 @@ export function Withdraw() {
   );
 
   useEffect(() => {
-    const amount = asset === ring.symbol ? balances[0] : balances[1];
-    form.setFieldsValue({ amount: fromWei({ value: amount, unit: 'ether' }) });
-  }, [asset, balances, ring.symbol, form]);
+    const amount = asset === ring.symbol ? dvmBalances[0] : dvmBalances[1];
+    const value = new BN(amount).sub(new BN(WITHDRAW_GAS));
+
+    const [integer, decimal = ''] = fromWei({ value: value.isNeg() ? BN_ZERO : value, unit: 'ether' }).split('.');
+
+    form.setFieldsValue({
+      // eslint-disable-next-line no-magic-numbers
+      amount: [integer, decimal.substring(0, 3)].join('.'),
+    });
+  }, [asset, dvmBalances, ring.symbol, form]);
 
   useEffect(() => {
-    const sub$$ = from(getDvmBalance(kton.address, activeAccount || '')).subscribe(setBalances);
+    const sub$$ = from(getDvmBalance(kton.address, activeAccount || '')).subscribe(setDvmBalances);
 
     return () => sub$$.unsubscribe();
   }, [activeAccount, kton.address]);
 
   return (
     <Card>
+      <ClaimKton dvmAddress={activeAccount} />
+
       <div className="my-8 flex items-center gap-4">
         {activeAccount ? (
           <>
@@ -190,7 +178,7 @@ export function Withdraw() {
           />
         </Form.Item>
         <Form.Item label={t('Withdraw amount')} name="amount" rules={[{ required: true }, { min: 0 }]}>
-          <BalanceControl size="large" className="w-full" />
+          <BalanceControl size="large" className="w-full" precision={3} />
         </Form.Item>
         <Form.Item>
           <Button
@@ -204,31 +192,7 @@ export function Withdraw() {
             {t('Withdraw')}
           </Button>
 
-          <Button
-            size="large"
-            htmlType="button"
-            className="ml-3"
-            disabled={!activeAccount}
-            onClick={async () => {
-              try {
-                window.ethereum.request({
-                  method: 'wallet_watchAsset',
-                  params: {
-                    type: 'ERC20',
-                    options: {
-                      address: kton.address,
-                      symbol: kton.symbol,
-                      decimals: kton.decimals,
-                    },
-                  },
-                });
-              } catch (err) {
-                console.error(err);
-              }
-            }}
-          >
-            {`Import ${kton.symbol}`}
-          </Button>
+          <ImportToken disabled={!activeAccount} token={kton} />
         </Form.Item>
       </Form>
     </Card>

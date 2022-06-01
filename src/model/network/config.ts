@@ -4,7 +4,7 @@ import type { Token } from '../account';
 import { Facade } from './facade';
 import { Network, NetworkCategory } from './network';
 
-interface DVMToken {
+export interface DVMToken {
   address: string; // The address of the token contract
   symbol: string; // A ticker symbol or shorthand, up to 5 characters
   decimals: number; // The number of token decimals
