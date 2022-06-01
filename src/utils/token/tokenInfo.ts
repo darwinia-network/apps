@@ -1,5 +1,7 @@
 import { AccountData } from '@darwinia/types';
 import { ApiPromise } from '@polkadot/api';
+import { PalletBalancesBalanceLock } from '@polkadot/types/lookup';
+import { BN_ZERO, bnMax } from '@polkadot/util';
 import { waitUntilConnected } from '../network';
 
 /**
@@ -15,33 +17,30 @@ export async function getDarwiniaBalances(api: ApiPromise, account = ''): Promis
   await waitUntilConnected(api);
 
   try {
-    // type = 0 query ring balance.  type = 1 query kton balance.
-    /* eslint-disable */
-    const ringUsableBalance = await (api.rpc as any).balances.usableBalance(0, account);
-    const ktonUsableBalance = await (api.rpc as any).balances.usableBalance(1, account);
-    /* eslint-enable */
+    const {
+      data: { free, freeKton },
+    }: { data: AccountData } = await api.query.system.account(account);
+    const locks: PalletBalancesBalanceLock[] = await api.query.balances.locks(account);
+    const ktonLocks: PalletBalancesBalanceLock[] = await api.query.kton.locks(account);
 
-    return [ringUsableBalance.usableBalance.toString(), ktonUsableBalance.usableBalance.toString()];
-  } catch (error: unknown) {
-    console.warn(
-      '%c [ Failed to  querying balance through rpc ]',
-      'font-size:13px; background:pink; color:#bf2c9f;',
-      (error as Record<string, string>).message
-    );
-  }
+    let maxRingLock = BN_ZERO;
+    let maxKtonLock = BN_ZERO;
 
-  try {
-    const { data } = await api.query.system.account(account);
-    const { free, freeKton } = data as unknown as AccountData;
+    locks.forEach((item) => {
+      if (!item.reasons.isFee) {
+        maxRingLock = bnMax(item.amount, maxRingLock);
+      }
+    });
 
-    return [free.toString(), freeKton.toString()];
-  } catch (error) {
-    console.warn(
-      '%c [ Failed to  querying balance through account info ]',
-      'font-size:13px; background:pink; color:#bf2c9f;',
-      (error as Record<string, string>).message
-    );
+    ktonLocks.forEach((item) => {
+      if (!item.reasons.isFee) {
+        maxKtonLock = bnMax(item.amount, maxKtonLock);
+      }
+    });
 
+    return [free.sub(maxRingLock).toString(), freeKton.sub(maxKtonLock).toString()];
+  } catch (err) {
+    console.error(err);
     return ['0', '0'];
   }
 }

@@ -5,7 +5,8 @@ import { StakingLedger } from '@polkadot/types/interfaces/staking';
 import { BN } from '@polkadot/util';
 import { has } from 'lodash';
 import { useEffect, useMemo, useState } from 'react';
-import { from, Subscription, takeWhile, zip } from 'rxjs';
+import { from, Subscription, takeWhile, zip, map } from 'rxjs';
+import type { PalletStakingSlashingSlashingSpans } from '@polkadot/types/lookup';
 import { NoNullFields } from '../../model';
 import { useApi } from '../api';
 import { useIsMounted } from '../isMounted';
@@ -210,4 +211,25 @@ export function useOwnEraReward(maxEras?: number, stashAccount = '') {
   }, [api.derive.staking, filteredEras, ids, isMounted, stakerPayoutAfter]);
 
   return state;
+}
+
+export function useSlashingSpans(stashId: string) {
+  const { api } = useApi();
+  const [spanCount, setSpanCount] = useState(0);
+
+  useEffect(() => {
+    const sub$$ = from(api.query.staking.slashingSpans(stashId))
+      .pipe(
+        map((optSpans) =>
+          (optSpans as Option<PalletStakingSlashingSlashingSpans>).isNone
+            ? 0
+            : (optSpans as Option<PalletStakingSlashingSlashingSpans>).unwrap().prior.length + 1
+        )
+      )
+      .subscribe(setSpanCount);
+
+    return () => sub$$.unsubscribe();
+  }, [api, stashId]);
+
+  return { spanCount };
 }
