@@ -1,8 +1,25 @@
 import { AccountData } from '@darwinia/types';
 import { ApiPromise } from '@polkadot/api';
 import { PalletBalancesBalanceLock } from '@polkadot/types/lookup';
-import { BN_ZERO, bnMax } from '@polkadot/util';
+import { BN_ZERO, bnMax, BN } from '@polkadot/util';
 import { waitUntilConnected } from '../network';
+
+// eslint-disable-next-line
+const calcMax = (lockItem: any, current: BN) => {
+  let max = current;
+
+  if (lockItem.reasons && !lockItem.reasons.isFee) {
+    max = bnMax(lockItem.amount, max);
+  } else if (lockItem.lockReasons && !lockItem.lockReasons.isFee) {
+    if (lockItem.lockFor.isCommon) {
+      max = bnMax(lockItem.lockFor.asCommon.amount, max);
+    } else if (lockItem.lockFor.isStaking) {
+      max = bnMax(lockItem.lockFor.asStaking.stakingAmount, max);
+    }
+  }
+
+  return max;
+};
 
 /**
  * @description other api can get balances:  api.derive.balances.all, api.query.system.account;
@@ -23,22 +40,18 @@ export async function getDarwiniaBalances(api: ApiPromise, account = ''): Promis
     const locks: PalletBalancesBalanceLock[] = await api.query.balances.locks(account);
     const ktonLocks: PalletBalancesBalanceLock[] = await api.query.kton.locks(account);
 
-    let maxRingLock = BN_ZERO;
+    let maxLock = BN_ZERO;
     let maxKtonLock = BN_ZERO;
 
     locks.forEach((item) => {
-      if (!item.reasons.isFee) {
-        maxRingLock = bnMax(item.amount, maxRingLock);
-      }
+      maxLock = calcMax(item, maxLock);
     });
 
     ktonLocks.forEach((item) => {
-      if (!item.reasons.isFee) {
-        maxKtonLock = bnMax(item.amount, maxKtonLock);
-      }
+      maxKtonLock = calcMax(item, maxKtonLock);
     });
 
-    return [free.sub(maxRingLock).toString(), freeKton.sub(maxKtonLock).toString()];
+    return [free.sub(maxLock).toString(), freeKton.sub(maxKtonLock).toString()];
   } catch (err) {
     console.error(err);
     return ['0', '0'];
