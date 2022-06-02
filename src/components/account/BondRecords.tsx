@@ -5,7 +5,7 @@ import { format, getUnixTime } from 'date-fns';
 import { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DATE_FORMAT } from '../../config';
-import { useAccount, useApi, useQueue } from '../../hooks';
+import { useAccount, useApi, useQueue, useStaking } from '../../hooks';
 import { AccountRecord } from '../../model';
 import { fromWei, isKton, prettyNumber, ringToKton } from '../../utils';
 import { AccountHistoryProps } from '../staking/interface';
@@ -30,6 +30,7 @@ export function BondRecords({ tokens }: AccountHistoryProps) {
   const { account } = useAccount();
   const { queueExtrinsic } = useQueue();
   const [locked, setLocked] = useState<boolean>(false);
+  const { controllerAccount } = useStaking();
   const { pagination, setPagination, stakingRecord, refreshStakingRecords, updateStakingRecord } = useStakingRecords(
     'bonded',
     locked
@@ -140,7 +141,7 @@ export function BondRecords({ tokens }: AccountHistoryProps) {
               onClick={() => {
                 const extrinsic = api.tx.staking.claimMatureDeposits();
                 queueExtrinsic({
-                  signAddress: account,
+                  signAddress: controllerAccount,
                   extrinsic,
                   txSuccessCb: () => {
                     refreshStakingRecords().subscribe(updateStakingRecord);
