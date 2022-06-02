@@ -1,6 +1,7 @@
 import { TypeRegistry } from '@polkadot/types';
 import { BN, BN_ZERO } from '@polkadot/util';
-import { Button, Card, Select, notification } from 'antd';
+import { Button, Card, Select, Input, Tag, Modal, Checkbox, notification } from 'antd';
+import type { CheckboxValueType } from 'antd/es/checkbox/Group';
 import Form from 'antd/lib/form';
 import { useForm } from 'antd/lib/form/Form';
 import { useCallback, useEffect, useMemo, useState } from 'react';
@@ -11,7 +12,15 @@ import { abi } from '../../../config/abi';
 import i18n from '../../../config/i18n';
 import { useAccount, useApi } from '../../../hooks';
 import { useMetamask } from '../../../hooks/ metamask';
-import { entrance, getDvmBalances, fromWei, toWei, convertToDvm, handleEthTxResult } from '../../../utils';
+import {
+  entrance,
+  getDvmBalances,
+  fromWei,
+  toWei,
+  convertToDvm,
+  handleEthTxResult,
+  insufficientBalanceRule,
+} from '../../../utils';
 import { AddressItem } from '../../widget/form-control/AddressItem';
 import { BalanceControl } from '../../widget/form-control/BalanceControl';
 import { DVMChainConfig } from '../../../model';
@@ -30,6 +39,15 @@ const EMPTY_ADDRESS = '0x0000000000000000000000000000000000000000000000000000000
 
 const registry = new TypeRegistry();
 
+const capitalLetters = (str: string) => {
+  // eslint-disable-next-line no-magic-numbers
+  if (str.length < 2) {
+    return str;
+  }
+
+  return str.slice(0, 1).toUpperCase() + str.slice(1).toLowerCase();
+};
+
 export function Withdraw() {
   const { t } = useTranslation();
   const { network } = useApi();
@@ -39,70 +57,87 @@ export function Withdraw() {
     connectNetwork,
     disconnect,
   } = useMetamask();
+  const { account, getBalances } = useAccount();
+  const [visibleAttention, setVisibleAttention] = useState(false);
+  const [attentionState, setAttentionState] = useState<CheckboxValueType[]>([]);
   const [busy, setBusy] = useState(false);
   const [dvmBalances, setDvmBalances] = useState(['0', '0']); // [ring, kton]
 
   const { ring, kton } = (network as DVMChainConfig).dvm;
 
-  const { account } = useAccount();
-  const [asset, setAsset] = useState(ring.symbol);
+  const [withdrawFormValue, setWithdrawFormValue] = useState({
+    destination: account,
+    asset: ring.symbol,
+    amount: '0',
+  });
 
   const activeAccount = useMemo(() => accounts[0]?.address, [accounts]);
-
   const disableConnect = useMemo(() => status !== 'success' && status !== 'pending', [status]);
-
-  const handleWithdraw = useCallback(
-    (destination: string, asset: string, amount: string) => {
-      try {
-        setBusy(true);
-
-        const web3 = entrance.web3.getInstance(entrance.web3.defaultProvider);
-
-        if (asset === ring.symbol) {
-          const accountHex = registry.createType('AccountId', destination).toHex();
-
-          if (accountHex !== EMPTY_ADDRESS) {
-            const tx = web3.eth.sendTransaction({
-              from: activeAccount,
-              to: DVM_WITHDRAW_ADDRESS,
-              data: accountHex,
-              value: web3.utils.toWei(amount, 'ether'),
-              gas: WITHDRAW_GAS,
-            });
-
-            handleEthTxResult(tx, {
-              txSuccessCb: () => setBusy(false),
-              txFailedCb: () => setBusy(false),
-            });
-          }
-        } else if (asset === kton.symbol) {
-          const contract = new web3.eth.Contract(abi.ktonABI, kton.address);
-
-          const tx = contract.methods
-            .withdraw(convertToDvm(destination), toWei({ value: amount, unit: 'ether' }))
-            .send({ from: activeAccount });
-
-          handleEthTxResult(tx, {
-            txSuccessCb: () => setBusy(false),
-            txFailedCb: () => setBusy(false),
-          });
-        }
-      } catch (error) {
-        setBusy(false);
-        console.error(error);
-        notification.error({
-          message: 'Transaction failed',
-          description: (error as Error).message,
-        });
-      }
-    },
-    [activeAccount, ring, kton]
+  const disableWithdraw = useMemo(
+    () => status !== 'success' || !activeAccount || Number(withdrawFormValue.amount) === 0 || busy,
+    [status, activeAccount, withdrawFormValue.amount, busy]
   );
 
   const refreshDvmBalances = useCallback(
     () => from(getDvmBalances(kton.address, activeAccount || '')).subscribe(setDvmBalances),
     [activeAccount, kton.address]
   );
+
+  const handleWithdraw = useCallback(() => {
+    try {
+      setBusy(true);
+
+      const { destination, asset, amount } = withdrawFormValue;
+      const web3 = entrance.web3.getInstance(entrance.web3.defaultProvider);
+
+      if (asset === ring.symbol) {
+        const accountHex = registry.createType('AccountId', destination).toHex();
+
+        if (accountHex !== EMPTY_ADDRESS) {
+          const tx = web3.eth.sendTransaction({
+            from: activeAccount,
+            to: DVM_WITHDRAW_ADDRESS,
+            data: accountHex,
+            value: web3.utils.toWei(amount, 'ether'),
+            gas: WITHDRAW_GAS,
+          });
+
+          handleEthTxResult(tx, {
+            txSuccessCb: () => {
+              getBalances(); // substrate balance
+              refreshDvmBalances();
+              setBusy(false);
+              setVisibleAttention(false);
+            },
+            txFailedCb: () => setBusy(false),
+          });
+        }
+      } else if (asset === kton.symbol) {
+        const contract = new web3.eth.Contract(abi.ktonABI, kton.address);
+
+        const tx = contract.methods
+          .withdraw(convertToDvm(destination), toWei({ value: amount, unit: 'ether' }))
+          .send({ from: activeAccount });
+
+        handleEthTxResult(tx, {
+          txSuccessCb: () => {
+            getBalances(); // substrate balance
+            refreshDvmBalances();
+            setBusy(false);
+            setVisibleAttention(false);
+          },
+          txFailedCb: () => setBusy(false),
+        });
+      }
+    } catch (error) {
+      setBusy(false);
+      console.error(error);
+      notification.error({
+        message: 'Transaction failed',
+        description: (error as Error).message,
+      });
+    }
+  }, [activeAccount, ring, kton, withdrawFormValue, getBalances, refreshDvmBalances]);
 
   useEffect(() => {
     const sub$$ = refreshDvmBalances();
@@ -111,94 +146,154 @@ export function Withdraw() {
   }, [refreshDvmBalances]);
 
   useEffect(() => {
-    const amount = asset === ring.symbol ? new BN(dvmBalances[0]).sub(new BN(WITHDRAW_GAS)) : new BN(dvmBalances[1]);
+    const amount =
+      withdrawFormValue.asset === ring.symbol
+        ? new BN(dvmBalances[0]).sub(new BN(WITHDRAW_GAS))
+        : new BN(dvmBalances[1]);
 
-    const [integer, decimal = ''] = fromWei({ value: amount.isNeg() ? BN_ZERO : amount, unit: 'ether' }).split('.');
+    const [integer, decimal = '0'] = fromWei({ value: amount.isNeg() ? BN_ZERO : amount, unit: 'ether' }).split('.');
+    // eslint-disable-next-line no-magic-numbers
+    const amountDisplay = [integer, decimal.substring(0, 3)].join('.');
 
     form.setFieldsValue({
-      // eslint-disable-next-line no-magic-numbers
-      amount: [integer, decimal.substring(0, 3)].join('.'),
+      amount: amountDisplay,
     });
-  }, [asset, dvmBalances, ring.symbol, form]);
+    setWithdrawFormValue((prev) => ({ ...prev, amount: amountDisplay }));
+  }, [withdrawFormValue.asset, dvmBalances, ring.symbol, form]);
+
+  const attentionsOpts = useMemo(
+    () => [
+      {
+        label: `I am trying to transfer from 「${capitalLetters(network.name)} Smart Address 」to 「${capitalLetters(
+          network.name
+        )} Substrate Address」.`,
+        value: 0,
+      },
+      {
+        label: `I have confirmed that the「${capitalLetters(network.name)} Substrate Address」: ${
+          withdrawFormValue.destination
+        } is safe and available.`,
+        value: 1,
+      },
+      {
+        label: 'I have confirmed that the address above is not an exchange address or cloud wallet address.',
+        value: 2,
+      },
+    ],
+    [network.name, withdrawFormValue.destination]
+  );
 
   return (
-    <Card>
-      <ClaimKton dvmAddress={activeAccount} onSuccess={refreshDvmBalances} />
+    <>
+      <Card>
+        <ClaimKton dvmAddress={activeAccount} onSuccess={refreshDvmBalances} />
 
-      <div className="my-8 flex items-center gap-4">
-        {activeAccount ? (
-          <>
-            <span className="text-lg mr-2">{t('Metamask account')}:</span>
-            <span>{activeAccount}</span>
-          </>
-        ) : (
-          <span className="text-lg mr-2">{t('Connect to Metamask')}:</span>
-        )}
+        <div className="my-8 flex items-center gap-4">
+          {activeAccount && (
+            <Input
+              disabled
+              value={activeAccount}
+              size="large"
+              className="max-w-xl"
+              prefix={
+                <Tag className={`bg-${network.name} rounded-md text-white inline-flex items-center h-full`}>Smart</Tag>
+              }
+            />
+          )}
 
-        {status === 'success' && (
-          <Button type="default" onClick={() => disconnect()} disabled={disableConnect}>
-            {t('Disconnect')}
-          </Button>
-        )}
+          {status === 'success' && (
+            <Button type="default" onClick={() => disconnect()} disabled={disableConnect} size="large">
+              {t('Disconnect')}
+            </Button>
+          )}
 
-        {status === 'pending' && (
-          <Button
-            type="primary"
-            onClick={() => connectNetwork((network as DVMChainConfig).ethereumChain)}
-            disabled={disableConnect}
-          >
-            {t('Connect to Metamask')}
-          </Button>
-        )}
-      </div>
+          {status === 'pending' && (
+            <Button
+              type="primary"
+              size="large"
+              onClick={() => connectNetwork((network as DVMChainConfig).ethereumChain)}
+              disabled={disableConnect}
+            >
+              {t('Connect to Metamask')}
+            </Button>
+          )}
+        </div>
 
-      <Form<WithdrawFormValues>
-        form={form}
-        initialValues={{
-          destination: account,
-          asset,
-          amount: '0',
-        }}
-        className="max-w-xl"
-        validateMessages={validateMessages[i18n.language as 'en' | 'zh-CN' | 'zh']}
-        layout="vertical"
-        onValuesChange={({ asset }) => {
-          if (asset) {
-            setAsset(asset);
-          }
-        }}
-        onFinish={({ destination, asset, amount }) => {
-          handleWithdraw(destination, asset, amount);
-        }}
-      >
-        <AddressItem label={'Destination address'} name="destination" extra={null} />
-        <Form.Item label={'Asset'} name="asset" rules={[{ required: true }]}>
-          <Select
-            size="large"
-            options={[
-              { label: ring.symbol, value: ring.symbol },
-              { label: kton.symbol, value: kton.symbol },
+        <Form<WithdrawFormValues>
+          form={form}
+          initialValues={withdrawFormValue}
+          className="max-w-xl"
+          validateMessages={validateMessages[i18n.language as 'en' | 'zh-CN' | 'zh']}
+          layout="vertical"
+          onValuesChange={({ asset }) => {
+            if (asset) {
+              setWithdrawFormValue((prev) => ({ ...prev, asset }));
+            }
+          }}
+          onFinish={({ destination, asset, amount }) => {
+            setVisibleAttention(true);
+            setWithdrawFormValue({ destination, asset, amount });
+          }}
+        >
+          <AddressItem label={'Destination address'} name="destination" extra={null} />
+          <Form.Item label={t('Asset')} name="asset" rules={[{ required: true }]}>
+            <Select
+              size="large"
+              options={[
+                { label: ring.symbol, value: ring.symbol },
+                { label: kton.symbol, value: kton.symbol },
+              ]}
+            />
+          </Form.Item>
+          <Form.Item
+            label={t('Withdraw amount')}
+            name="amount"
+            rules={[
+              { required: true },
+              { min: 0 },
+              insufficientBalanceRule({
+                t,
+                compared: toWei({ value: withdrawFormValue.amount, unit: 'ether' }),
+                token: { symbol: ring.symbol, decimal: ring.decimals.toString() },
+              }),
             ]}
-          />
-        </Form.Item>
-        <Form.Item label={t('Withdraw amount')} name="amount" rules={[{ required: true }, { min: 0 }]}>
-          <BalanceControl size="large" className="w-full" precision={3} />
-        </Form.Item>
-        <Form.Item>
-          <Button
-            size="large"
-            type="primary"
-            htmlType="submit"
-            disabled={status !== 'success' || !activeAccount}
-            loading={busy}
-            className="w-28"
           >
-            {t('Withdraw')}
-          </Button>
+            <BalanceControl size="large" className="w-full" precision={3} />
+          </Form.Item>
+          <Form.Item>
+            <Button size="large" type="primary" htmlType="submit" disabled={disableWithdraw} className="w-28">
+              {t('Withdraw')}
+            </Button>
 
-          <ImportToken disabled={!activeAccount} token={kton} />
-        </Form.Item>
-      </Form>
-    </Card>
+            <ImportToken disabled={!activeAccount} token={kton} />
+          </Form.Item>
+        </Form>
+      </Card>
+
+      <Modal
+        visible={visibleAttention}
+        title="Attention"
+        onCancel={() => setVisibleAttention(false)}
+        footer={
+          <div className="flex items-center justify-center space-x-4">
+            <Button className="w-5/12" size="large" onClick={() => setVisibleAttention(false)} disabled={busy}>
+              Cancel
+            </Button>
+            <Button
+              className="w-5/12"
+              size="large"
+              type="primary"
+              loading={busy}
+              disabled={attentionState.length !== attentionsOpts.length}
+              onClick={handleWithdraw}
+            >
+              Confirm
+            </Button>
+          </div>
+        }
+      >
+        <Checkbox.Group options={attentionsOpts} defaultValue={attentionState} onChange={setAttentionState} />
+      </Modal>
+    </>
   );
 }

@@ -226,5 +226,7 @@
   "No record": "没有存单",
   "Please select deposit": "请选择存单",
   "Claim History": "领取记录",
-  "Read only": "只读"
+  "Read only": "只读",
+  "Asset": "资产",
+  "Destination address": "目标地址"
 }
