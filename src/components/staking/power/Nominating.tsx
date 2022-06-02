@@ -69,7 +69,9 @@ function Nominees() {
     }
 
     const accounts = stakingDerive.nominators.map((item) => item.toString());
-    from(api.derive.staking.queryMulti(accounts, { withLedger: true }) as unknown as Promise<DeriveStakingQuery[]>)
+    const sub$$ = from(
+      api.derive.staking.queryMulti(accounts, { withLedger: true }) as unknown as Promise<DeriveStakingQuery[]>
+    )
       .pipe(takeWhile(() => isMounted))
       .subscribe((res) => {
         const exps = res.map((item) => {
@@ -80,6 +82,8 @@ function Nominees() {
 
         setNominees(accounts.map((account, index) => [account, exps[index]?.power ?? null]));
       });
+
+    return () => sub$$.unsubscribe();
   }, [api, isMounted, stakingDerive, stashAccount]);
 
   return <NominateItem source={nominees} />;
