@@ -61,7 +61,7 @@ export function FormModal<V extends Record<string, unknown>>({
         <div className="flex flex-col space-y-2">
           <Button
             className="w-full py-1"
-            disabled={busy}
+            loading={busy}
             size="large"
             {...modalProps.okButtonProps}
             type="primary"
@@ -92,7 +92,7 @@ export function FormModal<V extends Record<string, unknown>>({
           >
             {modalProps?.okText || t('OK')}
           </Button>
-          <Button onClick={onCancel} className="w-full ml-0 py-1" size="large">
+          <Button onClick={onCancel} className="w-full ml-0 py-1" size="large" disabled={busy}>
             {modalProps?.cancelText || t('Cancel')}
           </Button>
         </div>
