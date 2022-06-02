@@ -51,7 +51,10 @@ export async function getDarwiniaBalances(api: ApiPromise, account = ''): Promis
       maxKtonLock = calcMax(item, maxKtonLock);
     });
 
-    return [free.sub(maxLock).toString(), freeKton.sub(maxKtonLock).toString()];
+    const ring = free.sub(maxLock);
+    const kton = freeKton.sub(maxKtonLock);
+
+    return [ring.isNeg() ? BN_ZERO.toString() : ring.toString(), kton.isNeg() ? BN_ZERO.toString() : kton.toString()];
   } catch (err) {
     console.error(err);
     return ['0', '0'];

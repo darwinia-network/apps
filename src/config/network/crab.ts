@@ -27,7 +27,7 @@ export const crabConfig: DVMChainConfig = {
   name: 'crab',
   provider: {
     etherscan: '',
-    rpc: 'wss://darwinia-crab.api.onfinality.io/public-ws',
+    rpc: 'wss://crab-rpc.darwinia.network',
   },
   type: ['polkadot', 'darwinia'],
   ss58Prefix: 42,
