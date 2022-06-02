@@ -4,7 +4,7 @@ import { ReactNode } from 'react';
 
 interface LabelProps {
   text: string | ReactNode;
-  info?: string;
+  info?: string | ReactNode;
   className?: string;
 }
 
