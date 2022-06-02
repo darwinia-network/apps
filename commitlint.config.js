@@ -1,3 +1,3 @@
-const { commitlint } = require('@darwinia/lints');
-
-module.exports = commitlint;
+module.exports = {
+  extends: ['@commitlint/config-conventional']
+};

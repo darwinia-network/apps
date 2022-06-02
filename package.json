@@ -9,15 +9,10 @@
     "build:dev": "cross-env CI=false REACT_APP_HOST_TYPE=dev craco build --max_old_space_size=2048",
     "stylelint": "stylelint \"src/**/*.scss\" --config stylelint.config.js",
     "i18next:scanner": "i18next-scanner --config i18next-scanner.config.js",
-    "lint": "eslint ./src -c .eslintrc.js --fix",
+    "lint": "eslint './src/**/*.{ts,tsx}' -c .eslintrc.js --fix",
     "changelog": "conventional-changelog -p angular -i CHANGELOG.md -s",
-    "format": "prettier './src/**/*.{ts,tsx}'  --write"
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "pretty-quick --staged && npm run lint && npm run stylelint",
-      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
-    }
+    "format": "prettier './src/**/*.{ts,tsx}'  --write",
+    "prepare": "husky install"
   },
   "dependencies": {
     "@ant-design/icons": "^4.6.2",
@@ -65,9 +60,9 @@
     ]
   },
   "devDependencies": {
-    "@commitlint/cli": "^12.0.1",
+    "@commitlint/cli": "^17.0.2",
     "@commitlint/config-angular": "^12.1.4",
-    "@commitlint/config-conventional": "^12.0.1",
+    "@commitlint/config-conventional": "^17.0.2",
     "@darwinia/lints": "^1.0.1",
     "@open-wc/webpack-import-meta-loader": "^0.4.7",
     "@tailwindcss/postcss7-compat": "^2.0.4",
@@ -87,7 +82,9 @@
     "axios": "^0.23.0",
     "bytes32": "^0.0.3",
     "codelyzer": "^6.0.1",
+    "commitizen": "^4.2.4",
     "cross-env": "^7.0.3",
+    "cz-conventional-changelog": "^3.3.0",
     "eslint": "^7.27.0",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-import": "^2.23.4",
@@ -95,9 +92,10 @@
     "eslint-plugin-prettier": "^3.4.0",
     "eslint-plugin-react": "^7.24.0",
     "eslint-plugin-react-hooks": "^4.2.0",
-    "husky": "^4.2.3",
+    "husky": "^8.0.1",
     "i18next-scanner": "^3.0.0",
     "i18next-scanner-typescript": "^1.0.6",
+    "lint-staged": ">=10",
     "node-fetch": "2.6.0",
     "prettier": "^2.2.1",
     "prettier-quick": "0.0.5",
@@ -126,5 +124,14 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "lint-staged": {
+    "*.{ts,tsx}": ["prettier -w", "eslint --cache --fix"],
+    "*.{css,scss}": "stylelint --fix"
+  },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
   }
 }
