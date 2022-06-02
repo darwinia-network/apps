@@ -40,6 +40,7 @@ export function getLedger(symbol: string, empty: boolean, derive: DeriveStakingA
     return {
       bonded,
       locked,
+      unbonded: derive.redeemableRing,
       unbonding: unlockingTotalValue,
     };
   }
@@ -47,6 +48,7 @@ export function getLedger(symbol: string, empty: boolean, derive: DeriveStakingA
   return {
     bonded: stakingLedger.activeKton?.toBn(),
     locked: null,
+    unbonded: derive.redeemableKton,
     unbonding: unlockingKtonTotalValue,
   };
 }

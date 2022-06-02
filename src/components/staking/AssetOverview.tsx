@@ -46,6 +46,7 @@ export function AssetOverview({ asset }: AssetOverviewProps) {
         <div className="flex flex-col col-span-2 justify-between">
           <Description title={t('Available')} value={fromWei({ value: asset.max }, prettyNumber)} />
           <Description title={t('Bonded')} value={fromWei({ value: ledger.bonded }, prettyNumber)} />
+          <Description title={t('Unbonded')} value={fromWei({ value: ledger.unbonded }, prettyNumber)} />
           {isRing(asset.asset) && (
             <Description title={t('Locked')} value={fromWei({ value: ledger.locked }, prettyNumber)} />
           )}
