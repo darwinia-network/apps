@@ -4,7 +4,7 @@ import { Button, Dropdown, Menu } from 'antd';
 import { useMemo, useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { from } from 'rxjs';
-import type { DeriveStakingAccount } from '@polkadot/api-derive/types';
+import type { DeriveStakingAccount } from '../../../api-derive/types';
 import { useApi, useStaking, useQueue, useSlashingSpans, useAccount } from '../../../hooks';
 import {
   BondMore,
@@ -74,7 +74,10 @@ export function Actions({ eraSelectionIndex, disabled }: ActionsProps) {
   );
 
   const refreshStakingAccount = useCallback(
-    () => from(api.derive.staking.account(stashAccount)).subscribe(setStakingAccount),
+    () =>
+      from(api.derive.staking.account(stashAccount) as unknown as Promise<DeriveStakingAccount>).subscribe(
+        setStakingAccount
+      ),
     [api, stashAccount]
   );
 
