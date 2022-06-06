@@ -1,4 +1,4 @@
-import { web3FromAddress } from '@polkadot/extension-dapp';
+import { web3FromSource } from '@polkadot/extension-dapp';
 import { Observable, Subscriber, from, tap, switchMap } from 'rxjs';
 import { ApiPromise, SubmittableResult } from '@polkadot/api';
 import { assert, isFunction, loggerFormat } from '@polkadot/util';
@@ -47,14 +47,14 @@ export const signAndSendTx = (currentItem: QueueTx, queueSetTxStatus: QueueTxMes
   } = currentItem;
 
   if (extrinsic) {
-    from(web3FromAddress(signAddress))
+    from(web3FromSource('polkadot-js'))
       .pipe(
-        tap((injected) => assert(injected, `Unable to find a signer for ${signAddress}`)),
+        tap((injector) => assert(injector, `Unable to find a signer for ${signAddress}`)),
         tap(() => {
           queueSetTxStatus(id, 'signing');
           txStartCb();
         }),
-        switchMap((injected) => extrinsic.signAsync(signAddress, { signer: injected.signer })),
+        switchMap((injector) => extrinsic.signAsync(signAddress, { signer: injector.signer })),
         tap(() => queueSetTxStatus(id, 'sending')),
         switchMap(
           () =>
