@@ -3,7 +3,7 @@ import type { Signer as InjectedSigner } from '@polkadot/api/types';
 import { Unsubcall } from '@polkadot/extension-inject/types';
 import type { Wallet, Account, WalletSource } from '../model';
 import { DAPP_NAME } from '../config';
-import { convertToSS58 } from '../utils';
+import { convertToSS58, isValidAddress, SEARCH_PARAMS } from '../utils';
 import { useApi } from '../hooks';
 
 export interface WalletCtx {
@@ -83,6 +83,18 @@ export const WalletProvider = ({ children }: PropsWithChildren<unknown>) => {
     if (walletToUse) {
       const apiGenesisHash = api.genesisHash.toHex();
 
+      const readOnlyAddress = new URL(window.location.href).searchParams.get('address');
+      const readOnly =
+        readOnlyAddress && isValidAddress(readOnlyAddress)
+          ? [
+              {
+                address: readOnlyAddress,
+                displayAddress: convertToSS58(readOnlyAddress, network.ss58Prefix),
+                meta: { name: 'Read-Only', source: SEARCH_PARAMS },
+              },
+            ]
+          : [];
+
       setSigner(walletToUse.signer);
 
       sub$$ = walletToUse.accounts.subscribe((accs) => {
@@ -103,7 +115,7 @@ export const WalletProvider = ({ children }: PropsWithChildren<unknown>) => {
             };
           });
 
-        setAccounts([...extension]);
+        setAccounts([...extension, ...readOnly]);
       });
     }
 
