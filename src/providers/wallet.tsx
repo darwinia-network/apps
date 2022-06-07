@@ -139,7 +139,7 @@ export const WalletProvider = ({ children }: PropsWithChildren<unknown>) => {
   }, [network.ss58Prefix]);
 
   useEffect(() => {
-    setAccount(accounts[0] ?? null);
+    setAccount(accounts.find(({ meta }) => meta.source === SEARCH_PARAMS) ?? accounts[0] ?? null);
   }, [accounts]);
 
   useEffect(() => {
