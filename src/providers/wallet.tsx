@@ -30,7 +30,7 @@ const defaultState: Partial<WalletCtx> = {
 export const WalletContext = createContext<WalletCtx>(defaultState as WalletCtx);
 
 export const WalletProvider = ({ children }: PropsWithChildren<unknown>) => {
-  const { network } = useApi();
+  const { api, network } = useApi();
 
   const [error, setError] = useState<Error | null>(null);
   const [signer, setSigner] = useState<InjectedSigner | null>(null);
@@ -81,11 +81,14 @@ export const WalletProvider = ({ children }: PropsWithChildren<unknown>) => {
     let sub$$: Unsubcall;
 
     if (walletToUse) {
+      const apiGenesisHash = api.genesisHash.toHex();
+
       setSigner(walletToUse.signer);
 
       sub$$ = walletToUse.accounts.subscribe((accs) => {
-        setAccounts(
-          accs.map((acc) => {
+        const extension = accs
+          .filter((acc) => !acc.genesisHash || acc.genesisHash === apiGenesisHash)
+          .map((acc) => {
             const { address, genesisHash, name, type } = acc;
 
             return {
@@ -98,8 +101,9 @@ export const WalletProvider = ({ children }: PropsWithChildren<unknown>) => {
                 source: walletToUse.extensionName,
               },
             };
-          })
-        );
+          });
+
+        setAccounts([...extension]);
       });
     }
 
@@ -108,7 +112,7 @@ export const WalletProvider = ({ children }: PropsWithChildren<unknown>) => {
         sub$$();
       }
     };
-  }, [walletToUse, network.ss58Prefix]);
+  }, [walletToUse, network.ss58Prefix, api]);
 
   useEffect(() => {
     setAccount(accounts[0] ?? null);
