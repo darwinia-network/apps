@@ -3,7 +3,7 @@ import type { KeyringJson } from '@polkadot/ui-keyring/types';
 
 export type WalletSource = 'polkadot-js' | 'talisman' | 'subwallet-js';
 
-export interface WalletLogoProps {
+interface WalletLogoProps {
   src: string;
   alt: string;
 }

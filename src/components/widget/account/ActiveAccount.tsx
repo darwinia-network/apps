@@ -9,7 +9,7 @@ import { SEARCH_PARAMS, toShortAddress } from '../../../utils';
 import { ViewBrowserIcon, CopyIcon } from '../../icons';
 import { SHORT_DURATION } from '../../../config';
 import { AccountName } from '../account/AccountName';
-import { Account, WalletLogoProps } from '../../../model';
+import { Account } from '../../../model';
 import { AccountSelector } from './AccountSelector';
 
 function AccountItem({
@@ -19,7 +19,6 @@ function AccountItem({
   isLargeRounded = true,
   className = '',
   account,
-  walletLogo,
   onClick = () => {
     // do nothing
   },
@@ -30,11 +29,11 @@ function AccountItem({
   className?: string;
   textClassName?: string;
   account: Account;
-  walletLogo: WalletLogoProps;
   onClick?: React.MouseEventHandler<HTMLDivElement>;
 }>) {
   const ref = useRef<HTMLSpanElement>(null);
   const { network } = useApi();
+  const { walletToUse } = useWallet();
   const containerCls = useMemo(
     () =>
       `flex items-center justify-between leading-normal whitespace-nowrap p-1 overflow-hidden bg-${network.name} 
@@ -45,7 +44,9 @@ function AccountItem({
 
   return (
     <div className={containerCls} onClick={onClick} style={containerStyle || {}}>
-      <img src={walletLogo.src} style={logoStyle || { width: 24, height: 24 }} alt={walletLogo.alt} />
+      {walletToUse && (
+        <img src={walletToUse.logo.src} style={logoStyle || { width: 24, height: 24 }} alt={walletToUse.logo.alt} />
+      )}
       <Typography.Text className="mx-2" style={{ color: 'inherit', maxWidth: '64px' }} ellipsis={true}>
         <AccountName account={account.address} ref={ref} className="hidden" />
         {ref.current?.textContent}
@@ -57,7 +58,7 @@ function AccountItem({
 
 export const ActiveAccount = () => {
   const { network } = useApi();
-  const { account, walletToUse } = useWallet();
+  const { account } = useWallet();
   const { t } = useTranslation();
   const [visible, setVisible] = useState(false);
   const [isCopied, setIsCopied] = useState<boolean>(false);
@@ -70,7 +71,7 @@ export const ActiveAccount = () => {
     }
   }, [isCopied]);
 
-  return account && walletToUse ? (
+  return account ? (
     <>
       <section className={`flex items-center gap-2 connection`}>
         {account && (
@@ -88,7 +89,6 @@ export const ActiveAccount = () => {
                   }
                 }}
                 account={account}
-                walletLogo={walletToUse.logo}
                 className="max-w-xs text-white hidden lg:flex cursor-pointer"
                 logoStyle={{ width: 24, height: 24 }}
                 isLargeRounded={false}
