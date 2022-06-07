@@ -1,4 +1,5 @@
 import type { InjectedAccountWithMeta, InjectedExtension } from '@polkadot/extension-inject/types';
+import type { KeyringJson } from '@polkadot/ui-keyring/types';
 
 export type WalletSource = 'polkadot-js' | 'talisman' | 'subwallet-js';
 
@@ -22,4 +23,5 @@ export interface Wallet extends InjectedExtension, WalletData {
 
 export interface Account extends InjectedAccountWithMeta {
   displayAddress: string; // ss58 format
+  json?: KeyringJson;
 }

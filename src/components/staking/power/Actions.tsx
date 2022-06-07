@@ -5,7 +5,7 @@ import { useMemo, useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { from } from 'rxjs';
 import type { DeriveStakingAccount } from '../../../api-derive/types';
-import { useApi, useStaking, useQueue, useSlashingSpans, useAccount } from '../../../hooks';
+import { useApi, useStaking, useQueue, useSlashingSpans, useAccount, useWallet } from '../../../hooks';
 import {
   BondMore,
   ClaimRewards,
@@ -27,10 +27,8 @@ interface ActionsProps {
 // eslint-disable-next-line complexity
 export function Actions({ eraSelectionIndex, disabled }: ActionsProps) {
   const { t } = useTranslation();
-  const {
-    api,
-    connection: { accounts },
-  } = useApi();
+  const { api, network } = useApi();
+  const { accounts } = useWallet();
   const { getBalances } = useAccount();
   const { queueExtrinsic } = useQueue();
   const {
@@ -68,7 +66,7 @@ export function Actions({ eraSelectionIndex, disabled }: ActionsProps) {
   }, [stakingDerive]);
 
   const isOwnController = useMemo(
-    () => accounts.map((item) => item.address).includes(controllerAccount),
+    () => accounts.map((item) => item.displayAddress).includes(controllerAccount),
     [accounts, controllerAccount]
   );
 

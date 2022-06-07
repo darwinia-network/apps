@@ -73,11 +73,8 @@ function isOwner(bonded: Option<GenericAccountId>[], ledger: Option<StakingLedge
 export const StakingContext = createContext<StakingCtx | null>(null);
 
 export const StakingProvider = ({ children }: React.PropsWithChildren<unknown>) => {
-  const {
-    api,
-    connection: { accounts },
-  } = useApi();
-  const { account } = useWallet();
+  const { api } = useApi();
+  const { account, accounts } = useWallet();
   const [controllerAccount, setControllerAccount] = useState<string>(account?.displayAddress || '');
   const [stashAccount, setStashAccount] = useState<string>(account?.displayAddress || '');
   const [stashAccounts, setStashAccounts] = useState<string[]>([]);
@@ -101,7 +98,7 @@ export const StakingProvider = ({ children }: React.PropsWithChildren<unknown>) 
   const isControllerAccountOwner = useMemo(
     () =>
       !!controllerAccount &&
-      accounts.map((item) => item.address).some((address) => isSameAddress(address, controllerAccount)),
+      accounts.map((item) => item.displayAddress).some((address) => isSameAddress(address, controllerAccount)),
     [accounts, controllerAccount]
   );
 

@@ -5,15 +5,13 @@ import FileSaver from 'file-saver';
 import { Trans, useTranslation } from 'react-i18next';
 import { withRouter } from 'react-router-dom';
 import { EllipsisMiddle } from '../components/widget/EllipsisMiddle';
-import { useApi } from '../hooks';
+import { useApi, useWallet } from '../hooks';
 import { LOCAL } from '../utils';
 
 function Page() {
   const { t } = useTranslation();
-  const {
-    network,
-    connection: { accounts },
-  } = useApi();
+  const { network } = useApi();
+  const { accounts } = useWallet();
   const localAccounts = accounts.filter((item) => item.meta.source === LOCAL);
 
   return (

@@ -9,6 +9,7 @@ import { from, Subscription, takeWhile, zip, map } from 'rxjs';
 import type { PalletStakingSlashingSlashingSpans } from '@polkadot/types/lookup';
 import { NoNullFields } from '../../model';
 import { useApi } from '../api';
+import { useWallet } from '../wallet';
 import { useIsMounted } from '../isMounted';
 
 interface OwnReward {
@@ -117,16 +118,14 @@ function rewardsGroupedByPayoutValidator(
 
 export function useOwnStashes() {
   const isMounted = useIsMounted();
-  const {
-    api,
-    connection: { accounts },
-  } = useApi();
+  const { api } = useApi();
+  const { accounts } = useWallet();
   const [state, setState] = useState<[string, IsInKeyring][] | undefined>();
   const [ownBondedAccounts, setOwnBondedAccounts] = useState<Option<GenericAccountId>[]>([]);
   const [ownLedgers, setOwnLedgers] = useState<Option<StakingLedger>[]>([]);
 
   useEffect(() => {
-    const addresses = accounts.map((item) => item.address);
+    const addresses = accounts.map((item) => item.displayAddress);
     let sub$$: Subscription;
 
     if (addresses.length) {

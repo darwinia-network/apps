@@ -41,12 +41,9 @@ const createPayout = (
 
 export function ClaimRewards({ eraSelectionIndex, type = 'text' }: ClaimRewardsProps) {
   const { t } = useTranslation();
-  const {
-    api,
-    connection: { accounts },
-  } = useApi();
+  const { api } = useApi();
   const { queueExtrinsic } = useQueue();
-  const { account } = useWallet();
+  const { account, accounts } = useWallet();
   const { stakingRewards, payoutValidators } = useStakingRewards(eraSelectionIndex);
   const hasPayoutValidator = useMemo(() => payoutValidators && payoutValidators.length, [payoutValidators]);
   const [busy, setBusy] = useState(false);

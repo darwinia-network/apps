@@ -1,10 +1,10 @@
 import Identicon from '@polkadot/react-identicon';
-import { IAccountMeta } from '../../../model';
+import { Account } from '../../../model';
 import { EllipsisMiddle } from '../EllipsisMiddle';
 import { AccountName } from '../../../components/widget/account/AccountName';
 
 interface IdentAccountProps {
-  account: IAccountMeta | undefined;
+  account: Account | undefined;
   className?: string;
   iconSize?: number;
 }
@@ -15,7 +15,7 @@ export function IdentAccountAddress({ account, className = '', iconSize = defaul
   if (!account) {
     return null;
   }
-  const { address } = account;
+  const { displayAddress: address } = account;
 
   return (
     <div className={`flex items-center ${className}`}>

@@ -2,21 +2,19 @@ import { createRef, useMemo } from 'react';
 import { AutoComplete, Form, Input, InputProps, Select } from 'antd';
 import { isString, upperFirst } from 'lodash';
 import { useTranslation } from 'react-i18next';
-import { useAccount, useApi } from '../../../hooks';
+import { useAccount, useApi, useWallet } from '../../../hooks';
 import { CustomFormItemProps } from '../../../model';
 import { fromWei, isSpecifiedSS58Address, prettyNumber } from '../../../utils';
 import { IdentAccountAddress } from '../account/IdentAccountAddress';
 
 export function AddressItem({ label, disabled, rules = [], ...rest }: CustomFormItemProps & InputProps) {
   const { t } = useTranslation();
-  const {
-    connection: { accounts },
-    network,
-  } = useApi();
+  const { network } = useApi();
+  const { accounts } = useWallet();
   const { assets } = useAccount();
   const autoCompleteInputRef = createRef<Input>();
   const autoCompleteOptions = useMemo<{ value: string; label: JSX.Element }[]>(
-    () => accounts.map((item) => ({ value: item.address, label: <IdentAccountAddress account={item} /> })),
+    () => accounts.map((item) => ({ value: item.displayAddress, label: <IdentAccountAddress account={item} /> })),
     [accounts]
   );
 
@@ -49,7 +47,7 @@ export function AddressItem({ label, disabled, rules = [], ...rest }: CustomForm
       {disabled ? (
         <Select placeholder={t('Select one from these below')} size="large" showSearch className="flex-1" disabled>
           {accounts.map((item) => (
-            <Select.Option value={item.address} key={item.address}>
+            <Select.Option value={item.displayAddress} key={item.displayAddress}>
               <IdentAccountAddress account={item} />
             </Select.Option>
           ))}

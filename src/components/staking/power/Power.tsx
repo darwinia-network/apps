@@ -3,7 +3,7 @@ import { Card, Col, Row, Tooltip } from 'antd';
 import { BN } from '@polkadot/util';
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useAccount, usePower, useStaking } from '../../../hooks';
+import { useAccount, usePower, useStaking, useWallet } from '../../../hooks';
 import { assetToPower, prettyNumber } from '../../../utils';
 import { IdentAccountAddress } from '../../widget/account/IdentAccountAddress';
 import { AssetOverview } from '../AssetOverview';
@@ -14,7 +14,8 @@ import { Nominating } from './Nominating';
 export function Power() {
   const { t } = useTranslation();
   const [eraSelectionIndex, setEraSelectionIndex] = useState(0);
-  const { accountWithMeta, assets, getBalances } = useAccount();
+  const { assets, getBalances } = useAccount();
+  const { account } = useWallet();
   const { stakingDerive, isStakingLedgerEmpty, stashAccount } = useStaking();
   const { pool } = usePower();
 
@@ -36,13 +37,15 @@ export function Power() {
 
   return (
     <>
-      <Card className="shadow-xxl">
-        <div className="flex lg:flex-row flex-col lg:justify-between lg:items-center">
-          <IdentAccountAddress account={accountWithMeta} className="mb-2 lg:mb-0" />
+      {account && (
+        <Card className="shadow-xxl">
+          <div className="flex lg:flex-row flex-col lg:justify-between lg:items-center">
+            <IdentAccountAddress account={account} className="mb-2 lg:mb-0" />
 
-          <Actions eraSelectionIndex={eraSelectionIndex} disabled={!stashAccount} />
-        </div>
-      </Card>
+            <Actions eraSelectionIndex={eraSelectionIndex} disabled={!stashAccount} />
+          </div>
+        </Card>
+      )}
 
       {/* eslint-disable-next-line no-magic-numbers */}
       <Row gutter={[32, 32]} className="mt-8">

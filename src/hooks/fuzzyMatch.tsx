@@ -3,12 +3,11 @@ import { isFunction } from '@polkadot/util';
 import { DeriveAccountInfo } from '@polkadot/api-derive/types';
 import { isSameAddress } from '../utils';
 import { useApi } from './api';
+import { useWallet } from './wallet';
 
 export function useIsAccountFuzzyMatch() {
-  const {
-    api,
-    connection: { accounts },
-  } = useApi();
+  const { api } = useApi();
+  const { accounts } = useWallet();
 
   const predicate = useCallback(
     // eslint-disable-next-line complexity
@@ -35,7 +34,7 @@ export function useIsAccountFuzzyMatch() {
         }
 
         if (!isVisible) {
-          const acc = accounts.find((item) => isSameAddress(item.address, account));
+          const acc = accounts.find((item) => isSameAddress(item.displayAddress, account));
 
           isVisible = acc?.meta?.name ? acc.meta.name.toLowerCase().includes(compareLower) : false;
         }
