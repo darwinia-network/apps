@@ -3,12 +3,12 @@ import { ISubmittableResult } from '@polkadot/types/types';
 import { Button, Form } from 'antd';
 import { useForm } from 'antd/lib/form/Form';
 import Modal, { ModalProps } from 'antd/lib/modal';
-import { PropsWithChildren, useEffect, useState } from 'react';
+import { PropsWithChildren, useEffect, useMemo, useState } from 'react';
 import { catchError, from, tap, NEVER } from 'rxjs';
 import { useTranslation } from 'react-i18next';
 import { validateMessages } from '../../config';
 import i18n from '../../config/i18n';
-import { useAccount, useQueue } from '../../hooks';
+import { useWallet, useQueue } from '../../hooks';
 import { TxFailedCallback, TxCallback } from '../../model';
 
 interface ModalFormProps<Values = Record<string, unknown>> {
@@ -36,11 +36,13 @@ export function FormModal<V extends Record<string, unknown>>({
   onCancel,
 }: PropsWithChildren<ModalFormProps<V>>) {
   const [form] = useForm<V>();
-  const { account } = useAccount();
+  const { account } = useWallet();
   const { queueExtrinsic } = useQueue();
   const { visible, ...others } = modalProps;
   const { t } = useTranslation();
   const [busy, setBusy] = useState(false);
+
+  const signAddress = useMemo(() => signer ?? (account?.displayAddress || ''), [signer, account]);
 
   useEffect(() => {
     if (visible) {
@@ -75,7 +77,7 @@ export function FormModal<V extends Record<string, unknown>>({
                 )
                 .subscribe((value) => {
                   queueExtrinsic({
-                    signAddress: signer ?? account,
+                    signAddress,
                     extrinsic: extrinsic(value),
                     txSuccessCb: (status) => {
                       setBusy(false);

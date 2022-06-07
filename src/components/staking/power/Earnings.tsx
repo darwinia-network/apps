@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { switchMapTo, takeWhile, timer } from 'rxjs';
 import { LONG_DURATION } from '../../../config';
-import { useAccount, useApi, useIsMounted, useStaking, useStakingRewards } from '../../../hooks';
+import { useAccount, useApi, useIsMounted, useStaking, useStakingRewards, useWallet } from '../../../hooks';
 import { StakingHistory } from '../../../model';
 import { fromWei, isRing, prettyNumber, rxPost } from '../../../utils';
 import { Statistics } from '../../widget/Statistics';
@@ -19,9 +19,10 @@ interface PowerDetailProps {
 export function Earnings({ updateEraIndex }: PowerDetailProps) {
   const { t } = useTranslation();
   const { network } = useApi();
+  const { account } = useWallet();
   const [eraSelectionIndex, setEraSelectionIndex] = useState<number>(0);
   const [claimed, setClaimed] = useState('-');
-  const { assets, account } = useAccount();
+  const { assets } = useAccount();
   const { stashAccount } = useStaking();
   const {
     stakingRewards: { payoutTotal },
@@ -39,7 +40,7 @@ export function Earnings({ updateEraIndex }: PowerDetailProps) {
         switchMapTo(
           rxPost<StakingHistory>({
             url: `https://${network.name}.webapi.subscan.io/api/scan/staking_history`,
-            params: { page: 0, row: 10, address: account },
+            params: { page: 0, row: 10, address: account?.displayAddress || '' },
           })
         )
       )
@@ -98,7 +99,7 @@ export function Earnings({ updateEraIndex }: PowerDetailProps) {
         <div className="flex items-center justify-center gap-4 mt-4 md:mt-0">
           <ClaimRewards eraSelectionIndex={eraSelectionIndex} type="primary" />
           <Button>
-            <SubscanLink network={network.name} address={account} query="tab=reward">
+            <SubscanLink network={network.name} address={account?.displayAddress || ''} query="tab=reward">
               {t('Reward History')}
             </SubscanLink>
           </Button>

@@ -4,7 +4,7 @@ import { Button, Tooltip } from 'antd';
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { QuestionCircleFilled } from '@ant-design/icons';
-import { PayoutValidator, useApi, useStakingRewards, useAccount, useQueue } from '../../../hooks';
+import { PayoutValidator, useApi, useStakingRewards, useWallet, useQueue } from '../../../hooks';
 import { fromWei, prettyNumber } from '../../../utils';
 import { SelectAccountModal } from '../../widget/account/SelectAccountModal';
 import { StakingActionProps } from './interface';
@@ -46,12 +46,12 @@ export function ClaimRewards({ eraSelectionIndex, type = 'text' }: ClaimRewardsP
     connection: { accounts },
   } = useApi();
   const { queueExtrinsic } = useQueue();
-  const { account } = useAccount();
+  const { account } = useWallet();
   const { stakingRewards, payoutValidators } = useStakingRewards(eraSelectionIndex);
   const hasPayoutValidator = useMemo(() => payoutValidators && payoutValidators.length, [payoutValidators]);
   const [busy, setBusy] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
-  const [signer, setSigner] = useState(account);
+  const [signer, setSigner] = useState(account?.displayAddress);
 
   return (
     <>
@@ -68,7 +68,7 @@ export function ClaimRewards({ eraSelectionIndex, type = 'text' }: ClaimRewardsP
       </Tooltip>
       <SelectAccountModal
         visible={isVisible}
-        defaultValue={account}
+        defaultValue={account?.displayAddress || ''}
         onCancel={() => setIsVisible(false)}
         onSelect={(acc) => {
           setSigner(acc);
@@ -96,7 +96,7 @@ export function ClaimRewards({ eraSelectionIndex, type = 'text' }: ClaimRewardsP
                     extrinsics.forEach((extrinsic, index) => {
                       setBusy(true);
                       queueExtrinsic({
-                        signAddress: signer,
+                        signAddress: signer || '',
                         extrinsic,
                         txFailedCb: () => {
                           if (index + 1 === extrinsics.length) {

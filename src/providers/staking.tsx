@@ -6,7 +6,7 @@ import { PalletStakingValidatorPrefs } from '@polkadot/types/lookup';
 import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react';
 import { combineLatest, from, map, switchMap, tap, zip } from 'rxjs';
 import { DeriveStakingAccount } from '../api-derive/types';
-import { useAccount, useApi, useIsMountedOperator } from '../hooks';
+import { useWallet, useApi, useIsMountedOperator } from '../hooks';
 import { isSameAddress } from '../utils';
 
 export interface StakingCtx {
@@ -77,9 +77,9 @@ export const StakingProvider = ({ children }: React.PropsWithChildren<unknown>) 
     api,
     connection: { accounts },
   } = useApi();
-  const { account } = useAccount();
-  const [controllerAccount, setControllerAccount] = useState<string>(account);
-  const [stashAccount, setStashAccount] = useState<string>(account);
+  const { account } = useWallet();
+  const [controllerAccount, setControllerAccount] = useState<string>(account?.displayAddress || '');
+  const [stashAccount, setStashAccount] = useState<string>(account?.displayAddress || '');
   const [stashAccounts, setStashAccounts] = useState<string[]>([]);
   const [isStashAccountOwner, setIsStashAccountOwner] = useState<boolean>(true);
   const [stakingDerive, setStakingDerive] = useState<DeriveStakingAccount | null>(null);
@@ -122,18 +122,18 @@ export const StakingProvider = ({ children }: React.PropsWithChildren<unknown>) 
 
   const updateStakingDerive = useCallback(() => {
     if (account) {
-      from(api.derive.staking.account(account))
-        .pipe(
-          tap(() => setIsStakingDeriveLoading(true)),
-          takeWhileIsMounted()
-        )
-        .subscribe({
-          next: (res) => {
-            setStakingDerive(res as unknown as DeriveStakingAccount);
-            setIsStakingDeriveLoading(false);
-          },
-          error: () => setIsStakingDeriveLoading(false),
-        });
+      from(api.derive.staking.account(account.displayAddress))
+      .pipe(
+        tap(() => setIsStakingDeriveLoading(true)),
+        takeWhileIsMounted()
+      )
+      .subscribe({
+        next: (res) => {
+          setStakingDerive(res as unknown as DeriveStakingAccount);
+          setIsStakingDeriveLoading(false);
+        },
+        error: () => setIsStakingDeriveLoading(false),
+      });
     }
   }, [api, account, takeWhileIsMounted]);
 
@@ -171,9 +171,9 @@ export const StakingProvider = ({ children }: React.PropsWithChildren<unknown>) 
         from<Promise<Option<StakingLedger>>>(api.query.staking.ledger(address)),
       ]);
 
-    getSource(account)
+    getSource(account.displayAddress)
       .pipe(
-        map(([bonded, ledger]) => getControllerAccount(account, bonded, ledger)),
+        map(([bonded, ledger]) => getControllerAccount(account.displayAddress, bonded, ledger)),
         switchMap((controller) =>
           getSource(controller).pipe(
             map(([bonded, ledger]) => {

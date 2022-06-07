@@ -3,7 +3,7 @@ import { useCallback, useMemo, useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { decodeAddress } from '@polkadot/util-crypto';
 import { from, Observable, Subscriber } from 'rxjs';
-import { useAccount, useApi, useRecordsQuery } from '../../../hooks';
+import { useWallet, useApi, useRecordsQuery } from '../../../hooks';
 import { useMetamask } from '../../../hooks/ metamask';
 import { AddressItem } from '../../widget/form-control/AddressItem';
 import { DepositItem } from '../../widget/form-control/DepositItem';
@@ -33,7 +33,7 @@ export const Deposits = () => {
     disconnect,
   } = useMetamask();
   const { network } = useApi();
-  const { account } = useAccount();
+  const { account } = useWallet();
   const { t } = useTranslation();
   const [busy, setBusy] = useState(false);
 
@@ -54,6 +54,7 @@ export const Deposits = () => {
     }
   }, [refetch, activeAccount]);
 
+  const recipient = useMemo(() => account?.displayAddress || '', [account]);
   const disableConnect = useMemo(() => status !== 'success' && status !== 'pending', [status]);
 
   const handleClaim = useCallback(
@@ -116,7 +117,7 @@ export const Deposits = () => {
       <Form<DepositForm>
         layout="vertical"
         initialValues={{
-          recipient: account,
+          recipient,
         }}
         validateMessages={validateMessages[i18n.language as 'en' | 'zh-CN' | 'zh']}
         onFinish={handleClaim}

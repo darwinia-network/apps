@@ -3,7 +3,7 @@ import { BN_HUNDRED, BN, isFunction } from '@polkadot/util';
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { from, Subscription } from 'rxjs';
-import { useAccount, useApi } from '../../hooks';
+import { useApi, useWallet } from '../../hooks';
 import { AssetOverviewProps, DarwiniaAsset } from '../../model';
 import { fromWei, getUnit, insufficientBalanceRule, isRing, isSameAddress, prettyNumber, toWei } from '../../utils';
 import { FormModal } from '../widget/FormModal';
@@ -20,12 +20,8 @@ interface TransferFormValues {
 
 export function AssetOverview({ asset, refresh }: AssetOverviewProps) {
   const { t } = useTranslation();
-  const {
-    network,
-    api,
-    connection: { accounts },
-  } = useApi();
-  const { account } = useAccount();
+  const { network, api } = useApi();
+  const { account, accounts } = useWallet();
   const [recipient, setRecipient] = useState<string>(accounts[0]?.address);
   const [isVisible, setIsVisible] = useState(false);
   const [transferrable, setTransferrable] = useState<BN | null>(null);
@@ -94,7 +90,7 @@ export function AssetOverview({ asset, refresh }: AssetOverviewProps) {
           refresh();
         }}
         onCancel={() => setIsVisible(false)}
-        initialValues={{ from: account, to: accounts[0]?.address, amount: 0 }}
+        initialValues={{ from: account?.displayAddress || '', to: accounts[0]?.displayAddress, amount: 0 }}
         extrinsic={(values) => {
           const { to, amount } = values;
           const moduleName = isRing(asset.token?.symbol) ? 'balances' : 'kton';
@@ -127,7 +123,7 @@ export function AssetOverview({ asset, refresh }: AssetOverviewProps) {
             {
               validator(_, value) {
                 setRecipient(value);
-                return !isSameAddress(account, value) ? Promise.resolve() : Promise.reject();
+                return !isSameAddress(account?.displayAddress || '', value) ? Promise.resolve() : Promise.reject();
               },
               message: t('The sending address and the receiving address cannot be the same'),
             },

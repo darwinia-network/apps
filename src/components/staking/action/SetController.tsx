@@ -1,9 +1,9 @@
 import { Button } from 'antd';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { Option } from '@polkadot/types';
 import type { AccountId, StakingLedger } from '@polkadot/types/interfaces';
-import { useApi, useStaking, useAccount } from '../../../hooks';
+import { useApi, useStaking, useWallet } from '../../../hooks';
 import { FormModal } from '../../widget/FormModal';
 import { AddressItem } from '../../widget/form-control/AddressItem';
 import { Label } from '../../widget/form-control/Label';
@@ -17,10 +17,12 @@ interface SetControllerFormValues {
 export function SetController() {
   const { t } = useTranslation();
   const { api } = useApi();
-  const { account } = useAccount();
+  const { account } = useWallet();
   const [isVisible, setIsVisible] = useState(false);
   const { stashAccount, controllerAccount, updateValidators, updateStakingDerive, updateControllerAndStash } =
     useStaking();
+
+  const currentAccount = useMemo(() => account?.displayAddress || '', [account]);
 
   return (
     <>
@@ -73,7 +75,7 @@ export function SetController() {
                     stashId,
                     allBalances,
                     controllerId: value,
-                    accountId: account,
+                    accountId: currentAccount,
                   });
                   return message ? Promise.reject(message) : Promise.resolve();
                 }

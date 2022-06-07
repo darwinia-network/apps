@@ -5,7 +5,7 @@ import { format, getUnixTime } from 'date-fns';
 import { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DATE_FORMAT } from '../../config';
-import { useAccount, useApi, useQueue, useStaking } from '../../hooks';
+import { useApi, useQueue, useStaking, useWallet } from '../../hooks';
 import { AccountRecord } from '../../model';
 import { fromWei, isKton, prettyNumber, ringToKton } from '../../utils';
 import { AccountHistoryProps } from '../staking/interface';
@@ -27,7 +27,7 @@ const calcFine = (data: AccountRecord): string => {
 export function BondRecords({ tokens }: AccountHistoryProps) {
   const { t } = useTranslation();
   const { network, api } = useApi();
-  const { account } = useAccount();
+  const { account } = useWallet();
   const { queueExtrinsic } = useQueue();
   const [locked, setLocked] = useState<boolean>(false);
   const { controllerAccount } = useStaking();
@@ -44,7 +44,7 @@ export function BondRecords({ tokens }: AccountHistoryProps) {
 
     const extrinsic = api.tx.staking.tryClaimDepositsWithPunish(forceUnbondTarget.expired_at);
     queueExtrinsic({
-      signAddress: account,
+      signAddress: account?.address || '',
       extrinsic,
       txSuccessCb: () => {
         setForceUnbondTarget(null);
