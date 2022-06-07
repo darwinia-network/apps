@@ -1,10 +1,10 @@
 import React from 'react';
 import BaseIdentityIcon from '@polkadot/react-identicon';
-import { Button, Empty, Modal, Radio, Spin } from 'antd';
+import { Empty, Modal, Radio, Spin } from 'antd';
 import { useTranslation } from 'react-i18next';
-import { useApi, useAssets } from '../../../hooks';
+import { useApi, useAssets, useWallet } from '../../../hooks';
 import { EllipsisMiddle } from '../EllipsisMiddle';
-import { IAccountMeta } from '../../../model';
+import { Account } from '../../../model';
 import { PrettyAmount } from '../PrettyAmount';
 import { fromWei, prettyNumber } from '../../../utils';
 import { AccountName } from './AccountName';
@@ -20,7 +20,7 @@ type Props = {
 
 const iconSize = 36;
 
-const AccountWithIdentify = ({ value }: { value: IAccountMeta }) => {
+const AccountWithIdentify = ({ value }: { value: Account }) => {
   const { assets } = useAssets(value.address);
 
   return (
@@ -44,17 +44,15 @@ const AccountWithIdentify = ({ value }: { value: IAccountMeta }) => {
             ))}
           </Spin>
         </div>
-        <EllipsisMiddle className="opacity-60 w-full" value={value.address} />
+        <EllipsisMiddle className="opacity-60 w-full" value={value.displayAddress} />
       </span>
     </>
   );
 };
 
 export const SelectAccountModal: React.FC<Props> = ({ visible, defaultValue, title, footer, onSelect, onCancel }) => {
-  const {
-    connection: { accounts },
-    network,
-  } = useApi();
+  const { network } = useApi();
+  const { accounts } = useWallet();
   const { t } = useTranslation();
 
   return (
@@ -82,22 +80,7 @@ export const SelectAccountModal: React.FC<Props> = ({ visible, defaultValue, tit
           ))}
         </Radio.Group>
       ) : (
-        <Empty
-          image="/image/empty.png"
-          imageStyle={{ height: 44 }}
-          description={t('You haven’t created an address yet, please create a address first.')}
-          className="flex justify-center flex-col items-center"
-        >
-          <Button
-            onClick={() => {
-              const url = 'https://polkadot.js.org';
-
-              window.open(url, 'blank');
-            }}
-          >
-            {t('How to create?')}
-          </Button>
-        </Empty>
+        <Empty description={t('You haven’t created an address yet, please create a address first.')} />
       )}
     </Modal>
   );

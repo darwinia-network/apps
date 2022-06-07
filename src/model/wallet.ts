@@ -2,7 +2,7 @@ import type { InjectedAccountWithMeta, InjectedExtension } from '@polkadot/exten
 
 export type WalletSource = 'polkadot-js' | 'talisman' | 'subwallet-js';
 
-interface WalletLogoProps {
+export interface WalletLogoProps {
   src: string;
   alt: string;
 }

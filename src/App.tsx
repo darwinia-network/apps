@@ -9,8 +9,8 @@ import { Route, Switch, useLocation } from 'react-router-dom';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import { Signer } from './components/widget/Signer';
 import { QueueStatus } from './components/widget/QueueStatus';
+import { ConnectWallet } from './components/widget/ConnectWallet';
 import { ActiveAccount } from './components/widget/account/ActiveAccount';
-import { Connection } from './components/widget/Connection';
 import { Language } from './components/widget/Language';
 import { getActiveNav, SideNav } from './components/widget/SideNav';
 import { toggleTheme } from './components/widget/ThemeSwitch';
@@ -161,8 +161,8 @@ function App() {
             </div>
 
             <div className="flex items-center gap-4">
-              <Connection />
               <ActiveAccount />
+              <ConnectWallet />
 
               <div className="hidden lg:flex items-center">
                 {/* <ThemeSwitch mode="btn" network={network.name} onThemeChange={setTheme} /> */}
