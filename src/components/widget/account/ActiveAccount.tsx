@@ -5,9 +5,9 @@ import { useTranslation } from 'react-i18next';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import { delay, of } from 'rxjs';
 import { useApi, useWallet } from '../../../hooks';
-import { SEARCH_PARAMS, toShortAddress } from '../../../utils';
+import { toShortAddress } from '../../../utils';
 import { ViewBrowserIcon, CopyIcon } from '../../icons';
-import { SHORT_DURATION } from '../../../config';
+import { SHORT_DURATION, SEARCH_PARAMS_SOURCE } from '../../../config';
 import { AccountName } from '../account/AccountName';
 import { Account } from '../../../model';
 import { AccountSelector } from './AccountSelector';
@@ -79,7 +79,7 @@ export const ActiveAccount = () => {
             <Badge.Ribbon
               color="red"
               text={t('Read only')}
-              className={`-top-1 -right-2 ${account?.meta.source === SEARCH_PARAMS ? '' : 'hidden'}`}
+              className={`-top-1 -right-2 ${account?.meta.source === SEARCH_PARAMS_SOURCE ? '' : 'hidden'}`}
             >
               <AccountItem
                 onClick={(event) => {
