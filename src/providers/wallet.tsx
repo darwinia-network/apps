@@ -57,7 +57,7 @@ export const WalletProvider = ({ children }: PropsWithChildren<unknown>) => {
 
       if (wallet) {
         try {
-          setWalletToUse(await wallet.enable(DAPP_NAME));
+          setWalletToUse({ ...wallet, ...(await wallet.enable(DAPP_NAME)) });
           return true;
         } catch (error) {
           console.error(error);
@@ -109,6 +109,10 @@ export const WalletProvider = ({ children }: PropsWithChildren<unknown>) => {
       }
     };
   }, [walletToUse, network.ss58Prefix]);
+
+  useEffect(() => {
+    setAccount(accounts[0] ?? null);
+  }, [accounts]);
 
   useEffect(() => {
     const injecteds = window.injectedWeb3;

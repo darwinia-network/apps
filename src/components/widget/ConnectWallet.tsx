@@ -27,7 +27,7 @@ export const ConnectWallet = () => {
   const { network } = useApi();
   const { supportedWallets, walletToUse, error: walletError, connectWallet } = useWallet();
   const { t } = useTranslation();
-  const [visible, setVisible] = useState(true);
+  const [visible, setVisible] = useState(false);
   const [busy, setBusy] = useState(false);
   const [selected, setSelected] = useState<WalletSource | undefined>(walletToUse?.extensionName);
 
