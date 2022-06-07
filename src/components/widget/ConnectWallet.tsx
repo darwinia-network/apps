@@ -35,8 +35,11 @@ export const ConnectWallet = () => {
     async (event: RadioChangeEvent) => {
       setBusy(true);
       setSelected(event.target.value);
-      await connectWallet(event.target.value);
-      setVisible(false);
+
+      if (await connectWallet(event.target.value)) {
+        setVisible(false);
+      }
+
       setBusy(false);
     },
     [connectWallet]
@@ -59,7 +62,6 @@ export const ConnectWallet = () => {
 
       <Modal
         title={walletToUse ? t('Switch Wallet') : t('Connect Wallet')}
-        closable={false}
         visible={visible}
         footer={null}
         onCancel={() => setVisible(false)}

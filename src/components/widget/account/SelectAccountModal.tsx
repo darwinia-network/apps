@@ -75,7 +75,7 @@ export const SelectAccountModal: React.FC<Props> = ({ visible, defaultValue, tit
             <Radio.Button
               value={item.address}
               key={item.address}
-              className={`radio-list account-select-btn-group-${network.name}`}
+              className={`radio-list network-radio-button-${network.name}`}
             >
               <AccountWithIdentify value={item} />
             </Radio.Button>
