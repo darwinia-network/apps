@@ -3,6 +3,7 @@ import type { Signer as InjectedSigner } from '@polkadot/api/types';
 import { accounts as accountsObs } from '@polkadot/ui-keyring/observable/accounts';
 import type { SubjectInfo } from '@polkadot/ui-keyring/observable/types';
 import { from } from 'rxjs';
+import keyring from '@polkadot/ui-keyring';
 import type { Wallet, Account, WalletSource } from '../model';
 import { DAPP_NAME, LOCAL_SOURCE, SEARCH_PARAMS_SOURCE } from '../config';
 import { convertToSS58, isValidAddress } from '../utils';
@@ -165,6 +166,10 @@ export const WalletProvider = ({ children }: PropsWithChildren<unknown>) => {
   }, [walletToUse, network.ss58Prefix, api, accountsObsData]);
 
   useEffect(() => {
+    accounts.forEach(({ address, meta }) => {
+      keyring.saveAddress(address, meta);
+    });
+
     setAccount(accounts.find(({ meta }) => meta.source === SEARCH_PARAMS_SOURCE) ?? accounts[0] ?? null);
   }, [accounts]);
 
