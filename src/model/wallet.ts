@@ -10,6 +10,7 @@ interface WalletLogoProps {
 interface WalletData {
   installUrl: string;
   logo: WalletLogoProps;
+  title: string;
 }
 
 export interface Wallet extends InjectedExtension, WalletData {
