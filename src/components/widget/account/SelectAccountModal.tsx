@@ -37,7 +37,7 @@ const AccountWithIdentify = ({ value }: { value: IAccountMeta }) => {
           <Spin className="flex items-center" spinning={!assets.length} size="small">
             {assets.map((item, index) => (
               <React.Fragment key={item.token.symbol}>
-                {index > 0 && <span className="inline-flex justify-center w-3">/</span>}
+                {index > 0 && <span className="inline-flex justify-center w-3">|</span>}
                 <PrettyAmount amount={fromWei({ value: item.total }, prettyNumber)} />
                 <span>{item.token.symbol}</span>
               </React.Fragment>
