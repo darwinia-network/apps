@@ -81,21 +81,9 @@ export const WalletProvider = ({ children }: PropsWithChildren<unknown>) => {
     let sub$$: Unsubcall;
 
     if (walletToUse) {
-      const apiGenesisHash = api.genesisHash.toHex();
-
-      const readOnlyAddress = new URL(window.location.href).searchParams.get('address');
-      const readOnly =
-        readOnlyAddress && isValidAddress(readOnlyAddress)
-          ? [
-              {
-                address: readOnlyAddress,
-                displayAddress: convertToSS58(readOnlyAddress, network.ss58Prefix),
-                meta: { name: 'Read-Only', source: SEARCH_PARAMS },
-              },
-            ]
-          : [];
-
       setSigner(walletToUse.signer);
+
+      const apiGenesisHash = api.genesisHash.toHex();
 
       sub$$ = walletToUse.accounts.subscribe((accs) => {
         const extension = accs
@@ -115,7 +103,11 @@ export const WalletProvider = ({ children }: PropsWithChildren<unknown>) => {
             };
           });
 
-        setAccounts([...extension, ...readOnly]);
+        setAccounts((prev) => {
+          const readOnly = prev.find(({ meta }) => meta.source === SEARCH_PARAMS);
+
+          return readOnly ? [...extension, readOnly] : [...extension];
+        });
       });
     }
 
@@ -125,6 +117,26 @@ export const WalletProvider = ({ children }: PropsWithChildren<unknown>) => {
       }
     };
   }, [walletToUse, network.ss58Prefix, api]);
+
+  useEffect(() => {
+    const readOnlyAddress = new URL(window.location.href).searchParams.get('address');
+    const readOnly =
+      readOnlyAddress && isValidAddress(readOnlyAddress)
+        ? [
+            {
+              address: readOnlyAddress,
+              displayAddress: convertToSS58(readOnlyAddress, network.ss58Prefix),
+              meta: { name: 'Read-Only', source: SEARCH_PARAMS },
+            },
+          ]
+        : [];
+
+    setAccounts((prev) => {
+      const exist = prev.find(({ meta }) => meta.source === SEARCH_PARAMS);
+
+      return exist ? prev : [...prev, ...readOnly];
+    });
+  }, [network.ss58Prefix]);
 
   useEffect(() => {
     setAccount(accounts[0] ?? null);
