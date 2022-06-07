@@ -1,9 +1,11 @@
 import { PropsWithChildren, useState, createContext, useCallback, useEffect } from 'react';
 import type { Signer as InjectedSigner } from '@polkadot/api/types';
-import { Unsubcall } from '@polkadot/extension-inject/types';
+import { accounts as accountsObs } from '@polkadot/ui-keyring/observable/accounts';
+import type { SubjectInfo } from '@polkadot/ui-keyring/observable/types';
+import { from } from 'rxjs';
 import type { Wallet, Account, WalletSource } from '../model';
-import { DAPP_NAME } from '../config';
-import { convertToSS58, isValidAddress, SEARCH_PARAMS } from '../utils';
+import { DAPP_NAME, LOCAL_SOURCE, SEARCH_PARAMS_SOURCE } from '../config';
+import { convertToSS58, isValidAddress } from '../utils';
 import { useApi } from '../hooks';
 
 export interface WalletCtx {
@@ -31,6 +33,8 @@ export const WalletContext = createContext<WalletCtx>(defaultState as WalletCtx)
 
 export const WalletProvider = ({ children }: PropsWithChildren<unknown>) => {
   const { api, network } = useApi();
+
+  const [accountsObsData, setAccountsObsData] = useState<SubjectInfo>({});
 
   const [error, setError] = useState<Error | null>(null);
   const [signer, setSigner] = useState<InjectedSigner | null>(null);
@@ -78,45 +82,10 @@ export const WalletProvider = ({ children }: PropsWithChildren<unknown>) => {
   }, []);
 
   useEffect(() => {
-    let sub$$: Unsubcall;
+    const sub$$ = from(accountsObs.subject.asObservable()).subscribe(setAccountsObsData);
 
-    if (walletToUse) {
-      setSigner(walletToUse.signer);
-
-      const apiGenesisHash = api.genesisHash.toHex();
-
-      sub$$ = walletToUse.accounts.subscribe((accs) => {
-        const extension = accs
-          .filter((acc) => !acc.genesisHash || acc.genesisHash === apiGenesisHash)
-          .map((acc) => {
-            const { address, genesisHash, name, type } = acc;
-
-            return {
-              address,
-              displayAddress: convertToSS58(address, network.ss58Prefix),
-              type,
-              meta: {
-                genesisHash,
-                name,
-                source: walletToUse.extensionName,
-              },
-            };
-          });
-
-        setAccounts((prev) => {
-          const readOnly = prev.find(({ meta }) => meta.source === SEARCH_PARAMS);
-
-          return readOnly ? [...extension, readOnly] : [...extension];
-        });
-      });
-    }
-
-    return () => {
-      if (sub$$) {
-        sub$$();
-      }
-    };
-  }, [walletToUse, network.ss58Prefix, api]);
+    return () => sub$$.unsubscribe();
+  }, []);
 
   useEffect(() => {
     const readOnlyAddress = new URL(window.location.href).searchParams.get('address');
@@ -126,20 +95,77 @@ export const WalletProvider = ({ children }: PropsWithChildren<unknown>) => {
             {
               address: readOnlyAddress,
               displayAddress: convertToSS58(readOnlyAddress, network.ss58Prefix),
-              meta: { name: 'Read-Only', source: SEARCH_PARAMS },
+              meta: { name: 'Read-Only', source: SEARCH_PARAMS_SOURCE },
             },
           ]
         : [];
 
     setAccounts((prev) => {
-      const exist = prev.find(({ meta }) => meta.source === SEARCH_PARAMS);
+      const exist = prev.find(({ meta }) => meta.source === SEARCH_PARAMS_SOURCE);
 
       return exist ? prev : [...prev, ...readOnly];
     });
   }, [network.ss58Prefix]);
 
   useEffect(() => {
-    setAccount(accounts.find(({ meta }) => meta.source === SEARCH_PARAMS) ?? accounts[0] ?? null);
+    if (!walletToUse) {
+      return;
+    }
+
+    setSigner(walletToUse.signer);
+
+    const apiGenesisHash = api.genesisHash.toHex();
+
+    const sub$$ = walletToUse.accounts.subscribe((accs) => {
+      const extension = accs
+        .filter((acc) => !acc.genesisHash || acc.genesisHash === apiGenesisHash)
+        .map((acc) => {
+          const { address, genesisHash, name, type } = acc;
+
+          return {
+            address,
+            displayAddress: convertToSS58(address, network.ss58Prefix),
+            type,
+            meta: {
+              genesisHash,
+              name,
+              source: walletToUse.extensionName,
+            },
+          };
+        });
+
+      const keys = Object.keys(accountsObsData);
+      const extensionAddresses = accs.map((item) => item.address);
+      const sources = keys.filter((key) => !extensionAddresses.includes(key));
+
+      const locals: Account[] = sources.map((address) => {
+        const found = accs.find((item) => item.address === address);
+
+        return {
+          address,
+          displayAddress: convertToSS58(address, network.ss58Prefix),
+          type: found?.type,
+          json: accountsObsData[address].json,
+          meta: {
+            genesisHash: found?.genesisHash,
+            name: found?.name,
+            source: LOCAL_SOURCE,
+          },
+        };
+      });
+
+      setAccounts((prev) => {
+        const readOnly = prev.find(({ meta }) => meta.source === SEARCH_PARAMS_SOURCE);
+
+        return readOnly ? [...extension, ...locals, readOnly] : [...extension, ...locals];
+      });
+    });
+
+    return () => sub$$();
+  }, [walletToUse, network.ss58Prefix, api, accountsObsData]);
+
+  useEffect(() => {
+    setAccount(accounts.find(({ meta }) => meta.source === SEARCH_PARAMS_SOURCE) ?? accounts[0] ?? null);
   }, [accounts]);
 
   useEffect(() => {

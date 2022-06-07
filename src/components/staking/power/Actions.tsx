@@ -27,7 +27,7 @@ interface ActionsProps {
 // eslint-disable-next-line complexity
 export function Actions({ eraSelectionIndex, disabled }: ActionsProps) {
   const { t } = useTranslation();
-  const { api, network } = useApi();
+  const { api } = useApi();
   const { accounts } = useWallet();
   const { getBalances } = useAccount();
   const { queueExtrinsic } = useQueue();

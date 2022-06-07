@@ -120,17 +120,17 @@ export const StakingProvider = ({ children }: React.PropsWithChildren<unknown>) 
   const updateStakingDerive = useCallback(() => {
     if (account) {
       from(api.derive.staking.account(account.displayAddress))
-      .pipe(
-        tap(() => setIsStakingDeriveLoading(true)),
-        takeWhileIsMounted()
-      )
-      .subscribe({
-        next: (res) => {
-          setStakingDerive(res as unknown as DeriveStakingAccount);
-          setIsStakingDeriveLoading(false);
-        },
-        error: () => setIsStakingDeriveLoading(false),
-      });
+        .pipe(
+          tap(() => setIsStakingDeriveLoading(true)),
+          takeWhileIsMounted()
+        )
+        .subscribe({
+          next: (res) => {
+            setStakingDerive(res as unknown as DeriveStakingAccount);
+            setIsStakingDeriveLoading(false);
+          },
+          error: () => setIsStakingDeriveLoading(false),
+        });
     }
   }, [api, account, takeWhileIsMounted]);
 

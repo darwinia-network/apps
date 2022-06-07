@@ -6,13 +6,13 @@ import { Trans, useTranslation } from 'react-i18next';
 import { withRouter } from 'react-router-dom';
 import { EllipsisMiddle } from '../components/widget/EllipsisMiddle';
 import { useApi, useWallet } from '../hooks';
-import { LOCAL } from '../utils';
+import { LOCAL_SOURCE } from '../config';
 
 function Page() {
   const { t } = useTranslation();
   const { network } = useApi();
   const { accounts } = useWallet();
-  const localAccounts = accounts.filter((item) => item.meta.source === LOCAL);
+  const localAccounts = accounts.filter((item) => item.meta.source === LOCAL_SOURCE);
 
   return (
     <div className="lg:px-8 px-4">
