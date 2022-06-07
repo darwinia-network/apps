@@ -18,7 +18,7 @@ export interface WalletCtx {
 
   selectAccount: (address: string) => void;
 
-  connectWallet: (source: WalletSource) => void;
+  connectWallet: (source: WalletSource) => Promise<boolean>;
   disConnectWallet: () => void;
 }
 
@@ -58,11 +58,14 @@ export const WalletProvider = ({ children }: PropsWithChildren<unknown>) => {
       if (wallet) {
         try {
           setWalletToUse(await wallet.enable(DAPP_NAME));
+          return true;
         } catch (error) {
           console.error(error);
           setError(error as Error);
         }
       }
+
+      return false;
     },
     [getWalletBySource]
   );
