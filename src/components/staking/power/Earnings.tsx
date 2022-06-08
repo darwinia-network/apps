@@ -33,6 +33,10 @@ export function Earnings({ updateEraIndex }: PowerDetailProps) {
   const ringAsset = useMemo(() => assets.find((item) => isRing(item.asset)), [assets]);
 
   useEffect(() => {
+    if (!account) {
+      return;
+    }
+
     const times = 3;
     const sub$$ = timer(0, LONG_DURATION * times)
       .pipe(
@@ -40,7 +44,7 @@ export function Earnings({ updateEraIndex }: PowerDetailProps) {
         switchMapTo(
           rxPost<StakingHistory>({
             url: `https://${network.name}.webapi.subscan.io/api/scan/staking_history`,
-            params: { page: 0, row: 10, address: account?.displayAddress || '' },
+            params: { page: 0, row: 10, address: account.displayAddress },
           })
         )
       )
