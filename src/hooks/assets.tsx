@@ -1,5 +1,8 @@
 import { useState, useCallback, useEffect } from 'react';
-import { forkJoin, EMPTY } from 'rxjs';
+import { forkJoin, EMPTY, from } from 'rxjs';
+import type { AccountData } from '@darwinia/types';
+import type { u32 } from '@polkadot/types-codec';
+import type { ChainProperties } from '@polkadot/types/interfaces';
 import { useApi } from '../hooks';
 import { SYSTEM_NETWORK_CONFIGURATIONS } from '../config';
 import { Asset, DarwiniaAsset, Token, Network } from '../model';
@@ -13,56 +16,102 @@ const getToken = (tokens: Token[], network: Network, target: DarwiniaAsset) => {
   return result || unknown;
 };
 
+const extractTokens = ({ tokenDecimals, tokenSymbol }: ChainProperties) =>
+  tokenDecimals.isSome && tokenSymbol.isSome
+    ? tokenDecimals.unwrap().reduce((acc: Token[], decimal: u32, index: number) => {
+        const token: Token = { decimal: decimal.toString(), symbol: tokenSymbol.unwrap()[index].toString() };
+        return [...acc, token];
+      }, [])
+    : [];
+
 export const useAssets = (account: string) => {
+  const { network, api } = useApi();
+  const [loading, setLoading] = useState(false);
   const [assets, setAssets] = useState<Asset[]>([]);
-  const { network, chain, api } = useApi();
 
   const getAssets = useCallback(
     (acc?: string) => {
-      const tokenRing = getToken(chain.tokens, network.name, DarwiniaAsset.ring);
-      const tokenKton = getToken(chain.tokens, network.name, DarwiniaAsset.kton);
-      if (tokenRing.symbol === 'unknown' || tokenKton.symbol === 'unknown') {
+      if (!(acc || account)) {
         return EMPTY.subscribe();
       }
 
-      return forkJoin([
-        getDarwiniaBalances(api, acc ?? account),
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        api.query.system.account(account) as Promise<any>,
-      ]).subscribe(([[ring, kton], info]) => {
-        const {
-          data: { free, freeKton },
-        } = info.toJSON() as {
-          data: { free: number; freeKton: number; reserved: number; reservedKton: number };
-        };
+      setLoading(true);
 
-        setAssets([
+      return forkJoin([
+        api.rpc.system.properties(),
+        getDarwiniaBalances(api, acc ?? account),
+        api.query.system.account(account) as Promise<{ data: AccountData }>,
+      ]).subscribe({
+        next: ([
+          properties,
+          [ring, kton],
           {
-            max: ring,
-            asset: DarwiniaAsset.ring,
-            total: free,
-            token: tokenRing,
+            data: { free, freeKton },
           },
-          {
-            max: kton,
-            asset: DarwiniaAsset.kton,
-            total: freeKton,
-            token: tokenKton,
-          },
-        ]);
+        ]) => {
+          const tokens = extractTokens(properties);
+
+          setAssets([
+            {
+              max: ring,
+              asset: DarwiniaAsset.ring,
+              total: free.toNumber(),
+              token: getToken(tokens, network.name, DarwiniaAsset.ring),
+            },
+            {
+              max: kton,
+              asset: DarwiniaAsset.kton,
+              total: freeKton.toNumber(),
+              token: getToken(tokens, network.name, DarwiniaAsset.kton),
+            },
+          ]);
+          setLoading(false);
+        },
+        error: () => setLoading(false),
       });
     },
-    [account, api, chain.tokens, network.name]
+    [account, api, network.name]
   );
 
   useEffect(() => {
-    if (!account) {
-      return;
-    }
+    setLoading(true);
 
+    const sub$$ = from(api.rpc.system.properties()).subscribe({
+      next: (properties) => {
+        const tokens = extractTokens(properties);
+
+        setAssets([
+          {
+            max: 0,
+            asset: DarwiniaAsset.ring,
+            total: 0,
+            token: getToken(tokens, network.name, DarwiniaAsset.ring),
+          },
+          {
+            max: 0,
+            asset: DarwiniaAsset.kton,
+            total: 0,
+            token: getToken(tokens, network.name, DarwiniaAsset.kton),
+          },
+        ]);
+        setLoading(false);
+      },
+      error: () => setLoading(false),
+    });
+
+    return () => {
+      sub$$.unsubscribe();
+      setLoading(false);
+    };
+  }, [api, network.name]);
+
+  useEffect(() => {
     const sub$$ = getAssets(account);
-    return () => sub$$.unsubscribe();
+    return () => {
+      sub$$.unsubscribe();
+      setLoading(false);
+    };
   }, [account, getAssets]);
 
-  return { assets, getAssets };
+  return { assets, loading, getAssets };
 };

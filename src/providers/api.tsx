@@ -8,7 +8,6 @@ import { BallScalePulse } from '../components/widget/BallScalePulse';
 import { crabConfig, THEME } from '../config';
 import {
   Action,
-  Chain,
   Network,
   ChainConfig,
   Connection,
@@ -16,14 +15,7 @@ import {
   PolkadotChainConfig,
   PolkadotConnection,
 } from '../model';
-import {
-  convertToSS58,
-  getPolkadotConnection,
-  readStorage,
-  updateStorage,
-  waitUntilConnected,
-  getNetworkByName,
-} from '../utils';
+import { convertToSS58, getPolkadotConnection, readStorage, updateStorage, getNetworkByName } from '../utils';
 
 interface StoreState {
   connection: Connection;
@@ -91,7 +83,6 @@ export type ApiCtx = StoreState & {
   disconnect: () => void;
   setNetwork: (network: ChainConfig) => void;
   setApi: (api: ApiPromise) => void;
-  chain: Chain;
 };
 
 export const ApiContext = createContext<ApiCtx | null>(null);
@@ -107,7 +98,6 @@ export const ApiProvider = ({ children }: React.PropsWithChildren<unknown>) => {
   const setNetwork = useCallback((payload: ChainConfig) => dispatch({ type: 'setNetwork', payload }), []);
   const setConnection = useCallback((payload: Connection) => dispatch({ type: 'setConnection', payload }), []);
   const [api, setApi] = useState<ApiPromise | null>(null);
-  const [chain, setChain] = useState<Chain>({ ss58Format: '', tokens: [] });
 
   const observer = useMemo(
     () => ({
@@ -165,31 +155,6 @@ export const ApiProvider = ({ children }: React.PropsWithChildren<unknown>) => {
     };
   }, [observer, setConnection, state.network]);
 
-  useEffect(() => {
-    if (!api) {
-      return;
-    }
-
-    (async () => {
-      await waitUntilConnected(api);
-
-      const chainState = await api?.rpc.system.properties();
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { tokenDecimals, tokenSymbol, ss58Format } = chainState?.toHuman() as any;
-
-      const chainInfo = tokenDecimals.reduce(
-        (acc: Chain, decimal: string, index: number) => {
-          const token = { decimal, symbol: tokenSymbol[index] };
-
-          return { ...acc, tokens: [...acc.tokens, token] };
-        },
-        { ss58Format, tokens: [] } as Chain
-      );
-
-      setChain(chainInfo);
-    })();
-  }, [api]);
-
   if (!api || state.connection.status !== ConnectionStatus.complete) {
     return (
       <div
@@ -218,7 +183,6 @@ export const ApiProvider = ({ children }: React.PropsWithChildren<unknown>) => {
         setNetwork,
         setApi,
         api,
-        chain,
       }}
     >
       {children}

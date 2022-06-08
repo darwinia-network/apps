@@ -7,6 +7,7 @@ import { SEARCH_PARAMS_SOURCE } from '../config';
 
 export interface AccountCtx {
   assets: Asset[];
+  assetsLoading: boolean | undefined;
   account: Account | null | undefined;
 
   refreshAssets: () => void;
@@ -18,7 +19,7 @@ export const AccountContext = createContext<AccountCtx>({} as AccountCtx);
 export const AccountProvider = ({ children }: React.PropsWithChildren<unknown>) => {
   const { accounts } = useWallet();
   const [account, setAccount] = useState<Account | null>();
-  const { assets, getAssets: refreshAssets } = useAssets(account?.displayAddress || '');
+  const { assets, loading: assetsLoading, getAssets: refreshAssets } = useAssets(account?.displayAddress || '');
 
   const selectAccount = useCallback(
     (address: string) => {
@@ -48,6 +49,7 @@ export const AccountProvider = ({ children }: React.PropsWithChildren<unknown>) 
       value={{
         assets,
         account,
+        assetsLoading,
         selectAccount,
         refreshAssets,
       }}

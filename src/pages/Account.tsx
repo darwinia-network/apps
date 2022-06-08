@@ -13,7 +13,7 @@ type TypeTabKeys = 'asset' | 'cross';
 function Page() {
   const { t } = useTranslation();
   const { network } = useApi();
-  const { assets, refreshAssets } = useAccount();
+  const { assets, assetsLoading, refreshAssets } = useAccount();
   const [activeKey, setActiveKey] = useState<TypeTabKeys>('asset');
 
   const crossChainPrompt: Record<PolkadotTypeNetwork, string> = {
@@ -31,7 +31,7 @@ function Page() {
       <Tabs.TabPane key="asset" tab={<CustomTab text={t('Darwinia Asset')} tabKey="asset" activeKey={activeKey} />}>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
           {assets.map((item, index) => (
-            <AssetOverview asset={item} key={index} refresh={refreshAssets}></AssetOverview>
+            <AssetOverview asset={item} key={index} refresh={refreshAssets} loading={assetsLoading}></AssetOverview>
           ))}
         </div>
 
