@@ -89,6 +89,7 @@ export function Validators({ overview }: ValidatorsProps) {
         </Row>
 
         <div className="border-l border-r border-b rounded-b-xl dark:border-gray-700" style={{ minWidth: 1080 }}>
+          {/* eslint-disable-next-line complexity */}
           {sourceData.map(({ account }, index) => (
             <OverviewProvider key={account} account={account}>
               <Collapse
@@ -102,7 +103,7 @@ export function Validators({ overview }: ValidatorsProps) {
                   showArrow={false}
                   account={account}
                   match={searchName}
-                  disabled={!nominatedBy}
+                  collapsible={!nominatedBy ? 'disabled' : 'header'}
                   style={{ borderRadius: index === sourceData.length - 1 ? '0 0 20px 20px' : 0 }}
                   header={
                     <Row align="middle" justify="space-between">
