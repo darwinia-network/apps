@@ -36,9 +36,9 @@ export function AssetOverview({ asset, refresh }: AssetOverviewProps) {
   useEffect(() => {
     let sub$$: Subscription;
 
-    if (recipient && isFunction(api.rpc.payment?.queryInfo)) {
+    if (account && recipient && isFunction(api.rpc.payment?.queryInfo)) {
       if (asset.asset === DarwiniaAsset.ring) {
-        sub$$ = from(api.tx.balances?.transfer(recipient, asset.max).paymentInfo(account)).subscribe((res) => {
+        sub$$ = from(api.tx.balances?.transfer(recipient, asset.max).paymentInfo(account.address)).subscribe((res) => {
           const { partialFee } = res as unknown as { partialFee: BN };
           // eslint-disable-next-line no-magic-numbers
           const adjFee = partialFee.muln(110).div(BN_HUNDRED);

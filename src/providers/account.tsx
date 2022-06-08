@@ -28,8 +28,8 @@ export const AccountProvider = ({ children }: React.PropsWithChildren<unknown>) 
   );
 
   useEffect(() => {
-    accounts.forEach(({ address, meta }) => {
-      keyring.saveAddress(address, meta);
+    accounts.forEach(({ displayAddress, meta }) => {
+      keyring.saveAddress(displayAddress, meta);
     });
 
     const storageAddress = readStorage().activeAccount;

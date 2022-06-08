@@ -48,7 +48,7 @@ function AccountItem({
         <img src={walletToUse.logo.src} style={logoStyle || { width: 24, height: 24 }} alt={walletToUse.logo.alt} />
       )}
       <Typography.Text className="mx-2" style={{ color: 'inherit', maxWidth: '64px' }} ellipsis={true}>
-        <AccountName account={account.address} ref={ref} className="hidden" />
+        <AccountName account={account.displayAddress} ref={ref} className="hidden" />
         {ref.current?.textContent}
       </Typography.Text>
       {children}
@@ -125,7 +125,7 @@ export const ActiveAccount = () => {
               <Row>
                 <Col flex="auto">
                   <div className="flex items-center justify-between">
-                    <AccountName account={account.address} />
+                    <AccountName account={account.displayAddress} />
                     <AccountSelector />
                   </div>
                   <span className="text-gray-600 overflow-hidden">{toShortAddress(account.displayAddress)}</span>

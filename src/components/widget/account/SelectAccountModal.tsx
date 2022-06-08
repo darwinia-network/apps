@@ -21,7 +21,7 @@ type Props = {
 const iconSize = 36;
 
 const AccountWithIdentify = ({ value }: { value: Account }) => {
-  const { assets } = useAssets(value.address);
+  const { assets } = useAssets(value.displayAddress);
 
   return (
     <>
@@ -29,11 +29,11 @@ const AccountWithIdentify = ({ value }: { value: Account }) => {
         theme="substrate"
         size={iconSize}
         className="mr-2 rounded-full border border-solid border-gray-100"
-        value={value.address}
+        value={value.displayAddress}
       />
       <span className="flex flex-col leading-5 overflow-hidden w-full">
         <div className="flex items-center justify-between">
-          <AccountName account={value.address} />
+          <AccountName account={value.displayAddress} />
           <Spin className="flex items-center" spinning={!assets.length} size="small">
             {assets.map((item, index) => (
               <React.Fragment key={item.token.symbol}>
