@@ -10,7 +10,6 @@ import { BallScalePulse } from './components/widget/BallScalePulse';
 import { THEME } from './config';
 import './index.scss';
 import { AccountProvider, ApiProvider, QueueProvider, StakingProvider, WalletProvider } from './providers';
-import { TxProvider } from './providers/tx-provider';
 import reportWebVitals from './reportWebVitals';
 import './theme/antd/index.less';
 import { readStorage } from './utils';
@@ -31,15 +30,13 @@ ReactDOM.render(
       <ErrorBoundary>
         <ApiProvider>
           <WalletProvider>
-            <TxProvider>
-              <QueueProvider>
-                <AccountProvider>
-                  <StakingProvider>
-                    <App />
-                  </StakingProvider>
-                </AccountProvider>
-              </QueueProvider>
-            </TxProvider>
+            <QueueProvider>
+              <AccountProvider>
+                <StakingProvider>
+                  <App />
+                </StakingProvider>
+              </AccountProvider>
+            </QueueProvider>
           </WalletProvider>
         </ApiProvider>
       </ErrorBoundary>
