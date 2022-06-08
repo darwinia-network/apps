@@ -155,8 +155,7 @@ export const WalletProvider = ({ children }: PropsWithChildren<unknown>) => {
         ...(injecteds['polkadot-js'] ?? []),
         extensionName: 'polkadot-js',
         title: 'Polkadot{.js}',
-        installUrl:
-          'https://chrome.google.com/webstore/detail/polkadot%7Bjs%7D-extension/mopnmbcafieddcagagdcbnhejhlodfdd/related',
+        installUrl: 'https://polkadot.js.org/extension/',
         installed: !!injecteds['polkadot-js'],
         logo: {
           src: '/image/wallet/polkadot-js.svg',
@@ -167,8 +166,7 @@ export const WalletProvider = ({ children }: PropsWithChildren<unknown>) => {
         ...(injecteds['talisman'] ?? {}),
         extensionName: 'talisman',
         title: 'Talisman',
-        installUrl:
-          'https://chrome.google.com/webstore/detail/talisman-wallet/fijngjgcjhjmmpcmkeiomlglpeiijkld?hl=en&authuser=0',
+        installUrl: 'https://chrome.google.com/webstore/detail/talisman-wallet/fijngjgcjhjmmpcmkeiomlglpeiijkld',
         installed: !!injecteds['talisman'],
         logo: {
           src: '/image/wallet/talisman.svg',
@@ -179,8 +177,7 @@ export const WalletProvider = ({ children }: PropsWithChildren<unknown>) => {
         ...(injecteds['subwallet-js'] ?? {}),
         extensionName: 'subwallet-js',
         title: 'SubWallet',
-        installUrl:
-          'https://chrome.google.com/webstore/detail/subwallet/onhogfjeacnfoofkfgppdlbmlmnplgbn?hl=en&authuser=0',
+        installUrl: 'https://subwallet.app/download.html',
         installed: !!injecteds['subwallet-js'],
         logo: {
           src: '/image/wallet/subwallet-js.svg',
