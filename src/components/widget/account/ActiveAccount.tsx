@@ -1,6 +1,6 @@
 import BaseIdentityIcon, { Identicon } from '@polkadot/react-identicon';
-import { Card, Col, Modal, Row, Typography, Badge } from 'antd';
-import React, { CSSProperties, useEffect, useMemo, useRef, useState } from 'react';
+import { Card, Col, Modal, Row, Badge } from 'antd';
+import React, { CSSProperties, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import { delay, of } from 'rxjs';
@@ -12,16 +12,13 @@ import { AccountName } from '../account/AccountName';
 import { Account } from '../../../model';
 import { AccountSelector } from './AccountSelector';
 
-function AccountItem({
-  children,
+function AccountWithNetwork({
   logoStyle,
   containerStyle,
   isLargeRounded = true,
   className = '',
   account,
-  onClick = () => {
-    // do nothing
-  },
+  onClick = () => undefined,
 }: React.PropsWithChildren<{
   isLargeRounded?: boolean;
   logoStyle?: CSSProperties;
@@ -31,12 +28,13 @@ function AccountItem({
   account: Account;
   onClick?: React.MouseEventHandler<HTMLDivElement>;
 }>) {
-  const ref = useRef<HTMLSpanElement>(null);
   const { network } = useApi();
   const { walletToUse } = useWallet();
   const containerCls = useMemo(
     () =>
-      `flex items-center justify-between leading-normal whitespace-nowrap p-1 overflow-hidden bg-${network.name} 
+      `flex items-center justify-center space-x-2 px-3 leading-normal whitespace-nowrap p-1 overflow-hidden bg-${
+        network.name
+      } 
         ${isLargeRounded ? 'rounded-xl ' : 'rounded-lg '}
         ${className}`,
     [isLargeRounded, className, network]
@@ -44,14 +42,10 @@ function AccountItem({
 
   return (
     <div className={containerCls} onClick={onClick} style={containerStyle || {}}>
+      <AccountName account={account.displayAddress} />
       {walletToUse && (
         <img src={walletToUse.logo.src} style={logoStyle || { width: 24, height: 24 }} alt={walletToUse.logo.alt} />
       )}
-      <Typography.Text className="mx-2" style={{ color: 'inherit', maxWidth: '64px' }} ellipsis={true}>
-        <AccountName account={account.displayAddress} ref={ref} className="hidden" />
-        {ref.current?.textContent}
-      </Typography.Text>
-      {children}
     </div>
   );
 }
@@ -81,7 +75,7 @@ export const ActiveAccount = () => {
               text={t('Read only')}
               className={`-top-1 -right-2 ${account?.meta.source === SEARCH_PARAMS_SOURCE ? '' : 'hidden'}`}
             >
-              <AccountItem
+              <AccountWithNetwork
                 onClick={(event) => {
                   // eslint-disable-next-line @typescript-eslint/no-explicit-any
                   if ((event.target as any).tagName === 'SPAN') {
@@ -89,12 +83,10 @@ export const ActiveAccount = () => {
                   }
                 }}
                 account={account}
-                className="max-w-xs text-white hidden lg:flex cursor-pointer"
+                className="text-white hidden lg:flex cursor-pointer"
                 logoStyle={{ width: 24, height: 24 }}
                 isLargeRounded={false}
-              >
-                <span className="text-white overflow-hidden mr-2">{toShortAddress(account.displayAddress)}</span>
-              </AccountItem>
+              />
             </Badge.Ribbon>
 
             <span onClick={() => setVisible(true)} className="lg:hidden flex">
