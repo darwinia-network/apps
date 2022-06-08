@@ -14,7 +14,7 @@ import { Nominating } from './Nominating';
 export function Power() {
   const { t } = useTranslation();
   const [eraSelectionIndex, setEraSelectionIndex] = useState(0);
-  const { account, assets, refreshAssets } = useAccount();
+  const { account, assets, assetsLoading, refreshAssets } = useAccount();
   const { stakingDerive, isStakingLedgerEmpty, stashAccount } = useStaking();
   const { pool } = usePower();
 
@@ -71,7 +71,7 @@ export function Power() {
 
         {assets.map((item, index) => (
           <Col lg={8} span={24} key={item.token?.symbol || index}>
-            <AssetOverview asset={item} key={index} refresh={refreshAssets}></AssetOverview>
+            <AssetOverview asset={item} key={index} refresh={refreshAssets} loading={assetsLoading}></AssetOverview>
           </Col>
         ))}
       </Row>
