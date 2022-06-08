@@ -2,11 +2,15 @@ import { ApiPromise } from '@polkadot/api';
 import { Alert } from 'antd';
 import { createContext, useCallback, useEffect, useMemo, useReducer, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { EMPTY, Subscription } from 'rxjs';
+import { EMPTY, Subscription, from } from 'rxjs';
 import keyring from '@polkadot/ui-keyring';
+import type { u32 } from '@polkadot/types-codec';
+import type { ChainProperties } from '@polkadot/types/interfaces';
 import { BallScalePulse } from '../components/widget/BallScalePulse';
 import { crabConfig, THEME } from '../config';
 import {
+  Chain,
+  Token,
   Action,
   Network,
   ChainConfig,
@@ -26,6 +30,14 @@ interface StoreState {
 type ActionType = 'setNetwork' | 'setConnection';
 
 const isDev = process.env.REACT_APP_HOST_TYPE === 'dev';
+
+const extractTokens = ({ tokenDecimals, tokenSymbol }: ChainProperties) =>
+  tokenDecimals.isSome && tokenSymbol.isSome
+    ? tokenDecimals.unwrap().reduce((acc: Token[], decimal: u32, index: number) => {
+        const token: Token = { decimal: decimal.toString(), symbol: tokenSymbol.unwrap()[index].toString() };
+        return [...acc, token];
+      }, [])
+    : [];
 
 const getInitNetwork = () => {
   const name = new URL(window.location.href).searchParams.get('network');
@@ -79,6 +91,7 @@ function accountReducer(state: StoreState, action: Action<ActionType, any>): Sto
 
 export type ApiCtx = StoreState & {
   api: ApiPromise;
+  chain: Chain;
   connectNetwork: (network: ChainConfig) => void;
   disconnect: () => void;
   setNetwork: (network: ChainConfig) => void;
@@ -98,6 +111,7 @@ export const ApiProvider = ({ children }: React.PropsWithChildren<unknown>) => {
   const setNetwork = useCallback((payload: ChainConfig) => dispatch({ type: 'setNetwork', payload }), []);
   const setConnection = useCallback((payload: Connection) => dispatch({ type: 'setConnection', payload }), []);
   const [api, setApi] = useState<ApiPromise | null>(null);
+  const [chain, setChain] = useState<Chain>({ ss58Format: '', tokens: [] });
 
   const observer = useMemo(
     () => ({
@@ -155,6 +169,23 @@ export const ApiProvider = ({ children }: React.PropsWithChildren<unknown>) => {
     };
   }, [observer, setConnection, state.network]);
 
+  useEffect(() => {
+    if (!api) {
+      return;
+    }
+
+    const sub$$ = from(api.rpc.system.properties()).subscribe((properties) => {
+      const { ss58Format } = properties;
+
+      setChain({
+        ss58Format: ss58Format.isSome ? ss58Format.unwrap().toString() : '',
+        tokens: extractTokens(properties),
+      });
+    });
+
+    return () => sub$$.unsubscribe();
+  }, [api]);
+
   if (!api || state.connection.status !== ConnectionStatus.complete) {
     return (
       <div
@@ -183,6 +214,7 @@ export const ApiProvider = ({ children }: React.PropsWithChildren<unknown>) => {
         setNetwork,
         setApi,
         api,
+        chain,
       }}
     >
       {children}

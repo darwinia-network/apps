@@ -1,8 +1,6 @@
 import { useState, useCallback, useEffect } from 'react';
-import { forkJoin, EMPTY, from } from 'rxjs';
+import { forkJoin, EMPTY } from 'rxjs';
 import type { AccountData } from '@darwinia/types';
-import type { u32 } from '@polkadot/types-codec';
-import type { ChainProperties } from '@polkadot/types/interfaces';
 import { useApi } from '../hooks';
 import { SYSTEM_NETWORK_CONFIGURATIONS } from '../config';
 import { Asset, DarwiniaAsset, Token, Network } from '../model';
@@ -16,53 +14,41 @@ const getToken = (tokens: Token[], network: Network, target: DarwiniaAsset) => {
   return result || unknown;
 };
 
-const extractTokens = ({ tokenDecimals, tokenSymbol }: ChainProperties) =>
-  tokenDecimals.isSome && tokenSymbol.isSome
-    ? tokenDecimals.unwrap().reduce((acc: Token[], decimal: u32, index: number) => {
-        const token: Token = { decimal: decimal.toString(), symbol: tokenSymbol.unwrap()[index].toString() };
-        return [...acc, token];
-      }, [])
-    : [];
-
 export const useAssets = (account: string) => {
-  const { network, api } = useApi();
+  const { network, api, chain } = useApi();
   const [loading, setLoading] = useState(false);
   const [assets, setAssets] = useState<Asset[]>([]);
 
   const getAssets = useCallback(
     (acc?: string) => {
-      if (!(acc || account)) {
+      if (!(acc || account) || chain.ss58Format !== network.ss58Prefix.toString()) {
         return EMPTY.subscribe();
       }
 
       setLoading(true);
 
       return forkJoin([
-        api.rpc.system.properties(),
         getDarwiniaBalances(api, acc ?? account),
         api.query.system.account(account) as Promise<{ data: AccountData }>,
       ]).subscribe({
         next: ([
-          properties,
           [ring, kton],
           {
             data: { free, freeKton },
           },
         ]) => {
-          const tokens = extractTokens(properties);
-
           setAssets([
             {
               max: ring,
               asset: DarwiniaAsset.ring,
               total: free.toNumber(),
-              token: getToken(tokens, network.name, DarwiniaAsset.ring),
+              token: getToken(chain.tokens, network.name, DarwiniaAsset.ring),
             },
             {
               max: kton,
               asset: DarwiniaAsset.kton,
               total: freeKton.toNumber(),
-              token: getToken(tokens, network.name, DarwiniaAsset.kton),
+              token: getToken(chain.tokens, network.name, DarwiniaAsset.kton),
             },
           ]);
           setLoading(false);
@@ -70,43 +56,29 @@ export const useAssets = (account: string) => {
         error: () => setLoading(false),
       });
     },
-    [account, api, network.name]
+    [account, api, network, chain]
   );
 
   useEffect(() => {
-    if (account) {
+    if (account || chain.ss58Format !== network.ss58Prefix.toString()) {
       return;
     }
-    setLoading(true);
 
-    const sub$$ = from(api.rpc.system.properties()).subscribe({
-      next: (properties) => {
-        const tokens = extractTokens(properties);
-
-        setAssets([
-          {
-            max: 0,
-            asset: DarwiniaAsset.ring,
-            total: 0,
-            token: getToken(tokens, network.name, DarwiniaAsset.ring),
-          },
-          {
-            max: 0,
-            asset: DarwiniaAsset.kton,
-            total: 0,
-            token: getToken(tokens, network.name, DarwiniaAsset.kton),
-          },
-        ]);
-        setLoading(false);
+    setAssets([
+      {
+        max: 0,
+        asset: DarwiniaAsset.ring,
+        total: 0,
+        token: getToken(chain.tokens, network.name, DarwiniaAsset.ring),
       },
-      error: () => setLoading(false),
-    });
-
-    return () => {
-      sub$$.unsubscribe();
-      setLoading(false);
-    };
-  }, [api, network.name, account]);
+      {
+        max: 0,
+        asset: DarwiniaAsset.kton,
+        total: 0,
+        token: getToken(chain.tokens, network.name, DarwiniaAsset.kton),
+      },
+    ]);
+  }, [network, account, chain]);
 
   useEffect(() => {
     const sub$$ = getAssets(account);
