@@ -37,8 +37,8 @@ export const AccountProvider = ({ children }: React.PropsWithChildren<unknown>) 
     const storageAccount = accounts.find(({ address }) => address === storageAddress);
     const readOnlyAccount = accounts.find(({ meta }) => meta.source === SEARCH_PARAMS_SOURCE);
 
-    setAccount(account ?? readOnlyAccount ?? storageAccount ?? accounts[0]);
-  }, [accounts, account]);
+    setAccount(readOnlyAccount ?? storageAccount ?? accounts[0]);
+  }, [accounts]);
 
   useEffect(() => {
     updateStorage({ activeAccount: account?.address });
