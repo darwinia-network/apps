@@ -40,7 +40,7 @@ export function AccountSelector() {
           <div className="inline-flex items-center space-x-1">
             <span>{t('Select active account')}</span>
             <Tooltip
-              title={`If your account in the old version cannot be found in your wallet, you can restore JSON which the account in the old version Apps through "Account Migration" and add the JSON to polkadot{.js}.`}
+              title={`If your account in the old version cannot be found in your wallet, you can restore JSON which the account in the old version Apps through "Account Migration" and add the JSON to your wallet.`}
             >
               <QuestionCircleFilled className="cursor-pointer text-gray-400" />
             </Tooltip>

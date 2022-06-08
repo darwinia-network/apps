@@ -184,7 +184,6 @@
   "era": "era",
   "last #": "最新出块 #",
   "last reward({{symbol}})": "最后Era的奖励（{{symbol}}）",
-  "migrateRefers": "如果在你的钱包中找不到你在旧版本中的账户，你可以先导出 JSON， 然后在 Polkadot 钱包中将 JSON 导入完成账户迁移。<1>参考教程</1>",
   "next commission": "下轮佣金(预估)",
   "nominators": "提名人",
   "other stake(power)": "其它质押（power）",

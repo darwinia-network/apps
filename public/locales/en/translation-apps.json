@@ -183,7 +183,6 @@
   "era": "era",
   "last #": "last #",
   "last reward({{symbol}})": "last reward({{symbol}})",
-  "migrateRefers": "If your account in the old version cannot be found in your wallet, you can restore JSON which the account in the old version apps through \"Account Migration\" and add the JSON to polkadot{.js}.<1>Tutorial refers here.</1> ",
   "next commission": "next commission",
   "nominators": "nominators",
   "other stake(power)": "other stake(power)",
