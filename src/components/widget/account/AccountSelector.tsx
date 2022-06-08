@@ -2,12 +2,13 @@ import { SettingFilled, QuestionCircleFilled } from '@ant-design/icons';
 import { Button, Tooltip } from 'antd';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useApi, useWallet } from '../../../hooks';
+import { useApi, useWallet, useAccount } from '../../../hooks';
 import { SelectAccountModal } from './SelectAccountModal';
 
 export function AccountSelector() {
   const { network } = useApi();
-  const { account, accounts, selectAccount } = useWallet();
+  const { accounts } = useWallet();
+  const { account, selectAccount } = useAccount();
   const { t } = useTranslation();
   const [visible, setVisible] = useState(false);
 

@@ -1,56 +1,55 @@
-import React, { createContext, useEffect, useMemo, useState } from 'react';
-import { useApi, useAssets } from '../hooks';
-import { Asset, IAccountMeta } from '../model';
-import { convertToSS58, isSameAddress, readStorage, updateStorage } from '../utils';
+import { createContext, useEffect, useState, useCallback } from 'react';
+import keyring from '@polkadot/ui-keyring';
+import { useAssets, useWallet } from '../hooks';
+import { Asset, Account } from '../model';
+import { readStorage, updateStorage } from '../utils';
+import { SEARCH_PARAMS_SOURCE } from '../config';
 
 export interface AccountCtx {
-  account: string;
-  setAccount: (account: string) => void;
-  accountWithMeta: IAccountMeta;
   assets: Asset[];
-  getBalances: (acc?: string) => void;
+  account: Account | null | undefined;
+
+  refreshAssets: () => void;
+  selectAccount: (address: string) => void;
 }
 
-const DEFAULT_ADDRESS_PREFIX = 42; // Substrate, 42
-
-export const AccountContext = createContext<AccountCtx | null>(null);
+export const AccountContext = createContext<AccountCtx>({} as AccountCtx);
 
 export const AccountProvider = ({ children }: React.PropsWithChildren<unknown>) => {
-  const [account, setAccount] = useState<string>('');
-  const { network, connection } = useApi();
-  const accountWithMeta = useMemo(
-    () => connection.accounts.find((item) => isSameAddress(item.address, account)) ?? connection.accounts[0],
-    [account, connection]
+  const { accounts } = useWallet();
+  const [account, setAccount] = useState<Account | null>();
+  const { assets, getAssets: refreshAssets } = useAssets(account?.displayAddress || '');
+
+  const selectAccount = useCallback(
+    (address: string) => {
+      setAccount(accounts.find((acc) => acc.address === address));
+    },
+    [accounts]
   );
-  const { assets, getBalances } = useAssets(account);
 
   useEffect(() => {
-    const accStorage = convertToSS58(readStorage().activeAccount || '', network.ss58Prefix);
-    const acc =
-      account ||
-      connection?.accounts.find((value) => value.address === accStorage)?.address ||
-      connection?.accounts[0]?.address;
+    accounts.forEach(({ address, meta }) => {
+      keyring.saveAddress(address, meta);
+    });
 
-    if (!acc) {
-      return;
-    }
+    const storageAddress = readStorage().activeAccount;
+    const storageAccount = accounts.find(({ address }) => address === storageAddress);
+    const readOnlyAccount = accounts.find(({ meta }) => meta.source === SEARCH_PARAMS_SOURCE);
 
-    setAccount(acc);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [network.ss58Prefix, connection]);
+    setAccount(account ?? readOnlyAccount ?? storageAccount ?? accounts[0]);
+  }, [accounts, account]);
 
   useEffect(() => {
-    updateStorage({ activeAccount: convertToSS58(account, DEFAULT_ADDRESS_PREFIX) });
+    updateStorage({ activeAccount: account?.address });
   }, [account]);
 
   return (
     <AccountContext.Provider
       value={{
-        account,
-        accountWithMeta,
         assets,
-        setAccount,
-        getBalances,
+        account,
+        selectAccount,
+        refreshAssets,
       }}
     >
       {children}

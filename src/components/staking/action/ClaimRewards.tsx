@@ -4,7 +4,7 @@ import { Button, Tooltip } from 'antd';
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { QuestionCircleFilled } from '@ant-design/icons';
-import { PayoutValidator, useApi, useStakingRewards, useWallet, useQueue } from '../../../hooks';
+import { PayoutValidator, useApi, useStakingRewards, useWallet, useQueue, useAccount } from '../../../hooks';
 import { fromWei, prettyNumber } from '../../../utils';
 import { SelectAccountModal } from '../../widget/account/SelectAccountModal';
 import { StakingActionProps } from './interface';
@@ -40,10 +40,11 @@ const createPayout = (
 };
 
 export function ClaimRewards({ eraSelectionIndex, type = 'text' }: ClaimRewardsProps) {
-  const { t } = useTranslation();
   const { api } = useApi();
+  const { accounts } = useWallet();
+  const { account } = useAccount();
   const { queueExtrinsic } = useQueue();
-  const { account, accounts } = useWallet();
+  const { t } = useTranslation();
   const { stakingRewards, payoutValidators } = useStakingRewards(eraSelectionIndex);
   const hasPayoutValidator = useMemo(() => payoutValidators && payoutValidators.length, [payoutValidators]);
   const [busy, setBusy] = useState(false);

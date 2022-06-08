@@ -1,6 +1,6 @@
 import { getUnixTime } from 'date-fns';
 import { useCallback, useEffect, useState } from 'react';
-import { useWallet, useApi } from '../../hooks';
+import { useAccount, useApi } from '../../hooks';
 import { AccountRecordListRes, AccountStatus } from '../../model';
 import { rxPost } from '../../utils';
 
@@ -19,7 +19,7 @@ export const processTime = (start: number, expire: number): number => {
 
 export function useStakingRecords(status: AccountStatus, locked = false) {
   const { network } = useApi();
-  const { account } = useWallet();
+  const { account } = useAccount();
   const [data, setData] = useState<AccountRecordListRes>({ count: 0, list: [] });
   const [pagination, setPagination] = useState({ pageSize: 10, current: 1 });
   const query = useCallback(() => {

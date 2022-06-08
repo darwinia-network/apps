@@ -8,7 +8,7 @@ import { catchError, from, tap, NEVER } from 'rxjs';
 import { useTranslation } from 'react-i18next';
 import { validateMessages } from '../../config';
 import i18n from '../../config/i18n';
-import { useWallet, useQueue } from '../../hooks';
+import { useAccount, useQueue } from '../../hooks';
 import { TxFailedCallback, TxCallback } from '../../model';
 
 interface ModalFormProps<Values = Record<string, unknown>> {
@@ -36,7 +36,7 @@ export function FormModal<V extends Record<string, unknown>>({
   onCancel,
 }: PropsWithChildren<ModalFormProps<V>>) {
   const [form] = useForm<V>();
-  const { account } = useWallet();
+  const { account } = useAccount();
   const { queueExtrinsic } = useQueue();
   const { visible, ...others } = modalProps;
   const { t } = useTranslation();

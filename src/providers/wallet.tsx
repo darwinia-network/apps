@@ -3,53 +3,36 @@ import type { Signer as InjectedSigner } from '@polkadot/api/types';
 import { accounts as accountsObs } from '@polkadot/ui-keyring/observable/accounts';
 import type { SubjectInfo } from '@polkadot/ui-keyring/observable/types';
 import { from } from 'rxjs';
-import keyring from '@polkadot/ui-keyring';
 import type { Wallet, Account, WalletSource } from '../model';
 import { DAPP_NAME, LOCAL_SOURCE, SEARCH_PARAMS_SOURCE } from '../config';
 import { convertToSS58, isValidAddress } from '../utils';
 import { useApi } from '../hooks';
 
 export interface WalletCtx {
-  error: Error | null;
-  signer: InjectedSigner | null;
+  error: Error | null | undefined;
+  signer: InjectedSigner | null | undefined;
 
-  account: Account | null;
   accounts: Account[];
 
-  walletToUse: Wallet | null;
+  walletToUse: Wallet | null | undefined;
   supportedWallets: Wallet[];
-
-  selectAccount: (address: string) => void;
 
   connectWallet: (source: WalletSource) => Promise<boolean>;
   disConnectWallet: () => void;
 }
 
-const defaultState: Partial<WalletCtx> = {
-  accounts: [],
-  supportedWallets: [],
-};
-
-export const WalletContext = createContext<WalletCtx>(defaultState as WalletCtx);
+export const WalletContext = createContext<WalletCtx>({} as WalletCtx);
 
 export const WalletProvider = ({ children }: PropsWithChildren<unknown>) => {
   const { api, network } = useApi();
 
   const [accountsObsData, setAccountsObsData] = useState<SubjectInfo>({});
 
-  const [error, setError] = useState<Error | null>(null);
-  const [signer, setSigner] = useState<InjectedSigner | null>(null);
-  const [account, setAccount] = useState<Account | null>(null);
+  const [error, setError] = useState<Error | null>();
+  const [signer, setSigner] = useState<InjectedSigner | null>();
   const [accounts, setAccounts] = useState<Account[]>([]);
-  const [walletToUse, setWalletToUse] = useState<Wallet | null>(null);
+  const [walletToUse, setWalletToUse] = useState<Wallet | null>();
   const [supportedWallets, setSupportedWallets] = useState<Wallet[]>([]);
-
-  const selectAccount = useCallback(
-    (address: string) => {
-      setAccount(accounts.find((acc) => acc.address === address) ?? null);
-    },
-    [accounts]
-  );
 
   const getWalletBySource = useCallback(
     (source: WalletSource) => supportedWallets.find((item) => item.extensionName === source),
@@ -76,10 +59,9 @@ export const WalletProvider = ({ children }: PropsWithChildren<unknown>) => {
   );
 
   const disConnectWallet = useCallback(() => {
-    setWalletToUse(null);
     setSigner(null);
     setAccounts([]);
-    setAccount(null);
+    setWalletToUse(null);
   }, []);
 
   useEffect(() => {
@@ -166,14 +148,6 @@ export const WalletProvider = ({ children }: PropsWithChildren<unknown>) => {
   }, [walletToUse, network.ss58Prefix, api, accountsObsData]);
 
   useEffect(() => {
-    accounts.forEach(({ address, meta }) => {
-      keyring.saveAddress(address, meta);
-    });
-
-    setAccount(accounts.find(({ meta }) => meta.source === SEARCH_PARAMS_SOURCE) ?? accounts[0] ?? null);
-  }, [accounts]);
-
-  useEffect(() => {
     const injecteds = window.injectedWeb3;
 
     setSupportedWallets([
@@ -221,11 +195,9 @@ export const WalletProvider = ({ children }: PropsWithChildren<unknown>) => {
       value={{
         error,
         signer,
-        account,
         accounts,
         walletToUse,
         supportedWallets,
-        selectAccount,
         connectWallet,
         disConnectWallet,
       }}

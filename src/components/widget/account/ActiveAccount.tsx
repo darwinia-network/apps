@@ -4,7 +4,7 @@ import React, { CSSProperties, useEffect, useMemo, useRef, useState } from 'reac
 import { useTranslation } from 'react-i18next';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import { delay, of } from 'rxjs';
-import { useApi, useWallet } from '../../../hooks';
+import { useApi, useWallet, useAccount } from '../../../hooks';
 import { toShortAddress } from '../../../utils';
 import { ViewBrowserIcon, CopyIcon } from '../../icons';
 import { SHORT_DURATION, SEARCH_PARAMS_SOURCE } from '../../../config';
@@ -58,7 +58,7 @@ function AccountItem({
 
 export const ActiveAccount = () => {
   const { network } = useApi();
-  const { account } = useWallet();
+  const { account } = useAccount();
   const { t } = useTranslation();
   const [visible, setVisible] = useState(false);
   const [isCopied, setIsCopied] = useState<boolean>(false);

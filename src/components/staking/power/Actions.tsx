@@ -29,7 +29,7 @@ export function Actions({ eraSelectionIndex, disabled }: ActionsProps) {
   const { t } = useTranslation();
   const { api } = useApi();
   const { accounts } = useWallet();
-  const { getBalances } = useAccount();
+  const { refreshAssets } = useAccount();
   const { queueExtrinsic } = useQueue();
   const {
     stakingDerive,
@@ -86,11 +86,11 @@ export function Actions({ eraSelectionIndex, disabled }: ActionsProps) {
           ? api.tx.staking.withdrawUnbonded(spanCount)
           : api.tx.staking.withdrawUnbonded(),
       txSuccessCb: () => {
-        getBalances();
+        refreshAssets();
         refreshStakingAccount();
       },
     });
-  }, [api, controllerAccount, queueExtrinsic, refreshStakingAccount, getBalances, spanCount]);
+  }, [api, controllerAccount, queueExtrinsic, refreshStakingAccount, refreshAssets, spanCount]);
 
   useEffect(() => {
     const sub$$ = refreshStakingAccount();

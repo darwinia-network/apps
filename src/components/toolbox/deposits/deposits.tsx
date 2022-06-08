@@ -3,7 +3,7 @@ import { useCallback, useMemo, useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { decodeAddress } from '@polkadot/util-crypto';
 import { from, Observable, Subscriber } from 'rxjs';
-import { useWallet, useApi, useRecordsQuery } from '../../../hooks';
+import { useAccount, useApi, useRecordsQuery } from '../../../hooks';
 import { useMetamask } from '../../../hooks/ metamask';
 import { AddressItem } from '../../widget/form-control/AddressItem';
 import { DepositItem } from '../../widget/form-control/DepositItem';
@@ -27,13 +27,13 @@ type DepositForm = {
 };
 
 export const Deposits = () => {
+  const { network } = useApi();
+  const { account } = useAccount();
   const {
     connection: { status, accounts },
     connectNetwork,
     disconnect,
   } = useMetamask();
-  const { network } = useApi();
-  const { account } = useWallet();
   const { t } = useTranslation();
   const [busy, setBusy] = useState(false);
 

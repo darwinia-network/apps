@@ -30,13 +30,13 @@ ReactDOM.render(
       <ErrorBoundary>
         <ApiProvider>
           <WalletProvider>
-            <QueueProvider>
-              <AccountProvider>
+            <AccountProvider>
+              <QueueProvider>
                 <StakingProvider>
                   <App />
                 </StakingProvider>
-              </AccountProvider>
-            </QueueProvider>
+              </QueueProvider>
+            </AccountProvider>
           </WalletProvider>
         </ApiProvider>
       </ErrorBoundary>

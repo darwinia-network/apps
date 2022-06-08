@@ -3,7 +3,7 @@ import { Card, Col, Row, Tooltip } from 'antd';
 import { BN } from '@polkadot/util';
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useAccount, usePower, useStaking, useWallet } from '../../../hooks';
+import { useAccount, usePower, useStaking } from '../../../hooks';
 import { assetToPower, prettyNumber } from '../../../utils';
 import { IdentAccountAddress } from '../../widget/account/IdentAccountAddress';
 import { AssetOverview } from '../AssetOverview';
@@ -14,8 +14,7 @@ import { Nominating } from './Nominating';
 export function Power() {
   const { t } = useTranslation();
   const [eraSelectionIndex, setEraSelectionIndex] = useState(0);
-  const { assets, getBalances } = useAccount();
-  const { account } = useWallet();
+  const { account, assets, refreshAssets } = useAccount();
   const { stakingDerive, isStakingLedgerEmpty, stashAccount } = useStaking();
   const { pool } = usePower();
 
@@ -72,7 +71,7 @@ export function Power() {
 
         {assets.map((item, index) => (
           <Col lg={8} span={24} key={item.token?.symbol || index}>
-            <AssetOverview asset={item} key={index} refresh={getBalances}></AssetOverview>
+            <AssetOverview asset={item} key={index} refresh={refreshAssets}></AssetOverview>
           </Col>
         ))}
       </Row>

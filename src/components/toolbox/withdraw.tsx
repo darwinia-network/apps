@@ -6,7 +6,7 @@ import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { validateMessages } from '../../config';
 import i18n from '../../config/i18n';
-import { useWallet, useApi } from '../../hooks';
+import { useAccount, useApi } from '../../hooks';
 import { useMetamask } from '../../hooks/ metamask';
 import { entrance } from '../../utils';
 import { AddressItem } from '../widget/form-control/AddressItem';
@@ -26,7 +26,7 @@ const registry = new TypeRegistry();
 export function Withdraw() {
   const { t } = useTranslation();
   const { network } = useApi();
-  const { account } = useWallet();
+  const { account } = useAccount();
   const [form] = useForm();
   const {
     connection: { status, accounts },

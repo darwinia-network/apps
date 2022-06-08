@@ -5,7 +5,7 @@ import { format, getUnixTime } from 'date-fns';
 import { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DATE_FORMAT } from '../../config';
-import { useApi, useQueue, useStaking, useWallet } from '../../hooks';
+import { useApi, useQueue, useStaking, useAccount } from '../../hooks';
 import { AccountRecord } from '../../model';
 import { fromWei, isKton, prettyNumber, ringToKton } from '../../utils';
 import { AccountHistoryProps } from '../staking/interface';
@@ -27,7 +27,7 @@ const calcFine = (data: AccountRecord): string => {
 export function BondRecords({ tokens }: AccountHistoryProps) {
   const { t } = useTranslation();
   const { network, api } = useApi();
-  const { account } = useWallet();
+  const { account } = useAccount();
   const { queueExtrinsic } = useQueue();
   const [locked, setLocked] = useState<boolean>(false);
   const { controllerAccount } = useStaking();

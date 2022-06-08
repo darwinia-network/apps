@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { switchMapTo, takeWhile, timer } from 'rxjs';
 import { LONG_DURATION } from '../../../config';
-import { useAccount, useApi, useIsMounted, useStaking, useStakingRewards, useWallet } from '../../../hooks';
+import { useAccount, useApi, useIsMounted, useStaking, useStakingRewards } from '../../../hooks';
 import { StakingHistory } from '../../../model';
 import { fromWei, isRing, prettyNumber, rxPost } from '../../../utils';
 import { Statistics } from '../../widget/Statistics';
@@ -19,11 +19,11 @@ interface PowerDetailProps {
 export function Earnings({ updateEraIndex }: PowerDetailProps) {
   const { t } = useTranslation();
   const { network } = useApi();
-  const { account } = useWallet();
+  const { assets, account } = useAccount();
+  const { stashAccount } = useStaking();
   const [eraSelectionIndex, setEraSelectionIndex] = useState<number>(0);
   const [claimed, setClaimed] = useState('-');
-  const { assets } = useAccount();
-  const { stashAccount } = useStaking();
+
   const {
     stakingRewards: { payoutTotal },
     eraSelection,

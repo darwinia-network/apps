@@ -17,7 +17,7 @@ export const useAssets = (account: string) => {
   const [assets, setAssets] = useState<Asset[]>([]);
   const { network, chain, api } = useApi();
 
-  const getBalances = useCallback(
+  const getAssets = useCallback(
     (acc?: string) => {
       const tokenRing = getToken(chain.tokens, network.name, DarwiniaAsset.ring);
       const tokenKton = getToken(chain.tokens, network.name, DarwiniaAsset.kton);
@@ -60,9 +60,9 @@ export const useAssets = (account: string) => {
       return;
     }
 
-    const sub$$ = getBalances(account);
+    const sub$$ = getAssets(account);
     return () => sub$$.unsubscribe();
-  }, [account, getBalances]);
+  }, [account, getAssets]);
 
-  return { assets, getBalances };
+  return { assets, getAssets };
 };

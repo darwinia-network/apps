@@ -6,7 +6,7 @@ import { PalletStakingValidatorPrefs } from '@polkadot/types/lookup';
 import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react';
 import { combineLatest, from, map, switchMap, tap, zip } from 'rxjs';
 import { DeriveStakingAccount } from '../api-derive/types';
-import { useWallet, useApi, useIsMountedOperator } from '../hooks';
+import { useWallet, useApi, useIsMountedOperator, useAccount } from '../hooks';
 import { isSameAddress } from '../utils';
 
 export interface StakingCtx {
@@ -74,7 +74,8 @@ export const StakingContext = createContext<StakingCtx | null>(null);
 
 export const StakingProvider = ({ children }: React.PropsWithChildren<unknown>) => {
   const { api } = useApi();
-  const { account, accounts } = useWallet();
+  const { accounts } = useWallet();
+  const { account } = useAccount();
   const [controllerAccount, setControllerAccount] = useState<string>(account?.displayAddress || '');
   const [stashAccount, setStashAccount] = useState<string>(account?.displayAddress || '');
   const [stashAccounts, setStashAccounts] = useState<string[]>([]);

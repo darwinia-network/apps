@@ -3,7 +3,7 @@ import { BN_HUNDRED, BN, isFunction } from '@polkadot/util';
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { from, Subscription } from 'rxjs';
-import { useApi, useWallet } from '../../hooks';
+import { useApi, useWallet, useAccount } from '../../hooks';
 import { AssetOverviewProps, DarwiniaAsset } from '../../model';
 import { fromWei, getUnit, insufficientBalanceRule, isRing, isSameAddress, prettyNumber, toWei } from '../../utils';
 import { FormModal } from '../widget/FormModal';
@@ -19,9 +19,11 @@ interface TransferFormValues {
 }
 
 export function AssetOverview({ asset, refresh }: AssetOverviewProps) {
-  const { t } = useTranslation();
   const { network, api } = useApi();
-  const { account, accounts } = useWallet();
+  const { accounts } = useWallet();
+  const { account } = useAccount();
+
+  const { t } = useTranslation();
   const [recipient, setRecipient] = useState<string>(accounts[0]?.address);
   const [isVisible, setIsVisible] = useState(false);
   const [transferrable, setTransferrable] = useState<BN | null>(null);
