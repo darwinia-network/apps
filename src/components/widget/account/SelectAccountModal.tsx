@@ -21,7 +21,7 @@ type Props = {
 const iconSize = 36;
 
 const AccountWithIdentify = ({ value }: { value: Account }) => {
-  const { assets } = useAssets(value.displayAddress);
+  const { assets, loading } = useAssets(value.displayAddress);
 
   return (
     <>
@@ -34,14 +34,18 @@ const AccountWithIdentify = ({ value }: { value: Account }) => {
       <span className="flex flex-col leading-5 overflow-hidden w-full">
         <div className="flex items-center justify-between">
           <AccountName account={value.displayAddress} />
-          <Spin className="flex items-center" spinning={!assets.length} size="small">
-            {assets.map((item, index) => (
-              <React.Fragment key={item.token.symbol}>
-                {index > 0 && <span className="inline-flex justify-center w-3">|</span>}
-                <PrettyAmount amount={fromWei({ value: item.total }, prettyNumber)} />
-                <span>{item.token.symbol}</span>
-              </React.Fragment>
-            ))}
+          <Spin className="flex items-center" spinning={!assets.length || loading} size="small">
+            {assets.length ? (
+              assets.map((item, index) => (
+                <React.Fragment key={item.token.symbol}>
+                  {index > 0 && <span className="inline-flex justify-center w-3">|</span>}
+                  <PrettyAmount amount={fromWei({ value: item.total }, prettyNumber)} />
+                  <span>{item.token.symbol}</span>
+                </React.Fragment>
+              ))
+            ) : (
+              <span className="inline-block w-12" />
+            )}
           </Spin>
         </div>
         <EllipsisMiddle className="opacity-60 w-full" value={value.displayAddress} />
