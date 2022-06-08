@@ -42,12 +42,8 @@ function IntroGuide() {
       title: t('Connect Wallet'),
       position: 'bottom-middle-aligned',
       intro: (
-        <Trans i18nKey="connectRefers">
-          Please connect{' '}
-          <AntdLink href="https://polkadot.js.org/extension/" target="_blank" rel="noopener noreferrer">
-            {`polkadot{.js} extension`}
-          </AntdLink>{' '}
-          to participate in Darwinia Apps.{' '}
+        <Trans>
+          Please connect wallet to participate in Darwinia Apps.{' '}
           <AntdLink href="https://www.youtube.com/watch?v=mT7rUlQh660" target="_blank" rel="noopener noreferrer">
             Tutorial refers here.
           </AntdLink>
