@@ -74,6 +74,9 @@ export const useAssets = (account: string) => {
   );
 
   useEffect(() => {
+    if (account) {
+      return;
+    }
     setLoading(true);
 
     const sub$$ = from(api.rpc.system.properties()).subscribe({
@@ -103,7 +106,7 @@ export const useAssets = (account: string) => {
       sub$$.unsubscribe();
       setLoading(false);
     };
-  }, [api, network.name]);
+  }, [api, network.name, account]);
 
   useEffect(() => {
     const sub$$ = getAssets(account);
