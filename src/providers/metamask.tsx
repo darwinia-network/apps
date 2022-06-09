@@ -1,4 +1,4 @@
-import { createContext, useCallback, useMemo, useReducer } from 'react';
+import { createContext, useCallback, useMemo, useReducer, useState } from 'react';
 import { EMPTY, Subscription } from 'rxjs';
 import { Action, Connection, ConnectionStatus, AddEthereumChainParameter } from '../model';
 import { connectToEth } from '../utils';
@@ -33,6 +33,7 @@ function accountReducer(state: StoreState, action: Action<ActionType, any>): Sto
 }
 
 export type MetamaskCtx = StoreState & {
+  busy: boolean;
   connectNetwork: (network: AddEthereumChainParameter) => void;
   disconnect: () => void;
 };
@@ -42,15 +43,18 @@ export const MetamaskContext = createContext<MetamaskCtx | null>(null);
 let subscription: Subscription = EMPTY.subscribe();
 
 export const MetamaskProvider = ({ children }: React.PropsWithChildren<unknown>) => {
+  const [busy, setBusy] = useState(false);
   const [state, dispatch] = useReducer(accountReducer, initialState);
   const setConnection = useCallback((payload: Connection) => dispatch({ type: 'setConnection', payload }), []);
   const observer = useMemo(
     () => ({
       next: (connection: Connection) => {
         setConnection(connection);
+        setBusy(false);
       },
       error: (err: unknown) => {
         setConnection({ status: ConnectionStatus.error, accounts: [], type: 'unknown', api: null });
+        setBusy(false);
         console.error('%c connection error ', 'font-size:13px; background:pink; color:#bf2c9f;', err);
       },
       complete: () => {
@@ -63,6 +67,7 @@ export const MetamaskProvider = ({ children }: React.PropsWithChildren<unknown>)
     (config: AddEthereumChainParameter) => {
       subscription.unsubscribe();
 
+      setBusy(true);
       subscription = connectToEth(config).subscribe(observer);
     },
     [observer]
@@ -79,6 +84,7 @@ export const MetamaskProvider = ({ children }: React.PropsWithChildren<unknown>)
     <MetamaskContext.Provider
       value={{
         ...state,
+        busy,
         connectNetwork,
         disconnect,
       }}

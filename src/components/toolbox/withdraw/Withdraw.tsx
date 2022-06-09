@@ -53,6 +53,7 @@ export function Withdraw() {
   const { network } = useApi();
   const [form] = useForm();
   const {
+    busy: metamaskBusy,
     connection: { status, accounts },
     connectNetwork,
     disconnect,
@@ -216,6 +217,7 @@ export function Withdraw() {
               size="large"
               onClick={() => connectNetwork((network as DVMChainConfig).ethereumChain)}
               disabled={disableConnect}
+              loading={metamaskBusy}
             >
               {t('Connect to Metamask')}
             </Button>
