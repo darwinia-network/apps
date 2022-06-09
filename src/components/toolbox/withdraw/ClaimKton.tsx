@@ -101,7 +101,7 @@ export const ClaimKton = ({
           Receive
         </Button>
       }
-      className="absolute top-6 left-auto right-6"
+      className="absolute top-6 left-auto right-6 z-10"
     />
   );
 };
