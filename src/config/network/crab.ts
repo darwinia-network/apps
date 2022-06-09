@@ -4,12 +4,12 @@ export const crabConfig: DVMChainConfig = {
   dvm: {
     kton: {
       address: '0x159933C635570D5042723359fbD1619dFe83D3f3',
-      symbol: 'WCKTON',
+      symbol: 'CKTON',
       decimals: 18,
     },
     ring: {
       address: '0x2d2b97ea380b0185e9fdf8271d1afb5d2bf18329',
-      symbol: 'WCRAB',
+      symbol: 'CRAB',
       decimals: 18,
     },
   },
