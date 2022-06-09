@@ -1,6 +1,6 @@
 import { TypeRegistry } from '@polkadot/types';
 import { BN, BN_ZERO } from '@polkadot/util';
-import { Button, Card, Select, Input, Tag, Modal, Checkbox, notification } from 'antd';
+import { Button, Card, Select, Modal, Checkbox, notification } from 'antd';
 import type { CheckboxValueType } from 'antd/es/checkbox/Group';
 import Form from 'antd/lib/form';
 import { useForm } from 'antd/lib/form/Form';
@@ -188,17 +188,20 @@ export function Withdraw() {
       <Card>
         <ClaimKton dvmAddress={activeAccount} onSuccess={refreshDvmBalances} />
 
-        <div className="my-8 flex items-center gap-4">
+        <div className="my-8 flex items-center space-x-4">
           {activeAccount && (
-            <Input
-              disabled
-              value={activeAccount}
-              size="large"
-              className="max-w-xl"
-              prefix={
-                <Tag className={`bg-${network.name} rounded-md text-white inline-flex items-center h-full`}>Smart</Tag>
-              }
-            />
+            <div className="flex" style={{ width: '36rem' }}>
+              <div className={`bg-${network.name} flex items-center space-x-1 p-1 my-px pr-10 rounded-l-lg`}>
+                <img alt="..." src={`/image/${network.name}-1.svg`} className="w-7 h-7" />
+                <div className="text-white capitalize">{network.name}</div>
+                <div className="text-white">Smart</div>
+              </div>
+              <input
+                className="border border-gray-300 rounded-lg px-2 -ml-2 w-full bg-white text-base"
+                value={activeAccount}
+                disabled
+              />
+            </div>
           )}
 
           {status === 'success' && (
