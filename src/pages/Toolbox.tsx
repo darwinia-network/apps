@@ -69,7 +69,7 @@ function Page() {
               </Form.Item>
 
               {address && (
-                <Form.Item label={t('The resulting darwinia network account id is')}>
+                <Form.Item label={t('The resulting {{network}} network account id is', { network: name })}>
                   <div className="bg-white w-full rounded-lg p-4">
                     <Typography.Text copyable>
                       {convertToSS58(dvmAddressToAccountId(address).toString(), ss58Prefix)}
