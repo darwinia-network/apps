@@ -206,9 +206,13 @@ export function Withdraw() {
           )}
 
           {status === 'success' && (
-            <Button type="default" onClick={() => disconnect()} disabled={disableConnect} size="large">
-              {t('Disconnect')}
-            </Button>
+            <div className='="flex items-center space-x-2'>
+              <Button type="default" onClick={() => disconnect()} disabled={disableConnect} size="large">
+                {t('Disconnect')}
+              </Button>
+
+              <ImportToken disabled={!activeAccount} token={kton} />
+            </div>
           )}
 
           {status === 'pending' && (
@@ -269,8 +273,6 @@ export function Withdraw() {
             <Button size="large" type="primary" htmlType="submit" disabled={disableWithdraw} className="w-28">
               {t('Withdraw')}
             </Button>
-
-            <ImportToken disabled={!activeAccount} token={kton} />
           </Form.Item>
         </Form>
       </Card>
