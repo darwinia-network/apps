@@ -28,7 +28,8 @@ export const ClaimKton = ({
   const [busy, setBusy] = useState(false);
   const [ktonToClaim, setKtonToClaim] = useState('0');
 
-  const { kton } = (network as DVMChainConfig).dvm;
+  const { kton } = network.tokens;
+  const { kton: dvmKton } = (network as DVMChainConfig).dvm;
 
   const tokenIconSrc = useMemo(
     () => `/image/token-${(assetKton?.token.symbol || 'KTON').toLowerCase()}.svg`,
@@ -52,7 +53,7 @@ export const ClaimKton = ({
 
       const params = web3.eth.abi.encodeParameters(
         ['address', 'uint256'],
-        [kton.address, toWei({ value: ktonToClaim })]
+        [dvmKton.address, toWei({ value: ktonToClaim })]
       );
 
       // eslint-disable-next-line no-magic-numbers
@@ -83,7 +84,7 @@ export const ClaimKton = ({
         description: (error as Error).message,
       });
     }
-  }, [dvmAddress, kton.address, ktonToClaim, getKtonToClaim, onSuccess]);
+  }, [dvmAddress, dvmKton.address, ktonToClaim, getKtonToClaim, onSuccess]);
 
   useEffect(() => {
     const sub$$ = getKtonToClaim();

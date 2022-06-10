@@ -4,7 +4,7 @@ export const pangolinConfig: DVMChainConfig = {
   dvm: {
     kton: {
       address: '0x8809f9b3ACEF1dA309f49b5Ab97A4C0faA64E6Ae',
-      symbol: 'PKTON',
+      symbol: 'WPKTON',
       decimals: 18,
     },
     ring: {
