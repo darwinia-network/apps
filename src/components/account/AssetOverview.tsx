@@ -11,6 +11,8 @@ import { PrettyAmount } from '../widget/PrettyAmount';
 import { BalanceControl } from '../widget/form-control/BalanceControl';
 import { AddressItem } from '../widget/form-control/AddressItem';
 
+const TEST_ADDR = '1ufRSF5gx9Q8hrYoj7KwpzQzDNqLJdbKrFwC6okxa5gtBRd';
+
 interface TransferFormValues {
   from: string;
   to: string;
@@ -26,7 +28,6 @@ export function AssetOverview({ asset, refresh }: AssetOverviewProps) {
     connection: { accounts },
   } = useApi();
   const { account } = useAccount();
-  const [recipient, setRecipient] = useState<string>(accounts[0]?.address);
   const [isVisible, setIsVisible] = useState(false);
   const [transferrable, setTransferrable] = useState<BN | null>(null);
 
@@ -38,9 +39,9 @@ export function AssetOverview({ asset, refresh }: AssetOverviewProps) {
   useEffect(() => {
     let sub$$: Subscription;
 
-    if (recipient && isFunction(api.rpc.payment?.queryInfo)) {
+    if (isFunction(api.rpc.payment?.queryInfo)) {
       if (asset.asset === DarwiniaAsset.ring) {
-        sub$$ = from(api.tx.balances?.transfer(recipient, asset.max).paymentInfo(account)).subscribe((res) => {
+        sub$$ = from(api.tx.balances?.transfer(TEST_ADDR, asset.max).paymentInfo(account)).subscribe((res) => {
           const { partialFee } = res as unknown as { partialFee: BN };
           // eslint-disable-next-line no-magic-numbers
           const adjFee = partialFee.muln(110).div(BN_HUNDRED);
@@ -60,7 +61,7 @@ export function AssetOverview({ asset, refresh }: AssetOverviewProps) {
         sub$$.unsubscribe();
       }
     };
-  }, [api, asset, account, recipient]);
+  }, [api, asset, account]);
 
   return (
     <>
@@ -126,7 +127,6 @@ export function AssetOverview({ asset, refresh }: AssetOverviewProps) {
           rules={[
             {
               validator(_, value) {
-                setRecipient(value);
                 return !isSameAddress(account, value) ? Promise.resolve() : Promise.reject();
               },
               message: t('The sending address and the receiving address cannot be the same'),
