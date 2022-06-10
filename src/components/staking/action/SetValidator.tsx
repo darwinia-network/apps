@@ -1,9 +1,10 @@
 import { Button, InputNumber } from 'antd';
 import FormItem from 'antd/lib/form/FormItem';
 import { BN } from '@polkadot/util';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useApi, useStaking } from '../../../hooks';
+import { useValidatorPrefs } from '../../../hooks/staking';
 import { FormModal } from '../../widget/FormModal';
 import { AddressItem } from '../../widget/form-control/AddressItem';
 import { Label } from '../../widget/form-control/Label';
@@ -22,7 +23,10 @@ export function SetValidator({ disabled, label, type = 'text' }: StakingActionPr
   const { t } = useTranslation();
   const { api } = useApi();
   const { isInElection, controllerAccount, stashAccount } = useStaking();
+  const { validatorPrefs } = useValidatorPrefs(stashAccount);
   const [isVisible, setIsVisible] = useState(false);
+
+  const btnText = useMemo(() => t(label ?? 'Change validator preferences'), [t, label]);
 
   return (
     <>
@@ -31,7 +35,7 @@ export function SetValidator({ disabled, label, type = 'text' }: StakingActionPr
         type={type}
         onClick={() => setIsVisible(true)}
       >
-        {t(label ?? 'Change validator preferences')}
+        {btnText}
       </Button>
       <FormModal<SetValidatorFormValues>
         modalProps={{ visible: isVisible, title: t('Validator preferences') }}
@@ -49,7 +53,7 @@ export function SetValidator({ disabled, label, type = 'text' }: StakingActionPr
         initialValues={{
           stash: stashAccount,
           controller: controllerAccount,
-          percentage: 1,
+          percentage: (validatorPrefs?.commission.unwrap().toNumber() ?? 0) / COMM_MUL,
         }}
       >
         <AddressItem name="stash" label="Stash account" disabled />
