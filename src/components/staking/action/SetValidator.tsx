@@ -34,7 +34,7 @@ export function SetValidator({ disabled, label, type = 'text' }: StakingActionPr
         {t(label ?? 'Change validator preferences')}
       </Button>
       <FormModal<SetValidatorFormValues>
-        modalProps={{ visible: isVisible, title: t('Bonding preferences') }}
+        modalProps={{ visible: isVisible, title: t('Validator preferences') }}
         onCancel={() => setIsVisible(false)}
         extrinsic={(values) => {
           const { percentage } = values;
