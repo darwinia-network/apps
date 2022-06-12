@@ -27,6 +27,7 @@ export function Earnings({ updateEraIndex }: PowerDetailProps) {
     stakingRewards: { payoutTotal },
     eraSelection,
     isLoadingRewards,
+    refresh,
   } = useStakingRewards(eraSelectionIndex);
   const isMounted = useIsMounted();
   const ringAsset = useMemo(() => assets.find((item) => isRing(item.asset)), [assets]);
@@ -96,7 +97,7 @@ export function Earnings({ updateEraIndex }: PowerDetailProps) {
         />
 
         <div className="flex items-center justify-center gap-4 mt-4 md:mt-0">
-          <ClaimRewards eraSelectionIndex={eraSelectionIndex} type="primary" />
+          <ClaimRewards eraSelectionIndex={eraSelectionIndex} type="primary" onSuccess={refresh} />
           <Button>
             <SubscanLink network={network.name} address={account} query="tab=reward">
               {t('Reward History')}
