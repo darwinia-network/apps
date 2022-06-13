@@ -41,7 +41,9 @@ export const AccountProvider = ({ children }: React.PropsWithChildren<unknown>) 
   }, [accounts]);
 
   useEffect(() => {
-    updateStorage({ activeAccount: account?.address });
+    if (account) {
+      updateStorage({ activeAccount: account?.address });
+    }
   }, [account]);
 
   return (
