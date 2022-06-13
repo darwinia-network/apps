@@ -1,5 +1,5 @@
-import { SettingFilled, QuestionCircleFilled } from '@ant-design/icons';
-import { Button, Tooltip } from 'antd';
+import { SettingFilled } from '@ant-design/icons';
+import { Button } from 'antd';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useApi, useWallet, useAccount } from '../../../hooks';
@@ -36,17 +36,6 @@ export function AccountSelector() {
           }
           setVisible(false);
         }}
-        title={
-          <div className="inline-flex items-center space-x-1">
-            <span>{t('Select active account')}</span>
-            <Tooltip
-              title={`If your account in the old version cannot be found in your wallet, you can restore JSON which the account in the old version Apps through "Account Migration" and add the JSON to your wallet.`}
-            >
-              <QuestionCircleFilled className="cursor-pointer text-gray-400" />
-            </Tooltip>
-          </div>
-        }
-        footer={null}
       />
     </>
   );

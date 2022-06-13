@@ -3,7 +3,6 @@ import { SubmittableExtrinsic } from '@polkadot/api/types';
 import { Button, Tooltip } from 'antd';
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { QuestionCircleFilled } from '@ant-design/icons';
 import {
   PayoutValidator,
   useApi,
@@ -86,16 +85,6 @@ export function ClaimRewards({ eraSelectionIndex, onSuccess = () => undefined, t
         onSelect={(acc) => {
           setSigner(acc);
         }}
-        title={
-          <div className="inline-flex items-center space-x-1">
-            <span>{t('Select a signer')}</span>
-            <Tooltip
-              title={`If your account in the old version cannot be found in your wallet, you can restore JSON which the account in the old version Apps through "Account Migration" and add the JSON to your wallet.`}
-            >
-              <QuestionCircleFilled className="cursor-pointer text-gray-400" />
-            </Tooltip>
-          </div>
-        }
         footer={
           accounts?.length
             ? [
