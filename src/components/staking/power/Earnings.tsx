@@ -40,7 +40,7 @@ export function Earnings({ updateEraIndex }: PowerDetailProps) {
         switchMapTo(
           rxPost<StakingHistory>({
             url: `https://${network.name}.webapi.subscan.io/api/scan/staking_history`,
-            params: { page: 0, row: 10, address: account },
+            params: { page: 0, row: 10, address: stashAccount },
           })
         )
       )
@@ -49,7 +49,7 @@ export function Earnings({ updateEraIndex }: PowerDetailProps) {
       });
 
     return () => sub$$.unsubscribe();
-  }, [account, isMounted, network]);
+  }, [stashAccount, isMounted, network]);
 
   return !stashAccount ? (
     <Card className="my-8 shadow-xxl">
