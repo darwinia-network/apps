@@ -1,7 +1,7 @@
 import { Button, Input, InputNumber, InputNumberProps } from 'antd';
 import { GroupProps } from 'antd/lib/input';
 import { omit } from 'lodash';
-import { PropsWithChildren, useCallback, useState } from 'react';
+import { PropsWithChildren, useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { CustomFormControlProps } from '../../../model';
 import { getPrecisionByUnit } from '../../../utils';
@@ -42,6 +42,10 @@ export function BalanceControl({
     },
     [precision]
   );
+
+  useEffect(() => {
+    setData(value);
+  }, [value]);
 
   return (
     <Input.Group compact={!!other.compact} className="items-center justify-between" style={{ display: 'flex' }}>

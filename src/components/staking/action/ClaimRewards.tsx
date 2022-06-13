@@ -4,13 +4,22 @@ import { Button, Tooltip } from 'antd';
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { QuestionCircleFilled } from '@ant-design/icons';
-import { PayoutValidator, useApi, useStakingRewards, useWallet, useQueue, useAccount } from '../../../hooks';
+import {
+  PayoutValidator,
+  useApi,
+  useStakingRewards,
+  useWallet,
+  useQueue,
+  useAccount,
+  useStaking,
+} from '../../../hooks';
 import { fromWei, prettyNumber } from '../../../utils';
 import { SelectAccountModal } from '../../widget/account/SelectAccountModal';
 import { StakingActionProps } from './interface';
 
 interface ClaimRewardsProps extends StakingActionProps {
   eraSelectionIndex: number;
+  onSuccess?: () => void;
 }
 
 const PAYOUT_MAX_AMOUNT = 30;
@@ -39,13 +48,14 @@ const createPayout = (
   }
 };
 
-export function ClaimRewards({ eraSelectionIndex, type = 'text' }: ClaimRewardsProps) {
+export function ClaimRewards({ eraSelectionIndex, onSuccess = () => undefined, type = 'text' }: ClaimRewardsProps) {
+  const { t } = useTranslation();
   const { api } = useApi();
   const { accounts } = useWallet();
-  const { account } = useAccount();
   const { queueExtrinsic } = useQueue();
-  const { t } = useTranslation();
-  const { stakingRewards, payoutValidators } = useStakingRewards(eraSelectionIndex);
+  const { account } = useAccount();
+  const { updateStakingDerive } = useStaking();
+  const { stakingRewards, payoutValidators, isLoadingRewards, refresh } = useStakingRewards(eraSelectionIndex);
   const hasPayoutValidator = useMemo(() => payoutValidators && payoutValidators.length, [payoutValidators]);
   const [busy, setBusy] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
@@ -60,7 +70,12 @@ export function ClaimRewards({ eraSelectionIndex, type = 'text' }: ClaimRewardsP
             : ''
         }
       >
-        <Button type={type} disabled={!hasPayoutValidator} onClick={() => setIsVisible(true)}>
+        <Button
+          type={type}
+          disabled={!hasPayoutValidator}
+          loading={isLoadingRewards}
+          onClick={() => setIsVisible(true)}
+        >
           <span>{t('Claim Reward')}</span>
         </Button>
       </Tooltip>
@@ -103,6 +118,9 @@ export function ClaimRewards({ eraSelectionIndex, type = 'text' }: ClaimRewardsP
                         },
                         txSuccessCb: () => {
                           if (index + 1 === extrinsics.length) {
+                            onSuccess();
+                            refresh();
+                            updateStakingDerive();
                             setIsVisible(false);
                             setBusy(false);
                           }

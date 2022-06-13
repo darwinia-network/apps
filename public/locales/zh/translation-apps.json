@@ -35,6 +35,7 @@
   "Bonded The amount of tokens that cannot be operated directly but does not have a lock limit, which is used to gain power and can be taken out at any time(with a 14-day unbonding period) or add lock limit.": "冻结: 无法直接操作但无锁定期限的的 token 数量，用于获取 power，可以随时取出（需要14天等待期限）或添加锁定期限。",
   "Bonded amount": "绑定数量",
   "Bonding preferences": "冻结参数",
+  "Validator preferences": "验证人参数",
   "Bonded {{amount}} {{symbol}}": "已冻结 {{amount}} {{symbol}}",
   "Cancel": "取消",
   "Change controller account": "更改控制账户",
@@ -144,7 +145,7 @@
   "The funds status will become locked after freezing period set": "设置冻结期限后，资金状态将成为锁定",
   "The links in the Darwinia Portal are provided as a convenience and for informational purposes only; Darwinia Apps bears no responsibility for the accuracy, legality, security or content of the external sites linked or for that of subsequent links. For any questions or comments surrounding any of the projects listed, please contact corresponding projects directly.": "Darwinia 门户网站中的链接仅供参考和方便使用；Darwinia 应用程序对所链接的外部网站或后续链接的准确性、合法性、安全性或内容不承担责任。如果对所列项目有任何疑问或意见，请直接联系相应的项目。",
   "The percentage reward (0-100) that should be applied for the validator": "验证者应采用的百分比奖励（0-100）",
-  "The resulting darwinia network account id is": "转换后的 Darwinia 账户为",
+  "The resulting {{network}} network account id is": "转换后的 {{network}} 账户为",
   "The sending address and the receiving address cannot be the same": "发送地址和接收地址不能相同",
   "Toolbox": "工具箱",
   "Total": "总数",
@@ -225,5 +226,8 @@
   "No record": "没有存单",
   "Please select deposit": "请选择存单",
   "Claim History": "领取记录",
-  "Read only": "只读"
+  "Read only": "只读",
+  "Asset": "资产",
+  "Destination address": "目标地址",
+  "Coming soon": "即将到来"
 }

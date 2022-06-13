@@ -119,6 +119,7 @@ export const Deposits = () => {
         initialValues={{
           recipient,
         }}
+        className="max-w-xl"
         validateMessages={validateMessages[i18n.language as 'en' | 'zh-CN' | 'zh']}
         onFinish={handleClaim}
       >

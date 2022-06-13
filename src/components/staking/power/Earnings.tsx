@@ -28,12 +28,13 @@ export function Earnings({ updateEraIndex }: PowerDetailProps) {
     stakingRewards: { payoutTotal },
     eraSelection,
     isLoadingRewards,
+    refresh,
   } = useStakingRewards(eraSelectionIndex);
   const isMounted = useIsMounted();
   const ringAsset = useMemo(() => assets.find((item) => isRing(item.asset)), [assets]);
 
   useEffect(() => {
-    if (!account) {
+    if (!stashAccount) {
       return;
     }
 
@@ -44,7 +45,7 @@ export function Earnings({ updateEraIndex }: PowerDetailProps) {
         switchMapTo(
           rxPost<StakingHistory>({
             url: `https://${network.name}.webapi.subscan.io/api/scan/staking_history`,
-            params: { page: 0, row: 10, address: account.displayAddress },
+            params: { page: 0, row: 10, address: stashAccount },
           })
         )
       )
@@ -53,7 +54,7 @@ export function Earnings({ updateEraIndex }: PowerDetailProps) {
       });
 
     return () => sub$$.unsubscribe();
-  }, [account, isMounted, network]);
+  }, [stashAccount, isMounted, network]);
 
   return !stashAccount ? (
     <Card className="my-8 shadow-xxl">
@@ -101,7 +102,7 @@ export function Earnings({ updateEraIndex }: PowerDetailProps) {
         />
 
         <div className="flex items-center justify-center gap-4 mt-4 md:mt-0">
-          <ClaimRewards eraSelectionIndex={eraSelectionIndex} type="primary" />
+          <ClaimRewards eraSelectionIndex={eraSelectionIndex} type="primary" onSuccess={refresh} />
           <Button>
             <SubscanLink network={network.name} address={account?.displayAddress || ''} query="tab=reward">
               {t('Reward History')}

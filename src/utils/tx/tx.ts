@@ -3,6 +3,8 @@ import { TransactionConfig } from 'web3-eth/types';
 import { SubmittableExtrinsic } from '@polkadot/api/types';
 import { web3FromAddress } from '@polkadot/extension-dapp';
 import { from, Observable, Observer, switchMapTo, tap } from 'rxjs';
+import { PromiEvent, TransactionReceipt } from 'web3-core';
+import { notification } from 'antd';
 import { Tx } from '../../model';
 import { entrance, waitUntilConnected } from '../network';
 
@@ -85,3 +87,27 @@ export function getSendTransactionObs(params: TransactionConfig): Observable<Tx>
     }
   });
 }
+
+export const handleEthTxResult = (
+  tx: PromiEvent<TransactionReceipt>,
+  { txSuccessCb = () => undefined, txFailedCb = () => undefined }: { txSuccessCb?: () => void; txFailedCb?: () => void }
+) => {
+  tx.on('transactionHash', (hash: string) => {
+    void hash;
+  })
+    .on('receipt', ({ transactionHash }) => {
+      txSuccessCb();
+      notification.success({
+        message: 'Transaction success',
+        description: `Transaction hash: ${transactionHash}`,
+      });
+    })
+    .catch((error: { code: number; message: string }) => {
+      txFailedCb();
+      console.error(error);
+      notification.error({
+        message: 'Transaction failed',
+        description: error.message,
+      });
+    });
+};
