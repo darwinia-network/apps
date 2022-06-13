@@ -25,7 +25,7 @@ const MyRadio = ({ checked }: { checked?: boolean }) => {
 
 export const ConnectWallet = () => {
   const { network } = useApi();
-  const { supportedWallets, walletToUse, error: walletError, connectWallet } = useWallet();
+  const { supportedWallets, walletToUse, error: walletError, connectWallet, disConnectWallet } = useWallet();
   const { t } = useTranslation();
   const [visible, setVisible] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -35,6 +35,7 @@ export const ConnectWallet = () => {
     async (event: RadioChangeEvent) => {
       setBusy(true);
       setSelected(event.target.value);
+      disConnectWallet();
 
       if (await connectWallet(event.target.value)) {
         setVisible(false);
@@ -42,7 +43,7 @@ export const ConnectWallet = () => {
 
       setBusy(false);
     },
-    [connectWallet]
+    [connectWallet, disConnectWallet]
   );
 
   useEffect(() => {
