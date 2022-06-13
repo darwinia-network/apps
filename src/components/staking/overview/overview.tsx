@@ -1,12 +1,11 @@
 import { ValidatorPrefs } from '@darwinia/types';
 import { DeriveAccountInfo } from '@polkadot/api-derive/types';
-import { Option } from '@polkadot/types';
-import { EraIndex } from '@polkadot/types/interfaces';
 import { Skeleton } from 'antd';
 import { createContext, useContext, useEffect, useState } from 'react';
-import { from, switchMap } from 'rxjs';
+import { from } from 'rxjs';
 import { DeriveStakingQuery } from '../../../api-derive/types';
 import { useApi } from '../../../hooks';
+import { useValidatorPrefs } from '../../../hooks/staking';
 
 interface Overview {
   accountInfo: DeriveAccountInfo;
@@ -20,9 +19,9 @@ export const useOverview = () => useContext(OverviewContext) as Exclude<Overview
 
 export const OverviewProvider = ({ children, account }: React.PropsWithChildren<{ account: string }>) => {
   const { api } = useApi();
+  const { validatorPrefs } = useValidatorPrefs(account);
   const [accountInfo, setAccountInfo] = useState<DeriveAccountInfo | null>(null);
   const [stakingInfo, setStakingInfo] = useState<DeriveStakingQuery | null>(null);
-  const [validatorPrefs, setValidatorPrefs] = useState<ValidatorPrefs | null>(null);
 
   useEffect(() => {
     const account$$ = from(api.derive.accounts.info(account)).subscribe((res) => {
@@ -33,22 +32,9 @@ export const OverviewProvider = ({ children, account }: React.PropsWithChildren<
       setStakingInfo(res as unknown as DeriveStakingQuery)
     );
 
-    const eraIndex$$ = from(api.query.staking.currentEra())
-      .pipe(
-        switchMap((res) => {
-          const index = (res as Option<EraIndex>).unwrap();
-
-          return from(api.query.staking.erasValidatorPrefs(index, account));
-        })
-      )
-      .subscribe((res) => {
-        setValidatorPrefs(res as ValidatorPrefs);
-      });
-
     return () => {
       account$$.unsubscribe();
       staking$$.unsubscribe();
-      eraIndex$$.unsubscribe();
     };
   }, [account, api]);
 

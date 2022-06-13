@@ -1,3 +1,4 @@
+import { LineChartOutlined } from '@ant-design/icons';
 import { DeriveStakingOverview } from '@polkadot/api-derive/staking/types';
 import { DeriveHeartbeats } from '@polkadot/api-derive/types';
 import { Col, Collapse, Input, Row, Spin, Tooltip } from 'antd';
@@ -8,7 +9,6 @@ import { MIDDLE_DURATION } from '../../../config';
 import { useApi, useIsMountedOperator, useNominatorEntries, useStaking } from '../../../hooks';
 import { STAKING_FAV_KEY, useFavorites } from '../../../hooks/favorites';
 import { AccountWithClassifiedInfo, createClassifiedStakingOverview } from '../../../utils';
-import { ChartLink } from '../ChartLink';
 import { HidablePanel } from '../HidablePanel';
 import { OverviewProvider } from '../overview/overview';
 import { Account, ActiveCommission, NextCommission, Nominators } from '../overview/overview-widgets';
@@ -19,7 +19,7 @@ interface ValidatorsProps {
 
 export function Validators({ overview }: ValidatorsProps) {
   const { t } = useTranslation();
-  const { api } = useApi();
+  const { api, network } = useApi();
   const { stashAccounts } = useStaking();
   const [favorites] = useFavorites(STAKING_FAV_KEY);
   const [searchName, setSearchName] = useState('');
@@ -122,7 +122,11 @@ export function Validators({ overview }: ValidatorsProps) {
                             <NextCommission />
                           </Col>
                           <Col span={2} className="flex justify-end items-center gap-8">
-                            <ChartLink account={account} />
+                            <Tooltip title={t('Coming soon')}>
+                              <LineChartOutlined
+                                className={`hover:text-${network.name}-main transform transition-colors duration-500 text-xl`}
+                              />
+                            </Tooltip>
                           </Col>
                         </Row>
                       </Col>

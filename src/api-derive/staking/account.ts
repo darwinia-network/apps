@@ -16,9 +16,11 @@ const QUERY_OPTS = {
   withPrefs: true,
 };
 
-function redeemableSum(api: ApiInterfaceRx, stakingLedger: StakingLedger | undefined, best: BlockNumber): Balance {
+function redeemableSum(api: ApiInterfaceRx, stakingLedger: StakingLedger | undefined, best: BlockNumber): Balance[] {
+  const zero: Balance = api.registry.createType('Balance');
+
   if (isUndefined(stakingLedger)) {
-    return api.registry.createType('Balance');
+    return [zero, zero]; // [ring, kton]
   }
 
   const ring =
@@ -31,7 +33,7 @@ function redeemableSum(api: ApiInterfaceRx, stakingLedger: StakingLedger | undef
       return best.gte(until) ? total.add(amount) : total;
     }, new BN(0)) ?? new BN(0);
 
-  return api.registry.createType('Balance', ring.add(kton));
+  return [api.registry.createType('Balance', ring), api.registry.createType('Balance', kton)];
 }
 
 function calculateUnlocking(
@@ -70,9 +72,14 @@ function parseResult(api: DeriveApi, best: BlockNumber, now: Moment, query: Deri
   const total = depositItems?.reduce((accumulator: BN, item) => accumulator.add(item.value.toBn()), new BN(0));
   const activeDepositAmount: Balance = api.registry.createType('Balance', total);
 
+  const [redeemableRing, redeemableKton] = redeemableSum(api, stakingLedger, best);
+  const redeemable: Balance = api.registry.createType('Balance', redeemableRing.add(redeemableKton));
+
   return {
     ...query,
-    redeemable: redeemableSum(api, stakingLedger, best),
+    redeemable,
+    redeemableRing,
+    redeemableKton,
     activeDepositItems: depositItems,
     activeDepositAmount,
     unlocking: calcUnlocking[0],

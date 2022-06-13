@@ -74,6 +74,8 @@ interface DeriveStakingStash {
 
 export interface DeriveStakingAccount extends DeriveStakingQuery, DeriveStakingKeys {
   redeemable?: Balance;
+  redeemableRing?: Balance;
+  redeemableKton?: Balance;
   unlocking?: DeriveUnlocking[];
   activeDepositItems?: TimeDepositItem[];
   unlockingTotalValue: Balance;
