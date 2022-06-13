@@ -14,7 +14,11 @@ export function AccountSelector() {
 
   return (
     <>
-      {accounts.length > 1 && (
+      {accounts.length && !account ? (
+        <Button onClick={() => setVisible(true)} className="hidden lg:block" type="primary">
+          {t('Select Account')}
+        </Button>
+      ) : accounts.length > 1 ? (
         <>
           <Button onClick={() => setVisible(true)} className="hidden lg:block">
             {t('Switch Account')}
@@ -25,7 +29,7 @@ export function AccountSelector() {
             className={`lg:hidden inline-flex items-center text-2xl h-8 text-${network.name}-main`}
           />
         </>
-      )}
+      ) : null}
       <SelectAccountModal
         visible={visible}
         defaultValue={account?.address || ''}

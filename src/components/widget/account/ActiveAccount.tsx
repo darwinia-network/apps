@@ -150,5 +150,7 @@ export const ActiveAccount = () => {
         </Card>
       </Modal>
     </>
-  ) : null;
+  ) : (
+    <AccountSelector />
+  );
 };
