@@ -4,8 +4,8 @@ import { Balance, EraIndex } from '@polkadot/types/interfaces';
 import { StakingLedger } from '@polkadot/types/interfaces/staking';
 import { BN } from '@polkadot/util';
 import { has } from 'lodash';
-import { useEffect, useMemo, useState } from 'react';
-import { from, Subscription, takeWhile, zip, map } from 'rxjs';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { from, Subscription, takeWhile, zip, map, EMPTY } from 'rxjs';
 import type { PalletStakingSlashingSlashingSpans } from '@polkadot/types/lookup';
 import { NoNullFields } from '../../model';
 import { useApi } from '../api';
@@ -177,6 +177,23 @@ export function useOwnEraReward(maxEras?: number, stashAccount = '') {
   });
   const ids = useMemo(() => ([stashAccount] || stashIds || []).filter((item) => !!item), [stashIds, stashAccount]);
 
+  const refresh = useCallback(() => {
+    if (!ids || !ids.length) {
+      return EMPTY.subscribe();
+    }
+
+    setState((prev) => ({ ...prev, reward: { ...prev.reward, isLoadingRewards: true } }));
+
+    return from(api.derive.staking.stakerRewardsMultiEras(ids, filteredEras))
+      .pipe(takeWhile(() => isMounted))
+      .subscribe((res) => {
+        const data = getOwnReward(ids, res);
+        const validators = rewardsGroupedByPayoutValidator(data.rewards, stakerPayoutAfter);
+
+        setState({ reward: data, payoutValidators: validators });
+      });
+  }, [api.derive.staking, filteredEras, ids, isMounted, stakerPayoutAfter]);
+
   useEffect(() => {
     setState({ reward: { rewards: null, isLoadingRewards: true, rewardCount: 0 }, payoutValidators: [] });
   }, [maxEras]);
@@ -194,23 +211,11 @@ export function useOwnEraReward(maxEras?: number, stashAccount = '') {
   }, [api, maxEras]);
 
   useEffect(() => {
-    if (!ids || !ids.length) {
-      return;
-    }
+    const sub$$ = refresh();
+    return () => sub$$.unsubscribe();
+  }, [refresh]);
 
-    const sub$$ = from(api.derive.staking.stakerRewardsMultiEras(ids, filteredEras))
-      .pipe(takeWhile(() => isMounted))
-      .subscribe((res) => {
-        const data = getOwnReward(ids, res);
-        const validators = rewardsGroupedByPayoutValidator(data.rewards, stakerPayoutAfter);
-
-        setState({ reward: data, payoutValidators: validators });
-      });
-
-    return () => sub$$?.unsubscribe();
-  }, [api.derive.staking, filteredEras, ids, isMounted, stakerPayoutAfter]);
-
-  return state;
+  return { ...state, refresh };
 }
 
 export function useSlashingSpans(stashId: string) {
