@@ -36,6 +36,7 @@ export function AccountSelector() {
           }
           setVisible(false);
         }}
+        footer={null}
       />
     </>
   );
