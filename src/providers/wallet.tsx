@@ -5,7 +5,7 @@ import type { SubjectInfo } from '@polkadot/ui-keyring/observable/types';
 import { from } from 'rxjs';
 import type { Wallet, Account, WalletSource } from '../model';
 import { DAPP_NAME, LOCAL_SOURCE, SEARCH_PARAMS_SOURCE } from '../config';
-import { convertToSS58, isValidAddress } from '../utils';
+import { convertToSS58, isValidAddress, updateStorage, readStorage } from '../utils';
 import { useApi } from '../hooks';
 
 export interface WalletCtx {
@@ -186,6 +186,16 @@ export const WalletProvider = ({ children }: PropsWithChildren<unknown>) => {
       },
     ]);
   }, []);
+
+  useEffect(() => {
+    connectWallet(readStorage().activeWallet);
+  }, [connectWallet]);
+
+  useEffect(() => {
+    if (walletToUse) {
+      updateStorage({ activeWallet: walletToUse?.extensionName });
+    }
+  }, [walletToUse]);
 
   return (
     <WalletContext.Provider
