@@ -1,6 +1,6 @@
 import { Form, Input, Tabs, Typography } from 'antd';
 import { useState, useMemo } from 'react';
-import { useTranslation } from 'react-i18next';
+import { useTranslation, Trans } from 'react-i18next';
 import { withRouter } from 'react-router-dom';
 import web3 from 'web3';
 import { Withdraw } from '../components/toolbox/withdraw';
@@ -25,10 +25,25 @@ function Page() {
       >
         {displayDvm && (
           <Tabs.TabPane tab={t('DVM Address')} key="address">
-            <Form layout="vertical">
+            <Form layout="vertical" className="max-w-xl">
               <Form.Item
                 label={
-                  <Label text={t('DVM account')} info={t('DVM format account ID to Darwinia network account ID')} />
+                  <Label
+                    text={t('DVM account')}
+                    info={
+                      <Trans t={t}>
+                        Ethereum-compatible Smart Chain Address starting with 0x. More details please refer{' '}
+                        <a
+                          rel="noopener noreferrer"
+                          target="_blank"
+                          href="https://darwinianetwork.medium.com/build-on-darwinia-2-1-address-formats-in-darwinia-e964cc91fccc"
+                        >
+                          here
+                        </a>{' '}
+                        .
+                      </Trans>
+                    }
+                  />
                 }
                 name="address"
                 rules={[
@@ -54,7 +69,7 @@ function Page() {
               </Form.Item>
 
               {address && (
-                <Form.Item label={t('The resulting darwinia network account id is')}>
+                <Form.Item label={t('The resulting {{network}} network account id is', { network: name })}>
                   <div className="bg-white w-full rounded-lg p-4">
                     <Typography.Text copyable>
                       {convertToSS58(dvmAddressToAccountId(address).toString(), ss58Prefix)}

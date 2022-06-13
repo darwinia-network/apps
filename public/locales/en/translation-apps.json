@@ -144,7 +144,7 @@
   "The funds status will become locked after freezing period set": "The funds status will become locked after freezing period set",
   "The links in the Darwinia Portal are provided as a convenience and for informational purposes only; Darwinia Apps bears no responsibility for the accuracy, legality, security or content of the external sites linked or for that of subsequent links. For any questions or comments surrounding any of the projects listed, please contact corresponding projects directly.": "The links in the Darwinia Portal are provided as a convenience and for informational purposes only; Darwinia Apps bears no responsibility for the accuracy, legality, security or content of the external sites linked or for that of subsequent links. For any questions or comments surrounding any of the projects listed, please contact corresponding projects directly.",
   "The percentage reward (0-100) that should be applied for the validator": "The percentage reward (0-100) that should be applied for the validator",
-  "The resulting darwinia network account id is": "The resulting darwinia network account id is",
+  "The resulting {{network}} network account id is": "The resulting {{network}} network account id is",
   "The sending address and the receiving address cannot be the same": "The sending address and the receiving address cannot be the same",
   "Toolbox": "Toolbox",
   "Total": "Total",
@@ -228,5 +228,7 @@
   "Please select deposit": "Please select deposit",
   "Claim History": "Claim History",
   "Read only": "Read only",
+  "Asset": "Asset",
+  "Destination address": "Destination address",
   "Coming soon": "Coming soon"
 }
