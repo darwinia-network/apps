@@ -1,33 +1,31 @@
 import Identicon from '@polkadot/react-identicon';
 import { Button, Card, List, Tabs } from 'antd';
-import Link from 'antd/lib/typography/Link';
+import AntdLink from 'antd/lib/typography/Link';
 import FileSaver from 'file-saver';
 import { Trans, useTranslation } from 'react-i18next';
 import { withRouter } from 'react-router-dom';
 import { EllipsisMiddle } from '../components/widget/EllipsisMiddle';
-import { useApi } from '../hooks';
-import { LOCAL } from '../utils';
+import { useApi, useWallet } from '../hooks';
+import { LOCAL_SOURCE } from '../config';
 
 function Page() {
   const { t } = useTranslation();
-  const {
-    network,
-    connection: { accounts },
-  } = useApi();
-  const localAccounts = accounts.filter((item) => item.meta.source === LOCAL);
+  const { network } = useApi();
+  const { accounts } = useWallet();
+  const localAccounts = accounts.filter((item) => item.meta.source === LOCAL_SOURCE);
 
   return (
     <div className="lg:px-8 px-4">
       <Card className="mx-0 shadow-xxl">
-        <Trans i18nKey="migrateRefers" className="m-8">
-          If your account in the old version cannot be found in your wallet, you can restore JSON which the account in
-          the old version apps through \u0022 Account Migration \u0022 and add the JSON to polkadot\u007b.js\u007d.
-          <Link
+        <Trans className="m-8">
+          {`If your account in the old version cannot be found in your wallet, you can restore JSON which the account in the old version Apps through "Account Migration" and add the JSON to your wallet. `}
+          <AntdLink
             href="https://darwinianetwork.medium.com/using-darwinia-tools-3-8-darwinia-apps-lite-guide-part-%E2%85%B0-account-ae9b3347b3c7"
             target="_blank"
+            rel="noopener noreferrer"
           >
             Tutorial refers here.
-          </Link>
+          </AntdLink>
         </Trans>
       </Card>
 

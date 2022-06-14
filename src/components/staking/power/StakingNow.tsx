@@ -29,7 +29,7 @@ export function StakingNow() {
   const { t } = useTranslation();
   const { api } = useApi();
   const [form] = useForm<StakingFormValue>();
-  const { account, assets, getBalances } = useAccount();
+  const { account, assets, refreshAssets } = useAccount();
   const { updateControllerAndStash } = useStaking();
   const [isVisible, setIsVisible] = useState(false);
   const [selectedAsset, setSelectedAsset] = useState<Fund | null>(null);
@@ -75,12 +75,12 @@ export function StakingNow() {
         onCancel={() => setIsVisible(false)}
         onSuccess={() => {
           setIsVisible(false);
-          getBalances();
+          refreshAssets();
           updateControllerAndStash();
         }}
         initialValues={{
-          stash: account,
-          controller: account,
+          stash: account?.displayAddress,
+          controller: account?.displayAddress,
           payee: { type: 'Staked', account: '' },
           promiseMonth: 0,
         }}

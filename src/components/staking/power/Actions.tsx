@@ -5,7 +5,7 @@ import { useMemo, useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { from } from 'rxjs';
 import type { DeriveStakingAccount } from '../../../api-derive/types';
-import { useApi, useStaking, useQueue, useSlashingSpans, useAccount } from '../../../hooks';
+import { useApi, useStaking, useQueue, useSlashingSpans, useAccount, useWallet } from '../../../hooks';
 import {
   BondMore,
   ClaimRewards,
@@ -27,11 +27,9 @@ interface ActionsProps {
 // eslint-disable-next-line complexity
 export function Actions({ eraSelectionIndex, disabled }: ActionsProps) {
   const { t } = useTranslation();
-  const {
-    api,
-    connection: { accounts },
-  } = useApi();
-  const { getBalances } = useAccount();
+  const { api } = useApi();
+  const { accounts } = useWallet();
+  const { refreshAssets } = useAccount();
   const { queueExtrinsic } = useQueue();
   const {
     stakingDerive,
@@ -68,7 +66,7 @@ export function Actions({ eraSelectionIndex, disabled }: ActionsProps) {
   }, [stakingDerive]);
 
   const isOwnController = useMemo(
-    () => accounts.map((item) => item.address).includes(controllerAccount),
+    () => accounts.map((item) => item.displayAddress).includes(controllerAccount),
     [accounts, controllerAccount]
   );
 
@@ -88,11 +86,11 @@ export function Actions({ eraSelectionIndex, disabled }: ActionsProps) {
           ? api.tx.staking.withdrawUnbonded(spanCount)
           : api.tx.staking.withdrawUnbonded(),
       txSuccessCb: () => {
-        getBalances();
+        refreshAssets();
         refreshStakingAccount();
       },
     });
-  }, [api, controllerAccount, queueExtrinsic, refreshStakingAccount, getBalances, spanCount]);
+  }, [api, controllerAccount, queueExtrinsic, refreshStakingAccount, refreshAssets, spanCount]);
 
   useEffect(() => {
     const sub$$ = refreshStakingAccount();

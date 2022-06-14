@@ -1,6 +1,4 @@
-import { web3Accounts, web3Enable } from '@polkadot/extension-dapp';
 import keyring from '@polkadot/ui-keyring';
-import { accounts as accountsObs } from '@polkadot/ui-keyring/observable/accounts';
 import { Modal } from 'antd';
 import Link from 'antd/lib/typography/Link';
 import { Trans } from 'react-i18next';
@@ -8,7 +6,6 @@ import {
   BehaviorSubject,
   catchError,
   combineLatest,
-  concatMap,
   distinctUntilKeyChanged,
   EMPTY,
   from,
@@ -24,13 +21,12 @@ import {
 import {
   ChainConfig,
   Connection,
+  ConnectionType,
   ConnectionStatus,
   EthereumConnection,
-  IAccountMeta,
   PolkadotConnection,
   AddEthereumChainParameter,
 } from '../../model';
-import { isValidAddress } from '../../utils';
 import { entrance } from './entrance';
 import { isMetamaskInstalled, isNetworkConsistent } from './network';
 import { switchMetamaskNetwork } from './switch';
@@ -42,84 +38,41 @@ type ConnectEthFn<T extends Connection> = (network: AddEthereumChainParameter, c
  */
 keyring.loadAll({});
 
-export const LOCAL = 'local';
+export const getPolkadotConnection: (network: ChainConfig) => Observable<PolkadotConnection> = (network) => {
+  const type: ConnectionType = 'polkadot';
 
-export const SEARCH_PARAMS = 'search-params';
+  const subject = new BehaviorSubject<PolkadotConnection>({
+    type,
+    status: ConnectionStatus.pending,
+    api: null,
+    accounts: [],
+  });
+  const source = subject.asObservable().pipe(distinctUntilKeyChanged('status'));
 
-export const getPolkadotConnection: (network: ChainConfig) => Observable<PolkadotConnection> = (network) =>
-  from(web3Enable('darwinia/apps')).pipe(
-    concatMap((extensions) => {
-      const result = combineLatest([from(web3Accounts()), accountsObs.subject.asObservable()], (injected, data) => {
-        const keys = Object.keys(data);
-        const injectedAddress = injected.map((item) => item.address);
-        const source = keys.filter((key) => !injectedAddress.includes(key));
+  const url = network.provider.rpc;
+  const api = entrance.polkadot.getInstance(url);
 
-        const local: IAccountMeta[] = source.map((address) => {
-          const meta = injected.find((item) => item.address === address)?.meta || {};
+  if (api.isConnected) {
+    subject.next({ accounts: [], type, status: ConnectionStatus.success, api });
+  }
 
-          return {
-            address,
-            meta: { ...meta, source: LOCAL },
-            json: data[address].json,
-          };
-        });
+  api.on('connected', () => {
+    subject.next({ accounts: [], type, status: ConnectionStatus.success, api });
+  });
 
-        const readOnlyAddress = new URL(window.location.href).searchParams.get('address');
-        const readOnly =
-          readOnlyAddress && isValidAddress(readOnlyAddress)
-            ? [
-                {
-                  address: readOnlyAddress,
-                  meta: { name: 'Read-Only', source: SEARCH_PARAMS },
-                },
-              ]
-            : [];
+  api.on('disconnected', () => {
+    subject.next({ accounts: [], type, status: ConnectionStatus.connecting, api });
+  });
 
-        return [...injected, ...local, ...readOnly];
-      }).pipe(
-        map(
-          (accounts) =>
-            ({
-              accounts: !extensions.length && !accounts.length ? [] : accounts,
-              type: 'polkadot',
-              status: 'pending',
-            } as Exclude<PolkadotConnection, 'api'>)
-        )
-      );
+  api.on('error', (error) => {
+    console.error(error);
+    subject.next({ accounts: [], type, status: ConnectionStatus.error, api });
+  });
 
-      if (!extensions.length) {
-        showWarning('Polkadot', 'https://polkadot.js.org/extension/');
-        return EMPTY;
-      }
-
-      return result;
-    }),
-    switchMap((envelop: Exclude<PolkadotConnection, 'api'>) => {
-      const subject = new BehaviorSubject<PolkadotConnection>(envelop);
-      const url = network.provider.rpc;
-      const api = entrance.polkadot.getInstance(url);
-      const source = subject.asObservable().pipe(distinctUntilKeyChanged('status'));
-
-      if (api.isConnected) {
-        subject.next({ ...envelop, status: ConnectionStatus.success, api });
-      }
-
-      api.on('connected', () => {
-        subject.next({ ...envelop, status: ConnectionStatus.success, api });
-      });
-
-      api.on('disconnected', () => {
-        subject.next({ ...envelop, status: ConnectionStatus.connecting, api });
-      });
-
-      api.on('error', (_) => {
-        subject.next({ ...envelop, status: ConnectionStatus.error, api });
-      });
-
-      return from(api.isReady).pipe(switchMapTo(source));
-    }),
-    startWith<PolkadotConnection>({ status: ConnectionStatus.connecting, accounts: [], api: null, type: 'polkadot' })
+  return from(source).pipe(
+    startWith<PolkadotConnection>({ accounts: [], status: ConnectionStatus.connecting, api: null, type })
   );
+};
 
 const getEthereumConnection: () => Observable<EthereumConnection> = () => {
   return from(window.ethereum.request({ method: 'eth_requestAccounts' })).pipe(

@@ -8,6 +8,7 @@ import { useEffect, useState } from 'react';
 import { from, takeWhile } from 'rxjs';
 import { useIsMountedOperator } from '..';
 import { useApi } from '../api';
+import { useWallet } from '../wallet';
 import { useIsMounted } from '../isMounted';
 import { IDeriveStakingElected } from '../../api-derive';
 
@@ -33,10 +34,8 @@ function extractNominators(nominations: [StorageKey, Option<Nominations>][]): Re
 }
 
 function useNominators<T extends IDeriveStakingElected | DeriveStakingWaiting>(method: 'electedInfo' | 'waitingInfo') {
-  const {
-    api,
-    connection: { accounts },
-  } = useApi();
+  const { api } = useApi();
+  const { accounts } = useWallet();
   const [nominators, setNominators] = useState<[string, Power][] | null>(null);
   const [total, setTotal] = useState<BN>(BN_ZERO);
   const [sourceData, setSourceData] = useState<T | null>(null);
@@ -49,7 +48,7 @@ function useNominators<T extends IDeriveStakingElected | DeriveStakingWaiting>(m
       .pipe(takeWhileIsMounted())
       .subscribe((derive) => {
         const { info } = derive;
-        const all = accounts.map((item) => item.address);
+        const all = accounts.map((item) => item.displayAddress);
         const data = info
           .map(({ exposure, accountId }) => {
             const result: Record<string, BN> = {};

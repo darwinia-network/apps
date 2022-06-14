@@ -1,7 +1,8 @@
+import { LineChartOutlined } from '@ant-design/icons';
 import { ExposureT, Power } from '@darwinia/types';
 import { DeriveAccountInfo, DeriveStakingWaiting } from '@polkadot/api-derive/types';
 import { ValidatorPrefs, ValidatorPrefsTo196 } from '@polkadot/types/interfaces';
-import { Card, Input, Table } from 'antd';
+import { Card, Input, Table, Tooltip } from 'antd';
 import { ColumnsType } from 'antd/lib/table';
 import { BN } from '@polkadot/util';
 import { Reducer, useEffect, useMemo, useReducer, useState } from 'react';
@@ -15,7 +16,6 @@ import { prettyNumber, readStorage } from '../../../utils';
 import { IdentAccountName } from '../../widget/account/IdentAccountName';
 import { Favorite } from '../../widget/Favorite';
 import { Nominate } from '../action';
-import { ChartLink } from '../ChartLink';
 import { MaxBadge } from './MaxBadge';
 
 interface ValidatorsProps {
@@ -95,7 +95,7 @@ function sortValidators(list: ValidatorInfo[]): ValidatorInfo[] {
 
 export function Validators({ data, lastReward }: ValidatorsProps) {
   const { t } = useTranslation();
-  const { api } = useApi();
+  const { api, network } = useApi();
   const [favorites] = useFavorites(STAKING_FAV_KEY);
   const isMatch = useIsAccountFuzzyMatch();
   const [searchName, setSearchName] = useState('');
@@ -180,8 +180,14 @@ export function Validators({ data, lastReward }: ValidatorsProps) {
     },
     {
       key: 'action',
-      render(_, record) {
-        return <ChartLink account={record.account} />;
+      render() {
+        return (
+          <Tooltip title={t('Coming soon')}>
+            <LineChartOutlined
+              className={`hover:text-${network.name}-main transform transition-colors duration-500 text-xl`}
+            />
+          </Tooltip>
+        );
       },
     },
   ];

@@ -14,7 +14,7 @@ import { Nominating } from './Nominating';
 export function Power() {
   const { t } = useTranslation();
   const [eraSelectionIndex, setEraSelectionIndex] = useState(0);
-  const { accountWithMeta, assets, getBalances } = useAccount();
+  const { account, assets, assetsLoading, refreshAssets } = useAccount();
   const { stakingDerive, isStakingLedgerEmpty, stashAccount } = useStaking();
   const { pool } = usePower();
 
@@ -36,13 +36,15 @@ export function Power() {
 
   return (
     <>
-      <Card className="shadow-xxl">
-        <div className="flex lg:flex-row flex-col lg:justify-between lg:items-center">
-          <IdentAccountAddress account={accountWithMeta} className="mb-2 lg:mb-0" />
+      {account && (
+        <Card className="shadow-xxl">
+          <div className="flex lg:flex-row flex-col lg:justify-between lg:items-center">
+            <IdentAccountAddress account={account} className="mb-2 lg:mb-0" />
 
-          <Actions eraSelectionIndex={eraSelectionIndex} disabled={!stashAccount} />
-        </div>
-      </Card>
+            <Actions eraSelectionIndex={eraSelectionIndex} disabled={!stashAccount} />
+          </div>
+        </Card>
+      )}
 
       {/* eslint-disable-next-line no-magic-numbers */}
       <Row gutter={[32, 32]} className="mt-8">
@@ -69,7 +71,7 @@ export function Power() {
 
         {assets.map((item, index) => (
           <Col lg={8} span={24} key={item.token?.symbol || index}>
-            <AssetOverview asset={item} key={index} refresh={getBalances}></AssetOverview>
+            <AssetOverview asset={item} key={index} refresh={refreshAssets} loading={assetsLoading}></AssetOverview>
           </Col>
         ))}
       </Row>

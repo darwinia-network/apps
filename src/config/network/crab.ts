@@ -2,8 +2,16 @@ import { DVMChainConfig } from '../../model';
 
 export const crabConfig: DVMChainConfig = {
   dvm: {
-    kton: '0xbfE9E136270cE46A2A6a8E8D54718BdAEBEbaA3D',
-    ring: '0x588abe3F7EE935137102C5e2B8042788935f4CB0',
+    kton: {
+      address: '0x159933C635570D5042723359fbD1619dFe83D3f3',
+      symbol: 'WCKTON',
+      decimals: 18,
+    },
+    ring: {
+      address: '0x2d2b97ea380b0185e9fdf8271d1afb5d2bf18329',
+      symbol: 'CRAB',
+      decimals: 18,
+    },
   },
   ethereumChain: {
     blockExplorerUrls: ['https://crab.subscan.io/'],

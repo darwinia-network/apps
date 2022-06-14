@@ -3,14 +3,22 @@ import { SubmittableExtrinsic } from '@polkadot/api/types';
 import { Button, Tooltip } from 'antd';
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { QuestionCircleFilled } from '@ant-design/icons';
-import { PayoutValidator, useApi, useStakingRewards, useAccount, useQueue } from '../../../hooks';
+import {
+  PayoutValidator,
+  useApi,
+  useStakingRewards,
+  useWallet,
+  useQueue,
+  useAccount,
+  useStaking,
+} from '../../../hooks';
 import { fromWei, prettyNumber } from '../../../utils';
 import { SelectAccountModal } from '../../widget/account/SelectAccountModal';
 import { StakingActionProps } from './interface';
 
 interface ClaimRewardsProps extends StakingActionProps {
   eraSelectionIndex: number;
+  onSuccess?: () => void;
 }
 
 const PAYOUT_MAX_AMOUNT = 30;
@@ -39,19 +47,18 @@ const createPayout = (
   }
 };
 
-export function ClaimRewards({ eraSelectionIndex, type = 'text' }: ClaimRewardsProps) {
+export function ClaimRewards({ eraSelectionIndex, onSuccess = () => undefined, type = 'text' }: ClaimRewardsProps) {
   const { t } = useTranslation();
-  const {
-    api,
-    connection: { accounts },
-  } = useApi();
+  const { api } = useApi();
+  const { accounts } = useWallet();
   const { queueExtrinsic } = useQueue();
   const { account } = useAccount();
-  const { stakingRewards, payoutValidators } = useStakingRewards(eraSelectionIndex);
+  const { updateStakingDerive } = useStaking();
+  const { stakingRewards, payoutValidators, isLoadingRewards, refresh } = useStakingRewards(eraSelectionIndex);
   const hasPayoutValidator = useMemo(() => payoutValidators && payoutValidators.length, [payoutValidators]);
   const [busy, setBusy] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
-  const [signer, setSigner] = useState(account);
+  const [signer, setSigner] = useState(account?.displayAddress);
 
   return (
     <>
@@ -62,27 +69,22 @@ export function ClaimRewards({ eraSelectionIndex, type = 'text' }: ClaimRewardsP
             : ''
         }
       >
-        <Button type={type} disabled={!hasPayoutValidator} onClick={() => setIsVisible(true)}>
+        <Button
+          type={type}
+          disabled={!hasPayoutValidator}
+          loading={isLoadingRewards}
+          onClick={() => setIsVisible(true)}
+        >
           <span>{t('Claim Reward')}</span>
         </Button>
       </Tooltip>
       <SelectAccountModal
         visible={isVisible}
-        defaultValue={account}
+        defaultValue={account?.displayAddress || ''}
         onCancel={() => setIsVisible(false)}
         onSelect={(acc) => {
           setSigner(acc);
         }}
-        title={
-          <div className="inline-flex items-center space-x-1">
-            <span>{t('Select a signer')}</span>
-            <Tooltip
-              title={`If your account in the old version cannot be found in your wallet, you can restore JSON which the account in the old version Apps through "Account Migration" and add the JSON to polkadot{.js}.`}
-            >
-              <QuestionCircleFilled className="cursor-pointer text-gray-400" />
-            </Tooltip>
-          </div>
-        }
         footer={
           accounts?.length
             ? [
@@ -96,7 +98,7 @@ export function ClaimRewards({ eraSelectionIndex, type = 'text' }: ClaimRewardsP
                     extrinsics.forEach((extrinsic, index) => {
                       setBusy(true);
                       queueExtrinsic({
-                        signAddress: signer,
+                        signAddress: signer || '',
                         extrinsic,
                         txFailedCb: () => {
                           if (index + 1 === extrinsics.length) {
@@ -105,6 +107,9 @@ export function ClaimRewards({ eraSelectionIndex, type = 'text' }: ClaimRewardsP
                         },
                         txSuccessCb: () => {
                           if (index + 1 === extrinsics.length) {
+                            onSuccess();
+                            refresh();
+                            updateStakingDerive();
                             setIsVisible(false);
                             setBusy(false);
                           }

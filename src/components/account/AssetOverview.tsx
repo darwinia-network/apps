@@ -3,7 +3,7 @@ import { BN_HUNDRED, BN, isFunction } from '@polkadot/util';
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { from, Subscription } from 'rxjs';
-import { useAccount, useApi } from '../../hooks';
+import { useApi, useWallet, useAccount } from '../../hooks';
 import { AssetOverviewProps, DarwiniaAsset } from '../../model';
 import {
   fromWei,
@@ -27,14 +27,12 @@ interface TransferFormValues {
   [key: string]: unknown;
 }
 
-export function AssetOverview({ asset, refresh }: AssetOverviewProps) {
-  const { t } = useTranslation();
-  const {
-    network,
-    api,
-    connection: { accounts },
-  } = useApi();
+export function AssetOverview({ asset, loading, refresh }: AssetOverviewProps) {
+  const { network, api } = useApi();
+  const { accounts } = useWallet();
   const { account } = useAccount();
+
+  const { t } = useTranslation();
   const [recipient, setRecipient] = useState<string>(accounts[0]?.address);
   const [isVisible, setIsVisible] = useState(false);
   const [transferrable, setTransferrable] = useState<BN | null>(null);
@@ -49,7 +47,7 @@ export function AssetOverview({ asset, refresh }: AssetOverviewProps) {
 
     if (account && isValidAddress(recipient) && isFunction(api.rpc.payment?.queryInfo)) {
       if (asset.asset === DarwiniaAsset.ring) {
-        sub$$ = from(api.tx.balances?.transfer(recipient, asset.max).paymentInfo(account)).subscribe((res) => {
+        sub$$ = from(api.tx.balances?.transfer(recipient, asset.max).paymentInfo(account.address)).subscribe((res) => {
           const { partialFee } = res as unknown as { partialFee: BN };
           // eslint-disable-next-line no-magic-numbers
           const adjFee = partialFee.muln(110).div(BN_HUNDRED);
@@ -78,7 +76,9 @@ export function AssetOverview({ asset, refresh }: AssetOverviewProps) {
           <img src={tokenIconSrc} className="w-12" />
           <div>
             <h1 className="uppercase text-lg font-medium text-black dark:text-white">{asset.token?.symbol}</h1>
-            <PrettyAmount amount={fromWei({ value: asset.total }, prettyNumber)} />
+            <Spin spinning={loading} size="small">
+              <PrettyAmount amount={fromWei({ value: asset.total }, prettyNumber)} />
+            </Spin>
           </div>
         </div>
 
@@ -87,10 +87,12 @@ export function AssetOverview({ asset, refresh }: AssetOverviewProps) {
         <div className="flex items-center justify-between">
           <div className="inline-flex items-center">
             <span className="opacity-60 font-normal text-base">{t('Available')}:</span>
-            <PrettyAmount amount={fromWei({ value: asset.max }, prettyNumber)} integerClassName="ml-2" />
+            <Spin spinning={loading} size="small">
+              <PrettyAmount amount={fromWei({ value: asset.max }, prettyNumber)} integerClassName="ml-2" />
+            </Spin>
           </div>
 
-          <Button onClick={() => setIsVisible(true)} className="lg:px-12">
+          <Button onClick={() => setIsVisible(true)} className="lg:px-12" disabled={!account}>
             {t('Transfer')}
           </Button>
         </div>
@@ -103,7 +105,7 @@ export function AssetOverview({ asset, refresh }: AssetOverviewProps) {
           refresh();
         }}
         onCancel={() => setIsVisible(false)}
-        initialValues={{ from: account, to: accounts[0]?.address, amount: 0 }}
+        initialValues={{ from: account?.displayAddress || '', to: accounts[0]?.displayAddress, amount: 0 }}
         extrinsic={(values) => {
           const { to, amount } = values;
           const moduleName = isRing(asset.token?.symbol) ? 'balances' : 'kton';
@@ -140,7 +142,7 @@ export function AssetOverview({ asset, refresh }: AssetOverviewProps) {
             {
               validator(_, value) {
                 setRecipient(value);
-                return !isSameAddress(account, value) ? Promise.resolve() : Promise.reject();
+                return !isSameAddress(account?.displayAddress || '', value) ? Promise.resolve() : Promise.reject();
               },
               message: t('The sending address and the receiving address cannot be the same'),
             },
