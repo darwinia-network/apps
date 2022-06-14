@@ -87,10 +87,11 @@ export function Actions({ eraSelectionIndex, disabled }: ActionsProps) {
           : api.tx.staking.withdrawUnbonded(),
       txSuccessCb: () => {
         refreshAssets();
+        updateStakingDerive();
         refreshStakingAccount();
       },
     });
-  }, [api, controllerAccount, queueExtrinsic, refreshStakingAccount, refreshAssets, spanCount]);
+  }, [api, controllerAccount, queueExtrinsic, refreshStakingAccount, refreshAssets, updateStakingDerive, spanCount]);
 
   useEffect(() => {
     const sub$$ = refreshStakingAccount();

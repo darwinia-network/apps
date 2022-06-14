@@ -74,7 +74,7 @@
   "Export JSON": "导出 JSON",
   "Filter available candidates based on name, address or short account index.": "使用姓名、地址或短账户索引筛选可用的候选人",
   "Filter candidates": "输入候选人",
-  "Flite by name, address or index": "使用名称、地址或索引筛选",
+  "Filter by name, address or index": "使用名称、地址或索引筛选",
   "For fund security, your session key should not match your stash key.": "为了资金安全，您的session key 不应与资金密钥相同。",
   "Get Power": "获取 Power",
   "Go to Helix": "前往 Helix",
