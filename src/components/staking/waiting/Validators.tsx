@@ -61,7 +61,7 @@ export function Validators({ overview }: ValidatorsProps) {
           setSearchName(event.target.value);
         }}
         size="large"
-        placeholder={t('Flite by name, address or index')}
+        placeholder={t('Filter by name, address or index')}
         className="mt-4 mb-8 lg:w-1/3"
       />
 
