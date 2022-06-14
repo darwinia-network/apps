@@ -90,7 +90,7 @@ export const ActiveAccount = () => {
             </Badge.Ribbon>
 
             <span onClick={() => setVisible(true)} className="lg:hidden flex">
-              <Identicon value={account.address} size={20} className="rounded-full border p-1" />
+              <Identicon value={account.displayAddress} size={20} className="rounded-full border p-1" />
             </span>
           </>
         )}
@@ -110,7 +110,7 @@ export const ActiveAccount = () => {
                 theme="substrate"
                 size={42}
                 className="mr-2 rounded-full border border-solid border-gray-100"
-                value={account.address}
+                value={account.displayAddress}
               />
             </Col>
             <Col span={20}>
