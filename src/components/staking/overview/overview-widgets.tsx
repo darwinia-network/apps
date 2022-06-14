@@ -67,7 +67,7 @@ export function Nominators({ data }: { data?: [string, number][] }) {
         return (
           <IdentAccountAddress
             key={acc}
-            account={{ address: acc, meta: { ...meta, source: '' } }}
+            account={{ address: acc, displayAddress: acc, meta: { ...meta, source: '' } }}
             className="overflow-x-hidden"
             iconSize={24}
           />

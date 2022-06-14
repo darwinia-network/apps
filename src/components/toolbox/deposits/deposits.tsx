@@ -27,13 +27,13 @@ type DepositForm = {
 };
 
 export const Deposits = () => {
+  const { network } = useApi();
+  const { account } = useAccount();
   const {
     connection: { status, accounts },
     connectNetwork,
     disconnect,
   } = useMetamask();
-  const { network } = useApi();
-  const { account } = useAccount();
   const { t } = useTranslation();
   const [busy, setBusy] = useState(false);
 
@@ -54,6 +54,7 @@ export const Deposits = () => {
     }
   }, [refetch, activeAccount]);
 
+  const recipient = useMemo(() => account?.displayAddress || '', [account]);
   const disableConnect = useMemo(() => status !== 'success' && status !== 'pending', [status]);
 
   const handleClaim = useCallback(
@@ -116,7 +117,7 @@ export const Deposits = () => {
       <Form<DepositForm>
         layout="vertical"
         initialValues={{
-          recipient: account,
+          recipient,
         }}
         className="max-w-xl"
         validateMessages={validateMessages[i18n.language as 'en' | 'zh-CN' | 'zh']}

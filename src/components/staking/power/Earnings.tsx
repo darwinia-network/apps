@@ -19,10 +19,11 @@ interface PowerDetailProps {
 export function Earnings({ updateEraIndex }: PowerDetailProps) {
   const { t } = useTranslation();
   const { network } = useApi();
-  const [eraSelectionIndex, setEraSelectionIndex] = useState<number>(0);
-  const [claimed, setClaimed] = useState('-');
   const { assets, account } = useAccount();
   const { stashAccount } = useStaking();
+  const [eraSelectionIndex, setEraSelectionIndex] = useState<number>(0);
+  const [claimed, setClaimed] = useState('-');
+
   const {
     stakingRewards: { payoutTotal },
     eraSelection,
@@ -33,6 +34,10 @@ export function Earnings({ updateEraIndex }: PowerDetailProps) {
   const ringAsset = useMemo(() => assets.find((item) => isRing(item.asset)), [assets]);
 
   useEffect(() => {
+    if (!stashAccount) {
+      return;
+    }
+
     const times = 3;
     const sub$$ = timer(0, LONG_DURATION * times)
       .pipe(
@@ -99,7 +104,7 @@ export function Earnings({ updateEraIndex }: PowerDetailProps) {
         <div className="flex items-center justify-center gap-4 mt-4 md:mt-0">
           <ClaimRewards eraSelectionIndex={eraSelectionIndex} type="primary" onSuccess={refresh} />
           <Button>
-            <SubscanLink network={network.name} address={account} query="tab=reward">
+            <SubscanLink network={network.name} address={account?.displayAddress || ''} query="tab=reward">
               {t('Reward History')}
             </SubscanLink>
           </Button>

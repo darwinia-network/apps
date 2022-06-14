@@ -3,11 +3,12 @@ import { ClockCircleOutlined } from '@ant-design/icons';
 import { useMemo, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { signAndSendTx, sendRpc, extractCurrent } from '../../utils';
-import { useQueue, useApi, useNetworkColor } from '../../hooks';
+import { useQueue, useApi, useNetworkColor, useWallet } from '../../hooks';
 
 export const Signer = () => {
   const { color } = useNetworkColor();
   const { api, network } = useApi();
+  const { signer } = useWallet();
   const { t } = useTranslation();
   const { txqueue, queueSetTxStatus } = useQueue();
   const { count, currentItem, isRpc, isExtrinsic } = useMemo(() => extractCurrent(txqueue), [txqueue]);
@@ -19,10 +20,10 @@ export const Signer = () => {
   }, [api, isRpc, currentItem, queueSetTxStatus]);
 
   useEffect(() => {
-    if (currentItem && isExtrinsic) {
-      signAndSendTx(currentItem, queueSetTxStatus);
+    if (currentItem && isExtrinsic && signer) {
+      signAndSendTx(currentItem, queueSetTxStatus, signer);
     }
-  }, [currentItem, isExtrinsic, queueSetTxStatus]);
+  }, [currentItem, isExtrinsic, signer, queueSetTxStatus]);
 
   useEffect(() => {
     const key = 'Authorize transaction';

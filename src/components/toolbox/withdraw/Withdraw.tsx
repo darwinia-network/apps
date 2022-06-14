@@ -58,7 +58,7 @@ export function Withdraw() {
     connectNetwork,
     disconnect,
   } = useMetamask();
-  const { account, getBalances } = useAccount();
+  const { account, refreshAssets } = useAccount();
   const [visibleAttention, setVisibleAttention] = useState(false);
   const [attentionState, setAttentionState] = useState<CheckboxValueType[]>([]);
   const [busy, setBusy] = useState(false);
@@ -67,7 +67,7 @@ export function Withdraw() {
   const { ring, kton } = (network as DVMChainConfig).dvm;
 
   const [withdrawFormValue, setWithdrawFormValue] = useState({
-    destination: account,
+    destination: account?.displayAddress || '',
     asset: ring.symbol,
     amount: '0',
   });
@@ -105,7 +105,7 @@ export function Withdraw() {
 
           handleEthTxResult(tx, {
             txSuccessCb: () => {
-              getBalances(); // substrate balance
+              refreshAssets(); // substrate balance
               refreshDvmBalances();
               setBusy(false);
               setVisibleAttention(false);
@@ -122,7 +122,7 @@ export function Withdraw() {
 
         handleEthTxResult(tx, {
           txSuccessCb: () => {
-            getBalances(); // substrate balance
+            refreshAssets(); // substrate balance
             refreshDvmBalances();
             setBusy(false);
             setVisibleAttention(false);
@@ -138,7 +138,7 @@ export function Withdraw() {
         description: (error as Error).message,
       });
     }
-  }, [activeAccount, ring, kton, withdrawFormValue, getBalances, refreshDvmBalances]);
+  }, [activeAccount, ring, kton, withdrawFormValue, refreshAssets, refreshDvmBalances]);
 
   useEffect(() => {
     const sub$$ = refreshDvmBalances();

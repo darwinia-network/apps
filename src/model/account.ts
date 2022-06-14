@@ -39,5 +39,6 @@ export interface Fund extends Asset {
 
 export interface AssetOverviewProps {
   asset: Asset;
+  loading?: boolean | undefined;
   refresh: (acc?: string) => void;
 }
