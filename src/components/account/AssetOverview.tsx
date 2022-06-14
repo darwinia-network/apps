@@ -5,7 +5,16 @@ import { useTranslation } from 'react-i18next';
 import { from, Subscription } from 'rxjs';
 import { useApi, useWallet, useAccount } from '../../hooks';
 import { AssetOverviewProps, DarwiniaAsset } from '../../model';
-import { fromWei, getUnit, insufficientBalanceRule, isRing, isSameAddress, prettyNumber, toWei } from '../../utils';
+import {
+  fromWei,
+  getUnit,
+  insufficientBalanceRule,
+  isRing,
+  isSameAddress,
+  prettyNumber,
+  toWei,
+  isValidAddress,
+} from '../../utils';
 import { FormModal } from '../widget/FormModal';
 import { PrettyAmount } from '../widget/PrettyAmount';
 import { BalanceControl } from '../widget/form-control/BalanceControl';
@@ -36,7 +45,7 @@ export function AssetOverview({ asset, loading, refresh }: AssetOverviewProps) {
   useEffect(() => {
     let sub$$: Subscription;
 
-    if (account && recipient && isFunction(api.rpc.payment?.queryInfo)) {
+    if (account && isValidAddress(recipient) && isFunction(api.rpc.payment?.queryInfo)) {
       if (asset.asset === DarwiniaAsset.ring) {
         sub$$ = from(api.tx.balances?.transfer(recipient, asset.max).paymentInfo(account.address)).subscribe((res) => {
           const { partialFee } = res as unknown as { partialFee: BN };
@@ -113,10 +122,14 @@ export function AssetOverview({ asset, loading, refresh }: AssetOverviewProps) {
           extra={
             <span className="ml-4 mt-2 text-xs">
               <span className="mr-2">{t('transferrable')}:</span>
-              <span>
-                {fromWei({ value: transferrable, unit: getUnit(Number(asset.token?.decimal)) || 'gwei' })}{' '}
-                {asset.token?.symbol}
-              </span>
+              {transferrable ? (
+                <span>
+                  {fromWei({ value: transferrable, unit: getUnit(Number(asset.token?.decimal)) || 'gwei' })}{' '}
+                  {asset.token?.symbol}
+                </span>
+              ) : (
+                <Spin size="small" />
+              )}
             </span>
           }
           disabled
