@@ -4,3 +4,4 @@ export * from './network';
 export * from './theme';
 export * from './validate-msg';
 export * from './api';
+export * from './wallet';

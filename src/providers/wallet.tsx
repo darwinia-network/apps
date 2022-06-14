@@ -4,7 +4,7 @@ import { accounts as accountsObs } from '@polkadot/ui-keyring/observable/account
 import type { SubjectInfo } from '@polkadot/ui-keyring/observable/types';
 import { from } from 'rxjs';
 import type { Wallet, Account, WalletSource } from '../model';
-import { DAPP_NAME, LOCAL_SOURCE, SEARCH_PARAMS_SOURCE } from '../config';
+import { DAPP_NAME, LOCAL_SOURCE, SEARCH_PARAMS_SOURCE, supportedWallets } from '../config';
 import { convertToSS58, isValidAddress, updateStorage, readStorage } from '../utils';
 import { useApi } from '../hooks';
 
@@ -32,11 +32,10 @@ export const WalletProvider = ({ children }: PropsWithChildren<unknown>) => {
   const [signer, setSigner] = useState<InjectedSigner | null>();
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [walletToUse, setWalletToUse] = useState<Wallet | null>();
-  const [supportedWallets, setSupportedWallets] = useState<Wallet[]>([]);
 
   const getWalletBySource = useCallback(
     (source: WalletSource) => supportedWallets.find((item) => item.extensionName === source),
-    [supportedWallets]
+    []
   );
 
   const connectWallet = useCallback(
@@ -146,46 +145,6 @@ export const WalletProvider = ({ children }: PropsWithChildren<unknown>) => {
 
     return () => sub$$();
   }, [walletToUse, network.ss58Prefix, api, accountsObsData]);
-
-  useEffect(() => {
-    const injecteds = window.injectedWeb3;
-
-    setSupportedWallets([
-      {
-        ...(injecteds['polkadot-js'] ?? []),
-        extensionName: 'polkadot-js',
-        title: 'Polkadot{.js}',
-        installUrl: 'https://polkadot.js.org/extension/',
-        installed: !!injecteds['polkadot-js'],
-        logo: {
-          src: '/image/wallet/polkadot-js.svg',
-          alt: 'Polkadotjs Logo',
-        },
-      },
-      {
-        ...(injecteds['talisman'] ?? {}),
-        extensionName: 'talisman',
-        title: 'Talisman',
-        installUrl: 'https://chrome.google.com/webstore/detail/talisman-wallet/fijngjgcjhjmmpcmkeiomlglpeiijkld',
-        installed: !!injecteds['talisman'],
-        logo: {
-          src: '/image/wallet/talisman.svg',
-          alt: 'Talisman Logo',
-        },
-      },
-      // {
-      //   ...(injecteds['subwallet-js'] ?? {}),
-      //   extensionName: 'subwallet-js',
-      //   title: 'SubWallet',
-      //   installUrl: 'https://subwallet.app/download.html',
-      //   installed: !!injecteds['subwallet-js'],
-      //   logo: {
-      //     src: '/image/wallet/subwallet-js.svg',
-      //     alt: 'Subwallet Logo',
-      //   },
-      // },
-    ]);
-  }, []);
 
   useEffect(() => {
     connectWallet(readStorage().activeWallet);
