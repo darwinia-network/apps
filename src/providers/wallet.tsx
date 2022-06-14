@@ -173,17 +173,17 @@ export const WalletProvider = ({ children }: PropsWithChildren<unknown>) => {
           alt: 'Talisman Logo',
         },
       },
-      {
-        ...(injecteds['subwallet-js'] ?? {}),
-        extensionName: 'subwallet-js',
-        title: 'SubWallet',
-        installUrl: 'https://subwallet.app/download.html',
-        installed: !!injecteds['subwallet-js'],
-        logo: {
-          src: '/image/wallet/subwallet-js.svg',
-          alt: 'Subwallet Logo',
-        },
-      },
+      // {
+      //   ...(injecteds['subwallet-js'] ?? {}),
+      //   extensionName: 'subwallet-js',
+      //   title: 'SubWallet',
+      //   installUrl: 'https://subwallet.app/download.html',
+      //   installed: !!injecteds['subwallet-js'],
+      //   logo: {
+      //     src: '/image/wallet/subwallet-js.svg',
+      //     alt: 'Subwallet Logo',
+      //   },
+      // },
     ]);
   }, []);
 
