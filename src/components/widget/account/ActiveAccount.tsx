@@ -85,7 +85,7 @@ export const ActiveAccount = () => {
                 account={account}
                 className="text-white hidden lg:flex cursor-pointer"
                 logoStyle={{ width: 24, height: 24 }}
-                isLargeRounded={false}
+                isLargeRounded={true}
               />
             </Badge.Ribbon>
 
