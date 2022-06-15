@@ -171,7 +171,7 @@
   "You can transfer CRAB/CKTON through the bridge between Crab Chain and Crab Smart Chain.": "你可以通过桥在 Crab Chain和Crab Smart Chain 之间转移 CRAB或CKTON。",
   "You can transfer PRING/PKTON through the cross-chain bridge between Pangolin and Ropsten.": "你可以通过跨链桥在 Pangolin和Ropsten 之间转移 PRING或PKTON。",
   "You can transfer ORING through the cross-chain bridge between Pangoro and Pangolin Smart Chain.": "你可以通过跨链桥在 Pangoro和Pangolin Smart Chain 之间转移 ORING。",
-  "You haven’t created an address yet, please create a address first.": "尚未创建账户",
+  "No active accounts in this wallet. Please add one or manage website access in your wallet extension.": "此钱包中没有有效账户。请在钱包插件里添加账户，或给本网站设置访问权限。",
   "You must set a payee account": "必须设置一个收载账户",
   "You need to stake some KTON or RING to get POWER. The higher the POWER, the greater the share of reward.": "你需要质押一些KTON或RING来获得Power。Power越多，奖励的份额就越大。",
   "You will get {{amount}} Power": "你将会得到 {{amount}} Power",

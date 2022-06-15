@@ -12,7 +12,7 @@ export declare global {
     ethereum: any;
     tronWeb: any;
     tronLink: any;
-    injectedWeb3: Record<WalletSource, InjectedExtension>;
+    injectedWeb3: Record<WalletSource, InjectedWindowProvider>;
     /* eslint-enable */
   }
 }

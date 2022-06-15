@@ -4,7 +4,8 @@ import { useCallback, useEffect, useState } from 'react';
 import { DownloadOutlined } from '@ant-design/icons';
 import type { RadioChangeEvent } from 'antd/lib/radio';
 import type { WalletSource } from '../../model';
-import { useWallet, useApi } from '../../hooks';
+import { useWallet, useApi, useAccount } from '../../hooks';
+import { SelectAccountModal } from '../../components/widget/account/SelectAccountModal';
 
 // antd Radio wrap in Radio.Button is hidden
 const MyRadio = ({ checked }: { checked?: boolean }) => {
@@ -26,8 +27,10 @@ const MyRadio = ({ checked }: { checked?: boolean }) => {
 export const ConnectWallet = () => {
   const { network } = useApi();
   const { supportedWallets, walletToUse, error: walletError, connectWallet, disConnectWallet } = useWallet();
+  const { selectAccount } = useAccount();
   const { t } = useTranslation();
   const [visible, setVisible] = useState(false);
+  const [visibleSelectAccount, setVisibleSelectAccount] = useState(false);
   const [busy, setBusy] = useState(false);
   const [selected, setSelected] = useState<WalletSource | undefined>(walletToUse?.extensionName);
 
@@ -40,6 +43,7 @@ export const ConnectWallet = () => {
       if (await connectWallet(event.target.value)) {
         setVisible(false);
       }
+      setVisibleSelectAccount(true);
 
       setBusy(false);
     },
@@ -68,12 +72,12 @@ export const ConnectWallet = () => {
         onCancel={() => setVisible(false)}
       >
         <Spin spinning={busy}>
-          <Radio.Group className="w-full" defaultValue={selected} onChange={handleSelect}>
+          <Radio.Group className="w-full" defaultValue={selected || walletToUse?.extensionName} onChange={handleSelect}>
             {supportedWallets.map((item) => (
               <Radio.Button
                 key={item.extensionName}
                 value={item.extensionName}
-                disabled={!item.installed}
+                disabled={!item.getProvider()}
                 className={`radio-list network-radio-button-${network.name}`}
               >
                 <div className="flex items-center justify-between w-full pr-3">
@@ -81,12 +85,12 @@ export const ConnectWallet = () => {
                     <img alt={item.logo.alt} src={item.logo.src} className="w-11 h-11" />
                     <span className="text-sm font-medium">{item.title}</span>
                   </div>
-                  {item.installed ? (
-                    <MyRadio checked={selected === item.extensionName} />
+                  {item.getProvider() ? (
+                    <MyRadio checked={(selected || walletToUse?.extensionName) === item.extensionName} />
                   ) : (
                     <DownloadOutlined
                       className={`text-xl text-${network.name}-main`}
-                      onClick={() => window.open(item.installUrl, '_blank', 'noopener noreferrer')}
+                      onClick={() => window.open(item.getInstallUrl(), '_blank', 'noopener noreferrer')}
                     />
                   )}
                 </div>
@@ -95,6 +99,16 @@ export const ConnectWallet = () => {
           </Radio.Group>
         </Spin>
       </Modal>
+      <SelectAccountModal
+        visible={visibleSelectAccount}
+        defaultValue=""
+        onCancel={() => setVisibleSelectAccount(false)}
+        onSelect={(acc) => {
+          selectAccount(acc);
+          setVisibleSelectAccount(false);
+        }}
+        footer={null}
+      />
     </>
   );
 };
