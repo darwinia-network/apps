@@ -68,7 +68,7 @@ export const ConnectWallet = () => {
         onCancel={() => setVisible(false)}
       >
         <Spin spinning={busy}>
-          <Radio.Group className="w-full" defaultValue={selected} onChange={handleSelect}>
+          <Radio.Group className="w-full" defaultValue={selected || walletToUse?.extensionName} onChange={handleSelect}>
             {supportedWallets.map((item) => (
               <Radio.Button
                 key={item.extensionName}
@@ -82,7 +82,7 @@ export const ConnectWallet = () => {
                     <span className="text-sm font-medium">{item.title}</span>
                   </div>
                   {item.getProvider() ? (
-                    <MyRadio checked={selected === item.extensionName} />
+                    <MyRadio checked={(selected || walletToUse?.extensionName) === item.extensionName} />
                   ) : (
                     <DownloadOutlined
                       className={`text-xl text-${network.name}-main`}

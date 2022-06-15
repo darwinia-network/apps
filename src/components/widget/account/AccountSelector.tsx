@@ -14,7 +14,7 @@ export function AccountSelector() {
 
   return (
     <>
-      {accounts.length && !account ? (
+      {!account ? (
         <Button onClick={() => setVisible(true)} className="hidden lg:block" type="primary">
           {t('Select Account')}
         </Button>

@@ -96,7 +96,11 @@ export const SelectAccountModal: React.FC<Props> = ({ visible, defaultValue, tit
           ))}
         </Radio.Group>
       ) : (
-        <Empty description={t('You haven’t created an address yet, please create a address first.')} />
+        <Empty
+          description={t(
+            'No active accounts in this wallet. Please add one or manage website access in your wallet extension.'
+          )}
+        />
       )}
     </Modal>
   );
