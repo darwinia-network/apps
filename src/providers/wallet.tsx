@@ -2,6 +2,7 @@ import { PropsWithChildren, useState, createContext, useCallback, useEffect } fr
 import type { Signer as InjectedSigner } from '@polkadot/api/types';
 import { accounts as accountsObs } from '@polkadot/ui-keyring/observable/accounts';
 import type { SubjectInfo } from '@polkadot/ui-keyring/observable/types';
+import type { Injected } from '@polkadot/extension-inject/types';
 import { from } from 'rxjs';
 import type { Wallet, Account, WalletSource } from '../model';
 import { DAPP_NAME, LOCAL_SOURCE, SEARCH_PARAMS_SOURCE, supportedWallets } from '../config';
@@ -15,7 +16,7 @@ export interface WalletCtx {
   accounts: Account[];
 
   walletToUse: Wallet | null | undefined;
-  supportedWallets: Wallet[];
+  supportedWallets: Omit<Wallet, keyof Injected>[];
 
   connectWallet: (source: WalletSource) => Promise<boolean>;
   disConnectWallet: () => void;
@@ -40,16 +41,17 @@ export const WalletProvider = ({ children }: PropsWithChildren<unknown>) => {
 
   const connectWallet = useCallback(
     async (source: WalletSource) => {
-      const wallet = getWalletBySource(source);
+      try {
+        const wallet = getWalletBySource(source);
+        const provider = await wallet?.getProvider()?.enable(DAPP_NAME);
 
-      if (wallet) {
-        try {
-          setWalletToUse({ ...wallet, ...(await wallet.enable(DAPP_NAME)) });
+        if (wallet && provider) {
+          setWalletToUse({ ...wallet, ...provider });
           return true;
-        } catch (error) {
-          console.error(error);
-          setError(error as Error);
         }
+      } catch (err) {
+        console.error(err);
+        setError(err as Error);
       }
 
       return false;

@@ -1,24 +1,26 @@
-import type { InjectedAccountWithMeta, InjectedExtension } from '@polkadot/extension-inject/types';
+import type { InjectedAccountWithMeta, InjectedWindowProvider, Injected } from '@polkadot/extension-inject/types';
 import type { KeyringJson } from '@polkadot/ui-keyring/types';
 
-export type WalletSource = 'polkadot-js' | 'talisman' | 'subwallet-js';
+export type WalletSource =
+  | 'polkadot-js'
+  | '"polkadot-js"'
+  | 'talisman'
+  | '"talisman"'
+  | 'subwallet-js'
+  | '"subwallet-js"';
 
 interface WalletLogoProps {
   src: string;
   alt: string;
 }
 
-interface WalletData {
-  installUrl: string;
-  logo: WalletLogoProps;
+export interface Wallet extends Injected {
   title: string;
-}
-
-export interface Wallet extends InjectedExtension, WalletData {
-  installed: boolean | undefined;
+  logo: WalletLogoProps;
   extensionName: WalletSource;
 
-  enable: (name: string) => Wallet;
+  getProvider: () => InjectedWindowProvider | undefined;
+  getInstallUrl: () => string;
 }
 
 export interface Account extends InjectedAccountWithMeta {

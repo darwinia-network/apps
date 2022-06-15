@@ -1,39 +1,53 @@
-import { Wallet } from '../model';
+import type { Injected } from '@polkadot/extension-inject/types';
+import type { Wallet } from '../model';
+import { checkBrower } from '../utils';
 
-const injecteds = window.injectedWeb3;
-
-export const supportedWallets: Wallet[] = [
+export const supportedWallets: Omit<Wallet, keyof Injected>[] = [
   {
-    ...(injecteds['polkadot-js'] ?? []),
-    extensionName: 'polkadot-js',
     title: 'Polkadot{.js}',
-    installUrl: 'https://polkadot.js.org/extension/',
-    installed: !!injecteds['polkadot-js'],
+    extensionName: 'polkadot-js',
     logo: {
       src: '/image/wallet/polkadot-js.svg',
       alt: 'Polkadotjs Logo',
     },
+    getProvider: () => {
+      const injecteds = window.injectedWeb3;
+      return injecteds && (injecteds['polkadot-js'] || injecteds['"polkadot-js"']);
+    },
+    getInstallUrl: () => {
+      return 'https://polkadot.js.org/extension/';
+    },
   },
   {
-    ...(injecteds['talisman'] ?? {}),
-    extensionName: 'talisman',
     title: 'Talisman',
-    installUrl: 'https://chrome.google.com/webstore/detail/talisman-wallet/fijngjgcjhjmmpcmkeiomlglpeiijkld',
-    installed: !!injecteds['talisman'],
+    extensionName: 'talisman',
     logo: {
       src: '/image/wallet/talisman.svg',
       alt: 'Talisman Logo',
     },
+    getProvider: () => {
+      const injecteds = window.injectedWeb3;
+      return injecteds && (injecteds['talisman'] || injecteds['"talisman"']);
+    },
+    getInstallUrl: () => {
+      return checkBrower() === 'Google Chrome or Chromium'
+        ? 'https://chrome.google.com/webstore/detail/talisman-wallet/fijngjgcjhjmmpcmkeiomlglpeiijkld'
+        : 'https://addons.mozilla.org/en-US/firefox/addon/talisman-wallet-extension/';
+    },
   },
-  // {
-  //   ...(injecteds['subwallet-js'] ?? {}),
-  //   extensionName: 'subwallet-js',
-  //   title: 'SubWallet',
-  //   installUrl: 'https://subwallet.app/download.html',
-  //   installed: !!injecteds['subwallet-js'],
-  //   logo: {
-  //     src: '/image/wallet/subwallet-js.svg',
-  //     alt: 'Subwallet Logo',
-  //   },
-  // },
+  {
+    extensionName: 'subwallet-js',
+    title: 'SubWallet',
+    logo: {
+      src: '/image/wallet/subwallet-js.svg',
+      alt: 'Subwallet Logo',
+    },
+    getProvider: () => {
+      const injecteds = window.injectedWeb3;
+      return injecteds && (injecteds['subwallet-js'] || injecteds['"subwallet-js"']);
+    },
+    getInstallUrl: () => {
+      return 'https://subwallet.app/download.html';
+    },
+  },
 ];

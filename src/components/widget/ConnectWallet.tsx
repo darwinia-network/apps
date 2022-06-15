@@ -73,7 +73,7 @@ export const ConnectWallet = () => {
               <Radio.Button
                 key={item.extensionName}
                 value={item.extensionName}
-                disabled={!item.installed}
+                disabled={!item.getProvider()}
                 className={`radio-list network-radio-button-${network.name}`}
               >
                 <div className="flex items-center justify-between w-full pr-3">
@@ -81,12 +81,12 @@ export const ConnectWallet = () => {
                     <img alt={item.logo.alt} src={item.logo.src} className="w-11 h-11" />
                     <span className="text-sm font-medium">{item.title}</span>
                   </div>
-                  {item.installed ? (
+                  {item.getProvider() ? (
                     <MyRadio checked={selected === item.extensionName} />
                   ) : (
                     <DownloadOutlined
                       className={`text-xl text-${network.name}-main`}
-                      onClick={() => window.open(item.installUrl, '_blank', 'noopener noreferrer')}
+                      onClick={() => window.open(item.getInstallUrl(), '_blank', 'noopener noreferrer')}
                     />
                   )}
                 </div>
