@@ -40,7 +40,7 @@ function Page() {
               renderItem={(item) => (
                 <List.Item key={item.address}>
                   <List.Item.Meta
-                    avatar={<Identicon value={item.address} size={40} className="border rounded-full p-1" />}
+                    avatar={<Identicon value={item.displayAddress} size={40} className="border rounded-full p-1" />}
                     title={<span className="font-bold text-lg">{item.meta.name}</span>}
                     description={<EllipsisMiddle value={item.address} />}
                     className="flex item-center"
