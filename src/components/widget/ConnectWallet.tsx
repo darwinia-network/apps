@@ -69,10 +69,13 @@ export const ConnectWallet = () => {
         title={walletToUse ? t('Switch Wallet') : t('Connect Wallet')}
         visible={visible}
         footer={null}
-        onCancel={() => setVisible(false)}
+        onCancel={() => {
+          setVisible(false);
+          setSelected(walletToUse?.extensionName);
+        }}
       >
         <Spin spinning={busy}>
-          <Radio.Group className="w-full" defaultValue={selected || walletToUse?.extensionName} onChange={handleSelect}>
+          <Radio.Group className="w-full" value={selected || walletToUse?.extensionName} onChange={handleSelect}>
             {supportedWallets.map((item) => (
               <Radio.Button
                 key={item.extensionName}

@@ -35,19 +35,19 @@ export const supportedWallets: Omit<Wallet, keyof Injected>[] = [
         : 'https://addons.mozilla.org/en-US/firefox/addon/talisman-wallet-extension/';
     },
   },
-  {
-    extensionName: 'subwallet-js',
-    title: 'SubWallet',
-    logo: {
-      src: '/image/wallet/subwallet-js.svg',
-      alt: 'Subwallet Logo',
-    },
-    getProvider: () => {
-      const injecteds = window.injectedWeb3;
-      return injecteds && (injecteds['subwallet-js'] || injecteds['"subwallet-js"']);
-    },
-    getInstallUrl: () => {
-      return 'https://subwallet.app/download.html';
-    },
-  },
+  // {
+  //   extensionName: 'subwallet-js',
+  //   title: 'SubWallet',
+  //   logo: {
+  //     src: '/image/wallet/subwallet-js.svg',
+  //     alt: 'Subwallet Logo',
+  //   },
+  //   getProvider: () => {
+  //     const injecteds = window.injectedWeb3;
+  //     return injecteds && (injecteds['subwallet-js'] || injecteds['"subwallet-js"']);
+  //   },
+  //   getInstallUrl: () => {
+  //     return 'https://subwallet.app/download.html';
+  //   },
+  // },
 ];
