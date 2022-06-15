@@ -118,7 +118,7 @@ export const ActiveAccount = () => {
                 <Col flex="auto">
                   <div className="flex items-center justify-between">
                     <AccountName account={account.displayAddress} />
-                    <AccountSelector />
+                    <AccountSelector onSuccess={() => setVisible(false)} />
                   </div>
                   <span className="text-gray-600 overflow-hidden">{toShortAddress(account.displayAddress)}</span>
                 </Col>

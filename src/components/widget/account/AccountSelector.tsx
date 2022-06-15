@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { useApi, useWallet, useAccount } from '../../../hooks';
 import { SelectAccountModal } from './SelectAccountModal';
 
-export function AccountSelector() {
+export function AccountSelector({ onSuccess = () => undefined }: { onSuccess?: () => void }) {
   const { network } = useApi();
   const { accounts } = useWallet();
   const { account, selectAccount } = useAccount();
@@ -39,6 +39,7 @@ export function AccountSelector() {
             selectAccount(acc);
           }
           setVisible(false);
+          onSuccess();
         }}
         footer={null}
       />
