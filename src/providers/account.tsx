@@ -4,7 +4,6 @@ import { useAssets, useWallet } from '../hooks';
 import { Asset, Account } from '../model';
 import { readStorage, updateStorage } from '../utils';
 import { SEARCH_PARAMS_SOURCE } from '../config';
-import { SelectAccountModal } from '../components/widget/account/SelectAccountModal';
 
 export interface AccountCtx {
   assets: Asset[];
@@ -21,7 +20,6 @@ export const AccountProvider = ({ children }: React.PropsWithChildren<unknown>) 
   const { accounts } = useWallet();
   const [account, setAccount] = useState<Account | null>();
   const { assets, loading: assetsLoading, getAssets: refreshAssets } = useAssets(account?.displayAddress || '');
-  const [visible, setVisible] = useState(false);
 
   const selectAccount = useCallback(
     (address: string) => {
@@ -31,11 +29,6 @@ export const AccountProvider = ({ children }: React.PropsWithChildren<unknown>) 
   );
 
   useEffect(() => {
-    if (!accounts.length) {
-      setAccount(null);
-      return;
-    }
-
     accounts.forEach(({ displayAddress, meta }) => {
       keyring.saveAddress(displayAddress, meta);
     });
@@ -44,12 +37,7 @@ export const AccountProvider = ({ children }: React.PropsWithChildren<unknown>) 
     const storageAccount = accounts.find(({ address }) => address === storageAddress);
     const readOnlyAccount = accounts.find(({ meta }) => meta.source === SEARCH_PARAMS_SOURCE);
 
-    const acc = readOnlyAccount ?? storageAccount;
-    if (acc) {
-      setAccount(acc);
-    } else {
-      setVisible(true);
-    }
+    setAccount(readOnlyAccount ?? storageAccount);
   }, [accounts]);
 
   useEffect(() => {
@@ -71,17 +59,6 @@ export const AccountProvider = ({ children }: React.PropsWithChildren<unknown>) 
       >
         {children}
       </AccountContext.Provider>
-
-      <SelectAccountModal
-        visible={visible}
-        defaultValue=""
-        onCancel={() => setVisible(false)}
-        onSelect={(acc) => {
-          selectAccount(acc);
-          setVisible(false);
-        }}
-        footer={null}
-      />
     </>
   );
 };

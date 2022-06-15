@@ -52,6 +52,7 @@ function AccountWithNetwork({
 
 export const ActiveAccount = () => {
   const { network } = useApi();
+  const { walletToUse } = useWallet();
   const { account } = useAccount();
   const { t } = useTranslation();
   const [visible, setVisible] = useState(false);
@@ -64,6 +65,10 @@ export const ActiveAccount = () => {
       of(false).pipe(delay(SHORT_DURATION)).subscribe(setIsCopied);
     }
   }, [isCopied]);
+
+  if (!walletToUse) {
+    return null;
+  }
 
   return account ? (
     <>
