@@ -26,7 +26,7 @@ export function BondMore() {
   const { t } = useTranslation();
   const { api } = useApi();
   const [isVisible, setIsVisible] = useState(false);
-  const { getBalances } = useAccount();
+  const { refreshAssets } = useAccount();
   const { stashAccount, updateValidators, updateStakingDerive } = useStaking();
   const [balances, setBalances] = useState<DeriveBalancesAll | null>(null);
   const [selectedAsset, setSelectedAsset] = useState<Fund | null>(null);
@@ -63,8 +63,9 @@ export function BondMore() {
           setIsVisible(false);
           updateValidators();
           updateStakingDerive();
-          getBalances();
+          refreshAssets();
         }}
+        signer={stashAccount}
         initialValues={{ stash: stashAccount, promiseMonth: duration, accept: false }}
       >
         <AddressItem name="stash" label="Stash account" disabled />

@@ -1,5 +1,5 @@
 import { QuestionCircleFilled } from '@ant-design/icons';
-import { Skeleton, Tooltip } from 'antd';
+import { Skeleton, Tooltip, Spin } from 'antd';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useStaking } from '../../hooks';
@@ -18,7 +18,7 @@ function Description({ title, value }: { title: string; value: string }) {
   );
 }
 
-export function AssetOverview({ asset }: AssetOverviewProps) {
+export function AssetOverview({ asset, loading }: AssetOverviewProps) {
   const { t } = useTranslation();
   const { stakingDerive, isStakingLedgerEmpty, isStakingDeriveLoading } = useStaking();
   const tokenIconSrc = useMemo(
@@ -28,7 +28,7 @@ export function AssetOverview({ asset }: AssetOverviewProps) {
 
   const ledger = useMemo(
     () => getLedger(asset.token.symbol, isStakingLedgerEmpty, stakingDerive),
-    [asset.token.symbol, isStakingLedgerEmpty, stakingDerive]
+    [asset, isStakingLedgerEmpty, stakingDerive]
   );
 
   if (isStakingDeriveLoading) {
@@ -43,15 +43,16 @@ export function AssetOverview({ asset }: AssetOverviewProps) {
           <h1 className="uppercase text-lg font-medium text-black">{asset.token?.symbol}</h1>
         </div>
 
-        <div className="flex flex-col col-span-2 justify-between">
+        <Spin className="flex flex-col col-span-2 justify-between" spinning={loading}>
           <Description title={t('Available')} value={fromWei({ value: asset.max }, prettyNumber)} />
           <Description title={t('Bonded')} value={fromWei({ value: ledger.bonded }, prettyNumber)} />
+          <Description title={t('Unbonded')} value={fromWei({ value: ledger.unbonded }, prettyNumber)} />
           {isRing(asset.asset) && (
             <Description title={t('Locked')} value={fromWei({ value: ledger.locked }, prettyNumber)} />
           )}
           <Description title={t('Unbonding')} value={fromWei({ value: ledger.unbonding }, prettyNumber)} />
           <Description title={t('Total')} value={fromWei({ value: asset.total }, prettyNumber)} />
-        </div>
+        </Spin>
       </div>
       <Tooltip
         title={

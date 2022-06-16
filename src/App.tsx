@@ -9,8 +9,8 @@ import { Route, Switch, useLocation } from 'react-router-dom';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import { Signer } from './components/widget/Signer';
 import { QueueStatus } from './components/widget/QueueStatus';
+import { ConnectWallet } from './components/widget/ConnectWallet';
 import { ActiveAccount } from './components/widget/account/ActiveAccount';
-import { Connection } from './components/widget/Connection';
 import { Language } from './components/widget/Language';
 import { getActiveNav, SideNav } from './components/widget/SideNav';
 import { toggleTheme } from './components/widget/ThemeSwitch';
@@ -42,12 +42,8 @@ function IntroGuide() {
       title: t('Connect Wallet'),
       position: 'bottom-middle-aligned',
       intro: (
-        <Trans i18nKey="connectRefers">
-          Please connect{' '}
-          <AntdLink href="https://polkadot.js.org/extension/" target="_blank" rel="noopener noreferrer">
-            {`polkadot{.js} extension`}
-          </AntdLink>{' '}
-          to participate in Darwinia Apps.{' '}
+        <Trans>
+          Please connect wallet to participate in Darwinia Apps.{' '}
           <AntdLink href="https://www.youtube.com/watch?v=mT7rUlQh660" target="_blank" rel="noopener noreferrer">
             Tutorial refers here.
           </AntdLink>
@@ -62,12 +58,12 @@ function IntroGuide() {
       title: t('Account Migration'),
       position: 'right',
       intro: (
-        <Trans i18nKey="migrateRefers" className="m-8">
-          If your account in the old version cannot be found in your wallet, you can restore JSON which the account in
-          the old version apps through \u0022 Account Migration \u0022 and add the JSON to polkadot\u007b.js\u007d.
+        <Trans className="m-8">
+          {`If your account in the old version cannot be found in your wallet, you can restore JSON which the account in the old version Apps through "Account Migration" and add the JSON to your wallet. `}
           <AntdLink
             href="https://darwinianetwork.medium.com/using-darwinia-tools-3-8-darwinia-apps-lite-guide-part-%E2%85%B0-account-ae9b3347b3c7"
             target="_blank"
+            rel="noopener noreferrer"
           >
             Tutorial refers here.
           </AntdLink>
@@ -161,8 +157,8 @@ function App() {
             </div>
 
             <div className="flex items-center gap-4">
-              <Connection />
               <ActiveAccount />
+              <ConnectWallet />
 
               <div className="hidden lg:flex items-center">
                 {/* <ThemeSwitch mode="btn" network={network.name} onThemeChange={setTheme} /> */}

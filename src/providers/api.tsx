@@ -2,13 +2,16 @@ import { ApiPromise } from '@polkadot/api';
 import { Alert } from 'antd';
 import { createContext, useCallback, useEffect, useMemo, useReducer, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { EMPTY, Subscription } from 'rxjs';
+import { EMPTY, Subscription, from } from 'rxjs';
 import keyring from '@polkadot/ui-keyring';
+import type { u32 } from '@polkadot/types-codec';
+import type { ChainProperties } from '@polkadot/types/interfaces';
 import { BallScalePulse } from '../components/widget/BallScalePulse';
 import { crabConfig, THEME } from '../config';
 import {
-  Action,
   Chain,
+  Token,
+  Action,
   Network,
   ChainConfig,
   Connection,
@@ -16,14 +19,7 @@ import {
   PolkadotChainConfig,
   PolkadotConnection,
 } from '../model';
-import {
-  convertToSS58,
-  getPolkadotConnection,
-  readStorage,
-  updateStorage,
-  waitUntilConnected,
-  getNetworkByName,
-} from '../utils';
+import { convertToSS58, getPolkadotConnection, readStorage, updateStorage, getNetworkByName } from '../utils';
 
 interface StoreState {
   connection: Connection;
@@ -34,6 +30,14 @@ interface StoreState {
 type ActionType = 'setNetwork' | 'setConnection';
 
 const isDev = process.env.REACT_APP_HOST_TYPE === 'dev';
+
+const extractTokens = ({ tokenDecimals, tokenSymbol }: ChainProperties) =>
+  tokenDecimals.isSome && tokenSymbol.isSome
+    ? tokenDecimals.unwrap().reduce((acc: Token[], decimal: u32, index: number) => {
+        const token: Token = { decimal: decimal.toString(), symbol: tokenSymbol.unwrap()[index].toString() };
+        return [...acc, token];
+      }, [])
+    : [];
 
 const getInitNetwork = () => {
   const name = new URL(window.location.href).searchParams.get('network');
@@ -87,11 +91,11 @@ function accountReducer(state: StoreState, action: Action<ActionType, any>): Sto
 
 export type ApiCtx = StoreState & {
   api: ApiPromise;
+  chain: Chain;
   connectNetwork: (network: ChainConfig) => void;
   disconnect: () => void;
   setNetwork: (network: ChainConfig) => void;
   setApi: (api: ApiPromise) => void;
-  chain: Chain;
 };
 
 export const ApiContext = createContext<ApiCtx | null>(null);
@@ -170,24 +174,16 @@ export const ApiProvider = ({ children }: React.PropsWithChildren<unknown>) => {
       return;
     }
 
-    (async () => {
-      await waitUntilConnected(api);
+    const sub$$ = from(api.rpc.system.properties()).subscribe((properties) => {
+      const { ss58Format } = properties;
 
-      const chainState = await api?.rpc.system.properties();
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { tokenDecimals, tokenSymbol, ss58Format } = chainState?.toHuman() as any;
+      setChain({
+        ss58Format: ss58Format.isSome ? ss58Format.unwrap().toString() : '',
+        tokens: extractTokens(properties),
+      });
+    });
 
-      const chainInfo = tokenDecimals.reduce(
-        (acc: Chain, decimal: string, index: number) => {
-          const token = { decimal, symbol: tokenSymbol[index] };
-
-          return { ...acc, tokens: [...acc.tokens, token] };
-        },
-        { ss58Format, tokens: [] } as Chain
-      );
-
-      setChain(chainInfo);
-    })();
+    return () => sub$$.unsubscribe();
   }, [api]);
 
   if (!api || state.connection.status !== ConnectionStatus.complete) {

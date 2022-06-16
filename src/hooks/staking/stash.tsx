@@ -4,10 +4,12 @@ import { Balance, EraIndex } from '@polkadot/types/interfaces';
 import { StakingLedger } from '@polkadot/types/interfaces/staking';
 import { BN } from '@polkadot/util';
 import { has } from 'lodash';
-import { useEffect, useMemo, useState } from 'react';
-import { from, Subscription, takeWhile, zip } from 'rxjs';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { from, Subscription, takeWhile, zip, map, EMPTY } from 'rxjs';
+import type { PalletStakingSlashingSlashingSpans } from '@polkadot/types/lookup';
 import { NoNullFields } from '../../model';
 import { useApi } from '../api';
+import { useWallet } from '../wallet';
 import { useIsMounted } from '../isMounted';
 
 interface OwnReward {
@@ -116,16 +118,14 @@ function rewardsGroupedByPayoutValidator(
 
 export function useOwnStashes() {
   const isMounted = useIsMounted();
-  const {
-    api,
-    connection: { accounts },
-  } = useApi();
+  const { api } = useApi();
+  const { accounts } = useWallet();
   const [state, setState] = useState<[string, IsInKeyring][] | undefined>();
   const [ownBondedAccounts, setOwnBondedAccounts] = useState<Option<GenericAccountId>[]>([]);
   const [ownLedgers, setOwnLedgers] = useState<Option<StakingLedger>[]>([]);
 
   useEffect(() => {
-    const addresses = accounts.map((item) => item.address);
+    const addresses = accounts.map((item) => item.displayAddress);
     let sub$$: Subscription;
 
     if (addresses.length) {
@@ -176,6 +176,23 @@ export function useOwnEraReward(maxEras?: number, stashAccount = '') {
   });
   const ids = useMemo(() => ([stashAccount] || stashIds || []).filter((item) => !!item), [stashIds, stashAccount]);
 
+  const refresh = useCallback(() => {
+    if (!ids || !ids.length) {
+      return EMPTY.subscribe();
+    }
+
+    setState((prev) => ({ ...prev, reward: { ...prev.reward, isLoadingRewards: true } }));
+
+    return from(api.derive.staking.stakerRewardsMultiEras(ids, filteredEras))
+      .pipe(takeWhile(() => isMounted))
+      .subscribe((res) => {
+        const data = getOwnReward(ids, res);
+        const validators = rewardsGroupedByPayoutValidator(data.rewards, stakerPayoutAfter);
+
+        setState({ reward: data, payoutValidators: validators });
+      });
+  }, [api.derive.staking, filteredEras, ids, isMounted, stakerPayoutAfter]);
+
   useEffect(() => {
     setState({ reward: { rewards: null, isLoadingRewards: true, rewardCount: 0 }, payoutValidators: [] });
   }, [maxEras]);
@@ -193,21 +210,30 @@ export function useOwnEraReward(maxEras?: number, stashAccount = '') {
   }, [api, maxEras]);
 
   useEffect(() => {
-    if (!ids || !ids.length) {
-      return;
-    }
+    const sub$$ = refresh();
+    return () => sub$$.unsubscribe();
+  }, [refresh]);
 
-    const sub$$ = from(api.derive.staking.stakerRewardsMultiEras(ids, filteredEras))
-      .pipe(takeWhile(() => isMounted))
-      .subscribe((res) => {
-        const data = getOwnReward(ids, res);
-        const validators = rewardsGroupedByPayoutValidator(data.rewards, stakerPayoutAfter);
+  return { ...state, refresh };
+}
 
-        setState({ reward: data, payoutValidators: validators });
-      });
+export function useSlashingSpans(stashId: string) {
+  const { api } = useApi();
+  const [spanCount, setSpanCount] = useState(0);
 
-    return () => sub$$?.unsubscribe();
-  }, [api.derive.staking, filteredEras, ids, isMounted, stakerPayoutAfter]);
+  useEffect(() => {
+    const sub$$ = from(api.query.staking.slashingSpans(stashId))
+      .pipe(
+        map((optSpans) =>
+          (optSpans as Option<PalletStakingSlashingSlashingSpans>).isNone
+            ? 0
+            : (optSpans as Option<PalletStakingSlashingSlashingSpans>).unwrap().prior.length + 1
+        )
+      )
+      .subscribe(setSpanCount);
 
-  return state;
+    return () => sub$$.unsubscribe();
+  }, [api, stashId]);
+
+  return { spanCount };
 }

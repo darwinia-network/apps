@@ -1,9 +1,11 @@
 import { SettingFilled } from '@ant-design/icons';
 import { u8aConcat, u8aToHex } from '@polkadot/util';
 import { Button, Dropdown, Menu } from 'antd';
-import { useMemo } from 'react';
+import { useMemo, useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useApi, useStaking, useQueue } from '../../../hooks';
+import { from } from 'rxjs';
+import type { DeriveStakingAccount } from '../../../api-derive/types';
+import { useApi, useStaking, useQueue, useSlashingSpans, useAccount, useWallet } from '../../../hooks';
 import {
   BondMore,
   ClaimRewards,
@@ -26,9 +28,20 @@ interface ActionsProps {
 export function Actions({ eraSelectionIndex, disabled }: ActionsProps) {
   const { t } = useTranslation();
   const { api } = useApi();
+  const { accounts } = useWallet();
+  const { refreshAssets } = useAccount();
   const { queueExtrinsic } = useQueue();
-  const { stakingDerive, isValidating, isNominating, controllerAccount, updateStakingDerive, updateValidators } =
-    useStaking();
+  const {
+    stakingDerive,
+    isValidating,
+    isNominating,
+    stashAccount,
+    controllerAccount,
+    updateStakingDerive,
+    updateValidators,
+  } = useStaking();
+  const { spanCount } = useSlashingSpans(stashAccount);
+  const [stakingAccount, setStakingAccount] = useState<DeriveStakingAccount>();
 
   const sessionAccounts = useMemo(() => {
     if (!stakingDerive) {
@@ -51,6 +64,39 @@ export function Actions({ eraSelectionIndex, disabled }: ActionsProps) {
 
     return u8aToHex(nextConcat, len);
   }, [stakingDerive]);
+
+  const isOwnController = useMemo(
+    () => accounts.map((item) => item.displayAddress).includes(controllerAccount),
+    [accounts, controllerAccount]
+  );
+
+  const refreshStakingAccount = useCallback(
+    () =>
+      from(api.derive.staking.account(stashAccount) as unknown as Promise<DeriveStakingAccount>).subscribe(
+        setStakingAccount
+      ),
+    [api, stashAccount]
+  );
+
+  const withdrawFunds = useCallback(() => {
+    queueExtrinsic({
+      signAddress: controllerAccount,
+      extrinsic:
+        api.tx.staking.withdrawUnbonded?.meta.args.length === 1
+          ? api.tx.staking.withdrawUnbonded(spanCount)
+          : api.tx.staking.withdrawUnbonded(),
+      txSuccessCb: () => {
+        refreshAssets();
+        updateStakingDerive();
+        refreshStakingAccount();
+      },
+    });
+  }, [api, controllerAccount, queueExtrinsic, refreshStakingAccount, refreshAssets, updateStakingDerive, spanCount]);
+
+  useEffect(() => {
+    const sub$$ = refreshStakingAccount();
+    return () => sub$$.unsubscribe();
+  }, [refreshStakingAccount]);
 
   return (
     <div className="flex lg:flex-row flex-col gap-2 items-center">
@@ -103,6 +149,16 @@ export function Actions({ eraSelectionIndex, disabled }: ActionsProps) {
 
             <Menu.Item key="rebond">
               <Rebond />
+            </Menu.Item>
+
+            <Menu.Item key="withdrawUnbonded">
+              <Button
+                type="text"
+                disabled={!isOwnController || !stakingAccount?.redeemable?.gtn(0)}
+                onClick={withdrawFunds}
+              >
+                {t('Withdraw unbonded funds')}
+              </Button>
             </Menu.Item>
 
             <Menu.Item key="controller">

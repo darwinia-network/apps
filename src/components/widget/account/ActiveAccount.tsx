@@ -1,59 +1,161 @@
-import { SettingFilled, QuestionCircleFilled } from '@ant-design/icons';
-import { Button, Tooltip } from 'antd';
-import { useState } from 'react';
+import BaseIdentityIcon, { Identicon } from '@polkadot/react-identicon';
+import { Card, Col, Modal, Row, Badge } from 'antd';
+import React, { CSSProperties, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useAccount, useApi } from '../../../hooks';
-import { SelectAccountModal } from './SelectAccountModal';
+import { CopyToClipboard } from 'react-copy-to-clipboard';
+import { delay, of } from 'rxjs';
+import { useApi, useWallet, useAccount } from '../../../hooks';
+import { toShortAddress } from '../../../utils';
+import { ViewBrowserIcon, CopyIcon } from '../../icons';
+import { SHORT_DURATION, SEARCH_PARAMS_SOURCE } from '../../../config';
+import { AccountName } from '../account/AccountName';
+import { Account } from '../../../model';
+import { AccountSelector } from './AccountSelector';
 
-export function ActiveAccount() {
-  const {
-    connection: { accounts },
-    network,
-  } = useApi();
+function AccountWithNetwork({
+  logoStyle,
+  containerStyle,
+  isLargeRounded = true,
+  className = '',
+  account,
+  onClick = () => undefined,
+}: React.PropsWithChildren<{
+  isLargeRounded?: boolean;
+  logoStyle?: CSSProperties;
+  containerStyle?: CSSProperties;
+  className?: string;
+  textClassName?: string;
+  account: Account;
+  onClick?: React.MouseEventHandler<HTMLDivElement>;
+}>) {
+  const { network } = useApi();
+  const { walletToUse } = useWallet();
+  const containerCls = useMemo(
+    () =>
+      `flex items-center justify-center space-x-2 px-3 leading-normal whitespace-nowrap p-1 overflow-hidden bg-${
+        network.name
+      } 
+        ${isLargeRounded ? 'rounded-xl ' : 'rounded-lg '}
+        ${className}`,
+    [isLargeRounded, className, network]
+  );
+
+  return (
+    <div className={containerCls} onClick={onClick} style={containerStyle || {}}>
+      <AccountName account={account.displayAddress} />
+      {walletToUse && (
+        <img src={walletToUse.logo.src} style={logoStyle || { width: 24, height: 24 }} alt={walletToUse.logo.alt} />
+      )}
+    </div>
+  );
+}
+
+export const ActiveAccount = () => {
+  const { network } = useApi();
+  const { walletToUse } = useWallet();
+  const { account } = useAccount();
   const { t } = useTranslation();
-  const { account, setAccount } = useAccount();
-  const [isVisible, setIsVisible] = useState(false);
+  const [visible, setVisible] = useState(false);
+  const [isCopied, setIsCopied] = useState<boolean>(false);
 
-  if (!accounts) {
+  const copyText = useMemo(() => (isCopied ? t('Copied') : t('Copy Address')), [isCopied, t]);
+
+  useEffect(() => {
+    if (isCopied) {
+      of(false).pipe(delay(SHORT_DURATION)).subscribe(setIsCopied);
+    }
+  }, [isCopied]);
+
+  if (!walletToUse) {
     return null;
   }
 
-  return (
+  return account ? (
     <>
-      {accounts.length > 1 && (
-        <>
-          <Button onClick={() => setIsVisible(true)} className="hidden lg:block">
-            {t('Switch Account')}
-          </Button>
-
-          <SettingFilled
-            onClick={() => setIsVisible(true)}
-            className={`lg:hidden inline-flex items-center text-2xl h-8 text-${network.name}-main`}
-          />
-        </>
-      )}
-      <SelectAccountModal
-        visible={isVisible}
-        defaultValue={account}
-        onCancel={() => setIsVisible(false)}
-        onSelect={(acc) => {
-          if (acc !== account) {
-            setAccount(acc);
-          }
-          setIsVisible(false);
-        }}
-        title={
-          <div className="inline-flex items-center space-x-1">
-            <span>{t('Select active account')}</span>
-            <Tooltip
-              title={`If your account in the old version cannot be found in your wallet, you can restore JSON which the account in the old version Apps through "Account Migration" and add the JSON to polkadot{.js}.`}
+      <section className={`flex items-center gap-2 connection`}>
+        {account && (
+          <>
+            <Badge.Ribbon
+              color="red"
+              text={t('Read only')}
+              className={`-top-1 -right-2 ${account?.meta.source === SEARCH_PARAMS_SOURCE ? '' : 'hidden'}`}
             >
-              <QuestionCircleFilled className="cursor-pointer text-gray-400" />
-            </Tooltip>
-          </div>
-        }
+              <AccountWithNetwork
+                onClick={(event) => {
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  if ((event.target as any).tagName === 'SPAN') {
+                    setVisible(true);
+                  }
+                }}
+                account={account}
+                className="text-white hidden lg:flex cursor-pointer"
+                logoStyle={{ width: 24, height: 24 }}
+                isLargeRounded={true}
+              />
+            </Badge.Ribbon>
+
+            <span onClick={() => setVisible(true)} className="lg:hidden flex">
+              <Identicon value={account.displayAddress} size={20} className="rounded-full border p-1" />
+            </span>
+          </>
+        )}
+      </section>
+      <Modal
+        title={t('Address')}
+        visible={visible}
         footer={null}
-      />
+        onCancel={() => setVisible(false)}
+        destroyOnClose={true}
+        bodyStyle={{ maxHeight: '80vh', overflow: 'hidden' }}
+      >
+        <Card className="mb-4">
+          <Row gutter={4} className="overflow-hidden">
+            <Col span={4}>
+              <BaseIdentityIcon
+                theme="substrate"
+                size={42}
+                className="mr-2 rounded-full border border-solid border-gray-100"
+                value={account.displayAddress}
+              />
+            </Col>
+            <Col span={20}>
+              <Row>
+                <Col flex="auto">
+                  <div className="flex items-center justify-between">
+                    <AccountName account={account.displayAddress} />
+                    <AccountSelector onSuccess={() => setVisible(false)} />
+                  </div>
+                  <span className="text-gray-600 overflow-hidden">{toShortAddress(account.displayAddress)}</span>
+                </Col>
+              </Row>
+
+              <Row className="my-2" gutter={{ xs: 0, sm: 8 }}>
+                <Col xs={{ span: 24, order: 2 }} sm={{ span: 10, order: 1 }}>
+                  <a
+                    rel="noopener noreferrer"
+                    target="_blank"
+                    href={`https://${network.name}.subscan.io/account/${account.displayAddress}`}
+                    className="inline-flex items-center"
+                  >
+                    <ViewBrowserIcon className="text-sm mr-1" />
+                    <span>{t('View in Subscan')}</span>
+                  </a>
+                </Col>
+                <Col xs={{ span: 24, order: 1 }} sm={{ span: 12, order: 2 }}>
+                  <CopyToClipboard text={account.displayAddress} onCopy={() => setIsCopied(true)}>
+                    <a className="inline-flex items-center">
+                      <CopyIcon className="text-sm mr-1" />
+                      <span>{copyText}</span>
+                    </a>
+                  </CopyToClipboard>
+                </Col>
+              </Row>
+            </Col>
+          </Row>
+        </Card>
+      </Modal>
     </>
+  ) : (
+    <AccountSelector />
   );
-}
+};

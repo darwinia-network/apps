@@ -65,7 +65,12 @@ export function Nominators({ data }: { data?: [string, number][] }) {
         const meta = getAddressMeta(acc);
 
         return (
-          <IdentAccountAddress key={acc} account={{ address: acc, meta: { ...meta, source: '' } }} iconSize={24} />
+          <IdentAccountAddress
+            key={acc}
+            account={{ address: acc, displayAddress: acc, meta: { ...meta, source: '' } }}
+            className="overflow-x-hidden"
+            iconSize={24}
+          />
         );
       })}
     </span>

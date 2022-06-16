@@ -1,5 +1,6 @@
 import { useState, useCallback, useEffect } from 'react';
 import { forkJoin, EMPTY } from 'rxjs';
+import type { AccountData } from '@darwinia/types';
 import { useApi } from '../hooks';
 import { SYSTEM_NETWORK_CONFIGURATIONS } from '../config';
 import { Asset, DarwiniaAsset, Token, Network } from '../model';
@@ -14,55 +15,78 @@ const getToken = (tokens: Token[], network: Network, target: DarwiniaAsset) => {
 };
 
 export const useAssets = (account: string) => {
+  const { network, api, chain } = useApi();
+  const [loading, setLoading] = useState(false);
   const [assets, setAssets] = useState<Asset[]>([]);
-  const { network, chain, api } = useApi();
 
-  const getBalances = useCallback(
+  const getAssets = useCallback(
     (acc?: string) => {
-      const tokenRing = getToken(chain.tokens, network.name, DarwiniaAsset.ring);
-      const tokenKton = getToken(chain.tokens, network.name, DarwiniaAsset.kton);
-      if (tokenRing.symbol === 'unknown' || tokenKton.symbol === 'unknown') {
+      if (!(acc || account) || chain.ss58Format !== network.ss58Prefix.toString()) {
         return EMPTY.subscribe();
       }
 
+      setLoading(true);
+
       return forkJoin([
         getDarwiniaBalances(api, acc ?? account),
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        api.query.system.account(account) as Promise<any>,
-      ]).subscribe(([[ring, kton], info]) => {
-        const {
-          data: { free, freeKton },
-        } = info.toJSON() as {
-          data: { free: number; freeKton: number; reserved: number; reservedKton: number };
-        };
-
-        setAssets([
+        api.query.system.account(account) as Promise<{ data: AccountData }>,
+      ]).subscribe({
+        next: ([
+          [ring, kton],
           {
-            max: ring,
-            asset: DarwiniaAsset.ring,
-            total: free,
-            token: tokenRing,
+            data: { free, freeKton },
           },
-          {
-            max: kton,
-            asset: DarwiniaAsset.kton,
-            total: freeKton,
-            token: tokenKton,
-          },
-        ]);
+        ]) => {
+          setAssets([
+            {
+              max: ring,
+              asset: DarwiniaAsset.ring,
+              total: free.toNumber(),
+              token: getToken(chain.tokens, network.name, DarwiniaAsset.ring),
+            },
+            {
+              max: kton,
+              asset: DarwiniaAsset.kton,
+              total: freeKton.toNumber(),
+              token: getToken(chain.tokens, network.name, DarwiniaAsset.kton),
+            },
+          ]);
+          setLoading(false);
+        },
+        error: () => setLoading(false),
       });
     },
-    [account, api, chain.tokens, network.name]
+    [account, api, network, chain]
   );
 
   useEffect(() => {
-    if (!account) {
+    if (account || chain.ss58Format !== network.ss58Prefix.toString()) {
       return;
     }
 
-    const sub$$ = getBalances(account);
-    return () => sub$$.unsubscribe();
-  }, [account, getBalances]);
+    setAssets([
+      {
+        max: 0,
+        asset: DarwiniaAsset.ring,
+        total: 0,
+        token: getToken(chain.tokens, network.name, DarwiniaAsset.ring),
+      },
+      {
+        max: 0,
+        asset: DarwiniaAsset.kton,
+        total: 0,
+        token: getToken(chain.tokens, network.name, DarwiniaAsset.kton),
+      },
+    ]);
+  }, [network, account, chain]);
 
-  return { assets, getBalances };
+  useEffect(() => {
+    const sub$$ = getAssets(account);
+    return () => {
+      sub$$.unsubscribe();
+      setLoading(false);
+    };
+  }, [account, getAssets]);
+
+  return { assets, loading, getAssets };
 };

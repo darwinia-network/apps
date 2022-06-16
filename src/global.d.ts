@@ -1,3 +1,5 @@
+import type { WalletSource } from './model';
+
 declare module '*.svg' {
   const content: Record<string, unknown>;
 }
@@ -10,6 +12,7 @@ export declare global {
     ethereum: any;
     tronWeb: any;
     tronLink: any;
+    injectedWeb3: Record<WalletSource, InjectedWindowProvider>;
     /* eslint-enable */
   }
 }

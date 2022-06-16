@@ -1,8 +1,8 @@
-import { AppstoreOutlined } from '@ant-design/icons';
+import { AppstoreOutlined, LineChartOutlined } from '@ant-design/icons';
 import { DeriveStakingOverview } from '@polkadot/api-derive/staking/types';
 import { DeriveHeartbeats } from '@polkadot/api-derive/types';
 import { EraRewardPoints } from '@polkadot/types/interfaces';
-import { Col, Collapse, Input, Row } from 'antd';
+import { Col, Collapse, Input, Row, Tooltip } from 'antd';
 import { Reducer, useCallback, useEffect, useReducer, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { from, switchMap, timer } from 'rxjs';
@@ -11,7 +11,6 @@ import { MIDDLE_DURATION } from '../../../config';
 import { useApi, useIsMountedOperator, useStaking } from '../../../hooks';
 import { STAKING_FAV_KEY, useFavorites } from '../../../hooks/favorites';
 import { AccountWithClassifiedInfo, createClassifiedStakingOverview, prettyNumber } from '../../../utils';
-import { ChartLink } from '../ChartLink';
 import { HidablePanel } from '../HidablePanel';
 import { OverviewProvider } from './overview';
 import {
@@ -104,7 +103,7 @@ export function Validators({ overview }: ValidatorsProps) {
       <Input
         onChange={handleInputChange}
         size="large"
-        placeholder={t('Flite by name, address or index')}
+        placeholder={t('Filter by name, address or index')}
         className="my-8 lg:w-1/3"
       />
 
@@ -186,7 +185,11 @@ export function Validators({ overview }: ValidatorsProps) {
                             {byAuthor[account]}
                           </Col>
                           <Col span={2} className="flex justify-end items-center gap-8">
-                            <ChartLink account={account} />
+                            <Tooltip title={t('Coming soon')}>
+                              <LineChartOutlined
+                                className={`hover:text-${network.name}-main transform transition-colors duration-500 text-xl`}
+                              />
+                            </Tooltip>
 
                             <AppstoreOutlined
                               className={`hover:text-${network.name}-main transform transition-colors duration-500 text-xl`}

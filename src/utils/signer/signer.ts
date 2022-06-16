@@ -1,7 +1,7 @@
-import { web3FromAddress } from '@polkadot/extension-dapp';
 import { Observable, Subscriber, from, tap, switchMap } from 'rxjs';
 import { ApiPromise, SubmittableResult } from '@polkadot/api';
 import { assert, isFunction, loggerFormat } from '@polkadot/util';
+import type { Signer as InjectedSigner } from '@polkadot/api/types';
 import { QueueTx, QueueTxMessageSetStatus, QueueTxStatus } from '../../model';
 
 const NOOP = () => undefined;
@@ -35,7 +35,11 @@ export function extractCurrent(txqueue: QueueTx[]): ItemState {
   };
 }
 
-export const signAndSendTx = (currentItem: QueueTx, queueSetTxStatus: QueueTxMessageSetStatus) => {
+export const signAndSendTx = (
+  currentItem: QueueTx,
+  queueSetTxStatus: QueueTxMessageSetStatus,
+  injectedSigner: InjectedSigner
+) => {
   const {
     id,
     extrinsic,
@@ -47,14 +51,14 @@ export const signAndSendTx = (currentItem: QueueTx, queueSetTxStatus: QueueTxMes
   } = currentItem;
 
   if (extrinsic) {
-    from(web3FromAddress(signAddress))
+    from([injectedSigner])
       .pipe(
-        tap((injected) => assert(injected, `Unable to find a signer for ${signAddress}`)),
+        tap((signer) => assert(signer, `${signer} is an invalid signer`)),
         tap(() => {
           queueSetTxStatus(id, 'signing');
           txStartCb();
         }),
-        switchMap((injected) => extrinsic.signAsync(signAddress, { signer: injected.signer })),
+        switchMap((signer) => extrinsic.signAsync(signAddress, { signer })),
         tap(() => queueSetTxStatus(id, 'sending')),
         switchMap(
           () =>

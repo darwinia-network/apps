@@ -1,6 +1,27 @@
 import { AccountData } from '@darwinia/types';
 import { ApiPromise } from '@polkadot/api';
+import { PalletBalancesBalanceLock } from '@polkadot/types/lookup';
+import { BN_ZERO, bnMax, BN } from '@polkadot/util';
 import { waitUntilConnected } from '../network';
+import { entrance } from '../network';
+import { abi } from '../../config/abi';
+
+// eslint-disable-next-line
+const calcMax = (lockItem: any, current: BN) => {
+  let max = current;
+
+  if (lockItem.reasons && !lockItem.reasons.isFee) {
+    max = bnMax(lockItem.amount, max);
+  } else if (lockItem.lockReasons && !lockItem.lockReasons.isFee) {
+    if (lockItem.lockFor.isCommon) {
+      max = bnMax(lockItem.lockFor.asCommon.amount, max);
+    } else if (lockItem.lockFor.isStaking) {
+      max = bnMax(lockItem.lockFor.asStaking.stakingAmount, max);
+    }
+  }
+
+  return max;
+};
 
 /**
  * @description other api can get balances:  api.derive.balances.all, api.query.system.account;
@@ -15,33 +36,53 @@ export async function getDarwiniaBalances(api: ApiPromise, account = ''): Promis
   await waitUntilConnected(api);
 
   try {
-    // type = 0 query ring balance.  type = 1 query kton balance.
-    /* eslint-disable */
-    const ringUsableBalance = await (api.rpc as any).balances.usableBalance(0, account);
-    const ktonUsableBalance = await (api.rpc as any).balances.usableBalance(1, account);
-    /* eslint-enable */
+    const {
+      data: { free, freeKton },
+    }: { data: AccountData } = await api.query.system.account(account);
+    const locks: PalletBalancesBalanceLock[] = await api.query.balances.locks(account);
+    const ktonLocks: PalletBalancesBalanceLock[] = await api.query.kton.locks(account);
 
-    return [ringUsableBalance.usableBalance.toString(), ktonUsableBalance.usableBalance.toString()];
-  } catch (error: unknown) {
-    console.warn(
-      '%c [ Failed to  querying balance through rpc ]',
-      'font-size:13px; background:pink; color:#bf2c9f;',
-      (error as Record<string, string>).message
-    );
-  }
+    let maxLock = BN_ZERO;
+    let maxKtonLock = BN_ZERO;
 
-  try {
-    const { data } = await api.query.system.account(account);
-    const { free, freeKton } = data as unknown as AccountData;
+    locks.forEach((item) => {
+      maxLock = calcMax(item, maxLock);
+    });
 
-    return [free.toString(), freeKton.toString()];
-  } catch (error) {
-    console.warn(
-      '%c [ Failed to  querying balance through account info ]',
-      'font-size:13px; background:pink; color:#bf2c9f;',
-      (error as Record<string, string>).message
-    );
+    ktonLocks.forEach((item) => {
+      maxKtonLock = calcMax(item, maxKtonLock);
+    });
 
+    const ring = free.sub(maxLock);
+    const kton = freeKton.sub(maxKtonLock);
+
+    return [ring.isNeg() ? BN_ZERO.toString() : ring.toString(), kton.isNeg() ? BN_ZERO.toString() : kton.toString()];
+  } catch (err) {
+    console.error(err);
     return ['0', '0'];
   }
+}
+
+export async function getDvmBalances(ktonTokenAddress: string, account: string): Promise<[string, string]> {
+  let ring = '0';
+  let kton = '0';
+
+  if (account) {
+    const web3 = entrance.web3.getInstance(entrance.web3.defaultProvider);
+
+    try {
+      ring = await web3.eth.getBalance(account);
+    } catch (err) {
+      console.error(err);
+    }
+
+    try {
+      const contract = new web3.eth.Contract(abi.ktonABI, ktonTokenAddress);
+      kton = await contract.methods.balanceOf(account).call();
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  return [ring, kton];
 }

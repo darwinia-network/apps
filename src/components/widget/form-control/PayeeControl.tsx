@@ -2,7 +2,7 @@ import { Select } from 'antd';
 import FormItem from 'antd/lib/form/FormItem';
 import { useState, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useApi, useStaking } from '../../../hooks';
+import { useStaking, useWallet } from '../../../hooks';
 import { CustomFormControlProps } from '../../../model';
 import { IdentAccountAddress } from '../account/IdentAccountAddress';
 import { Label } from './Label';
@@ -18,9 +18,7 @@ export function PayeeControl({ onChange, value }: CustomFormControlProps<Payee>)
   const { t } = useTranslation();
   const { controllerAccount, stashAccount } = useStaking();
   const [type, setType] = useState<PayeeType>(value?.type ?? 'Staked');
-  const {
-    connection: { accounts },
-  } = useApi();
+  const { accounts } = useWallet();
   const triggerChange = useCallback(
     (val: Payee) => {
       if (onChange) {
@@ -87,7 +85,7 @@ export function PayeeControl({ onChange, value }: CustomFormControlProps<Payee>)
             value={value?.account}
           >
             {accounts.map((item, index) => (
-              <Select.Option value={item.address} key={item.address || index}>
+              <Select.Option value={item.displayAddress} key={item.displayAddress || index}>
                 <IdentAccountAddress account={item} />
               </Select.Option>
             ))}

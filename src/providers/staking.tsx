@@ -6,7 +6,7 @@ import { PalletStakingValidatorPrefs } from '@polkadot/types/lookup';
 import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react';
 import { combineLatest, from, map, switchMap, tap, zip } from 'rxjs';
 import { DeriveStakingAccount } from '../api-derive/types';
-import { useAccount, useApi, useIsMountedOperator } from '../hooks';
+import { useWallet, useApi, useIsMountedOperator, useAccount } from '../hooks';
 import { isSameAddress } from '../utils';
 
 export interface StakingCtx {
@@ -73,13 +73,11 @@ function isOwner(bonded: Option<GenericAccountId>[], ledger: Option<StakingLedge
 export const StakingContext = createContext<StakingCtx | null>(null);
 
 export const StakingProvider = ({ children }: React.PropsWithChildren<unknown>) => {
-  const {
-    api,
-    connection: { accounts },
-  } = useApi();
+  const { api } = useApi();
+  const { accounts } = useWallet();
   const { account } = useAccount();
-  const [controllerAccount, setControllerAccount] = useState<string>(account);
-  const [stashAccount, setStashAccount] = useState<string>(account);
+  const [controllerAccount, setControllerAccount] = useState<string>(account?.displayAddress || '');
+  const [stashAccount, setStashAccount] = useState<string>(account?.displayAddress || '');
   const [stashAccounts, setStashAccounts] = useState<string[]>([]);
   const [isStashAccountOwner, setIsStashAccountOwner] = useState<boolean>(true);
   const [stakingDerive, setStakingDerive] = useState<DeriveStakingAccount | null>(null);
@@ -101,7 +99,7 @@ export const StakingProvider = ({ children }: React.PropsWithChildren<unknown>) 
   const isControllerAccountOwner = useMemo(
     () =>
       !!controllerAccount &&
-      accounts.map((item) => item.address).some((address) => isSameAddress(address, controllerAccount)),
+      accounts.map((item) => item.displayAddress).some((address) => isSameAddress(address, controllerAccount)),
     [accounts, controllerAccount]
   );
 
@@ -121,19 +119,21 @@ export const StakingProvider = ({ children }: React.PropsWithChildren<unknown>) 
   const { takeWhileIsMounted } = useIsMountedOperator();
 
   const updateStakingDerive = useCallback(() => {
-    from(api.derive.staking.account(stashAccount))
-      .pipe(
-        tap(() => setIsStakingDeriveLoading(true)),
-        takeWhileIsMounted()
-      )
-      .subscribe({
-        next: (res) => {
-          setStakingDerive(res as unknown as DeriveStakingAccount);
-          setIsStakingDeriveLoading(false);
-        },
-        error: () => setIsStakingDeriveLoading(false),
-      });
-  }, [api, stashAccount, takeWhileIsMounted]);
+    if (account) {
+      from(api.derive.staking.account(account.displayAddress))
+        .pipe(
+          tap(() => setIsStakingDeriveLoading(true)),
+          takeWhileIsMounted()
+        )
+        .subscribe({
+          next: (res) => {
+            setStakingDerive(res as unknown as DeriveStakingAccount);
+            setIsStakingDeriveLoading(false);
+          },
+          error: () => setIsStakingDeriveLoading(false),
+        });
+    }
+  }, [api, account, takeWhileIsMounted]);
 
   const updateValidators = useCallback(() => {
     from<Promise<PalletStakingValidatorPrefs>>(api.query.staking.validators(stashAccount))
@@ -169,9 +169,9 @@ export const StakingProvider = ({ children }: React.PropsWithChildren<unknown>) 
         from<Promise<Option<StakingLedger>>>(api.query.staking.ledger(address)),
       ]);
 
-    getSource(account)
+    getSource(account.displayAddress)
       .pipe(
-        map(([bonded, ledger]) => getControllerAccount(account, bonded, ledger)),
+        map(([bonded, ledger]) => getControllerAccount(account.displayAddress, bonded, ledger)),
         switchMap((controller) =>
           getSource(controller).pipe(
             map(([bonded, ledger]) => {
