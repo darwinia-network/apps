@@ -40,6 +40,9 @@ export interface PolkadotChainConfig extends ChainConfig {
   endpoints: {
     mmr: string;
   };
+  subquery?: {
+    endpoint: string;
+  };
 }
 
 export interface DVMChainConfig extends EthereumChainConfig, PolkadotChainConfig {

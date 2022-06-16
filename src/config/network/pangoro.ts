@@ -21,4 +21,7 @@ export const pangoroConfig: PolkadotChainConfig = {
     ring: { decimal: '9', symbol: 'ORING' },
     kton: { decimal: '9', symbol: 'OKTON' },
   },
+  subquery: {
+    endpoint: 'https://api.subquery.network/sq/darwinia-network/apps-pangoro',
+  },
 };

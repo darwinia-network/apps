@@ -4,3 +4,4 @@ export * from './tx-provider';
 export * from './queue';
 export * from './staking';
 export * from './wallet';
+export * from './graphql';
