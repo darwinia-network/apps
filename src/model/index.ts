@@ -12,3 +12,4 @@ export * from './type-operator';
 export * from './webapi';
 export * from './deposit';
 export * from './wallet';
+export * from './feemarket';
