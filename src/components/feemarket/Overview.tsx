@@ -1,13 +1,21 @@
-import { Card } from 'antd';
+import { Card, Spin } from 'antd';
 import { useTranslation } from 'react-i18next';
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, useState } from 'react';
 import * as echarts from 'echarts/core';
 import { GridComponent, GridComponentOption } from 'echarts/components';
 import { BarChart, BarSeriesOption } from 'echarts/charts';
 import { LineChart, LineSeriesOption } from 'echarts/charts';
 import { SVGRenderer } from 'echarts/renderers';
 import { UniversalTransition } from 'echarts/features';
+import { Option, Vec } from '@polkadot/types';
+import { Balance } from '@polkadot/types/interfaces';
+import { timer, switchMap, from, tap } from 'rxjs';
 import { Statistics } from '../widget/Statistics';
+import { LONG_DURATION } from '../../config';
+import { useApi, useFeeMarket } from '../../hooks';
+import { getFeeMarketModule, prettyNumber, fromWei } from '../../utils';
+import { PalletFeeMarketRelayer } from '../../model';
+import { PrettyAmount } from '../../components/widget/PrettyAmount';
 
 echarts.use([GridComponent, BarChart, LineChart, SVGRenderer, UniversalTransition]);
 
@@ -22,9 +30,32 @@ const Segmented = () => (
 );
 
 export const Overview = () => {
+  const { api, network } = useApi();
+  const { destination } = useFeeMarket();
   const { t } = useTranslation();
   const totalOrdersRef = useRef<HTMLDivElement>(null);
   const feeHistoryRef = useRef<HTMLDivElement>(null);
+  const [currentFee, setCurrentFee] = useState<{ value?: Balance; loading: boolean }>({ loading: true });
+
+  useEffect(() => {
+    const sub$$ = timer(0, LONG_DURATION)
+      .pipe(
+        tap(() => setCurrentFee((prev) => ({ ...prev, loading: true }))),
+        switchMap(() =>
+          from(api.query[getFeeMarketModule(destination)].assignedRelayers<Option<Vec<PalletFeeMarketRelayer>>>())
+        )
+      )
+      .subscribe((res) => {
+        if (res.isSome) {
+          const lastRelayers = res.unwrap().pop();
+          if (lastRelayers) {
+            setCurrentFee({ loading: false, value: lastRelayers.fee });
+          }
+        }
+      });
+
+    return () => sub$$.unsubscribe();
+  }, [api, destination]);
 
   useEffect(() => {
     if (totalOrdersRef.current) {
@@ -79,7 +110,16 @@ export const Overview = () => {
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 lg:gap-0 lg:justify-items-center">
           <Statistics className="lg:border-r lg:justify-center" title={t('Total Relayers')} value={'99 / 105'} />
           <Statistics className="lg:border-r lg:justify-center" title={t('Average Speed')} value={'13s'} />
-          <Statistics className="lg:border-r lg:justify-center" title={t('Current Message Fee')} value={'25 RING'} />
+          <Statistics
+            className="lg:border-r lg:justify-center"
+            title={t('Current Message Fee')}
+            value={
+              <Spin size="small" spinning={currentFee.loading}>
+                <PrettyAmount amount={fromWei({ value: currentFee.value }, prettyNumber)} />
+                <span> {network.tokens.ring.symbol}</span>
+              </Spin>
+            }
+          />
           <Statistics className="lg:border-r lg:justify-center" title={t('Total Rewards')} value={1000} />
           <Statistics className="lg:justify-center" title={t('Total Orders')} value={99988} />
         </div>

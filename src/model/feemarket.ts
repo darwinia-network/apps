@@ -1,3 +1,6 @@
+import { AccountId, Balance } from '@polkadot/types/interfaces';
+import { Struct } from '@polkadot/types-codec';
+
 export type CrossChainDestination =
   | 'Crab'
   | 'Darwinia'
@@ -6,3 +9,9 @@ export type CrossChainDestination =
   | 'CrabParachain'
   | 'PangolinParachain'
   | 'Default';
+
+export interface PalletFeeMarketRelayer extends Struct {
+  id: AccountId;
+  collateral: Balance;
+  fee: Balance;
+}
