@@ -2,13 +2,13 @@ import { CrossChainDestination } from '../../model';
 
 export const getFeeMarketModule = (dest: CrossChainDestination): string => {
   switch (dest) {
-    case CrossChainDestination.Darwinia:
+    case 'Darwinia':
       return 'darwiniaFeeMarket';
-    case CrossChainDestination.Pangoro:
+    case 'Pangoro':
       return 'pangoroFeeMarket';
-    case CrossChainDestination.CrabParachain:
+    case 'CrabParachain':
       return 'crabParachainFeeMarket';
-    case CrossChainDestination.PangolinParachain:
+    case 'PangolinParachain':
       return 'pangolinParachainFeeMarket';
     default:
       return 'feeMarket';
