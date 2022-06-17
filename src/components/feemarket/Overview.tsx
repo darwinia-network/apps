@@ -10,8 +10,10 @@ import { UniversalTransition } from 'echarts/features';
 import { Option, Vec } from '@polkadot/types';
 import { Balance } from '@polkadot/types/interfaces';
 import { timer, switchMap, from, tap } from 'rxjs';
+import { useQuery } from '@apollo/client';
+import { formatDistanceStrict } from 'date-fns';
 import { Statistics } from '../widget/Statistics';
-import { LONG_DURATION } from '../../config';
+import { LONG_DURATION, QUERY_FEEMARKET_RECORD } from '../../config';
 import { useApi, useFeeMarket } from '../../hooks';
 import { getFeeMarketModule, prettyNumber, fromWei } from '../../utils';
 import { PalletFeeMarketRelayer } from '../../model';
@@ -32,6 +34,11 @@ const Segmented = () => (
 export const Overview = () => {
   const { api, network } = useApi();
   const { destination } = useFeeMarket();
+  const { loading: feemarketEntityLoading, data: feeMarketEntityData } = useQuery(QUERY_FEEMARKET_RECORD, {
+    variables: { destination },
+    pollInterval: LONG_DURATION,
+    notifyOnNetworkStatusChange: true,
+  });
   const { t } = useTranslation();
   const totalOrdersRef = useRef<HTMLDivElement>(null);
   const feeHistoryRef = useRef<HTMLDivElement>(null);
@@ -109,7 +116,20 @@ export const Overview = () => {
       <Card className="shadow-xxl">
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 lg:gap-0 lg:justify-items-center">
           <Statistics className="lg:border-r lg:justify-center" title={t('Total Relayers')} value={'99 / 105'} />
-          <Statistics className="lg:border-r lg:justify-center" title={t('Average Speed')} value={'13s'} />
+          <Statistics
+            className="lg:border-r lg:justify-center"
+            title={t('Average Speed')}
+            value={
+              <Spin size="small" spinning={feemarketEntityLoading}>
+                <span>
+                  {formatDistanceStrict(
+                    new Date(),
+                    new Date(Date.now() + (feeMarketEntityData?.feeMarketEntity?.averageSpeed || 0))
+                  )}
+                </span>
+              </Spin>
+            }
+          />
           <Statistics
             className="lg:border-r lg:justify-center"
             title={t('Current Message Fee')}
@@ -120,8 +140,27 @@ export const Overview = () => {
               </Spin>
             }
           />
-          <Statistics className="lg:border-r lg:justify-center" title={t('Total Rewards')} value={1000} />
-          <Statistics className="lg:justify-center" title={t('Total Orders')} value={99988} />
+          <Statistics
+            className="lg:border-r lg:justify-center"
+            title={t('Total Rewards')}
+            value={
+              <Spin size="small" spinning={feemarketEntityLoading}>
+                <PrettyAmount
+                  amount={fromWei({ value: feeMarketEntityData?.feeMarketEntity?.totalRewards }, prettyNumber)}
+                />
+                <span> {network.tokens.ring.symbol}</span>
+              </Spin>
+            }
+          />
+          <Statistics
+            className="lg:justify-center"
+            title={t('Total Orders')}
+            value={
+              <Spin size="small" spinning={feemarketEntityLoading}>
+                <span>{feeMarketEntityData?.feeMarketEntity?.totalOrders || 0}</span>
+              </Spin>
+            }
+          />
         </div>
       </Card>
       <div className="flex items-center justify-between mt-8">
