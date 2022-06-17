@@ -26,7 +26,7 @@ function Page() {
   const { network } = useApi();
   const { t } = useTranslation();
   const [activeKey, setActiveKey] = useState<TabsKeys>(
-    Object.values(TabsKeys).includes(tab as TabsKeys) ? (tab as TabsKeys) : TabsKeys.orders
+    Object.values(TabsKeys).includes(tab as TabsKeys) ? (tab as TabsKeys) : TabsKeys.overview
   );
 
   return network.name === 'pangolin' ? (
