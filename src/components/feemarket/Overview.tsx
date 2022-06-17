@@ -68,6 +68,8 @@ export const Overview = () => {
           if (lastRelayers) {
             setCurrentFee({ loading: false, value: lastRelayers.fee });
           }
+        } else {
+          setCurrentFee({ loading: false, value: undefined });
         }
       });
 
