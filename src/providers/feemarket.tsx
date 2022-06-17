@@ -1,5 +1,6 @@
 import { createContext, PropsWithChildren, useState } from 'react';
-import { CrossChainDestination, PolkadotTypeNetwork } from '../model';
+import type { CrossChainDestination, PolkadotTypeNetwork } from '../model';
+import { useApi } from '../hooks';
 
 const supportedDestinations: Record<PolkadotTypeNetwork, CrossChainDestination[]> = {
   crab: ['Darwinia', 'CrabParachain'],
@@ -10,7 +11,7 @@ const supportedDestinations: Record<PolkadotTypeNetwork, CrossChainDestination[]
 
 export interface FeeMarketCtx {
   destination: CrossChainDestination;
-  supportedDestinations: Record<PolkadotTypeNetwork, CrossChainDestination[]>;
+  supportedDestinations: typeof supportedDestinations;
 
   setDestination: (dest: CrossChainDestination) => void;
 }
@@ -18,7 +19,10 @@ export interface FeeMarketCtx {
 export const FeeMarketContext = createContext<FeeMarketCtx>({} as FeeMarketCtx);
 
 export const FeeMarketProvider = ({ children }: PropsWithChildren<unknown>) => {
-  const [destination, setDestination] = useState<CrossChainDestination>('Default');
+  const { network } = useApi();
+  const [destination, setDestination] = useState<CrossChainDestination>(
+    supportedDestinations[network.name as PolkadotTypeNetwork][0] ?? 'Default'
+  );
 
   return (
     <FeeMarketContext.Provider
