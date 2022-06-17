@@ -9,3 +9,4 @@ export * from './networkColor';
 export * from './records';
 export * from './assets';
 export * from './wallet';
+export * from './feemarket';
