@@ -1,6 +1,7 @@
 import type ExtType from '@polkadot/extension-inject/types';
 import { KeyringJson } from '@polkadot/ui-keyring/types';
 import type { BN } from '@polkadot/util';
+import type { Balance } from '@polkadot/types/interfaces';
 import { DarwiniaAsset } from './common';
 
 export type InjectedAccountWithMeta = ExtType.InjectedAccountWithMeta;
@@ -30,7 +31,7 @@ export interface DailyLimit {
 }
 
 export interface Asset extends AvailableBalance {
-  total: number;
+  total: Balance | BN;
 }
 
 export interface Fund extends Asset {
