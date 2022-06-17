@@ -7,13 +7,14 @@ import { BarChart, BarSeriesOption } from 'echarts/charts';
 import { LineChart, LineSeriesOption } from 'echarts/charts';
 import { SVGRenderer } from 'echarts/renderers';
 import { UniversalTransition } from 'echarts/features';
-import { Option, Vec } from '@polkadot/types';
-import { Balance } from '@polkadot/types/interfaces';
-import { timer, switchMap, from, tap } from 'rxjs';
+import type { Option, Vec, u128 } from '@polkadot/types';
+import { BN_ONE } from '@polkadot/util';
+import { Balance, AccountId32 } from '@polkadot/types/interfaces';
+import { timer, switchMap, from, forkJoin, tap, EMPTY } from 'rxjs';
 import { useQuery } from '@apollo/client';
 import { formatDistanceStrict } from 'date-fns';
 import { Statistics } from '../widget/Statistics';
-import { LONG_DURATION, QUERY_FEEMARKET_RECORD } from '../../config';
+import { LONG_DURATION, QUERY_FEEMARKET_RECORD, QUERY_INPROGRESS_ORDERS } from '../../config';
 import { useApi, useFeeMarket } from '../../hooks';
 import { getFeeMarketModule, prettyNumber, fromWei } from '../../utils';
 import { PalletFeeMarketRelayer } from '../../model';
@@ -39,10 +40,19 @@ export const Overview = () => {
     pollInterval: LONG_DURATION,
     notifyOnNetworkStatusChange: true,
   });
+  const { data: inProgressOrderEntitiesData } = useQuery(QUERY_INPROGRESS_ORDERS, {
+    variables: { destination },
+    pollInterval: LONG_DURATION,
+  });
   const { t } = useTranslation();
   const totalOrdersRef = useRef<HTMLDivElement>(null);
   const feeHistoryRef = useRef<HTMLDivElement>(null);
   const [currentFee, setCurrentFee] = useState<{ value?: Balance; loading: boolean }>({ loading: true });
+  const [totalRelayers, setTotalRelayers] = useState<{ total: number; inactive: number; loading: boolean }>({
+    total: 0,
+    inactive: 0,
+    loading: true,
+  });
 
   useEffect(() => {
     const sub$$ = timer(0, LONG_DURATION)
@@ -63,6 +73,59 @@ export const Overview = () => {
 
     return () => sub$$.unsubscribe();
   }, [api, destination]);
+
+  useEffect(() => {
+    setTotalRelayers((prev) => ({ ...prev, loading: true }));
+    const inProgressOrdersRelayers: Record<string, number> = {};
+
+    inProgressOrderEntitiesData?.orderEntities.nodes.forEach(({ assignedRelayers }: { assignedRelayers: string[] }) => {
+      assignedRelayers.forEach((relayer) => {
+        inProgressOrdersRelayers[relayer] = inProgressOrdersRelayers[relayer]
+          ? inProgressOrdersRelayers[relayer] + 1
+          : 1;
+      });
+    });
+
+    const sub$$ = from(api.query[getFeeMarketModule(destination)].relayers<Vec<AccountId32>>())
+      .pipe(
+        tap((total) => setTotalRelayers((prev) => ({ ...prev, total: total.length }))),
+        switchMap((total) => {
+          const relayers = Object.keys(inProgressOrdersRelayers).filter((relayer) =>
+            total.map((account) => account.toString()).includes(relayer)
+          );
+
+          return relayers.length
+            ? forkJoin(
+                relayers.map((relayer) =>
+                  api.query[getFeeMarketModule(destination)].relayersMap<PalletFeeMarketRelayer>(relayer)
+                )
+              )
+            : EMPTY;
+        })
+      )
+      .subscribe({
+        next: (res) => {
+          let inactive = 0;
+          const collateralPerOrder = api.consts[getFeeMarketModule(destination)].collateralPerOrder as u128;
+
+          res.forEach((relayer) => {
+            if (
+              relayer.collateral
+                .div(collateralPerOrder.muln(inProgressOrdersRelayers[relayer.id.toString()]))
+                .lt(BN_ONE)
+            ) {
+              inactive++;
+            }
+          });
+
+          setTotalRelayers((prev) => ({ ...prev, inactive, loading: false }));
+        },
+        complete: () => setTotalRelayers((prev) => ({ ...prev, inactive: 0, loading: false })),
+        error: () => setTotalRelayers((prev) => ({ ...prev, inactive: prev.total, loading: false })),
+      });
+
+    return () => sub$$.unsubscribe();
+  }, [inProgressOrderEntitiesData, api, destination]);
 
   useEffect(() => {
     if (totalOrdersRef.current) {
@@ -115,7 +178,15 @@ export const Overview = () => {
     <>
       <Card className="shadow-xxl">
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 lg:gap-0 lg:justify-items-center">
-          <Statistics className="lg:border-r lg:justify-center" title={t('Total Relayers')} value={'99 / 105'} />
+          <Statistics
+            className="lg:border-r lg:justify-center"
+            title={t('Total Relayers')}
+            value={
+              <Spin size="small" spinning={totalRelayers.loading}>
+                <span>{`${totalRelayers.total - totalRelayers.inactive} / ${totalRelayers.total}`}</span>
+              </Spin>
+            }
+          />
           <Statistics
             className="lg:border-r lg:justify-center"
             title={t('Average Speed')}
