@@ -2,7 +2,7 @@ import { Card, Spin } from 'antd';
 import { useTranslation } from 'react-i18next';
 import { useRef, useEffect, useState } from 'react';
 import * as echarts from 'echarts/core';
-import { GridComponent, GridComponentOption } from 'echarts/components';
+import { GridComponent, GridComponentOption, TooltipComponent, TooltipComponentOption } from 'echarts/components';
 import { BarChart, BarSeriesOption } from 'echarts/charts';
 import { LineChart, LineSeriesOption } from 'echarts/charts';
 import { SVGRenderer } from 'echarts/renderers';
@@ -14,15 +14,22 @@ import { timer, switchMap, from, forkJoin, tap, EMPTY } from 'rxjs';
 import { useQuery } from '@apollo/client';
 import { formatDistanceStrict } from 'date-fns';
 import { Statistics } from '../widget/Statistics';
-import { LONG_DURATION, QUERY_FEEMARKET_RECORD, QUERY_INPROGRESS_ORDERS } from '../../config';
+import {
+  LONG_DURATION,
+  QUERY_FEEMARKET_RECORD,
+  QUERY_INPROGRESS_ORDERS,
+  QUERY_ORDERS_FOR_OVERVIEW_CHART,
+} from '../../config';
 import { useApi, useFeeMarket } from '../../hooks';
 import { getFeeMarketModule, prettyNumber, fromWei } from '../../utils';
 import { PalletFeeMarketRelayer } from '../../model';
 import { PrettyAmount } from '../../components/widget/PrettyAmount';
 
-echarts.use([GridComponent, BarChart, LineChart, SVGRenderer, UniversalTransition]);
+echarts.use([GridComponent, TooltipComponent, BarChart, LineChart, SVGRenderer, UniversalTransition]);
 
-type EChartsOption = echarts.ComposeOption<GridComponentOption | BarSeriesOption | LineSeriesOption>;
+type EChartsOption = echarts.ComposeOption<
+  GridComponentOption | BarSeriesOption | LineSeriesOption | TooltipComponentOption
+>;
 
 const Segmented = () => (
   <div className="inline-flex items-center justify-center space-x-1">
@@ -40,7 +47,11 @@ export const Overview = () => {
     pollInterval: LONG_DURATION,
     notifyOnNetworkStatusChange: true,
   });
-  const { data: inProgressOrderEntitiesData } = useQuery(QUERY_INPROGRESS_ORDERS, {
+  const { data: inProgressOrdersData } = useQuery(QUERY_INPROGRESS_ORDERS, {
+    variables: { destination },
+    pollInterval: LONG_DURATION,
+  });
+  const { data: forChartOrdersData } = useQuery(QUERY_ORDERS_FOR_OVERVIEW_CHART, {
     variables: { destination },
     pollInterval: LONG_DURATION,
   });
@@ -80,7 +91,7 @@ export const Overview = () => {
     setTotalRelayers((prev) => ({ ...prev, loading: true }));
     const inProgressOrdersRelayers: Record<string, number> = {};
 
-    inProgressOrderEntitiesData?.orderEntities.nodes.forEach(({ assignedRelayers }: { assignedRelayers: string[] }) => {
+    inProgressOrdersData?.orderEntities.nodes.forEach(({ assignedRelayers }: { assignedRelayers: string[] }) => {
       assignedRelayers.forEach((relayer) => {
         inProgressOrdersRelayers[relayer] = inProgressOrdersRelayers[relayer]
           ? inProgressOrdersRelayers[relayer] + 1
@@ -127,9 +138,11 @@ export const Overview = () => {
       });
 
     return () => sub$$.unsubscribe();
-  }, [inProgressOrderEntitiesData, api, destination]);
+  }, [inProgressOrdersData, api, destination]);
 
   useEffect(() => {
+    let instance: echarts.ECharts;
+
     if (totalOrdersRef.current) {
       const option: EChartsOption = {
         xAxis: {
@@ -148,33 +161,61 @@ export const Overview = () => {
         ],
       };
 
-      echarts.init(totalOrdersRef.current).setOption(option);
+      instance = echarts.init(totalOrdersRef.current);
+      instance.setOption(option);
     }
+
+    return () => {
+      if (instance) {
+        instance.dispose();
+      }
+    };
   }, []);
 
   useEffect(() => {
+    let instance: echarts.ECharts;
+
     if (feeHistoryRef.current) {
+      const date =
+        forChartOrdersData?.orderEntities.nodes.map((node: { createTime: string }) =>
+          node.createTime.split('.')[0].replace(/-/g, '/')
+        ) || [];
+      const data =
+        forChartOrdersData?.orderEntities.nodes.map((node: { fee: string }) =>
+          fromWei({ value: node.fee }, prettyNumber)
+        ) || [];
+
       const option: EChartsOption = {
+        tooltip: {
+          trigger: 'axis',
+          position: (pt) => [pt[0], '10%'],
+        },
         xAxis: {
           type: 'category',
-          data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+          data: date,
         },
         yAxis: {
           type: 'value',
         },
         series: [
           {
-            // eslint-disable-next-line no-magic-numbers
-            data: [820, 932, 901, 934, 1290, 1330, 1320],
+            data,
             type: 'line',
             smooth: true,
           },
         ],
       };
 
-      echarts.init(feeHistoryRef.current).setOption(option);
+      instance = echarts.init(feeHistoryRef.current);
+      instance.setOption(option);
     }
-  }, []);
+
+    return () => {
+      if (instance) {
+        instance.dispose();
+      }
+    };
+  }, [forChartOrdersData]);
 
   return (
     <>

@@ -21,3 +21,14 @@ export const QUERY_INPROGRESS_ORDERS = gql`
     }
   }
 `;
+
+export const QUERY_ORDERS_FOR_OVERVIEW_CHART = gql`
+  query QueryOverviewOrders($destination: String!) {
+    orderEntities(filter: { id: { startsWith: $destination } }, orderBy: CREATE_TIME_ASC) {
+      nodes {
+        fee
+        createTime
+      }
+    }
+  }
+`;
