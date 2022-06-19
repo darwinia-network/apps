@@ -1,7 +1,7 @@
 import { Select, Checkbox } from 'antd';
 import FormItem from 'antd/lib/form/FormItem';
 import { isString, upperCase } from 'lodash';
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAccount } from '../../../hooks';
 import { Asset, CustomFormItemProps } from '../../../model';
@@ -12,13 +12,20 @@ const MAX_PERIOD = 36;
 
 interface PromiseMonthItemProps extends CustomFormItemProps<number> {
   selectedAsset: Asset | null;
+  duration: number;
   forcePromise?: boolean;
 }
 
 // eslint-disable-next-line complexity
-export function PromiseMonthItem({ selectedAsset, label, name, forcePromise, onChange }: PromiseMonthItemProps) {
+export function PromiseMonthItem({
+  selectedAsset,
+  label,
+  name,
+  forcePromise,
+  duration,
+  onChange,
+}: PromiseMonthItemProps) {
   const { t } = useTranslation();
-  const [duration, setDuration] = useState(0);
   const { assets } = useAccount();
 
   const lockPeriod = useMemo(() => {
@@ -43,8 +50,6 @@ export function PromiseMonthItem({ selectedAsset, label, name, forcePromise, onC
           <Select<number>
             size="large"
             onChange={(value) => {
-              setDuration(value);
-
               if (onChange) {
                 onChange(value);
               }
