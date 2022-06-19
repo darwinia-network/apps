@@ -34,7 +34,7 @@ export interface PrettyNumberOptions {
 // eslint-disable-next-line complexity
 export function prettyNumber(
   value: string | number | BN | null | undefined,
-  { decimal, ignoreZeroDecimal }: PrettyNumberOptions = { decimal: 3, ignoreZeroDecimal: false }
+  { decimal, ignoreZeroDecimal }: PrettyNumberOptions = { decimal: 3, ignoreZeroDecimal: true }
 ): string {
   if (value === null || typeof value === 'undefined') {
     return '-';
