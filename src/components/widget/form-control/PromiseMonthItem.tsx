@@ -1,7 +1,7 @@
 import { Select, Checkbox } from 'antd';
 import FormItem from 'antd/lib/form/FormItem';
 import { isString, upperCase } from 'lodash';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAccount } from '../../../hooks';
 import { Asset, CustomFormItemProps } from '../../../model';
@@ -9,17 +9,22 @@ import { isRing, isKton } from '../../../utils';
 import { Label } from './Label';
 
 const MAX_PERIOD = 36;
-const LOCK_PERIOD = [0, ...new Array(MAX_PERIOD).fill(0).map((_, index) => index + 1)];
 
 interface PromiseMonthItemProps extends CustomFormItemProps<number> {
   selectedAsset: Asset | null;
+  forcePromise?: boolean;
 }
 
 // eslint-disable-next-line complexity
-export function PromiseMonthItem({ selectedAsset, label, name, onChange }: PromiseMonthItemProps) {
+export function PromiseMonthItem({ selectedAsset, label, name, forcePromise, onChange }: PromiseMonthItemProps) {
   const { t } = useTranslation();
   const [duration, setDuration] = useState(0);
   const { assets } = useAccount();
+
+  const lockPeriod = useMemo(() => {
+    const period = [...new Array(MAX_PERIOD).fill(0).map((_, index) => index + 1)];
+    return forcePromise ? period : [0, ...period];
+  }, [forcePromise]);
 
   return selectedAsset ? (
     <>
@@ -45,7 +50,7 @@ export function PromiseMonthItem({ selectedAsset, label, name, onChange }: Promi
               }
             }}
           >
-            {LOCK_PERIOD.map((item, index) => (
+            {lockPeriod.map((item, index) => (
               <Select.Option value={item} key={index}>
                 {!item
                   ? t('No fixed term Set a lock period will get additional {{symbol}} rewards', {

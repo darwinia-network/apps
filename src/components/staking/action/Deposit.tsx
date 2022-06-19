@@ -70,7 +70,7 @@ export function Deposit() {
           updateValidators();
           updateStakingDerive();
         }}
-        initialValues={{ stash: stashAccount, promiseMonth: 0, accept: false }}
+        initialValues={{ stash: stashAccount, promiseMonth: 1, accept: false }}
       >
         <AddressItem
           name="stash"
@@ -107,6 +107,7 @@ export function Deposit() {
           label="Lock limit"
           name="promiseMonth"
           selectedAsset={selectedAsset}
+          forcePromise={true}
           onChange={(value) => setDuration(+value)}
         />
 
