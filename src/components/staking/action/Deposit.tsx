@@ -27,7 +27,7 @@ export function Deposit() {
   const { isControllerAccountOwner, stakingDerive } = useStaking();
   const { stashAccount, updateValidators, updateStakingDerive } = useStaking();
   const [selectedAsset, setSelectedAsset] = useState<Fund | null>(null);
-  const [duration, setDuration] = useState(0);
+  const [duration, setDuration] = useState(1);
   const { assets } = useAccount();
 
   const max = useMemo(() => {
@@ -70,7 +70,7 @@ export function Deposit() {
           updateValidators();
           updateStakingDerive();
         }}
-        initialValues={{ stash: stashAccount, promiseMonth: 0, accept: false }}
+        initialValues={{ stash: stashAccount, promiseMonth: duration, accept: false }}
       >
         <AddressItem
           name="stash"
@@ -107,6 +107,8 @@ export function Deposit() {
           label="Lock limit"
           name="promiseMonth"
           selectedAsset={selectedAsset}
+          forcePromise={true}
+          duration={duration}
           onChange={(value) => setDuration(+value)}
         />
 
