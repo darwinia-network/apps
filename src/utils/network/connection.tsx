@@ -61,12 +61,12 @@ export const getPolkadotConnection: (network: ChainConfig) => Observable<Polkado
   });
 
   api.on('disconnected', () => {
-    subject.next({ accounts: [], type, status: ConnectionStatus.connecting, api });
+    subject.next({ accounts: [], type, status: ConnectionStatus.connecting, api: null });
   });
 
   api.on('error', (error) => {
     console.error(error);
-    subject.next({ accounts: [], type, status: ConnectionStatus.error, api });
+    subject.next({ accounts: [], type, status: ConnectionStatus.error, api: null });
   });
 
   return from(source).pipe(
