@@ -196,7 +196,7 @@ export const ApiProvider = ({ children }: React.PropsWithChildren<unknown>) => {
         <BallScalePulse />
         <Alert
           message={t('Api connecting')}
-          description={t('Wait for connect to the remote node')}
+          description={t('Connecting to the remote node')}
           type="info"
           showIcon
           className="absolute top-4 right-4 max-w-2xl"

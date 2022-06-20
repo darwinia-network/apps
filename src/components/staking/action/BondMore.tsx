@@ -87,6 +87,7 @@ export function BondMore() {
           label="Lock limit"
           name="promiseMonth"
           selectedAsset={selectedAsset}
+          duration={duration}
           onChange={(value) => setDuration(value)}
         />
 

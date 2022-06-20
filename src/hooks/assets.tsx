@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect } from 'react';
 import { forkJoin, EMPTY } from 'rxjs';
 import type { AccountData } from '@darwinia/types';
+import { BN_ZERO } from '@polkadot/util';
 import { useApi } from '../hooks';
 import { SYSTEM_NETWORK_CONFIGURATIONS } from '../config';
 import { Asset, DarwiniaAsset, Token, Network } from '../model';
@@ -41,13 +42,13 @@ export const useAssets = (account: string) => {
             {
               max: ring,
               asset: DarwiniaAsset.ring,
-              total: free.toNumber(),
+              total: free,
               token: getToken(chain.tokens, network.name, DarwiniaAsset.ring),
             },
             {
               max: kton,
               asset: DarwiniaAsset.kton,
-              total: freeKton.toNumber(),
+              total: freeKton,
               token: getToken(chain.tokens, network.name, DarwiniaAsset.kton),
             },
           ]);
@@ -68,13 +69,13 @@ export const useAssets = (account: string) => {
       {
         max: 0,
         asset: DarwiniaAsset.ring,
-        total: 0,
+        total: BN_ZERO,
         token: getToken(chain.tokens, network.name, DarwiniaAsset.ring),
       },
       {
         max: 0,
         asset: DarwiniaAsset.kton,
-        total: 0,
+        total: BN_ZERO,
         token: getToken(chain.tokens, network.name, DarwiniaAsset.kton),
       },
     ]);

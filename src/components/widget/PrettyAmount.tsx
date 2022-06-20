@@ -7,13 +7,11 @@ type Props = {
 };
 
 const Component: React.FC<Props> = ({ amount, integerClassName, decimalClassName }) => {
-  const amountSplited = amount.split('.');
+  const [integer, decimal] = amount.split('.');
   return (
     <>
-      <span className={`font-bold ${integerClassName}`}>{amountSplited[0]}.</span>
-      <span className={`font-normal opacity-60 ${decimalClassName}`}>
-        {amountSplited.length > 1 ? amountSplited[1] : '0'}
-      </span>
+      <span className={`font-bold ${integerClassName}`}>{decimal ? `${integer}.` : integer}</span>
+      {decimal && <span className={`font-normal opacity-60 ${decimalClassName}`}>{decimal}</span>}
     </>
   );
 };

@@ -110,6 +110,7 @@ export function StakingNow() {
           name="promiseMonth"
           selectedAsset={selectedAsset}
           label={'Lock limit'}
+          duration={duration}
           onChange={(value) => setDuration(+value)}
         />
 
