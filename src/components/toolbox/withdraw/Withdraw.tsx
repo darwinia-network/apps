@@ -1,5 +1,5 @@
-import { TypeRegistry } from '@polkadot/types';
-import { BN, BN_ZERO } from '@polkadot/util';
+import { SubmittableExtrinsic } from '@polkadot/api/types';
+import { BN, BN_ZERO, u8aToHex } from '@polkadot/util';
 import { Button, Card, Select, Modal, Checkbox, notification } from 'antd';
 import type { CheckboxValueType } from 'antd/es/checkbox/Group';
 import Form from 'antd/lib/form';
@@ -34,10 +34,7 @@ interface WithdrawFormValues {
 }
 
 const WITHDRAW_GAS = 55000;
-const DVM_WITHDRAW_ADDRESS = '0x0000000000000000000000000000000000000015';
-const EMPTY_ADDRESS = '0x0000000000000000000000000000000000000000000000000000000000000000';
-
-const registry = new TypeRegistry();
+const DVM_DISPATCH_ADDRESS = '0x0000000000000000000000000000000000000019';
 
 const capitalLetters = (str: string) => {
   // eslint-disable-next-line no-magic-numbers
@@ -50,7 +47,7 @@ const capitalLetters = (str: string) => {
 
 export function Withdraw() {
   const { t } = useTranslation();
-  const { network } = useApi();
+  const { api, network } = useApi();
   const [form] = useForm();
   const {
     busy: metamaskBusy,
@@ -84,6 +81,7 @@ export function Withdraw() {
     [activeAccount, kton.address]
   );
 
+  // eslint-disable-next-line
   const handleWithdraw = useCallback(() => {
     try {
       setBusy(true);
@@ -92,27 +90,27 @@ export function Withdraw() {
       const web3 = entrance.web3.getInstance(entrance.web3.defaultProvider);
 
       if (asset === ring.symbol) {
-        const accountHex = registry.createType('AccountId', destination).toHex();
+        const extrinsic = api.tx.balances.transfer(
+          destination,
+          toWei({ value: amount, unit: 'gwei' })
+        ) as SubmittableExtrinsic<'promise'>;
 
-        if (accountHex !== EMPTY_ADDRESS) {
-          const tx = web3.eth.sendTransaction({
-            from: activeAccount,
-            to: DVM_WITHDRAW_ADDRESS,
-            data: accountHex,
-            value: web3.utils.toWei(amount, 'ether'),
-            gas: WITHDRAW_GAS,
-          });
+        const tx = web3.eth.sendTransaction({
+          from: activeAccount,
+          to: DVM_DISPATCH_ADDRESS,
+          data: u8aToHex(extrinsic.method.toU8a()),
+          gas: WITHDRAW_GAS,
+        });
 
-          handleEthTxResult(tx, {
-            txSuccessCb: () => {
-              refreshAssets(); // substrate balance
-              refreshDvmBalances();
-              setBusy(false);
-              setVisibleAttention(false);
-            },
-            txFailedCb: () => setBusy(false),
-          });
-        }
+        handleEthTxResult(tx, {
+          txSuccessCb: () => {
+            refreshAssets(); // substrate balance
+            refreshDvmBalances();
+            setBusy(false);
+            setVisibleAttention(false);
+          },
+          txFailedCb: () => setBusy(false),
+        });
       } else if (asset === kton.symbol) {
         const contract = new web3.eth.Contract(abi.ktonABI, kton.address);
 
@@ -138,7 +136,7 @@ export function Withdraw() {
         description: (error as Error).message,
       });
     }
-  }, [activeAccount, ring, kton, withdrawFormValue, refreshAssets, refreshDvmBalances]);
+  }, [activeAccount, ring, kton, withdrawFormValue, api, refreshAssets, refreshDvmBalances]);
 
   useEffect(() => {
     const sub$$ = refreshDvmBalances();
