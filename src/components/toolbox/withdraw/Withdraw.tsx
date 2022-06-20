@@ -34,6 +34,7 @@ interface WithdrawFormValues {
 }
 
 const WITHDRAW_GAS = 55000;
+// TODO: https://github.com/darwinia-network/darwinia-common/pull/1298
 const DVM_DISPATCH_ADDRESS = '0x0000000000000000000000000000000000000019';
 
 const capitalLetters = (str: string) => {
