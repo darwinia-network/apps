@@ -82,7 +82,6 @@ export function Withdraw() {
     [activeAccount, kton.address]
   );
 
-  // eslint-disable-next-line
   const handleWithdraw = useCallback(() => {
     try {
       setBusy(true);
