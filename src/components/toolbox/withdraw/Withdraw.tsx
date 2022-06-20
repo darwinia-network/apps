@@ -34,6 +34,7 @@ interface WithdrawFormValues {
 }
 
 const WITHDRAW_GAS = 55000;
+const WITHDRAW_PRECISION = 9;
 // TODO: https://github.com/darwinia-network/darwinia-common/pull/1298
 const DVM_DISPATCH_ADDRESS = '0x0000000000000000000000000000000000000019';
 
@@ -152,7 +153,7 @@ export function Withdraw() {
 
     const [integer, decimal = '0'] = fromWei({ value: amount.isNeg() ? BN_ZERO : amount, unit: 'ether' }).split('.');
     // eslint-disable-next-line no-magic-numbers
-    const amountDisplay = [integer, decimal.substring(0, 3)].join('.');
+    const amountDisplay = [integer, decimal.substring(0, WITHDRAW_PRECISION)].join('.');
 
     form.setFieldsValue({
       amount: amountDisplay,
@@ -265,7 +266,7 @@ export function Withdraw() {
               }),
             ]}
           >
-            <BalanceControl size="large" className="w-full" precision={3} />
+            <BalanceControl size="large" className="w-full" precision={WITHDRAW_PRECISION} />
           </Form.Item>
           <Form.Item>
             <Button size="large" type="primary" htmlType="submit" disabled={disableWithdraw} className="w-28">
