@@ -126,7 +126,7 @@ export function Validators({ data, lastReward }: ValidatorsProps) {
           <div className="flex items-center gap-2">
             <Favorite account={account} className="flex items-center" />
             <MaxBadge nominatorCount={record.nominatorCount} className="mx-2" />
-            <span>{prettyNumber(record.rankOverall)}</span>
+            <span>{prettyNumber(record.rankOverall, { decimal: 0 })}</span>
             <IdentAccountName account={account} iconSize={24} />
           </div>
         );
