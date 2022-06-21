@@ -22,7 +22,7 @@ export const QUERY_INPROGRESS_ORDERS = gql`
   }
 `;
 
-export const QUERY_ORDERS_FOR_OVERVIEW_CHART = gql`
+export const OVERVIEW_FOR_CHART = gql`
   query QueryOverviewOrders($destination: String!, $date: Datetime!) {
     orderEntities(
       filter: { and: [{ id: { startsWith: $destination } }, { createTime: { greaterThan: $date } }] }

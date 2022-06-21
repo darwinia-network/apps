@@ -12,14 +12,14 @@ import { BN_ONE } from '@polkadot/util';
 import { Balance, AccountId32 } from '@polkadot/types/interfaces';
 import { timer, switchMap, from, forkJoin, tap, EMPTY } from 'rxjs';
 import { useQuery } from '@apollo/client';
-import { formatDistanceStrict } from 'date-fns';
+import { formatDistanceStrict, format } from 'date-fns';
 import { Statistics } from '../widget/Statistics';
 import {
   LONG_DURATION,
   ONE_DAY_IN_MILLISECOND,
   QUERY_FEEMARKET_RECORD,
   QUERY_INPROGRESS_ORDERS,
-  QUERY_ORDERS_FOR_OVERVIEW_CHART,
+  OVERVIEW_FOR_CHART,
 } from '../../config';
 import { useApi, useFeeMarket } from '../../hooks';
 import { getFeeMarketModule, prettyNumber, fromWei } from '../../utils';
@@ -32,26 +32,53 @@ type EChartsOption = echarts.ComposeOption<
   GridComponentOption | BarSeriesOption | LineSeriesOption | TooltipComponentOption
 >;
 
-const Segmented = ({ onSelect = () => undefined }: { onSelect?: (date: Date) => void }) => {
+enum SegmentedType {
+  ALL,
+  L7D,
+  L30D,
+}
+
+const getSegmentedDateByType = (type: SegmentedType) => {
+  const valueEarly = new Date('1970-01-01');
+
+  switch (type) {
+    case SegmentedType.ALL:
+      return valueEarly;
+    case SegmentedType.L7D:
+      // eslint-disable-next-line no-magic-numbers
+      return format(new Date(Date.now() - ONE_DAY_IN_MILLISECOND * 7), 'yyyy-MM-dd');
+    case SegmentedType.L30D:
+      // eslint-disable-next-line no-magic-numbers
+      return format(new Date(Date.now() - ONE_DAY_IN_MILLISECOND * 30), 'yyyy-MM-dd');
+    default:
+      return valueEarly;
+  }
+};
+
+const Segmented = ({
+  onSelect = () => undefined,
+  value = SegmentedType.ALL,
+}: {
+  onSelect?: (type: SegmentedType) => void;
+  value?: SegmentedType;
+}) => {
   return (
     <div className="inline-flex items-center justify-center space-x-1">
       <span
-        className="cursor-pointer bg-gray-300 px-2 rounded-l-sm"
-        onClick={() => onSelect(new Date('1970-01-01T12:00:00'))}
+        className={`cursor-pointer bg-gray-300 px-2 rounded-l-sm ${value === SegmentedType.ALL ? 'bg-gray-400' : ''}`}
+        onClick={() => onSelect(SegmentedType.ALL)}
       >
         All
       </span>
       <span
-        className="cursor-pointer bg-gray-300 px-2"
-        // eslint-disable-next-line no-magic-numbers
-        onClick={() => onSelect(new Date(Date.now() - ONE_DAY_IN_MILLISECOND * 7))}
+        className={`cursor-pointer bg-gray-300 px-2 ${value === SegmentedType.L7D ? 'bg-gray-400' : ''}`}
+        onClick={() => onSelect(SegmentedType.L7D)}
       >
         7D
       </span>
       <span
-        className="cursor-pointer bg-gray-300 px-2 rounded-r-sm"
-        // eslint-disable-next-line no-magic-numbers
-        onClick={() => onSelect(new Date(Date.now() - ONE_DAY_IN_MILLISECOND * 30))}
+        className={`cursor-pointer bg-gray-300 px-2 rounded-r-sm ${value === SegmentedType.L30D ? 'bg-gray-400' : ''}`}
+        onClick={() => onSelect(SegmentedType.L30D)}
       >
         30D
       </span>
@@ -71,8 +98,14 @@ export const Overview = () => {
     variables: { destination },
     pollInterval: LONG_DURATION,
   });
-  const { data: forChartOrders } = useQuery(QUERY_ORDERS_FOR_OVERVIEW_CHART, {
-    variables: { destination, date: new Date('1970-01-01T12:00:00') },
+  const [feeSgmentedType, setFeeSegmentedType] = useState(SegmentedType.ALL);
+  const [orderSegmentedType, setOrderSegmentedType] = useState(SegmentedType.ALL);
+  const { data: feeHistoryChart } = useQuery(OVERVIEW_FOR_CHART, {
+    variables: { destination, date: getSegmentedDateByType(feeSgmentedType) },
+    pollInterval: LONG_DURATION,
+  });
+  const { data: totalOrdersChart } = useQuery(OVERVIEW_FOR_CHART, {
+    variables: { destination, date: getSegmentedDateByType(orderSegmentedType) },
     pollInterval: LONG_DURATION,
   });
   const { t } = useTranslation();
@@ -165,15 +198,22 @@ export const Overview = () => {
   useEffect(() => {
     const feeDate: string[] = [];
     const feeData: string[] = [];
+
+    feeHistoryChart?.orderEntities.nodes.map(({ createTime, fee }: { createTime: string; fee: string }) => {
+      feeDate.push(createTime.split('.')[0].replace(/-/g, '/'));
+      feeData.push(fromWei({ value: fee }, prettyNumber));
+    });
+
+    setFeeHistory({ date: feeDate, data: feeData });
+  }, [feeHistoryChart?.orderEntities.nodes]);
+
+  useEffect(() => {
     const ordersDate: string[] = [];
     const ordersData: string[] = [];
 
     const dayCount: Record<string, number> = {};
 
-    forChartOrders?.orderEntities.nodes.map(({ createTime, fee }: { createTime: string; fee: string }) => {
-      feeDate.push(createTime.split('.')[0].replace(/-/g, '/'));
-      feeData.push(fromWei({ value: fee }, prettyNumber));
-
+    totalOrdersChart?.orderEntities.nodes.map(({ createTime }: { createTime: string }) => {
       const day = createTime.split('T')[0];
       const count = dayCount[day] || 0;
 
@@ -185,9 +225,8 @@ export const Overview = () => {
       ordersData.push(dayCount[day].toString());
     });
 
-    setFeeHistory({ date: feeDate, data: feeData });
     setTotalOrders({ date: ordersDate, data: ordersData });
-  }, [forChartOrders?.orderEntities.nodes]);
+  }, [totalOrdersChart?.orderEntities.nodes]);
 
   useEffect(() => {
     if (!totalOrdersRef.current) {
@@ -317,14 +356,14 @@ export const Overview = () => {
         <Card className="shadow-xxl" style={{ width: '49.5%' }}>
           <div className="flex items-center justify-between">
             <h3 className="font-medium text-base text-black opacity-80">Total orders</h3>
-            <Segmented />
+            <Segmented onSelect={setOrderSegmentedType} value={orderSegmentedType} />
           </div>
           <div ref={totalOrdersRef} className="h-96 w-11/12" />
         </Card>
         <Card className="shadow-xxl" style={{ width: '49.5%' }}>
           <div className="flex items-center justify-between">
             <h3 className="font-medium text-base text-black opacity-80">Fee History</h3>
-            <Segmented />
+            <Segmented onSelect={setFeeSegmentedType} value={feeSgmentedType} />
           </div>
           <div ref={feeHistoryRef} className="h-96 w-11/12" />
         </Card>
