@@ -33,7 +33,7 @@ export function AssetOverview({ asset, loading, refresh }: AssetOverviewProps) {
   const { account } = useAccount();
 
   const { t } = useTranslation();
-  const [recipient, setRecipient] = useState<string>(accounts[0]?.address);
+  const [recipient, setRecipient] = useState<string>(accounts[0]?.displayAddress);
   const [isVisible, setIsVisible] = useState(false);
   const [transferrable, setTransferrable] = useState<BN | null>(null);
 
@@ -105,7 +105,7 @@ export function AssetOverview({ asset, loading, refresh }: AssetOverviewProps) {
           refresh();
         }}
         onCancel={() => setIsVisible(false)}
-        initialValues={{ from: account?.displayAddress || '', to: accounts[0]?.displayAddress, amount: 0 }}
+        initialValues={{ from: account?.displayAddress || '', to: recipient }}
         extrinsic={(values) => {
           const { to, amount } = values;
           const moduleName = isRing(asset.token?.symbol) ? 'balances' : 'kton';
