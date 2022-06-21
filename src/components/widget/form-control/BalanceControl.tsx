@@ -62,6 +62,7 @@ export function BalanceControl({
           setData(val);
           triggerChange(val);
         }}
+        onKeyDown={(e) => e.stopPropagation()}
       />
       {children}
       {max && (
