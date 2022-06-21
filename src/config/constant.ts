@@ -5,6 +5,8 @@ export const MIDDLE_DURATION = 6 * 1000;
 
 export const SHORT_DURATION = 3 * 1000;
 
+export const ONE_DAY_IN_MILLISECOND = 24 * 60 * 60 * 1000;
+
 export const DATE_FORMAT = 'yyyy/MM/dd';
 
 export const DATE_TIME_FORMATE = 'yyyy/MM/dd HH:mm:ss';

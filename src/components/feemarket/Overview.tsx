@@ -16,6 +16,7 @@ import { formatDistanceStrict } from 'date-fns';
 import { Statistics } from '../widget/Statistics';
 import {
   LONG_DURATION,
+  ONE_DAY_IN_MILLISECOND,
   QUERY_FEEMARKET_RECORD,
   QUERY_INPROGRESS_ORDERS,
   QUERY_ORDERS_FOR_OVERVIEW_CHART,
@@ -31,33 +32,54 @@ type EChartsOption = echarts.ComposeOption<
   GridComponentOption | BarSeriesOption | LineSeriesOption | TooltipComponentOption
 >;
 
-const Segmented = () => (
-  <div className="inline-flex items-center justify-center space-x-1">
-    <span className="cursor-pointer bg-gray-300 px-2 rounded-l-sm">All</span>
-    <span className="cursor-pointer bg-gray-300 px-2">7D</span>
-    <span className="cursor-pointer bg-gray-300 px-2 rounded-r-sm">30D</span>
-  </div>
-);
+const Segmented = ({ onSelect = () => undefined }: { onSelect?: (date: Date) => void }) => {
+  return (
+    <div className="inline-flex items-center justify-center space-x-1">
+      <span
+        className="cursor-pointer bg-gray-300 px-2 rounded-l-sm"
+        onClick={() => onSelect(new Date('1970-01-01T12:00:00'))}
+      >
+        All
+      </span>
+      <span
+        className="cursor-pointer bg-gray-300 px-2"
+        // eslint-disable-next-line no-magic-numbers
+        onClick={() => onSelect(new Date(Date.now() - ONE_DAY_IN_MILLISECOND * 7))}
+      >
+        7D
+      </span>
+      <span
+        className="cursor-pointer bg-gray-300 px-2 rounded-r-sm"
+        // eslint-disable-next-line no-magic-numbers
+        onClick={() => onSelect(new Date(Date.now() - ONE_DAY_IN_MILLISECOND * 30))}
+      >
+        30D
+      </span>
+    </div>
+  );
+};
 
 export const Overview = () => {
   const { api, network } = useApi();
   const { destination } = useFeeMarket();
-  const { loading: feemarketEntityLoading, data: feeMarketEntityData } = useQuery(QUERY_FEEMARKET_RECORD, {
+  const { loading: feemarketLoading, data: feeMarketRecord } = useQuery(QUERY_FEEMARKET_RECORD, {
     variables: { destination },
     pollInterval: LONG_DURATION,
     notifyOnNetworkStatusChange: true,
   });
-  const { data: inProgressOrdersData } = useQuery(QUERY_INPROGRESS_ORDERS, {
+  const { data: inProgressOrders } = useQuery(QUERY_INPROGRESS_ORDERS, {
     variables: { destination },
     pollInterval: LONG_DURATION,
   });
-  const { data: forChartOrdersData } = useQuery(QUERY_ORDERS_FOR_OVERVIEW_CHART, {
-    variables: { destination },
+  const { data: forChartOrders } = useQuery(QUERY_ORDERS_FOR_OVERVIEW_CHART, {
+    variables: { destination, date: new Date('1970-01-01T12:00:00') },
     pollInterval: LONG_DURATION,
   });
   const { t } = useTranslation();
   const totalOrdersRef = useRef<HTMLDivElement>(null);
   const feeHistoryRef = useRef<HTMLDivElement>(null);
+  const [feeHistory, setFeeHistory] = useState<{ date: string[]; data: string[] }>({ date: [], data: [] });
+  const [totalOrders, setTotalOrders] = useState<{ date: string[]; data: string[] }>({ date: [], data: [] });
   const [currentFee, setCurrentFee] = useState<{ value?: Balance; loading: boolean }>({ loading: true });
   const [totalRelayers, setTotalRelayers] = useState<{ total: number; inactive: number; loading: boolean }>({
     total: 0,
@@ -91,7 +113,7 @@ export const Overview = () => {
     setTotalRelayers((prev) => ({ ...prev, loading: true }));
     const inProgressOrdersRelayers: Record<string, number> = {};
 
-    inProgressOrdersData?.orderEntities.nodes.forEach(({ assignedRelayers }: { assignedRelayers: string[] }) => {
+    inProgressOrders?.orderEntities.nodes.forEach(({ assignedRelayers }: { assignedRelayers: string[] }) => {
       assignedRelayers.forEach((relayer) => {
         inProgressOrdersRelayers[relayer] = inProgressOrdersRelayers[relayer]
           ? inProgressOrdersRelayers[relayer] + 1
@@ -138,84 +160,98 @@ export const Overview = () => {
       });
 
     return () => sub$$.unsubscribe();
-  }, [inProgressOrdersData, api, destination]);
+  }, [inProgressOrders, api, destination]);
 
   useEffect(() => {
-    let instance: echarts.ECharts;
+    const feeDate: string[] = [];
+    const feeData: string[] = [];
+    const ordersDate: string[] = [];
+    const ordersData: string[] = [];
 
-    if (totalOrdersRef.current) {
-      const option: EChartsOption = {
-        xAxis: {
-          type: 'category',
-          data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-        },
-        yAxis: {
-          type: 'value',
-        },
-        series: [
-          {
-            // eslint-disable-next-line no-magic-numbers
-            data: [120, 200, 150, 80, 70, 110, 130],
-            type: 'bar',
-          },
-        ],
-      };
+    const dayCount: Record<string, number> = {};
 
-      instance = echarts.init(totalOrdersRef.current);
-      instance.setOption(option);
-    }
+    forChartOrders?.orderEntities.nodes.map(({ createTime, fee }: { createTime: string; fee: string }) => {
+      feeDate.push(createTime.split('.')[0].replace(/-/g, '/'));
+      feeData.push(fromWei({ value: fee }, prettyNumber));
 
-    return () => {
-      if (instance) {
-        instance.dispose();
-      }
-    };
-  }, []);
+      const day = createTime.split('T')[0];
+      const count = dayCount[day] || 0;
+
+      dayCount[day] = count + 1;
+    });
+
+    Object.keys(dayCount).forEach((day) => {
+      ordersDate.push(day.replace(/-/g, '/'));
+      ordersData.push(dayCount[day].toString());
+    });
+
+    setFeeHistory({ date: feeDate, data: feeData });
+    setTotalOrders({ date: ordersDate, data: ordersData });
+  }, [forChartOrders?.orderEntities.nodes]);
 
   useEffect(() => {
-    let instance: echarts.ECharts;
-
-    if (feeHistoryRef.current) {
-      const date =
-        forChartOrdersData?.orderEntities.nodes.map((node: { createTime: string }) =>
-          node.createTime.split('.')[0].replace(/-/g, '/')
-        ) || [];
-      const data =
-        forChartOrdersData?.orderEntities.nodes.map((node: { fee: string }) =>
-          fromWei({ value: node.fee }, prettyNumber)
-        ) || [];
-
-      const option: EChartsOption = {
-        tooltip: {
-          trigger: 'axis',
-          position: (pt) => [pt[0], '10%'],
-        },
-        xAxis: {
-          type: 'category',
-          data: date,
-        },
-        yAxis: {
-          type: 'value',
-        },
-        series: [
-          {
-            data,
-            type: 'line',
-            smooth: true,
-          },
-        ],
-      };
-
-      instance = echarts.init(feeHistoryRef.current);
-      instance.setOption(option);
+    if (!totalOrdersRef.current) {
+      return;
     }
 
-    return () => {
-      if (instance) {
-        instance.dispose();
-      }
+    const option: EChartsOption = {
+      tooltip: {
+        trigger: 'axis',
+        position: (pt) => [pt[0], '10%'],
+      },
+      xAxis: {
+        type: 'category',
+        data: totalOrders.date,
+      },
+      yAxis: {
+        type: 'value',
+      },
+      series: [
+        {
+          // eslint-disable-next-line no-magic-numbers
+          data: totalOrders.data,
+          type: 'bar',
+        },
+      ],
     };
-  }, [forChartOrdersData]);
+
+    const instance = echarts.init(totalOrdersRef.current);
+    instance.setOption(option);
+
+    return () => instance.dispose();
+  }, [totalOrders]);
+
+  useEffect(() => {
+    if (!feeHistoryRef.current) {
+      return;
+    }
+
+    const option: EChartsOption = {
+      tooltip: {
+        trigger: 'axis',
+        position: (pt) => [pt[0], '10%'],
+      },
+      xAxis: {
+        type: 'category',
+        data: feeHistory.date,
+      },
+      yAxis: {
+        type: 'value',
+      },
+      series: [
+        {
+          data: feeHistory.data,
+          type: 'line',
+          smooth: true,
+        },
+      ],
+    };
+
+    const instance = echarts.init(feeHistoryRef.current);
+    instance.setOption(option);
+
+    return () => instance.dispose();
+  }, [feeHistory]);
 
   return (
     <>
@@ -234,11 +270,11 @@ export const Overview = () => {
             className="lg:border-r lg:justify-center"
             title={t('Average Speed')}
             value={
-              <Spin size="small" spinning={feemarketEntityLoading}>
+              <Spin size="small" spinning={feemarketLoading}>
                 <span>
                   {formatDistanceStrict(
                     new Date(),
-                    new Date(Date.now() + (feeMarketEntityData?.feeMarketEntity?.averageSpeed || 0))
+                    new Date(Date.now() + (feeMarketRecord?.feeMarketEntity?.averageSpeed || 0))
                   )}
                 </span>
               </Spin>
@@ -258,9 +294,9 @@ export const Overview = () => {
             className="lg:border-r lg:justify-center"
             title={t('Total Rewards')}
             value={
-              <Spin size="small" spinning={feemarketEntityLoading}>
+              <Spin size="small" spinning={feemarketLoading}>
                 <PrettyAmount
-                  amount={fromWei({ value: feeMarketEntityData?.feeMarketEntity?.totalRewards }, prettyNumber)}
+                  amount={fromWei({ value: feeMarketRecord?.feeMarketEntity?.totalRewards }, prettyNumber)}
                 />
                 <span> {network.tokens.ring.symbol}</span>
               </Spin>
@@ -270,8 +306,8 @@ export const Overview = () => {
             className="lg:justify-center"
             title={t('Total Orders')}
             value={
-              <Spin size="small" spinning={feemarketEntityLoading}>
-                <span>{feeMarketEntityData?.feeMarketEntity?.totalOrders || 0}</span>
+              <Spin size="small" spinning={feemarketLoading}>
+                <span>{feeMarketRecord?.feeMarketEntity?.totalOrders || 0}</span>
               </Spin>
             }
           />

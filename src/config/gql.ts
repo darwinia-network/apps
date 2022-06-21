@@ -23,8 +23,12 @@ export const QUERY_INPROGRESS_ORDERS = gql`
 `;
 
 export const QUERY_ORDERS_FOR_OVERVIEW_CHART = gql`
-  query QueryOverviewOrders($destination: String!) {
-    orderEntities(filter: { id: { startsWith: $destination } }, orderBy: CREATE_TIME_ASC) {
+  query QueryOverviewOrders($destination: String!, $date: Datetime!) {
+    orderEntities(
+      filter: { and: [{ id: { startsWith: $destination } }, { createTime: { greaterThan: $date } }] }
+      orderBy: CREATE_TIME_ASC
+    ) {
+      totalCount
       nodes {
         fee
         createTime
