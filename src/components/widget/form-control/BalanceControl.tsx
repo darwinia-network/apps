@@ -4,7 +4,7 @@ import { omit } from 'lodash';
 import { PropsWithChildren, useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { CustomFormControlProps } from '../../../model';
-import { getPrecisionByUnit, prettyNumber } from '../../../utils';
+import { getPrecisionByUnit } from '../../../utils';
 
 type BalanceControlProps = CustomFormControlProps<string> &
   Omit<InputNumberProps<string>, 'value'> &
@@ -55,7 +55,6 @@ export function BalanceControl({
         value={data}
         min="0"
         stringMode
-        formatter={(value) => prettyNumber(value, { decimal: precision })}
         onChange={(event) => {
           const inputValue = event ? event.replace(/,/g, '') : '';
           const val = getValue(inputValue);
@@ -63,6 +62,7 @@ export function BalanceControl({
           setData(val);
           triggerChange(val);
         }}
+        onKeyDown={(e) => e.stopPropagation()}
       />
       {children}
       {max && (
