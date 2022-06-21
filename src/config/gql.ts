@@ -36,3 +36,13 @@ export const OVERVIEW_FOR_CHART = gql`
     }
   }
 `;
+
+export const QUERY_RELAYER = gql`
+  query QueryRelayer($relayer: String!) {
+    relayerEntity(id: $relayer) {
+      totalOrders
+      totalSlashs
+      totalRewards
+    }
+  }
+`;

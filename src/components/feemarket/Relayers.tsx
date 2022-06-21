@@ -1,17 +1,41 @@
+import { useEffect, useState } from 'react';
 import { Table, Input, Radio, Card } from 'antd';
-import { ColumnsType } from 'antd/lib/table';
+import type { ColumnsType } from 'antd/lib/table';
 import { NavLink } from 'react-router-dom';
+import { from, switchMap, forkJoin, Subscription, timer, tap } from 'rxjs';
+import type { Option, Vec } from '@polkadot/types';
+import { BN } from '@polkadot/util';
+import type { Balance, AccountId32 } from '@polkadot/types/interfaces';
+import { useApolloClient } from '@apollo/client';
+import { getFeeMarketModule, fromWei, prettyNumber } from '../../utils';
+import { useApi, useFeeMarket } from '../../hooks';
+import type { PalletFeeMarketRelayer } from '../../model';
+import { LONG_LONG_DURATION, QUERY_RELAYER } from '../../config';
+import { IdentAccountName } from '../widget/account/IdentAccountName';
 
 type RelayerData = {
   relayer: string;
   countOrders: number;
-  collateral: number;
-  quote: number;
-  sumReward: number;
-  sumSlash: number;
+  collateral: Balance;
+  quote: Balance;
+  sumReward: BN;
+  sumSlash: BN;
 };
 
+enum RelayerTab {
+  ALL,
+  ASSIGNED,
+}
+
 export const Relayers = () => {
+  const { api } = useApi();
+  const apollo = useApolloClient();
+  const { destination } = useFeeMarket();
+  const [tab, setTab] = useState(RelayerTab.ALL);
+  const [loading, setLoaing] = useState(false);
+  const [relayers, setRelayers] = useState<PalletFeeMarketRelayer[]>([]);
+  const [dataSource, setDataSource] = useState<RelayerData[]>([]);
+
   const columns: ColumnsType<RelayerData> = [
     {
       title: 'Relayer',
@@ -19,8 +43,12 @@ export const Relayers = () => {
       dataIndex: 'relayer',
       render: (value) => {
         const searchParams = new URL(window.location.href).searchParams;
-        searchParams.set('relayer', '0x8765');
-        return <NavLink to={`?${searchParams.toString()}`}>{value}</NavLink>;
+        searchParams.set('relayer', value);
+        return (
+          <NavLink to={`?${searchParams.toString()}`}>
+            <IdentAccountName account={value} iconSize={24} />
+          </NavLink>
+        );
       },
     },
     {
@@ -33,60 +61,134 @@ export const Relayers = () => {
       title: 'Collateral',
       key: 'collateral',
       dataIndex: 'collateral',
-      sorter: (a, b) => a.collateral - b.collateral,
+      render: (value) => fromWei({ value }, prettyNumber),
+      sorter: (a, b) => a.collateral.cmp(b.collateral),
     },
     {
       title: 'Quote',
       key: 'quote',
       dataIndex: 'quote',
-      sorter: (a, b) => a.quote - b.quote,
+      render: (value) => fromWei({ value }, prettyNumber),
+      sorter: (a, b) => a.quote.cmp(b.quote),
     },
     {
       title: 'Sum(reward)',
       key: 'sumReward',
       dataIndex: 'sumReward',
-      sorter: (a, b) => a.sumReward - b.sumReward,
+      render: (value) => fromWei({ value }, prettyNumber),
+      sorter: (a, b) => a.sumReward.cmp(b.sumReward),
     },
     {
       title: 'Sum(slash)',
       key: 'sumSlash',
       dataIndex: 'sumSlash',
-      sorter: (a, b) => a.sumSlash - b.sumSlash,
+      render: (value) => fromWei({ value }, prettyNumber),
+      sorter: (a, b) => a.sumSlash.cmp(b.sumSlash),
     },
   ];
 
-  const dataSource = [
-    {
-      key: 1,
-      relayer: 'Relayer1',
-      countOrders: 123,
-      collateral: 3456,
-      quote: 1234,
-      sumReward: 6798,
-      sumSlash: 3256,
-    },
-    {
-      key: 2,
-      relayer: 'Relayer1',
-      countOrders: 223,
-      collateral: 2456,
-      quote: 3234,
-      sumReward: 5798,
-      sumSlash: 1256,
-    },
-  ];
+  useEffect(() => {
+    let sub$$: Subscription;
+
+    if (tab === RelayerTab.ALL) {
+      sub$$ = timer(0, LONG_LONG_DURATION)
+        .pipe(
+          tap(() => setLoaing(true)),
+          switchMap(() => from(api.query[getFeeMarketModule(destination)].relayers<Vec<AccountId32>>())),
+          switchMap((res) =>
+            forkJoin(
+              res.map((item) => api.query[getFeeMarketModule(destination)].relayersMap<PalletFeeMarketRelayer>(item))
+            )
+          )
+        )
+        .subscribe((res) => {
+          setLoaing(false);
+          setRelayers(res);
+        });
+    } else if (tab === RelayerTab.ASSIGNED) {
+      sub$$ = timer(0, LONG_LONG_DURATION)
+        .pipe(
+          tap(() => setLoaing(true)),
+          switchMap(() =>
+            from(api.query[getFeeMarketModule(destination)].assignedRelayers<Option<Vec<PalletFeeMarketRelayer>>>())
+          )
+        )
+        .subscribe((res) => {
+          setLoaing(false);
+          setRelayers(res.isSome ? res.unwrap() : []);
+        });
+    }
+
+    return () => {
+      if (sub$$) {
+        sub$$.unsubscribe();
+      }
+    };
+  }, [api, destination, tab]);
+
+  useEffect(() => {
+    if (!relayers.length) {
+      setDataSource([]);
+      return;
+    }
+
+    setLoaing(true);
+
+    const sub$$ = forkJoin(
+      relayers.map((relayer) =>
+        apollo.query({
+          query: QUERY_RELAYER,
+          variables: { relayer: `${destination}-${relayer.id.toString()}` },
+        })
+      )
+    ).subscribe(
+      (
+        res: {
+          data: null | {
+            relayerEntity: null | {
+              totalOrders: null | number;
+              totalSlashs: null | string;
+              totalRewards: null | string;
+            };
+          };
+        }[]
+      ) => {
+        setDataSource(
+          res.map(({ data }, index) => {
+            const orders = data?.relayerEntity?.totalOrders || 0;
+            const slashs = data?.relayerEntity?.totalSlashs || '0';
+            const rewards = data?.relayerEntity?.totalRewards || '0';
+
+            const relayer = relayers[index];
+
+            return {
+              relayer: relayer.id.toString(),
+              countOrders: orders,
+              collateral: relayer.collateral,
+              quote: relayer.fee,
+              sumReward: new BN(rewards),
+              sumSlash: new BN(slashs),
+            };
+          })
+        );
+        setLoaing(false);
+      }
+    );
+
+    return () => sub$$.unsubscribe();
+  }, [apollo, destination, relayers]);
 
   return (
     <>
       <div className="flex items-end justify-between">
-        <Radio.Group>
-          <Radio.Button value={1}>All Relayers</Radio.Button>
-          <Radio.Button value={2}>Assigned Relayers</Radio.Button>
+        <Radio.Group onChange={(e) => setTab(e.target.value)} value={tab}>
+          <Radio.Button value={RelayerTab.ALL}>All Relayers</Radio.Button>
+          <Radio.Button value={RelayerTab.ASSIGNED}>Assigned Relayers</Radio.Button>
         </Radio.Group>
         <Input size="large" className="mb-2 w-96" placeholder="Filter by relayer address" />
       </div>
       <Card className="mt-2">
-        <Table columns={columns} dataSource={dataSource} />
+        <Table columns={columns} dataSource={dataSource} rowKey="relayer" loading={loading} />
       </Card>
     </>
   );
