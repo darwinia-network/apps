@@ -3,7 +3,8 @@ import type { CrossChainDestination, PolkadotTypeNetwork } from '../model';
 import { useApi } from '../hooks';
 
 const supportedDestinations: Record<PolkadotTypeNetwork, CrossChainDestination[]> = {
-  crab: ['Darwinia', 'CrabParachain'],
+  crab: [],
+  // crab: ['Darwinia', 'CrabParachain'],
   darwinia: [],
   pangolin: ['Pangoro', 'PangolinParachain'],
   pangoro: [],
