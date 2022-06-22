@@ -32,7 +32,7 @@ import { IdentAccountName } from '../widget/account/IdentAccountName';
 import { SubscanLink } from '../widget/SubscanLink';
 import { RELAYER_DETAIL, LONG_LONG_DURATION, DATE_FORMAT } from '../../config';
 import { useFeeMarket, useApi } from '../../hooks';
-import { fromWei, prettyNumber } from '../../utils';
+import { fromWei, prettyNumber, getSegmentedDateByType } from '../../utils';
 
 echarts.use([
   TitleComponent,
@@ -70,21 +70,23 @@ export const RelayerDetail = () => {
   const relayerAddress = new URL(window.location.href).searchParams.get('relayer');
   const { network } = useApi();
   const { destination } = useFeeMarket();
+  const [quoteSegmented, setQuoteSegmented] = useState(SegmentedType.ALL);
+  const [rewardSlashSegmented, setRewardSlashSegmented] = useState(SegmentedType.ALL);
   const { loading, data } = useQuery(RELAYER_DETAIL, {
-    variables: { relayer: `${destination}-${relayerAddress}` },
+    variables: {
+      relayer: `${destination}-${relayerAddress}`,
+      feeDate: getSegmentedDateByType(quoteSegmented),
+      slashDate: getSegmentedDateByType(rewardSlashSegmented),
+      rewardDate: getSegmentedDateByType(rewardSlashSegmented),
+    },
     pollInterval: LONG_LONG_DURATION,
     notifyOnNetworkStatusChange: true,
   }) as {
     loading: boolean;
     data: RelayerDetailData | null;
   };
-
   const inOutHistoryRef = useRef<HTMLDivElement>(null);
   const quoteHistoryRef = useRef<HTMLDivElement>(null);
-
-  const [quoteSegmented, setQuoteSegmented] = useState(SegmentedType.ALL);
-  const [rewardSlashSegmented, setRewardSlashSegmented] = useState(SegmentedType.ALL);
-
   const [dataSource, setDataSource] = useState<RelayerData[]>([]);
   const [quoteHistory, setQuoteHistory] = useState<ChartState>({ date: [], data: [] });
   const [slashRewardHistory, setSlashRewardHistory] = useState<{ date: string[]; slash: string[]; reward: string[] }>({

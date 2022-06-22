@@ -48,33 +48,33 @@ export const QUERY_RELAYER = gql`
 `;
 
 export const RELAYER_DETAIL = gql`
-  query RelayerDetail($relayer: String!) {
+  query RelayerDetail($relayer: String!, $feeDate: Datetime!, $slashDate: Datetime!, $rewardDate: Datetime!) {
     relayerEntity(id: $relayer) {
-      feeHistory(orderBy: NEWFEE_TIME_ASC) {
+      feeHistory(filter: { newfeeTime: { greaterThan: $feeDate } }, orderBy: NEWFEE_TIME_ASC) {
         nodes {
           fee
           newfeeTime
         }
       }
-      slashs(orderBy: SLASH_TIME_ASC) {
+      slashs(filter: { slashTime: { greaterThan: $slashDate } }, orderBy: SLASH_TIME_ASC) {
         nodes {
           amount
           slashTime
         }
       }
-      assignedRewards {
+      assignedRewards(filter: { rewardTime: { greaterThan: $rewardDate } }) {
         nodes {
           rewardTime
           assignedAmount
         }
       }
-      deliveredRewards {
+      deliveredRewards(filter: { rewardTime: { greaterThan: $rewardDate } }) {
         nodes {
           rewardTime
           deliveredAmount
         }
       }
-      confirmedRewards {
+      confirmedRewards(filter: { rewardTime: { greaterThan: $rewardDate } }) {
         nodes {
           rewardTime
           confirmedAmount
