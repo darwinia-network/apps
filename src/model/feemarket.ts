@@ -110,3 +110,38 @@ export interface OrdersTotalOrderData {
     }[];
   };
 }
+
+export interface OrderDetailData {
+  orderEntity?: {
+    id: string;
+    fee: string;
+    sender: string;
+    sourceTxHash: string;
+    confirmedSlotIndex?: number;
+    createTime: string;
+    finishTime?: string;
+    createBlock: number;
+    finishBlock?: number;
+    createLaneId: string;
+    slashs: {
+      nodes: {
+        confirmTime: number;
+        sentTime: number;
+        delayTime: number;
+        amount: string;
+        relayerId: string;
+      }[];
+    };
+    rewards: {
+      nodes: {
+        assignedRelayerId?: string;
+        deliveredRelayerId: string;
+        confirmedRelayerId: string;
+        assignedAmount?: string;
+        deliveredAmount: string;
+        confirmedAmount: string;
+        treasuryAmount?: string;
+      }[];
+    };
+  };
+}

@@ -65,8 +65,7 @@ type RelayerData = {
   time: string;
 };
 
-export const RelayerDetail = () => {
-  const relayerAddress = new URL(window.location.href).searchParams.get('relayer');
+export const RelayerDetail = ({ relayer: relayerAddress }: { relayer: string }) => {
   const { network } = useApi();
   const { destination } = useFeeMarket();
   const [quoteSegmented, setQuoteSegmented] = useState(SegmentedType.ALL);

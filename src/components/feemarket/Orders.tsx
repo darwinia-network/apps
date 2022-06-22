@@ -166,7 +166,7 @@ export const Orders = () => {
           <Statistic
             value={statisticsData?.feeMarketEntity?.totalFinished || 0}
             title={
-              <Spin spinning={statisticsLoading}>
+              <Spin size="small" spinning={statisticsLoading}>
                 <div className="flex flex-col items-center">
                   <CheckCircleOutlined className="text-xl" />
                   <span>Finished</span>
@@ -178,7 +178,7 @@ export const Orders = () => {
           <Statistic
             value={statisticsData?.feeMarketEntity?.totalInProgress || 0}
             title={
-              <Spin spinning={statisticsLoading}>
+              <Spin size="small" spinning={statisticsLoading}>
                 <div className="flex flex-col items-center">
                   <ClockCircleOutlined className="text-xl" />
                   <span>In Progress</span>
@@ -190,7 +190,7 @@ export const Orders = () => {
           <Statistic
             value={statisticsData?.feeMarketEntity?.totalOutOfSlot || 0}
             title={
-              <Spin spinning={statisticsLoading}>
+              <Spin size="small" spinning={statisticsLoading}>
                 <div className="flex flex-col items-center">
                   <ExclamationCircleOutlined className="text-xl" />
                   <span>Out of Slot</span>

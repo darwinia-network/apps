@@ -20,7 +20,7 @@ enum TabsKeys {
 function Page() {
   const searchParams = new URL(window.location.href).searchParams;
   const tab = searchParams.get('tab');
-  const orderId = searchParams.get('orderid');
+  const orderid = searchParams.get('orderid');
   const relayer = searchParams.get('relayer');
 
   const { network } = useApi();
@@ -46,13 +46,13 @@ function Page() {
           key={TabsKeys.relayers}
           tab={<CustomTab text={t('Relayers')} tabKey={TabsKeys.relayers} activeKey={activeKey} />}
         >
-          {relayer ? <RelayerDetail /> : <Relayers />}
+          {relayer ? <RelayerDetail relayer={relayer} /> : <Relayers />}
         </Tabs.TabPane>
         <Tabs.TabPane
           key={TabsKeys.orders}
           tab={<CustomTab text={t('Orders')} tabKey={TabsKeys.orders} activeKey={activeKey} />}
         >
-          {orderId ? <OrderDetail orderId={orderId} /> : <Orders />}
+          {orderid ? <OrderDetail orderid={orderid} /> : <Orders />}
         </Tabs.TabPane>
       </Tabs>
     </GraphqlProvider>

@@ -1,9 +1,25 @@
-import { Card, Descriptions, Typography, Badge, Divider, Breadcrumb } from 'antd';
+import { Card, Descriptions, Badge, Divider, Breadcrumb, Spin } from 'antd';
 import { NavLink } from 'react-router-dom';
-import { Path } from '../../config/routes';
+import { useQuery } from '@apollo/client';
+import { formatDistance } from 'date-fns';
 
-export const OrderDetail = ({ orderId }: { orderId: string }) => {
-  void orderId;
+import { Path } from '../../config/routes';
+import { ORDER_DETAIL, LONG_LONG_DURATION } from '../../config';
+import type { OrderDetailData } from '../../model';
+import { useFeeMarket, useApi } from '../../hooks';
+import { SubscanLink } from '../widget/SubscanLink';
+import { fromWei, prettyNumber } from '../../utils';
+import { AccountName } from '../widget/account/AccountName';
+
+// eslint-disable-next-line complexity
+export const OrderDetail = ({ orderid }: { orderid: string }) => {
+  const { network } = useApi();
+  const { destination } = useFeeMarket();
+  const { loading, data } = useQuery(ORDER_DETAIL, {
+    variables: { orderid: `${destination}-${orderid}` },
+    pollInterval: LONG_LONG_DURATION,
+    notifyOnNetworkStatusChange: true,
+  }) as { loading: boolean; data: OrderDetailData | null };
 
   return (
     <>
@@ -11,44 +27,134 @@ export const OrderDetail = ({ orderId }: { orderId: string }) => {
         <Breadcrumb.Item>
           <NavLink to={`${Path.feemarket}?tab=orders`}>Orders</NavLink>
         </Breadcrumb.Item>
-        <Breadcrumb.Item>{` 0x0a11…ed1a80`}</Breadcrumb.Item>
+        <Breadcrumb.Item>{orderid}</Breadcrumb.Item>
       </Breadcrumb>
 
       <Card className="mt-1">
-        <Descriptions column={1}>
-          <Descriptions.Item label="Source TxID">
-            <Typography.Link>0x433dd33c63a3f8a4a7f7483fe33b15a7963665d33c1ee60ba70075290d43cc87</Typography.Link>
-          </Descriptions.Item>
-          <Descriptions.Item label="Target TxID">
-            <Typography.Link>0x433dd33c63a3f8a4a7f7483fe333665d33c1ee60ba70075290d43cc87</Typography.Link>
-          </Descriptions.Item>
-          <Descriptions.Item label="State">
-            <Badge color="green" text="Cross-chain Success" />
-          </Descriptions.Item>
-          <Descriptions.Item label="Time Stamp">1 hrs 23 mins ago (Mar-24-2022 09:23:14 AM +UTC)</Descriptions.Item>
-          <Descriptions.Item label="From">2tJaxND51vBbPwUDHuhVzndY4MeohvvHvn3D9uDejYNin73S</Descriptions.Item>
-          <Descriptions.Item label="To">0xcb515340b4889807de6bb15403e9403680dc7302</Descriptions.Item>
-          <Descriptions.Item label="Cross-chain Fee:">55 RING</Descriptions.Item>
-        </Descriptions>
+        <Spin spinning={loading}>
+          <Descriptions column={1}>
+            <Descriptions.Item label="Nonce">{orderid || '-'}</Descriptions.Item>
+            <Descriptions.Item label="Lane ID">{data?.orderEntity?.createLaneId || '-'}</Descriptions.Item>
+            <Descriptions.Item label="Source TxID">
+              {data?.orderEntity?.sourceTxHash ? (
+                <SubscanLink network={network.name} txHash={data.orderEntity.sourceTxHash} />
+              ) : (
+                '-'
+              )}
+            </Descriptions.Item>
+            <Descriptions.Item label="Sender">{data?.orderEntity?.sender || '-'}</Descriptions.Item>
+            <Descriptions.Item label="State">
+              {data?.orderEntity?.confirmedSlotIndex === undefined ? (
+                <Badge status="processing" text="Cross-chain in progress" />
+              ) : data.orderEntity.confirmedSlotIndex === -1 ? (
+                <Badge status="warning" text="Cross-chain out of slot" />
+              ) : (
+                <Badge status="success" text="Cross-chain success" />
+              )}
+            </Descriptions.Item>
+            <Descriptions.Item label="Cross-chain Fee:">
+              {data?.orderEntity?.fee
+                ? `${fromWei({ value: data.orderEntity.fee }, prettyNumber)} ${network.tokens.ring.symbol}`
+                : '-'}
+            </Descriptions.Item>
+            <Descriptions.Item label="Priority Slot">
+              {data?.orderEntity?.confirmedSlotIndex === undefined
+                ? '-'
+                : data.orderEntity.confirmedSlotIndex === -1
+                ? 'Out of slot'
+                : `#${data.orderEntity.confirmedSlotIndex + 1}`}
+            </Descriptions.Item>
+          </Descriptions>
 
-        <Divider className="my-2" />
+          <Divider className="my-2" />
 
-        <Descriptions column={1}>
-          <Descriptions.Item label="Lane ID">0xcb515340b4</Descriptions.Item>
-          <Descriptions.Item label="Nonce">126</Descriptions.Item>
-          <Descriptions.Item label="Start Block">#234</Descriptions.Item>
-          <Descriptions.Item label="End Block">#244</Descriptions.Item>
-          <Descriptions.Item label="Priority Slot">10 (Slot1)</Descriptions.Item>
-        </Descriptions>
+          <Descriptions column={1} title="Time:">
+            <Descriptions.Item label="Start Block">
+              {data?.orderEntity?.createBlock ? `#${data.orderEntity.createBlock}` : '-'}
+            </Descriptions.Item>
+            <Descriptions.Item label="End Block">
+              {data?.orderEntity?.finishBlock ? `#${data.orderEntity.finishBlock}` : '-'}
+            </Descriptions.Item>
+            <Descriptions.Item label="Start Time">
+              {data?.orderEntity?.createTime
+                ? `${formatDistance(new Date(data.orderEntity.createTime), new Date())} ( ${
+                    data.orderEntity.createTime
+                  } )`
+                : '-'}
+            </Descriptions.Item>
+            <Descriptions.Item label="End Time">
+              {data?.orderEntity?.finishTime
+                ? `${formatDistance(new Date(data.orderEntity.finishTime), new Date())} ( ${
+                    data.orderEntity.finishTime
+                  } )`
+                : '-'}
+            </Descriptions.Item>
+          </Descriptions>
 
-        <Divider className="my-2" />
+          {data?.orderEntity?.rewards.nodes.length ? (
+            <>
+              <Divider className="my-2" />
+              <Descriptions column={1} title="Rewards:">
+                {data.orderEntity.rewards.nodes[0].assignedRelayerId && (
+                  <Descriptions.Item label="Assigned Relayer">
+                    <AccountName account={data.orderEntity.rewards.nodes[0].assignedRelayerId.split('-')[1]} />
+                    <span>
+                      &nbsp;
+                      {`| ${fromWei({ value: data.orderEntity.rewards.nodes[0].assignedAmount }, prettyNumber)} ${
+                        network.tokens.ring.symbol
+                      }`}
+                    </span>
+                  </Descriptions.Item>
+                )}
+                <Descriptions.Item label="Delivery Relayer">
+                  <AccountName account={data.orderEntity.rewards.nodes[0].deliveredRelayerId.split('-')[1]} />
+                  <span>
+                    &nbsp;
+                    {`| ${fromWei({ value: data.orderEntity.rewards.nodes[0].deliveredAmount }, prettyNumber)} ${
+                      network.tokens.ring.symbol
+                    }`}
+                  </span>
+                </Descriptions.Item>
+                <Descriptions.Item label="Confirm Relayer">
+                  <AccountName account={data.orderEntity.rewards.nodes[0].confirmedRelayerId.split('-')[1]} />
+                  <span>
+                    &nbsp;
+                    {`| ${fromWei({ value: data.orderEntity.rewards.nodes[0].confirmedAmount }, prettyNumber)} ${
+                      network.tokens.ring.symbol
+                    }`}
+                  </span>
+                </Descriptions.Item>
+                {data.orderEntity.rewards.nodes[0].treasuryAmount && (
+                  <Descriptions.Item label="To Treaury">{`${fromWei(
+                    { value: data.orderEntity.rewards.nodes[0].treasuryAmount },
+                    prettyNumber
+                  )} ${network.tokens.ring.symbol}`}</Descriptions.Item>
+                )}
+              </Descriptions>
+            </>
+          ) : null}
 
-        <Descriptions column={1}>
-          <Descriptions.Item label="Assigned relayers">B...H大鱼#4 DOZENODES ❤️Be-World-#0 10 RING</Descriptions.Item>
-          <Descriptions.Item label="Delivery relayer">B...H大鱼#4 4 RING</Descriptions.Item>
-          <Descriptions.Item label="Confirm relayer">❤️Be-World-#0 10 RING</Descriptions.Item>
-          <Descriptions.Item label="To Treaury">10 RING</Descriptions.Item>
-        </Descriptions>
+          {data?.orderEntity?.slashs.nodes.length ? (
+            <>
+              <Divider className="my-2" />
+              <Descriptions column={1} title="Slashs:">
+                <Descriptions.Item label="Sent Block">#{data.orderEntity.slashs.nodes[0].sentTime}</Descriptions.Item>
+                <Descriptions.Item label="Confirm Block">
+                  #{data.orderEntity.slashs.nodes[0].confirmTime}
+                </Descriptions.Item>
+                <Descriptions.Item label="Delay Block">#{data.orderEntity.slashs.nodes[0].delayTime}</Descriptions.Item>
+                {data?.orderEntity?.slashs.nodes.map((node) => (
+                  <Descriptions.Item label="Assigned Relayer" key={node.relayerId}>
+                    <AccountName account={node.relayerId.split('-')[1]} />
+                    <span>
+                      &nbsp;{`| ${fromWei({ value: node.amount }, prettyNumber)} ${network.tokens.ring.symbol}`}
+                    </span>
+                  </Descriptions.Item>
+                ))}
+              </Descriptions>
+            </>
+          ) : null}
+        </Spin>
       </Card>
     </>
   );

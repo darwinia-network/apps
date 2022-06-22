@@ -55,7 +55,7 @@ export function SubscanLink({
   if (txHash) {
     return (
       <Link href={`https://${network}.subscan.io/extrinsic/${txHash}`} target="_blank" {...other}>
-        {children}
+        {children || txHash}
       </Link>
     );
   }

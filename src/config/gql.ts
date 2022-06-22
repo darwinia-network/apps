@@ -129,3 +129,40 @@ export const ORDERS_TOTAL_ORDERS = gql`
     }
   }
 `;
+
+export const ORDER_DETAIL = gql`
+  query OrderDetail($orderid: String!) {
+    orderEntity(id: $orderid) {
+      id
+      fee
+      sender
+      sourceTxHash
+      confirmedSlotIndex
+      createTime
+      finishTime
+      createBlock
+      finishBlock
+      createLaneId
+      slashs(orderBy: SLASH_TIME_ASC) {
+        nodes {
+          confirmTime
+          sentTime
+          delayTime
+          amount
+          relayerId
+        }
+      }
+      rewards(orderBy: REWARD_TIME_ASC) {
+        nodes {
+          assignedRelayerId
+          deliveredRelayerId
+          confirmedRelayerId
+          assignedAmount
+          deliveredAmount
+          confirmedAmount
+          treasuryAmount
+        }
+      }
+    }
+  }
+`;
