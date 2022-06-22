@@ -46,3 +46,60 @@ export const QUERY_RELAYER = gql`
     }
   }
 `;
+
+export const RELAYER_DETAIL = gql`
+  query RelayerDetail($relayer: String!) {
+    relayerEntity(id: $relayer) {
+      feeHistory(orderBy: NEWFEE_TIME_ASC) {
+        nodes {
+          fee
+          newfeeTime
+        }
+      }
+      slashs(orderBy: SLASH_TIME_ASC) {
+        nodes {
+          amount
+          slashTime
+        }
+      }
+      assignedRewards {
+        nodes {
+          rewardTime
+          assignedAmount
+        }
+      }
+      deliveredRewards {
+        nodes {
+          rewardTime
+          deliveredAmount
+        }
+      }
+      confirmedRewards {
+        nodes {
+          rewardTime
+          confirmedAmount
+        }
+      }
+
+      assignedOrders {
+        nodes {
+          id
+          assignedRelayerId
+          deliveredRelayerId
+          confirmedRelayerId
+          confirmedSlotIndex
+          createBlock
+          finishBlock
+          finishTime
+          rewards {
+            nodes {
+              assignedAmount
+              deliveredAmount
+              confirmedAmount
+            }
+          }
+        }
+      }
+    }
+  }
+`;

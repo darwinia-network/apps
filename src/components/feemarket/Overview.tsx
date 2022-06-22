@@ -12,79 +12,20 @@ import { BN_ONE } from '@polkadot/util';
 import { Balance, AccountId32 } from '@polkadot/types/interfaces';
 import { timer, switchMap, from, forkJoin, tap, EMPTY } from 'rxjs';
 import { useQuery } from '@apollo/client';
-import { formatDistanceStrict, format } from 'date-fns';
+import { formatDistanceStrict } from 'date-fns';
 import { Statistics } from '../widget/Statistics';
-import {
-  LONG_DURATION,
-  ONE_DAY_IN_MILLISECOND,
-  QUERY_FEEMARKET_RECORD,
-  QUERY_INPROGRESS_ORDERS,
-  OVERVIEW_FOR_CHART,
-} from '../../config';
+import { LONG_DURATION, QUERY_FEEMARKET_RECORD, QUERY_INPROGRESS_ORDERS, OVERVIEW_FOR_CHART } from '../../config';
 import { useApi, useFeeMarket } from '../../hooks';
-import { getFeeMarketModule, prettyNumber, fromWei } from '../../utils';
-import { PalletFeeMarketRelayer } from '../../model';
+import { getFeeMarketModule, prettyNumber, fromWei, getSegmentedDateByType } from '../../utils';
+import { PalletFeeMarketRelayer, SegmentedType, ChartState } from '../../model';
 import { PrettyAmount } from '../../components/widget/PrettyAmount';
+import { Segmented } from '../widget/fee-market';
 
 echarts.use([GridComponent, TooltipComponent, BarChart, LineChart, SVGRenderer, UniversalTransition]);
 
 type EChartsOption = echarts.ComposeOption<
   GridComponentOption | BarSeriesOption | LineSeriesOption | TooltipComponentOption
 >;
-
-enum SegmentedType {
-  ALL,
-  L7D,
-  L30D,
-}
-
-const getSegmentedDateByType = (type: SegmentedType) => {
-  const valueEarly = new Date('1970-01-01');
-
-  switch (type) {
-    case SegmentedType.ALL:
-      return valueEarly;
-    case SegmentedType.L7D:
-      // eslint-disable-next-line no-magic-numbers
-      return format(new Date(Date.now() - ONE_DAY_IN_MILLISECOND * 7), 'yyyy-MM-dd');
-    case SegmentedType.L30D:
-      // eslint-disable-next-line no-magic-numbers
-      return format(new Date(Date.now() - ONE_DAY_IN_MILLISECOND * 30), 'yyyy-MM-dd');
-    default:
-      return valueEarly;
-  }
-};
-
-const Segmented = ({
-  onSelect = () => undefined,
-  value = SegmentedType.ALL,
-}: {
-  onSelect?: (type: SegmentedType) => void;
-  value?: SegmentedType;
-}) => {
-  return (
-    <div className="inline-flex items-center justify-center space-x-1">
-      <span
-        className={`cursor-pointer bg-gray-300 px-2 rounded-l-sm ${value === SegmentedType.ALL ? 'bg-gray-400' : ''}`}
-        onClick={() => onSelect(SegmentedType.ALL)}
-      >
-        All
-      </span>
-      <span
-        className={`cursor-pointer bg-gray-300 px-2 ${value === SegmentedType.L7D ? 'bg-gray-400' : ''}`}
-        onClick={() => onSelect(SegmentedType.L7D)}
-      >
-        7D
-      </span>
-      <span
-        className={`cursor-pointer bg-gray-300 px-2 rounded-r-sm ${value === SegmentedType.L30D ? 'bg-gray-400' : ''}`}
-        onClick={() => onSelect(SegmentedType.L30D)}
-      >
-        30D
-      </span>
-    </div>
-  );
-};
 
 export const Overview = () => {
   const { api, network } = useApi();
@@ -111,8 +52,8 @@ export const Overview = () => {
   const { t } = useTranslation();
   const totalOrdersRef = useRef<HTMLDivElement>(null);
   const feeHistoryRef = useRef<HTMLDivElement>(null);
-  const [feeHistory, setFeeHistory] = useState<{ date: string[]; data: string[] }>({ date: [], data: [] });
-  const [totalOrders, setTotalOrders] = useState<{ date: string[]; data: string[] }>({ date: [], data: [] });
+  const [feeHistory, setFeeHistory] = useState<ChartState>({ date: [], data: [] });
+  const [totalOrders, setTotalOrders] = useState<ChartState>({ date: [], data: [] });
   const [currentFee, setCurrentFee] = useState<{ value?: Balance; loading: boolean }>({ loading: true });
   const [totalRelayers, setTotalRelayers] = useState<{ total: number; inactive: number; loading: boolean }>({
     total: 0,
