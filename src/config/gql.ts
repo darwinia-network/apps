@@ -103,3 +103,29 @@ export const RELAYER_DETAIL = gql`
     }
   }
 `;
+
+export const ORDERS_STATISTICS = gql`
+  query OrdersStatistics($destination: String!) {
+    feeMarketEntity(id: $destination) {
+      totalFinished
+      totalInProgress
+      totalOutOfSlot
+    }
+  }
+`;
+
+export const ORDERS_TOTAL_ORDERS = gql`
+  query OrdersTotalOrders($destination: String!) {
+    orderEntities(filter: { id: { startsWith: $destination } }, orderBy: CREATE_TIME_ASC) {
+      nodes {
+        id
+        assignedRelayerId
+        deliveredRelayerId
+        confirmedRelayerId
+        createBlock
+        finishBlock
+        finishTime
+      }
+    }
+  }
+`;

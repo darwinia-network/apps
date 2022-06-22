@@ -2,6 +2,9 @@ import { Card, Breadcrumb, Table } from 'antd';
 import { NavLink } from 'react-router-dom';
 import { ColumnsType } from 'antd/lib/table';
 import { useRef, useEffect, useState } from 'react';
+import { useQuery } from '@apollo/client';
+import { format, compareAsc, formatDistanceStrict } from 'date-fns';
+import { BN, BN_ZERO } from '@polkadot/util';
 
 import * as echarts from 'echarts/core';
 import {
@@ -19,10 +22,6 @@ import {
 import { BarChart, BarSeriesOption, LineChart, LineSeriesOption } from 'echarts/charts';
 import { UniversalTransition } from 'echarts/features';
 import { CanvasRenderer } from 'echarts/renderers';
-
-import { useQuery } from '@apollo/client';
-import { format, compareAsc, formatDistanceStrict } from 'date-fns';
-import { BN, BN_ZERO } from '@polkadot/util';
 
 import { Segmented } from '../widget/fee-market';
 import { SegmentedType, RelayerDetailData, ChartState } from '../../model';
@@ -100,48 +99,41 @@ export const RelayerDetail = () => {
       title: 'Order ID',
       key: 'orderId',
       dataIndex: 'orderId',
-      align: 'center',
     },
     {
       title: 'Delivery Relayer',
       key: 'deliveryRelayer',
       dataIndex: 'deliveryRelayer',
-      align: 'center',
       render: (value) => <IdentAccountName account={value} />,
     },
     {
       title: 'Confirmation Relayer',
       key: 'confirmationRelayer',
       dataIndex: 'confirmationRelayer',
-      align: 'center',
       render: (value) => <IdentAccountName account={value} />,
     },
     {
       title: 'Slot Assigned Relayer',
       key: 'slotAssignedRelayer',
       dataIndex: 'slotAssignedRelayer',
-      align: 'center',
       render: (value) => <IdentAccountName account={value} />,
     },
     {
       title: 'Start Block',
       key: 'startBlock',
       dataIndex: 'startBlock',
-      align: 'center',
       render: (value) => <SubscanLink network={network.name} block={value} prefix="#" />,
     },
     {
       title: 'Confirm Block',
       key: 'confirmBlock',
       dataIndex: 'confirmBlock',
-      align: 'center',
       render: (value) => <SubscanLink network={network.name} block={value} prefix="#" />,
     },
     {
       title: 'Finish Time',
       key: 'time',
       dataIndex: 'time',
-      align: 'center',
       render: (value) => formatDistanceStrict(new Date(value), new Date()),
     },
   ];
@@ -309,11 +301,7 @@ export const RelayerDetail = () => {
     const instance = echarts.init(inOutHistoryRef.current);
     instance.setOption(option);
 
-    return () => {
-      if (instance) {
-        instance.dispose();
-      }
-    };
+    return () => instance.dispose();
   }, [network.tokens.ring.symbol, slashRewardHistory.date, slashRewardHistory.reward, slashRewardHistory.slash]);
 
   useEffect(() => {
@@ -344,11 +332,7 @@ export const RelayerDetail = () => {
     const instance = echarts.init(quoteHistoryRef.current);
     instance.setOption(option);
 
-    return () => {
-      if (instance) {
-        instance.dispose();
-      }
-    };
+    return () => instance.dispose();
   }, [quoteHistory.data, quoteHistory.date]);
 
   return (

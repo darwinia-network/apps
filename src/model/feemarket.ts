@@ -88,3 +88,25 @@ export type ChartState = {
   date: string[];
   data: string[];
 };
+
+export interface OrdersStatisticsData {
+  feeMarketEntity?: {
+    totalFinished?: number;
+    totalInProgress?: number;
+    totalOutOfSlot?: number;
+  };
+}
+
+export interface OrdersTotalOrderData {
+  orderEntities?: {
+    nodes: {
+      id: string;
+      assignedRelayerId?: string;
+      deliveredRelayerId?: string;
+      confirmedRelayerId?: string;
+      createBlock: number;
+      finishBlock?: number;
+      finishTime?: string;
+    }[];
+  };
+}
