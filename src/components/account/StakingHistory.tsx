@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { Option } from '@polkadot/types';
 import { StakingRecordType, UnbondDataSourceState, UnbondType } from '../staking/interface';
-import { useApi, useAccount, useBestNumber } from '../../hooks';
+import { useApi, useBestNumber, useStaking } from '../../hooks';
 import { CustomTab } from '../widget/CustomTab';
 import type { DarwiniaStakingStructsStakingLedger, DarwiniaSupportStructsUnbonding } from '../../api-derive/types';
 import { UnbondRecords } from './UnbondRecords';
@@ -11,7 +11,7 @@ import { LockedRecords } from './LockedRecords';
 
 export function StakingHistory() {
   const { api, network } = useApi();
-  const { account } = useAccount();
+  const { controllerAccount } = useStaking();
   const { bestNumber } = useBestNumber();
   const { t } = useTranslation();
   const [activeKey, setActiveKey] = useState(StakingRecordType.LOCKS);
@@ -20,7 +20,7 @@ export function StakingHistory() {
   const [unbondingDataSource, setUnondingDataSource] = useState<UnbondDataSourceState[]>([]);
 
   useEffect(() => {
-    if (!account?.displayAddress) {
+    if (!controllerAccount) {
       setLedger(null);
       return;
     }
@@ -28,16 +28,13 @@ export function StakingHistory() {
     let unsub: () => void;
 
     (async () => {
-      unsub = await api.query.staking.ledger(
-        account.displayAddress,
-        (res: Option<DarwiniaStakingStructsStakingLedger>) => {
-          setLedger(res.isSome ? res.unwrap() : null);
-        }
-      );
+      unsub = await api.query.staking.ledger(controllerAccount, (res: Option<DarwiniaStakingStructsStakingLedger>) => {
+        setLedger(res.isSome ? res.unwrap() : null);
+      });
     })();
 
     return () => unsub();
-  }, [api, account?.displayAddress]);
+  }, [api, controllerAccount]);
 
   useEffect(() => {
     const ringUnbondeds: DarwiniaSupportStructsUnbonding[] = [];
@@ -46,7 +43,7 @@ export function StakingHistory() {
     const ktonUnbondings: DarwiniaSupportStructsUnbonding[] = [];
 
     ledger?.ringStakingLock.unbondings.forEach((item) => {
-      if (item.until.gten(bestNumber || 0)) {
+      if (item.until.ltn(bestNumber || 0)) {
         ringUnbondeds.push(item);
       } else {
         ringUnbondings.push(item);
@@ -54,7 +51,7 @@ export function StakingHistory() {
     });
 
     ledger?.ktonStakingLock.unbondings.forEach((item) => {
-      if (item.until.gten(bestNumber || 0)) {
+      if (item.until.ltn(bestNumber || 0)) {
         ktonUnbondeds.push(item);
       } else {
         ktonUnbondings.push(item);
