@@ -112,6 +112,14 @@ function Page() {
         description: t('Trade and earn without registration.'),
         link: 'https://snowswap.xyz/#/',
       },
+      {
+        name: 'SubWallet',
+        logo: '/image/portal/subwallet.png',
+        description: t(
+          'SubWallet is a pioneering user-friendly Web3 Multiverse Gateway for the Polkadot and Kusama ecosystems.'
+        ),
+        link: 'https://subwallet.app/',
+      },
     ],
     [t, network]
   );
