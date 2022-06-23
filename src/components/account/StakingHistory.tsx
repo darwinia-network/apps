@@ -2,26 +2,22 @@ import { Card, Tabs } from 'antd';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { Option } from '@polkadot/types';
-import { AccountHistoryProps } from '../staking/interface';
-import { useApi, useAccount } from '../../hooks';
+import { StakingRecordType, UnbondDataSourceState, UnbondType } from '../staking/interface';
+import { useApi, useAccount, useBestNumber } from '../../hooks';
 import { CustomTab } from '../widget/CustomTab';
-import type { DarwiniaStakingStructsStakingLedger } from '../../api-derive/types';
-import { BondRecords } from './BondRecords';
+import type { DarwiniaStakingStructsStakingLedger, DarwiniaSupportStructsUnbonding } from '../../api-derive/types';
 import { UnbondRecords } from './UnbondRecords';
 import { LockedRecords } from './LockedRecords';
 
-enum TabState {
-  LOCKS = 'Locks',
-  UNBONDING = 'Unbonding',
-  UNBONDED = 'Unbonded',
-}
-
-export function StakingHistory({ tokens }: AccountHistoryProps) {
+export function StakingHistory() {
   const { api, network } = useApi();
   const { account } = useAccount();
+  const { bestNumber } = useBestNumber();
   const { t } = useTranslation();
-  const [activeKey, setActiveKey] = useState(TabState.LOCKS);
+  const [activeKey, setActiveKey] = useState(StakingRecordType.LOCKS);
   const [ledger, setLedger] = useState<DarwiniaStakingStructsStakingLedger | null>();
+  const [unbondedDataSource, setUnondedDataSource] = useState<UnbondDataSourceState[]>([]);
+  const [unbondingDataSource, setUnondingDataSource] = useState<UnbondDataSourceState[]>([]);
 
   useEffect(() => {
     if (!account?.displayAddress) {
@@ -43,30 +39,99 @@ export function StakingHistory({ tokens }: AccountHistoryProps) {
     return () => unsub();
   }, [api, account?.displayAddress]);
 
+  useEffect(() => {
+    const ringUnbondeds: DarwiniaSupportStructsUnbonding[] = [];
+    const ringUnbondings: DarwiniaSupportStructsUnbonding[] = [];
+    const ktonUnbondeds: DarwiniaSupportStructsUnbonding[] = [];
+    const ktonUnbondings: DarwiniaSupportStructsUnbonding[] = [];
+
+    ledger?.ringStakingLock.unbondings.forEach((item) => {
+      if (item.until.gten(bestNumber || 0)) {
+        ringUnbondeds.push(item);
+      } else {
+        ringUnbondings.push(item);
+      }
+    });
+
+    ledger?.ktonStakingLock.unbondings.forEach((item) => {
+      if (item.until.gten(bestNumber || 0)) {
+        ktonUnbondeds.push(item);
+      } else {
+        ktonUnbondings.push(item);
+      }
+    });
+
+    setUnondedDataSource(
+      ringUnbondeds
+        .map((item) => ({
+          amount: item.amount,
+          until: item.until,
+          status: UnbondType.UNBONDED,
+          symbol: network.tokens.ring.symbol,
+        }))
+        .concat(
+          ktonUnbondeds.map((item) => ({
+            amount: item.amount,
+            until: item.until,
+            status: UnbondType.UNBONDED,
+            symbol: network.tokens.kton.symbol,
+          }))
+        )
+        .sort((a, b) => a.until.cmp(b.until))
+    );
+
+    setUnondingDataSource(
+      ringUnbondings
+        .map((item) => ({
+          amount: item.amount,
+          until: item.until,
+          status: UnbondType.UNBONDING,
+          symbol: network.tokens.ring.symbol,
+        }))
+        .concat(
+          ktonUnbondings.map((item) => ({
+            amount: item.amount,
+            until: item.until,
+            status: UnbondType.UNBONDING,
+            symbol: network.tokens.kton.symbol,
+          }))
+        )
+        .sort((a, b) => a.until.cmp(b.until))
+    );
+  }, [ledger, bestNumber, network.tokens]);
+
   return (
     <Card className="relative shadow-xxl">
       <Tabs
         defaultActiveKey={activeKey}
-        onChange={(key) => setActiveKey(key as TabState)}
+        onChange={(key) => setActiveKey(key as StakingRecordType)}
         className={`overflow-x-scroll page-account-tabs page-account-tabs-${network.name}`}
       >
         <Tabs.TabPane
-          key={TabState.LOCKS}
-          tab={<CustomTab text={t(TabState.LOCKS)} tabKey={TabState.LOCKS} activeKey={activeKey} />}
+          key={StakingRecordType.LOCKS}
+          tab={<CustomTab text={t(StakingRecordType.LOCKS)} tabKey={StakingRecordType.LOCKS} activeKey={activeKey} />}
         >
           <LockedRecords locks={ledger?.depositItems || []} />
         </Tabs.TabPane>
         <Tabs.TabPane
-          key={TabState.UNBONDING}
-          tab={<CustomTab text={t(TabState.UNBONDING)} tabKey={TabState.UNBONDING} activeKey={activeKey} />}
+          key={StakingRecordType.UNBONDING}
+          tab={
+            <CustomTab
+              text={t(StakingRecordType.UNBONDING)}
+              tabKey={StakingRecordType.UNBONDING}
+              activeKey={activeKey}
+            />
+          }
         >
-          <BondRecords tokens={tokens} />
+          <UnbondRecords dataSource={unbondingDataSource} />
         </Tabs.TabPane>
         <Tabs.TabPane
-          key={TabState.UNBONDED}
-          tab={<CustomTab text={t(TabState.UNBONDED)} tabKey={TabState.UNBONDED} activeKey={activeKey} />}
+          key={StakingRecordType.UNBONDED}
+          tab={
+            <CustomTab text={t(StakingRecordType.UNBONDED)} tabKey={StakingRecordType.UNBONDED} activeKey={activeKey} />
+          }
         >
-          <UnbondRecords />
+          <UnbondRecords dataSource={unbondedDataSource} />
         </Tabs.TabPane>
       </Tabs>
     </Card>

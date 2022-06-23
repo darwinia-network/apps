@@ -2,7 +2,7 @@ import { Table, Progress, Button, Modal } from 'antd';
 import { format } from 'date-fns';
 import { useState, useCallback, useEffect } from 'react';
 import { BN } from '@polkadot/util';
-import { Balance } from '@polkadot/types/interfaces';
+import type { Balance } from '@polkadot/types/interfaces';
 import { useTranslation } from 'react-i18next';
 import BigNumber from 'bignumber.js';
 import type { ColumnsType } from 'antd/lib/table';

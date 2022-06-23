@@ -1,13 +1,13 @@
 import { CaretLeftFilled } from '@ant-design/icons';
 import { Menu, Select } from 'antd';
 import { groupBy } from 'lodash';
-import { PropsWithChildren, useMemo, useCallback, useState } from 'react';
+import { PropsWithChildren, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useLocation } from 'react-router-dom';
 import { Network, PolkadotChainConfig } from '../..//model';
 import { THEME } from '../../config';
 import { Path, routes } from '../../config/routes';
-import { useApi } from '../../hooks';
+import { useApi, useBestNumber } from '../../hooks';
 import { getNetworkByName, NETWORK_CONFIGURATIONS } from '../../utils';
 import { AccountIcon, DarwiniaIcon, StakingIcon, ToolboxIcon, UsersIcon, ViewBrowserIcon } from '../icons';
 import { IconProps } from '../icons/icon-factory';
@@ -55,15 +55,13 @@ export const getActiveNav = (path: string) => {
 export function SideNav({ collapsed, theme, toggle, children }: PropsWithChildren<SideNavProps>) {
   const { t } = useTranslation();
   const { network, setNetwork } = useApi();
+  const { bestNumber } = useBestNumber();
   const location = useLocation();
   const selectedNavMenu = useMemo<string[]>(() => {
     const nav = getActiveNav(location.pathname);
 
     return [nav.length ? nav[0].path : ''];
   }, [location?.pathname]);
-
-  const [bestNumber, setBestNumber] = useState<string | undefined>(undefined);
-  const handleBestNumberChange = useCallback((num: string) => setBestNumber(num), []);
 
   const networkOptions = useMemo(() => {
     const ele = (config: PolkadotChainConfig) => (
@@ -145,9 +143,9 @@ export function SideNav({ collapsed, theme, toggle, children }: PropsWithChildre
           className="w-3/4 flex justify-between items-center rounded-2xl px-4 py-2 mx-auto mb-8 overflow-hidden"
           style={{ boxShadow: '0px 0px 24px rgba(191, 194, 234, 0.413501)' }}
         >
-          <BestNumber onChange={handleBestNumberChange} />
+          <BestNumber bestNumber={bestNumber || 0} />
           {!collapsed && (
-            <SubscanLink network={network.name} block={bestNumber}>
+            <SubscanLink network={network.name} block={(bestNumber || 0).toString()}>
               <ViewBrowserIcon />
             </SubscanLink>
           )}
