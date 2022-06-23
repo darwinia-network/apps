@@ -2,7 +2,7 @@ import { Exposure } from '@darwinia/types';
 import { StakingLedgerT as StakingLedger } from '@darwinia/types/interfaces';
 import { TimeDepositItem } from '@darwinia/types/interfaces/darwiniaInject';
 import { DeriveStakingKeys } from '@polkadot/api-derive/staking/types';
-import {
+import type {
   AccountId,
   Balance,
   BlockNumber,
@@ -12,6 +12,7 @@ import {
   ValidatorPrefs,
 } from '@polkadot/types/interfaces';
 import type { BN } from '@polkadot/util';
+import type { Struct, Compact, Vec, u64 } from '@polkadot/types';
 
 export interface DeriveStakerReward {
   era: EraIndex;
@@ -88,3 +89,32 @@ type DeriveUnlocking = {
   remainingEras: BN;
   value: Balance;
 };
+
+export type TsInMs = u64;
+
+export interface DarwiniaStakingStructsTimeDepositItem extends Struct {
+  readonly value: Compact<Balance>;
+  readonly startTime: Compact<TsInMs>;
+  readonly expireTime: Compact<TsInMs>;
+}
+
+export interface DarwiniaSupportStructsUnbonding extends Struct {
+  readonly amount: Balance;
+  readonly until: BlockNumber;
+}
+
+export interface DarwiniaSupportStructsStakingLock extends Struct {
+  readonly stakingAmount: Balance;
+  readonly unbondings: Vec<DarwiniaSupportStructsUnbonding>;
+}
+
+export interface DarwiniaStakingStructsStakingLedger extends Struct {
+  readonly stash: AccountId;
+  readonly active: Compact<Balance>;
+  readonly activeDepositRing: Compact<Balance>;
+  readonly activeKton: Compact<Balance>;
+  readonly depositItems: Vec<DarwiniaStakingStructsTimeDepositItem>;
+  readonly ringStakingLock: DarwiniaSupportStructsStakingLock;
+  readonly ktonStakingLock: DarwiniaSupportStructsStakingLock;
+  readonly claimedRewards: Vec<EraIndex>;
+}
