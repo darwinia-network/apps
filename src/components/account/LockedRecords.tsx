@@ -150,7 +150,7 @@ export const LockedRecords = ({ locks }: { locks: DarwiniaStakingStructsTimeDepo
       align: 'center',
       render: (value) => (
         <span>
-          {fromWei({ value }, prettyNumber)} {network.tokens.ring.symbol}
+          {fromWei({ value }, prettyNumber)} {network.tokens.kton.symbol}
         </span>
       ),
     },
