@@ -25,7 +25,7 @@ export function StakingHistory() {
       return;
     }
 
-    let unsub: () => void;
+    let unsub: () => void = () => undefined;
 
     (async () => {
       unsub = await api.query.staking.ledger(controllerAccount, (res: Option<DarwiniaStakingStructsStakingLedger>) => {
