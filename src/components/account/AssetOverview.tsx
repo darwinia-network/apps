@@ -5,16 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { from, Subscription } from 'rxjs';
 import { useApi, useWallet, useAccount } from '../../hooks';
 import { AssetOverviewProps, DarwiniaAsset } from '../../model';
-import {
-  fromWei,
-  getUnit,
-  insufficientBalanceRule,
-  isRing,
-  isSameAddress,
-  prettyNumber,
-  toWei,
-  isValidAddress,
-} from '../../utils';
+import { fromWei, getUnit, insufficientBalanceRule, isRing, prettyNumber, toWei, isValidAddress } from '../../utils';
 import { FormModal } from '../widget/FormModal';
 import { PrettyAmount } from '../widget/PrettyAmount';
 import { BalanceControl } from '../widget/form-control/BalanceControl';
@@ -142,9 +133,8 @@ export function AssetOverview({ asset, loading, refresh }: AssetOverviewProps) {
             {
               validator(_, value) {
                 setRecipient(value);
-                return !isSameAddress(account?.displayAddress || '', value) ? Promise.resolve() : Promise.reject();
+                return Promise.resolve();
               },
-              message: t('The sending address and the receiving address cannot be the same'),
             },
           ]}
           extra={null}
