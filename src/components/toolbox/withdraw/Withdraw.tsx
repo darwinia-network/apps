@@ -109,12 +109,12 @@ export function Withdraw() {
 
           const max = new BN(dvmBalances[0]);
           const want = new BN(toWei({ value: amount, unit: 'ether' }));
-          const transferrabble = want.add(fee).lt(max) ? want : max.sub(fee);
+          const transferrable = want.add(fee).lt(max) ? want : max.sub(fee);
 
-          if (transferrabble.gt(BN_ZERO)) {
+          if (transferrable.gt(BN_ZERO)) {
             const extrinsic = api.tx.balances.transfer(
               destination,
-              fromWei({ value: transferrabble }).split('.')[0]
+              fromWei({ value: transferrable }).split('.')[0]
             ) as SubmittableExtrinsic<'promise'>;
 
             const tx = web3.eth.sendTransaction({
