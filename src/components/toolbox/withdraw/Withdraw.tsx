@@ -34,7 +34,6 @@ interface WithdrawFormValues {
   amount: string;
 }
 
-const WITHDRAW_PRECISION = 9;
 // TODO: https://github.com/darwinia-network/darwinia-common/pull/1298
 const DVM_DISPATCH_ADDRESS = '0x0000000000000000000000000000000000000019';
 
@@ -178,14 +177,14 @@ export function Withdraw() {
     const amount = withdrawFormValue.asset === ring.symbol ? new BN(dvmBalances[0]) : new BN(dvmBalances[1]);
 
     const amountDisplay = prettyNumber(fromWei({ value: amount.isNeg() ? BN_ZERO : amount, unit: 'ether' }), {
-      decimal: WITHDRAW_PRECISION,
+      decimal: Number(network.tokens.ring.decimal),
     });
 
     form.setFieldsValue({
       amount: amountDisplay,
     });
     setWithdrawFormValue((prev) => ({ ...prev, amount: amountDisplay }));
-  }, [withdrawFormValue.asset, dvmBalances, ring.symbol, form]);
+  }, [withdrawFormValue.asset, dvmBalances, ring.symbol, form, network.tokens.ring]);
 
   const attentionsOpts = useMemo(
     () => [
