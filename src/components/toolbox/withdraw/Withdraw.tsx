@@ -101,8 +101,7 @@ export function Withdraw() {
             to: DVM_DISPATCH_ADDRESS,
             data: u8aToHex(ext.method.toU8a()),
           })
-        ).subscribe((estimateGas) => {
-          const gas = estimateGas;
+        ).subscribe((gas) => {
           const maxFeePerGas = new BN(toWei({ value: 10, unit: 'Gwei' }));
           const fee = maxFeePerGas.muln(gas);
 
@@ -113,7 +112,7 @@ export function Withdraw() {
           if (transferrable.gt(BN_ZERO)) {
             const extrinsic = api.tx.balances.transfer(
               destination,
-              fromWei({ value: transferrable }).split('.')[0]
+              fromWei({ value: transferrable }).split('.')[0] // use substrate precision here!!
             ) as SubmittableExtrinsic<'promise'>;
 
             const tx = web3.eth.sendTransaction({
