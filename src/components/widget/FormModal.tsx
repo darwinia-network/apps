@@ -11,14 +11,15 @@ import i18n from '../../config/i18n';
 import { useAccount, useQueue } from '../../hooks';
 import { TxFailedCallback, TxCallback } from '../../model';
 
-interface ModalFormProps<Values = Record<string, unknown>> {
+interface ModalFormProps<Values extends Record<string, unknown>> {
   extrinsic: (val: Values) => SubmittableExtrinsic<'promise', ISubmittableResult>;
   initialValues?: Partial<Values>;
   modalProps: ModalProps;
+  signer?: string;
   onFail?: TxFailedCallback;
   onSuccess?: TxCallback;
   onCancel: () => void;
-  signer?: string;
+  onValuesChange?: (changedValues?: Partial<Values>, allValues?: Values) => void;
 }
 
 export function FormModal<V extends Record<string, unknown>>({
@@ -34,6 +35,7 @@ export function FormModal<V extends Record<string, unknown>>({
     //
   },
   onCancel,
+  onValuesChange,
 }: PropsWithChildren<ModalFormProps<V>>) {
   const [form] = useForm<V>();
   const { account } = useAccount();
@@ -106,6 +108,7 @@ export function FormModal<V extends Record<string, unknown>>({
         layout="vertical"
         validateMessages={validateMessages[i18n.language as 'en' | 'zh-CN' | 'zh']}
         preserve={false}
+        onValuesChange={onValuesChange}
       >
         {children}
       </Form>

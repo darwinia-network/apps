@@ -96,6 +96,7 @@ export function AssetOverview({ asset, loading, refresh }: AssetOverviewProps) {
           refresh();
         }}
         onCancel={() => setIsVisible(false)}
+        onValuesChange={(value) => setRecipient(value?.to || '')}
         initialValues={{ from: account?.displayAddress || '', to: recipient }}
         extrinsic={(values) => {
           const { to, amount } = values;
@@ -126,19 +127,7 @@ export function AssetOverview({ asset, loading, refresh }: AssetOverviewProps) {
           disabled
         ></AddressItem>
 
-        <AddressItem
-          name="to"
-          label={'Receiver'}
-          rules={[
-            {
-              validator(_, value) {
-                setRecipient(value);
-                return Promise.resolve();
-              },
-            },
-          ]}
-          extra={null}
-        />
+        <AddressItem name="to" label={'Receiver'} extra={null} />
 
         <Form.Item
           name="amount"
