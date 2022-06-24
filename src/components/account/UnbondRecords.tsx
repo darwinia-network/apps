@@ -50,7 +50,7 @@ export const UnbondRecords = ({ dataSource }: { dataSource: UnbondDataSourceStat
       key: 'until',
       dataIndex: 'until',
       align: 'center',
-      render: (value: BlockNumber) => <span>#{value.toString()}</span>,
+      render: (value: BlockNumber) => <span>{value}</span>,
     },
     {
       title: 'Status',
