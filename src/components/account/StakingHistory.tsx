@@ -17,7 +17,7 @@ type CurrentBlockTime = { block: number; time: number };
 
 const calcuUntil = (until: BlockNumber, current: CurrentBlockTime | undefined, period: number) => {
   if (current && period) {
-    return format(new Date(Math.abs(until.toNumber() - current.block) * period + current.time), DATE_FORMAT);
+    return format(new Date((until.toNumber() - current.block) * period + current.time), DATE_FORMAT);
   } else {
     return `#${until.toNumber()}`;
   }
