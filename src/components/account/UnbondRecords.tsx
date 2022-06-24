@@ -4,14 +4,15 @@ import { useCallback } from 'react';
 import { Button, Table } from 'antd';
 import { useTranslation } from 'react-i18next';
 
-import { useApi, useQueue, useStaking, useSlashingSpans } from '../../hooks';
+import { useApi, useAccount, useQueue, useStaking, useSlashingSpans } from '../../hooks';
 import { UnbondType, UnbondDataSourceState } from '../staking/interface';
 import { fromWei, prettyNumber } from '../../utils';
 
 export const UnbondRecords = ({ dataSource }: { dataSource: UnbondDataSourceState[] }) => {
   const { api, network } = useApi();
+  const { refreshAssets } = useAccount();
   const { queueExtrinsic } = useQueue();
-  const { controllerAccount, stashAccount } = useStaking();
+  const { controllerAccount, stashAccount, updateStakingDerive } = useStaking();
   const { spanCount } = useSlashingSpans(stashAccount);
   const { t } = useTranslation();
 
@@ -22,8 +23,12 @@ export const UnbondRecords = ({ dataSource }: { dataSource: UnbondDataSourceStat
         api.tx.staking.withdrawUnbonded?.meta.args.length === 1
           ? api.tx.staking.withdrawUnbonded(spanCount)
           : api.tx.staking.withdrawUnbonded(),
+      txSuccessCb: () => {
+        refreshAssets();
+        updateStakingDerive();
+      },
     });
-  }, [api, controllerAccount, spanCount, queueExtrinsic]);
+  }, [api, controllerAccount, spanCount, queueExtrinsic, refreshAssets, updateStakingDerive]);
 
   const columns: ColumnsType<UnbondDataSourceState> = [
     {

@@ -54,7 +54,7 @@ export const LockedRecords = ({ locks }: { locks: DarwiniaStakingStructsTimeDepo
   const { api, network } = useApi();
   const { account } = useAccount();
   const { queueExtrinsic } = useQueue();
-  const { controllerAccount } = useStaking();
+  const { controllerAccount, updateStakingDerive } = useStaking();
   const { t } = useTranslation();
   const [dataSource, setDataSource] = useState<DataSourceState[]>([]);
   const [unlockEarlier, setUnlockEarlier] = useState<DataSourceState | null>();
@@ -70,9 +70,10 @@ export const LockedRecords = ({ locks }: { locks: DarwiniaStakingStructsTimeDepo
       extrinsic,
       txSuccessCb: () => {
         setUnlockEarlier(null);
+        updateStakingDerive();
       },
     });
-  }, [account, api, unlockEarlier, queueExtrinsic]);
+  }, [account, api, unlockEarlier, queueExtrinsic, updateStakingDerive]);
 
   useEffect(() => {
     setDataSource(
@@ -177,6 +178,9 @@ export const LockedRecords = ({ locks }: { locks: DarwiniaStakingStructsTimeDepo
                 queueExtrinsic({
                   signAddress: controllerAccount,
                   extrinsic,
+                  txSuccessCb: () => {
+                    updateStakingDerive();
+                  },
                 });
               }}
               className="p-0 flex items-center justify-center w-28"
