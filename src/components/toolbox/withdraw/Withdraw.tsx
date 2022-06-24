@@ -1,5 +1,5 @@
-import { TypeRegistry } from '@polkadot/types';
-import { BN, BN_ZERO } from '@polkadot/util';
+import { SubmittableExtrinsic } from '@polkadot/api/types';
+import { BN, BN_ZERO, u8aToHex } from '@polkadot/util';
 import { Button, Card, Select, Modal, Checkbox, notification } from 'antd';
 import type { CheckboxValueType } from 'antd/es/checkbox/Group';
 import Form from 'antd/lib/form';
@@ -19,6 +19,7 @@ import {
   toWei,
   convertToDvm,
   handleEthTxResult,
+  prettyNumber,
   insufficientBalanceRule,
 } from '../../../utils';
 import { AddressItem } from '../../widget/form-control/AddressItem';
@@ -33,11 +34,8 @@ interface WithdrawFormValues {
   amount: string;
 }
 
-const WITHDRAW_GAS = 55000;
-const DVM_WITHDRAW_ADDRESS = '0x0000000000000000000000000000000000000015';
-const EMPTY_ADDRESS = '0x0000000000000000000000000000000000000000000000000000000000000000';
-
-const registry = new TypeRegistry();
+// TODO: https://github.com/darwinia-network/darwinia-common/pull/1298
+const DVM_DISPATCH_ADDRESS = '0x0000000000000000000000000000000000000019';
 
 const capitalLetters = (str: string) => {
   // eslint-disable-next-line no-magic-numbers
@@ -50,7 +48,7 @@ const capitalLetters = (str: string) => {
 
 export function Withdraw() {
   const { t } = useTranslation();
-  const { network } = useApi();
+  const { api, network } = useApi();
   const [form] = useForm();
   const {
     busy: metamaskBusy,
@@ -92,27 +90,55 @@ export function Withdraw() {
       const web3 = entrance.web3.getInstance(entrance.web3.defaultProvider);
 
       if (asset === ring.symbol) {
-        const accountHex = registry.createType('AccountId', destination).toHex();
+        const ext = api.tx.balances.transfer(
+          destination,
+          toWei({ value: amount, unit: 'gwei' })
+        ) as SubmittableExtrinsic<'promise'>;
 
-        if (accountHex !== EMPTY_ADDRESS) {
-          const tx = web3.eth.sendTransaction({
+        from(
+          web3.eth.estimateGas({
             from: activeAccount,
-            to: DVM_WITHDRAW_ADDRESS,
-            data: accountHex,
-            value: web3.utils.toWei(amount, 'ether'),
-            gas: WITHDRAW_GAS,
-          });
+            to: DVM_DISPATCH_ADDRESS,
+            data: u8aToHex(ext.method.toU8a()),
+          })
+        ).subscribe((gas) => {
+          const maxFeePerGas = new BN(toWei({ value: 10, unit: 'Gwei' }));
+          const fee = maxFeePerGas.muln(gas);
 
-          handleEthTxResult(tx, {
-            txSuccessCb: () => {
-              refreshAssets(); // substrate balance
-              refreshDvmBalances();
-              setBusy(false);
-              setVisibleAttention(false);
-            },
-            txFailedCb: () => setBusy(false),
-          });
-        }
+          const max = new BN(dvmBalances[0]);
+          const want = new BN(toWei({ value: amount, unit: 'ether' }));
+          const transferrable = want.add(fee).lt(max) ? want : max.sub(fee);
+
+          if (transferrable.gt(BN_ZERO)) {
+            const extrinsic = api.tx.balances.transfer(
+              destination,
+              fromWei({ value: transferrable }).split('.')[0] // use substrate precision here!!
+            ) as SubmittableExtrinsic<'promise'>;
+
+            const tx = web3.eth.sendTransaction({
+              from: activeAccount,
+              to: DVM_DISPATCH_ADDRESS,
+              data: u8aToHex(extrinsic.method.toU8a()),
+              gas,
+            });
+
+            handleEthTxResult(tx, {
+              txSuccessCb: () => {
+                refreshAssets(); // substrate balance
+                refreshDvmBalances();
+                setBusy(false);
+                setVisibleAttention(false);
+              },
+              txFailedCb: () => setBusy(false),
+            });
+          } else {
+            notification.warning({
+              message: 'Transaction failed',
+              description: 'Out of gas',
+            });
+            setBusy(false);
+          }
+        });
       } else if (asset === kton.symbol) {
         const contract = new web3.eth.Contract(abi.ktonABI, kton.address);
 
@@ -138,7 +164,7 @@ export function Withdraw() {
         description: (error as Error).message,
       });
     }
-  }, [activeAccount, ring, kton, withdrawFormValue, refreshAssets, refreshDvmBalances]);
+  }, [activeAccount, ring, kton, withdrawFormValue, api, dvmBalances, refreshAssets, refreshDvmBalances]);
 
   useEffect(() => {
     const sub$$ = refreshDvmBalances();
@@ -147,20 +173,17 @@ export function Withdraw() {
   }, [refreshDvmBalances]);
 
   useEffect(() => {
-    const amount =
-      withdrawFormValue.asset === ring.symbol
-        ? new BN(dvmBalances[0]).sub(new BN(WITHDRAW_GAS))
-        : new BN(dvmBalances[1]);
+    const amount = withdrawFormValue.asset === ring.symbol ? new BN(dvmBalances[0]) : new BN(dvmBalances[1]);
 
-    const [integer, decimal = '0'] = fromWei({ value: amount.isNeg() ? BN_ZERO : amount, unit: 'ether' }).split('.');
-    // eslint-disable-next-line no-magic-numbers
-    const amountDisplay = [integer, decimal.substring(0, 3)].join('.');
+    const amountDisplay = prettyNumber(fromWei({ value: amount.isNeg() ? BN_ZERO : amount, unit: 'ether' }), {
+      decimal: Number(network.tokens.ring.decimal),
+    });
 
     form.setFieldsValue({
       amount: amountDisplay,
     });
     setWithdrawFormValue((prev) => ({ ...prev, amount: amountDisplay }));
-  }, [withdrawFormValue.asset, dvmBalances, ring.symbol, form]);
+  }, [withdrawFormValue.asset, dvmBalances, ring.symbol, form, network.tokens.ring]);
 
   const attentionsOpts = useMemo(
     () => [
@@ -267,7 +290,7 @@ export function Withdraw() {
               }),
             ]}
           >
-            <BalanceControl size="large" className="w-full" precision={3} />
+            <BalanceControl size="large" className="w-full" />
           </Form.Item>
           <Form.Item>
             <Button size="large" type="primary" htmlType="submit" disabled={disableWithdraw} className="w-28">
