@@ -119,6 +119,7 @@ export const ORDERS_TOTAL_ORDERS = gql`
     orderEntities(filter: { id: { startsWith: $destination } }, orderBy: CREATE_TIME_ASC) {
       nodes {
         id
+        sender
         assignedRelayerId
         deliveredRelayerId
         confirmedRelayerId

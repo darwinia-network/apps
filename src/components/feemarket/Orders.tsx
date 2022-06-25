@@ -1,7 +1,7 @@
 import { Card, Statistic, Table, Select, Input, Button, Form, DatePicker, Badge, InputNumber, Spin } from 'antd';
 import { ColumnsType } from 'antd/lib/table';
 import { CheckCircleOutlined, ClockCircleOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import { useQuery } from '@apollo/client';
 import { formatDistanceStrict } from 'date-fns';
@@ -30,14 +30,23 @@ type OrderData = {
   startBlock: number;
   confirmBlock?: number;
   time?: string;
+  sender: string;
 };
 
+enum SearchType {
+  ORDER_ID,
+  SENDER_ADDRESS,
+}
+
+// eslint-disable-next-line complexity
 export const Orders = () => {
   const { network } = useApi();
   const { destination } = useFeeMarket();
-  const ref = useRef<HTMLDivElement>(null);
+  const dataSourceRef = useRef<OrderData[]>([]);
+  const statisticCharRef = useRef<HTMLDivElement>(null);
   const [timeDimension, setTimeDimension] = useState(1);
   const [dataSource, setDataSource] = useState<OrderData[]>([]);
+  const [search, setSearch] = useState<{ type: SearchType; value: string }>({ type: SearchType.ORDER_ID, value: '' });
   const { loading: statisticsLoading, data: statisticsData } = useQuery(ORDERS_STATISTICS, {
     variables: { destination },
     pollInterval: LONG_LONG_DURATION,
@@ -54,20 +63,6 @@ export const Orders = () => {
     loading: boolean;
     data: OrdersTotalOrderData | null;
   };
-
-  useEffect(() => {
-    setDataSource(
-      (totalOrdersData?.orderEntities?.nodes || []).map((node) => ({
-        orderId: node.id.split('-')[1],
-        deliveryRelayer: node.deliveredRelayerId?.split('-')[1],
-        confirmationRelayer: node.confirmedRelayerId?.split('-')[1],
-        assignedRelayer: node.assignedRelayerId?.split('-')[1],
-        startBlock: node.createBlock,
-        confirmBlock: node.finishBlock,
-        time: node.finishTime,
-      }))
-    );
-  }, [totalOrdersData?.orderEntities?.nodes]);
 
   const columns: ColumnsType<OrderData> = [
     {
@@ -119,8 +114,35 @@ export const Orders = () => {
     },
   ];
 
+  const handleSearch = useCallback(() => {
+    if (search.value) {
+      if (search.type === SearchType.ORDER_ID) {
+        setDataSource(dataSourceRef.current.filter((item) => item.orderId === search.value));
+      } else if (search.type === SearchType.SENDER_ADDRESS) {
+        setDataSource(dataSourceRef.current.filter((item) => item.sender === search.value));
+      }
+    } else {
+      setDataSource(dataSourceRef.current);
+    }
+  }, [search]);
+
   useEffect(() => {
-    if (!ref.current) {
+    dataSourceRef.current = (totalOrdersData?.orderEntities?.nodes || []).map((node) => ({
+      orderId: node.id.split('-')[1],
+      deliveryRelayer: node.deliveredRelayerId?.split('-')[1],
+      confirmationRelayer: node.confirmedRelayerId?.split('-')[1],
+      assignedRelayer: node.assignedRelayerId?.split('-')[1],
+      startBlock: node.createBlock,
+      confirmBlock: node.finishBlock,
+      time: node.finishTime,
+      sender: node.sender,
+    }));
+
+    setDataSource(dataSourceRef.current);
+  }, [totalOrdersData?.orderEntities?.nodes]);
+
+  useEffect(() => {
+    if (!statisticCharRef.current) {
       return;
     }
 
@@ -154,7 +176,7 @@ export const Orders = () => {
       ],
     };
 
-    const instance = echarts.init(ref.current);
+    const instance = echarts.init(statisticCharRef.current);
     instance.setOption(option);
 
     return () => instance.dispose();
@@ -200,21 +222,22 @@ export const Orders = () => {
             }
             valueStyle={{ textAlign: 'center' }}
           />
-          <div ref={ref} className="h-24 w-72" />
+          <div ref={statisticCharRef} className="h-24 w-72" />
         </div>
       </Card>
       <Card className="mt-6">
         <div className="flex items-center space-x-2">
           <Input
             addonBefore={
-              <Select defaultValue={1}>
-                <Select.Option value={1}>Order ID</Select.Option>
-                <Select.Option value={2}>Sender Address</Select.Option>
+              <Select value={search.type} onSelect={(type) => setSearch((prev) => ({ ...prev, type }))}>
+                <Select.Option value={SearchType.ORDER_ID}>Order ID</Select.Option>
+                <Select.Option value={SearchType.SENDER_ADDRESS}>Sender Address</Select.Option>
               </Select>
             }
             className="w-96"
+            onChange={(e) => setSearch((prev) => ({ ...prev, value: e.target.value }))}
           />
-          <Button>Search</Button>
+          <Button onClick={handleSearch}>Search</Button>
         </div>
 
         <Form

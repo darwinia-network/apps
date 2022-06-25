@@ -107,6 +107,7 @@ export interface OrdersTotalOrderData {
       createBlock: number;
       finishBlock?: number;
       finishTime?: string;
+      sender: string;
     }[];
   };
 }
