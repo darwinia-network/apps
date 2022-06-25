@@ -78,6 +78,7 @@ module.exports = {
     'react/display-name': 'off',
     'react/prop-types': 'off',
     // eslint common rules
+    curly: 'error',
     'arrow-parens': ['error', 'always'],
     'comma-dangle': [
       'error',

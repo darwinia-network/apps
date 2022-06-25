@@ -97,7 +97,9 @@ export function AssetOverview({ asset, loading, refresh }: AssetOverviewProps) {
         }}
         onCancel={() => setIsVisible(false)}
         onValuesChange={(value) => {
-          if (value?.to !== undefined) setRecipient(value.to);
+          if (value?.to !== undefined) {
+            setRecipient(value.to);
+          }
         }}
         initialValues={{ from: account?.displayAddress || '', to: recipient }}
         extrinsic={(values) => {
