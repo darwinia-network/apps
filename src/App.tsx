@@ -168,7 +168,7 @@ function App() {
 
             <div className="flex items-center gap-4">
               <ActiveAccount />
-              <ConnectWallet />
+              {isMobile() ? null : <ConnectWallet />}
 
               <div className="hidden lg:flex items-center">
                 {/* <ThemeSwitch mode="btn" network={network.name} onThemeChange={setTheme} /> */}

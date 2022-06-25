@@ -4,11 +4,13 @@ import React, { CSSProperties, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import { delay, of } from 'rxjs';
+import isMobile from 'is-mobile';
 import { useApi, useWallet, useAccount } from '../../../hooks';
 import { toShortAddress } from '../../../utils';
 import { ViewBrowserIcon, CopyIcon } from '../../icons';
 import { SHORT_DURATION, SEARCH_PARAMS_SOURCE } from '../../../config';
 import { AccountName } from '../account/AccountName';
+import { IdentAccountName } from '../account/IdentAccountName';
 import { Account } from '../../../model';
 import { AccountSelector } from './AccountSelector';
 
@@ -50,6 +52,7 @@ function AccountWithNetwork({
   );
 }
 
+// eslint-disable-next-line complexity
 export const ActiveAccount = () => {
   const { network } = useApi();
   const { walletToUse } = useWallet();
@@ -66,7 +69,9 @@ export const ActiveAccount = () => {
     }
   }, [isCopied]);
 
-  if (!walletToUse) {
+  if (isMobile()) {
+    return account ? <IdentAccountName account={account.displayAddress} iconSize={18} /> : null;
+  } else if (!walletToUse) {
     return null;
   }
 
