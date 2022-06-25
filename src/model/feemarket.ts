@@ -106,8 +106,10 @@ export interface OrdersTotalOrderData {
       confirmedRelayerId?: string;
       createBlock: number;
       finishBlock?: number;
+      createTime: string;
       finishTime?: string;
       sender: string;
+      confirmedSlotIndex: number | null;
     }[];
   };
 }

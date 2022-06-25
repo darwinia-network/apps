@@ -5,6 +5,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import { useQuery } from '@apollo/client';
 import { formatDistanceStrict } from 'date-fns';
+import type { Moment } from 'moment';
 
 import * as echarts from 'echarts/core';
 import { TooltipComponent, TooltipComponentOption, LegendComponent, LegendComponentOption } from 'echarts/components';
@@ -24,18 +25,53 @@ type EChartsOption = echarts.ComposeOption<TooltipComponentOption | LegendCompon
 
 type OrderData = {
   orderId: string;
-  deliveryRelayer?: string;
-  confirmationRelayer?: string;
+  deliveryRelayer?: string | null;
+  confirmationRelayer?: string | null;
   assignedRelayer?: string;
   startBlock: number;
-  confirmBlock?: number;
-  time?: string;
+  confirmBlock?: number | null;
   sender: string;
+  createTime: string;
+  finishTime?: string | null;
+  confirmedSlotIndex: number | null;
 };
 
 enum SearchType {
-  ORDER_ID,
-  SENDER_ADDRESS,
+  ORDER_ID = 'Order ID',
+  SENDER_ADDRESS = 'Sendet Address',
+}
+
+type SearchData = {
+  type: SearchType;
+  value: string;
+};
+
+enum TimeDimension {
+  DATE = 'Date',
+  BLOCK = 'Block',
+}
+
+enum FilterState {
+  ALL = 'All',
+  FINISHED = 'Finished',
+  IN_PROGRESS = 'In Progress',
+  OUT_OF_SLOT = 'Out of Slot',
+}
+
+enum FilterSlot {
+  ALL = 'All',
+  SLOT_1 = 'Slot 1',
+  SLOT_2 = 'Slot 2',
+  SLOT_3 = 'Slot 3',
+  OUT_OF_SLOT = 'Out of Slot',
+}
+
+interface FilterData {
+  dimension: TimeDimension;
+  state: FilterState;
+  slot: FilterSlot;
+  block?: number | null;
+  duration?: [start: Moment, end: Moment] | null;
 }
 
 // eslint-disable-next-line complexity
@@ -44,9 +80,13 @@ export const Orders = () => {
   const { destination } = useFeeMarket();
   const dataSourceRef = useRef<OrderData[]>([]);
   const statisticCharRef = useRef<HTMLDivElement>(null);
-  const [timeDimension, setTimeDimension] = useState(1);
   const [dataSource, setDataSource] = useState<OrderData[]>([]);
-  const [search, setSearch] = useState<{ type: SearchType; value: string }>({ type: SearchType.ORDER_ID, value: '' });
+  const [search, setSearch] = useState<SearchData>({ type: SearchType.ORDER_ID, value: '' });
+  const [filter, setFilter] = useState<FilterData>({
+    dimension: TimeDimension.DATE,
+    state: FilterState.ALL,
+    slot: FilterSlot.ALL,
+  });
   const { loading: statisticsLoading, data: statisticsData } = useQuery(ORDERS_STATISTICS, {
     variables: { destination },
     pollInterval: LONG_LONG_DURATION,
@@ -108,8 +148,8 @@ export const Orders = () => {
     },
     {
       title: 'Time',
-      key: 'time',
-      dataIndex: 'time',
+      key: 'finishTime',
+      dataIndex: 'finishTime',
       render: (value) => (value ? formatDistanceStrict(new Date(value), new Date()) : '-'),
     },
   ];
@@ -126,6 +166,57 @@ export const Orders = () => {
     }
   }, [search]);
 
+  const handleFilter = useCallback((values: FilterData) => {
+    const { duration, block, state, slot } = values;
+
+    setDataSource(
+      // eslint-disable-next-line complexity
+      dataSourceRef.current.filter((item) => {
+        let match: boolean | undefined = undefined;
+
+        if (duration) {
+          match =
+            duration[0].isBefore(item.createTime) && (item.finishTime ? duration[1].isAfter(item.finishTime) : true);
+        }
+
+        if (block) {
+          match = (match === undefined || match) && (item.startBlock === block || item.confirmBlock === block);
+        }
+
+        switch (state) {
+          // case FilterState.ALL:
+          case FilterState.FINISHED:
+            match = (match === undefined || match) && item.confirmedSlotIndex !== null;
+            break;
+          case FilterState.IN_PROGRESS:
+            match = (match === undefined || match) && item.confirmedSlotIndex === null;
+            break;
+          case FilterState.OUT_OF_SLOT:
+            match = (match === undefined || match) && item.confirmedSlotIndex === -1;
+            break;
+        }
+
+        switch (slot) {
+          // case FilterSlot.ALL:
+          case FilterSlot.SLOT_1:
+            match = (match === undefined || match) && item.confirmedSlotIndex === 0;
+            break;
+          case FilterSlot.SLOT_2:
+            match = (match === undefined || match) && item.confirmedSlotIndex === 1;
+            break;
+          case FilterSlot.SLOT_3:
+            match = (match === undefined || match) && item.confirmedSlotIndex === 2; // eslint-disable-line no-magic-numbers
+            break;
+          case FilterSlot.OUT_OF_SLOT:
+            match = (match === undefined || match) && item.confirmedSlotIndex === -1;
+            break;
+        }
+
+        return match === undefined || match;
+      })
+    );
+  }, []);
+
   useEffect(() => {
     dataSourceRef.current = (totalOrdersData?.orderEntities?.nodes || []).map((node) => ({
       orderId: node.id.split('-')[1],
@@ -134,8 +225,10 @@ export const Orders = () => {
       assignedRelayer: node.assignedRelayerId?.split('-')[1],
       startBlock: node.createBlock,
       confirmBlock: node.finishBlock,
-      time: node.finishTime,
+      createTime: node.createTime,
+      finishTime: node.finishTime,
       sender: node.sender,
+      confirmedSlotIndex: node.confirmedSlotIndex,
     }));
 
     setDataSource(dataSourceRef.current);
@@ -230,8 +323,8 @@ export const Orders = () => {
           <Input
             addonBefore={
               <Select value={search.type} onSelect={(type) => setSearch((prev) => ({ ...prev, type }))}>
-                <Select.Option value={SearchType.ORDER_ID}>Order ID</Select.Option>
-                <Select.Option value={SearchType.SENDER_ADDRESS}>Sender Address</Select.Option>
+                <Select.Option value={SearchType.ORDER_ID}>{SearchType.ORDER_ID}</Select.Option>
+                <Select.Option value={SearchType.SENDER_ADDRESS}>{SearchType.SENDER_ADDRESS}</Select.Option>
               </Select>
             }
             className="w-96"
@@ -240,51 +333,55 @@ export const Orders = () => {
           <Button onClick={handleSearch}>Search</Button>
         </div>
 
-        <Form
+        <Form<FilterData>
           layout="inline"
           className="mt-6"
-          onValuesChange={({ timeDimension }) => {
-            if (timeDimension) {
-              setTimeDimension(timeDimension);
+          onValuesChange={(changedValues: Partial<FilterData>) => {
+            const { dimension } = changedValues;
+
+            if (dimension) {
+              setFilter((prev) => ({ ...prev, dimension }));
             }
           }}
+          initialValues={{ dimension: filter.dimension, state: filter.state, slot: filter.slot }}
+          onFinish={handleFilter}
         >
-          <Form.Item name="timeDimension" label="Time Dimension">
+          <Form.Item name="dimension" label="Time Dimension">
             <Select className="w-20">
-              <Select.Option value={1}>Date</Select.Option>
-              <Select.Option value={2}>Block</Select.Option>
+              <Select.Option value={TimeDimension.DATE}>{TimeDimension.DATE}</Select.Option>
+              <Select.Option value={TimeDimension.BLOCK}>{TimeDimension.BLOCK}</Select.Option>
             </Select>
           </Form.Item>
-          {timeDimension === 1 ? (
-            <Form.Item name={`dateRange`} label="Date Range">
+          {filter.dimension === TimeDimension.DATE ? (
+            <Form.Item name="duration" label="Date Range">
               <DatePicker.RangePicker />
             </Form.Item>
           ) : (
             <Form.Item name="block" label="Block">
-              <InputNumber min={1} />
+              <InputNumber min={1} step={1} />
             </Form.Item>
           )}
           <Form.Item name={`state`} label="State">
             <Select className="w-32">
-              <Select.Option value={0}>All</Select.Option>
-              <Select.Option value={1}>
-                <Badge color="green" text="Finished" />
+              <Select.Option value={FilterState.ALL}>{FilterState.ALL}</Select.Option>
+              <Select.Option value={FilterState.FINISHED}>
+                <Badge color="green" text={FilterState.FINISHED} />
               </Select.Option>
-              <Select.Option value={2}>
-                <Badge color="blue" text="In Progress" />
+              <Select.Option value={FilterState.IN_PROGRESS}>
+                <Badge color="blue" text={FilterState.IN_PROGRESS} />
               </Select.Option>
-              <Select.Option value={3}>
-                <Badge color="gold" text="Out of Slot" />
+              <Select.Option value={FilterState.OUT_OF_SLOT}>
+                <Badge color="gold" text={FilterState.OUT_OF_SLOT} />
               </Select.Option>
             </Select>
           </Form.Item>
           <Form.Item name={`slot`} label="Slot">
             <Select className="w-24">
-              <Select.Option value={1}>All</Select.Option>
-              <Select.Option value={2}>Slot 1</Select.Option>
-              <Select.Option value={3}>Slot 2</Select.Option>
-              <Select.Option value={4}>Slot 3</Select.Option>
-              <Select.Option value={5}>Out of Slot</Select.Option>
+              <Select.Option value={FilterSlot.ALL}>{FilterSlot.ALL}</Select.Option>
+              <Select.Option value={FilterSlot.SLOT_1}>{FilterSlot.SLOT_1}</Select.Option>
+              <Select.Option value={FilterSlot.SLOT_2}>{FilterSlot.SLOT_2}</Select.Option>
+              <Select.Option value={FilterSlot.SLOT_3}>{FilterSlot.SLOT_3}</Select.Option>
+              <Select.Option value={FilterSlot.OUT_OF_SLOT}>{FilterSlot.OUT_OF_SLOT}</Select.Option>
             </Select>
           </Form.Item>
           <Form.Item>

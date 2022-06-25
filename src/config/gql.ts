@@ -125,7 +125,9 @@ export const ORDERS_TOTAL_ORDERS = gql`
         confirmedRelayerId
         createBlock
         finishBlock
+        createTime
         finishTime
+        confirmedSlotIndex
       }
     }
   }
