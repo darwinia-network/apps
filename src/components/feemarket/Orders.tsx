@@ -12,7 +12,7 @@ import { PieChart, PieSeriesOption } from 'echarts/charts';
 import { LabelLayout } from 'echarts/features';
 import { CanvasRenderer } from 'echarts/renderers';
 
-import { ORDERS_STATISTICS, ORDERS_TOTAL_ORDERS, LONG_DURATION, LONG_LONG_DURATION } from '../../config';
+import { ORDERS_STATISTICS, ORDERS_TOTAL_ORDERS, LONG_LONG_DURATION } from '../../config';
 import { useFeeMarket, useApi } from '../../hooks';
 import { OrdersStatisticsData, OrdersTotalOrderData } from '../../model';
 import { IdentAccountName } from '../widget/account/IdentAccountName';
@@ -40,7 +40,7 @@ export const Orders = () => {
   const [dataSource, setDataSource] = useState<OrderData[]>([]);
   const { loading: statisticsLoading, data: statisticsData } = useQuery(ORDERS_STATISTICS, {
     variables: { destination },
-    pollInterval: LONG_DURATION,
+    pollInterval: LONG_LONG_DURATION,
     notifyOnNetworkStatusChange: true,
   }) as {
     loading: boolean;

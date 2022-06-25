@@ -14,7 +14,7 @@ import { timer, switchMap, from, forkJoin, tap, EMPTY } from 'rxjs';
 import { useQuery } from '@apollo/client';
 import { formatDistanceStrict } from 'date-fns';
 import { Statistics } from '../widget/Statistics';
-import { LONG_DURATION, QUERY_FEEMARKET_RECORD, QUERY_INPROGRESS_ORDERS, OVERVIEW_FOR_CHART } from '../../config';
+import { LONG_LONG_DURATION, QUERY_FEEMARKET_RECORD, QUERY_INPROGRESS_ORDERS, OVERVIEW_FOR_CHART } from '../../config';
 import { useApi, useFeeMarket } from '../../hooks';
 import { getFeeMarketModule, prettyNumber, fromWei, getSegmentedDateByType } from '../../utils';
 import { PalletFeeMarketRelayer, SegmentedType, ChartState } from '../../model';
@@ -32,22 +32,22 @@ export const Overview = () => {
   const { destination } = useFeeMarket();
   const { loading: feemarketLoading, data: feeMarketRecord } = useQuery(QUERY_FEEMARKET_RECORD, {
     variables: { destination },
-    pollInterval: LONG_DURATION,
+    pollInterval: LONG_LONG_DURATION,
     notifyOnNetworkStatusChange: true,
   });
   const { data: inProgressOrders } = useQuery(QUERY_INPROGRESS_ORDERS, {
     variables: { destination },
-    pollInterval: LONG_DURATION,
+    pollInterval: LONG_LONG_DURATION,
   });
   const [feeSgmentedType, setFeeSegmentedType] = useState(SegmentedType.ALL);
   const [orderSegmentedType, setOrderSegmentedType] = useState(SegmentedType.ALL);
   const { data: feeHistoryChart } = useQuery(OVERVIEW_FOR_CHART, {
     variables: { destination, date: getSegmentedDateByType(feeSgmentedType) },
-    pollInterval: LONG_DURATION,
+    pollInterval: LONG_LONG_DURATION,
   });
   const { data: totalOrdersChart } = useQuery(OVERVIEW_FOR_CHART, {
     variables: { destination, date: getSegmentedDateByType(orderSegmentedType) },
-    pollInterval: LONG_DURATION,
+    pollInterval: LONG_LONG_DURATION,
   });
   const { t } = useTranslation();
   const totalOrdersRef = useRef<HTMLDivElement>(null);
@@ -62,7 +62,7 @@ export const Overview = () => {
   });
 
   useEffect(() => {
-    const sub$$ = timer(0, LONG_DURATION)
+    const sub$$ = timer(0, LONG_LONG_DURATION)
       .pipe(
         tap(() => setCurrentFee((prev) => ({ ...prev, loading: true }))),
         switchMap(() =>
