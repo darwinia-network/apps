@@ -77,6 +77,7 @@ export const Orders = () => {
       render: (value) => {
         const searchParams = new URL(window.location.href).searchParams;
         searchParams.set('orderid', value);
+        searchParams.set('dest', destination);
         return <NavLink to={`?${searchParams.toString()}`}>{value}</NavLink>;
       },
     },

@@ -47,6 +47,7 @@ export const Relayers = () => {
       render: (value) => {
         const searchParams = new URL(window.location.href).searchParams;
         searchParams.set('relayer', value);
+        searchParams.set('dest', destination);
         return (
           <NavLink to={`?${searchParams.toString()}`}>
             <IdentAccountName account={value} iconSize={24} />

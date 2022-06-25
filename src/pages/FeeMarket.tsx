@@ -8,6 +8,7 @@ import { RelayerDetail } from '../components/feemarket/RelayerDetail';
 import { Orders } from '../components/feemarket/Orders';
 import { OrderDetail } from '../components/feemarket/OrderDetail';
 import { useApi } from '../hooks';
+import type { CrossChainDestination } from '../model';
 import { GraphqlProvider } from '../providers';
 import { CustomTab } from '../components/widget/CustomTab';
 
@@ -17,11 +18,13 @@ enum TabsKeys {
   orders = 'orders',
 }
 
+// eslint-disable-next-line complexity
 function Page() {
   const searchParams = new URL(window.location.href).searchParams;
   const tab = searchParams.get('tab');
   const orderid = searchParams.get('orderid');
   const relayer = searchParams.get('relayer');
+  const destination = searchParams.get('dest');
 
   const { network } = useApi();
   const { t } = useTranslation();
@@ -46,13 +49,21 @@ function Page() {
           key={TabsKeys.relayers}
           tab={<CustomTab text={t('Relayers')} tabKey={TabsKeys.relayers} activeKey={activeKey} />}
         >
-          {relayer ? <RelayerDetail relayer={relayer} /> : <Relayers />}
+          {relayer && destination ? (
+            <RelayerDetail relayer={relayer} destination={destination as CrossChainDestination} />
+          ) : (
+            <Relayers />
+          )}
         </Tabs.TabPane>
         <Tabs.TabPane
           key={TabsKeys.orders}
           tab={<CustomTab text={t('Orders')} tabKey={TabsKeys.orders} activeKey={activeKey} />}
         >
-          {orderid ? <OrderDetail orderid={orderid} /> : <Orders />}
+          {orderid && destination ? (
+            <OrderDetail orderid={orderid} destination={destination as CrossChainDestination} />
+          ) : (
+            <Orders />
+          )}
         </Tabs.TabPane>
       </Tabs>
     </GraphqlProvider>

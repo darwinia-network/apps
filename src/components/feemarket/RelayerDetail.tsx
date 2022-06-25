@@ -24,13 +24,13 @@ import { UniversalTransition } from 'echarts/features';
 import { CanvasRenderer } from 'echarts/renderers';
 
 import { Segmented } from '../widget/fee-market';
-import { SegmentedType, RelayerDetailData, ChartState } from '../../model';
+import { SegmentedType, RelayerDetailData, ChartState, CrossChainDestination } from '../../model';
 import { Path } from '../../config/routes';
 import { AccountName } from '../widget/account/AccountName';
 import { IdentAccountName } from '../widget/account/IdentAccountName';
 import { SubscanLink } from '../widget/SubscanLink';
 import { RELAYER_DETAIL, LONG_LONG_DURATION, DATE_FORMAT } from '../../config';
-import { useFeeMarket, useApi } from '../../hooks';
+import { useApi } from '../../hooks';
 import { fromWei, prettyNumber, getSegmentedDateByType } from '../../utils';
 
 echarts.use([
@@ -65,9 +65,14 @@ type RelayerData = {
   time: string;
 };
 
-export const RelayerDetail = ({ relayer: relayerAddress }: { relayer: string }) => {
+export const RelayerDetail = ({
+  relayer: relayerAddress,
+  destination,
+}: {
+  relayer: string;
+  destination: CrossChainDestination;
+}) => {
   const { network } = useApi();
-  const { destination } = useFeeMarket();
   const [quoteSegmented, setQuoteSegmented] = useState(SegmentedType.ALL);
   const [rewardSlashSegmented, setRewardSlashSegmented] = useState(SegmentedType.ALL);
   const { loading, data } = useQuery(RELAYER_DETAIL, {
