@@ -27,8 +27,11 @@ enum RelayerTab {
   ASSIGNED,
 }
 
+const renderBalance = (value: Balance | string | number, symbol: string): string =>
+  new BN(value).isZero() ? fromWei({ value }, prettyNumber) : `${fromWei({ value }, prettyNumber)} ${symbol}`;
+
 export const Relayers = () => {
-  const { api } = useApi();
+  const { api, network } = useApi();
   const apollo = useApolloClient();
   const { destination } = useFeeMarket();
   const [tab, setTab] = useState(RelayerTab.ALL);
@@ -61,28 +64,28 @@ export const Relayers = () => {
       title: 'Collateral',
       key: 'collateral',
       dataIndex: 'collateral',
-      render: (value) => fromWei({ value }, prettyNumber),
+      render: (value) => renderBalance(value, network.tokens.ring.symbol),
       sorter: (a, b) => a.collateral.cmp(b.collateral),
     },
     {
       title: 'Quote',
       key: 'quote',
       dataIndex: 'quote',
-      render: (value) => fromWei({ value }, prettyNumber),
+      render: (value) => renderBalance(value, network.tokens.ring.symbol),
       sorter: (a, b) => a.quote.cmp(b.quote),
     },
     {
       title: 'Sum(reward)',
       key: 'sumReward',
       dataIndex: 'sumReward',
-      render: (value) => fromWei({ value }, prettyNumber),
+      render: (value) => renderBalance(value, network.tokens.ring.symbol),
       sorter: (a, b) => a.sumReward.cmp(b.sumReward),
     },
     {
       title: 'Sum(slash)',
       key: 'sumSlash',
       dataIndex: 'sumSlash',
-      render: (value) => fromWei({ value }, prettyNumber),
+      render: (value) => renderBalance(value, network.tokens.ring.symbol),
       sorter: (a, b) => a.sumSlash.cmp(b.sumSlash),
     },
   ];
