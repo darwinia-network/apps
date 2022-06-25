@@ -261,9 +261,9 @@ export const Orders = () => {
             show: false,
           },
           data: [
-            { value: 999000, name: 'Finished' },
-            { value: 120000, name: 'In-progress' },
-            { value: 90000, name: 'Out-of-slot' },
+            { value: statisticsData?.feeMarketEntity?.totalFinished || 0, name: 'Finished' },
+            { value: statisticsData?.feeMarketEntity?.totalInProgress || 0, name: 'In-progress' },
+            { value: statisticsData?.feeMarketEntity?.totalOutOfSlot || 0, name: 'Out-of-slot' },
           ],
         },
       ],
@@ -273,7 +273,7 @@ export const Orders = () => {
     instance.setOption(option);
 
     return () => instance.dispose();
-  }, []);
+  }, [statisticsData?.feeMarketEntity]);
 
   return (
     <>
