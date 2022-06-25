@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { Table, Input, Radio, Card } from 'antd';
 import type { ColumnsType } from 'antd/lib/table';
 import { NavLink } from 'react-router-dom';
@@ -38,6 +38,7 @@ export const Relayers = () => {
   const [loading, setLoaing] = useState(false);
   const [relayers, setRelayers] = useState<PalletFeeMarketRelayer[]>([]);
   const [dataSource, setDataSource] = useState<RelayerData[]>([]);
+  const dataSourceRef = useRef<RelayerData[]>([]);
 
   const columns: ColumnsType<RelayerData> = [
     {
@@ -90,6 +91,16 @@ export const Relayers = () => {
       sorter: (a, b) => a.sumSlash.cmp(b.sumSlash),
     },
   ];
+
+  const handleFilterChange = useCallback((e) => {
+    if (e.target.value) {
+      setDataSource(
+        dataSourceRef.current.filter((item) => item.relayer.toLowerCase().includes(e.target.value.toLowerCase()))
+      );
+    } else {
+      setDataSource(dataSourceRef.current);
+    }
+  }, []);
 
   useEffect(() => {
     let sub$$: Subscription;
@@ -157,24 +168,23 @@ export const Relayers = () => {
           };
         }[]
       ) => {
-        setDataSource(
-          res.map(({ data }, index) => {
-            const orders = data?.relayerEntity?.totalOrders || 0;
-            const slashs = data?.relayerEntity?.totalSlashs || '0';
-            const rewards = data?.relayerEntity?.totalRewards || '0';
+        dataSourceRef.current = res.map(({ data }, index) => {
+          const orders = data?.relayerEntity?.totalOrders || 0;
+          const slashs = data?.relayerEntity?.totalSlashs || '0';
+          const rewards = data?.relayerEntity?.totalRewards || '0';
 
-            const relayer = relayers[index];
+          const relayer = relayers[index];
 
-            return {
-              relayer: relayer.id.toString(),
-              countOrders: orders,
-              collateral: relayer.collateral,
-              quote: relayer.fee,
-              sumReward: new BN(rewards),
-              sumSlash: new BN(slashs),
-            };
-          })
-        );
+          return {
+            relayer: relayer.id.toString(),
+            countOrders: orders,
+            collateral: relayer.collateral,
+            quote: relayer.fee,
+            sumReward: new BN(rewards),
+            sumSlash: new BN(slashs),
+          };
+        });
+        setDataSource(dataSourceRef.current);
         setLoaing(false);
       }
     );
@@ -189,7 +199,12 @@ export const Relayers = () => {
           <Radio.Button value={RelayerTab.ALL}>All Relayers</Radio.Button>
           <Radio.Button value={RelayerTab.ASSIGNED}>Assigned Relayers</Radio.Button>
         </Radio.Group>
-        <Input size="large" className="mb-2 w-96" placeholder="Filter by relayer address" />
+        <Input
+          size="large"
+          className="mb-2 w-96"
+          placeholder="Filter by relayer address"
+          onChange={handleFilterChange}
+        />
       </div>
       <Card className="mt-2">
         <Table columns={columns} dataSource={dataSource} rowKey="relayer" loading={loading} />
