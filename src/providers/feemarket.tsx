@@ -20,9 +20,11 @@ export interface FeeMarketCtx {
 export const FeeMarketContext = createContext<FeeMarketCtx>({} as FeeMarketCtx);
 
 export const FeeMarketProvider = ({ children }: PropsWithChildren<unknown>) => {
+  const dest = new URL(window.location.href).searchParams.get('dest');
   const { network } = useApi();
+  const supporteds = supportedDestinations[network.name as PolkadotTypeNetwork];
   const [destination, setDestination] = useState<CrossChainDestination>(
-    supportedDestinations[network.name as PolkadotTypeNetwork][0] ?? 'Default'
+    supporteds.find((item) => item === dest) ?? supporteds[0] ?? 'Default'
   );
 
   return (
