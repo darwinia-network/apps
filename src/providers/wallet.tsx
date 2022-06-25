@@ -3,7 +3,9 @@ import type { Signer as InjectedSigner } from '@polkadot/api/types';
 import { accounts as accountsObs } from '@polkadot/ui-keyring/observable/accounts';
 import type { SubjectInfo } from '@polkadot/ui-keyring/observable/types';
 import type { Injected } from '@polkadot/extension-inject/types';
-import { from } from 'rxjs';
+import { web3Enable, web3Accounts } from '@polkadot/extension-dapp';
+import { from, switchMap, tap } from 'rxjs';
+import isMobile from 'is-mobile';
 import type { Wallet, Account, WalletSource } from '../model';
 import { DAPP_NAME, LOCAL_SOURCE, SEARCH_PARAMS_SOURCE, supportedWallets } from '../config';
 import { convertToSS58, isValidAddress, updateStorage, readStorage } from '../utils';
@@ -157,6 +159,36 @@ export const WalletProvider = ({ children }: PropsWithChildren<unknown>) => {
       updateStorage({ activeWallet: walletToUse?.extensionName });
     }
   }, [walletToUse]);
+
+  useEffect(() => {
+    if (!isMobile()) {
+      return;
+    }
+
+    const sub$$ = from(web3Enable(DAPP_NAME))
+      .pipe(
+        tap((extensions) => {
+          if (extensions.length) {
+            setSigner(extensions[0].signer);
+          }
+        }),
+        switchMap(() => {
+          return from(web3Accounts());
+        })
+      )
+      .subscribe((accs) => {
+        setAccounts(
+          accs.map((acc) => ({
+            address: acc.address,
+            meta: acc.meta,
+            type: acc.type,
+            displayAddress: convertToSS58(acc.address, network.ss58Prefix),
+          }))
+        );
+      });
+
+    return () => sub$$.unsubscribe();
+  }, [network.ss58Prefix]);
 
   return (
     <WalletContext.Provider

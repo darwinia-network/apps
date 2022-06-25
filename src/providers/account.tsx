@@ -1,5 +1,6 @@
 import { createContext, useEffect, useState, useCallback } from 'react';
 import keyring from '@polkadot/ui-keyring';
+import isMobile from 'is-mobile';
 import { useAssets, useWallet } from '../hooks';
 import { Asset, Account } from '../model';
 import { readStorage, updateStorage } from '../utils';
@@ -37,7 +38,7 @@ export const AccountProvider = ({ children }: React.PropsWithChildren<unknown>) 
     const storageAccount = accounts.find(({ address }) => address === storageAddress);
     const readOnlyAccount = accounts.find(({ meta }) => meta.source === SEARCH_PARAMS_SOURCE);
 
-    setAccount(readOnlyAccount ?? storageAccount);
+    setAccount(readOnlyAccount ?? storageAccount ?? (isMobile() ? accounts[0] : null));
   }, [accounts]);
 
   useEffect(() => {
