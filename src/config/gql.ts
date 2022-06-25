@@ -116,7 +116,7 @@ export const ORDERS_STATISTICS = gql`
 
 export const ORDERS_TOTAL_ORDERS = gql`
   query OrdersTotalOrders($destination: String!) {
-    orderEntities(filter: { id: { startsWith: $destination } }, orderBy: CREATE_TIME_ASC) {
+    orderEntities(filter: { id: { startsWith: $destination } }, orderBy: CREATE_TIME_DESC) {
       nodes {
         id
         sender
