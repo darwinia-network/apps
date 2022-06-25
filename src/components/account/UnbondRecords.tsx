@@ -1,122 +1,86 @@
-import { Progress, Table } from 'antd';
-import { ColumnType } from 'antd/lib/table';
-import { format } from 'date-fns';
-import { useEffect, useState } from 'react';
+import type { BlockNumber } from '@polkadot/types/interfaces';
+import type { ColumnsType } from 'antd/lib/table';
+import { useCallback } from 'react';
+import { Button, Table } from 'antd';
 import { useTranslation } from 'react-i18next';
-import { DATE_FORMAT } from '../../config';
-import { useApi } from '../../hooks';
-import { AccountRecord } from '../../model';
+
+import { useApi, useAccount, useQueue, useStaking, useSlashingSpans } from '../../hooks';
+import { UnbondType, UnbondDataSourceState } from '../staking/interface';
 import { fromWei, prettyNumber } from '../../utils';
-import { SubscanLink } from '../widget/SubscanLink';
-import { useStakingRecords } from './stakingRecords';
 
-const calcProgress = (start: number, expire: number, bestNumber: number): number => {
-  if (!bestNumber) {
-    return 0;
-  }
-
-  if (bestNumber < start) {
-    return 0;
-  }
-
-  if (expire <= bestNumber) {
-    return 100;
-  } else {
-    const decimals = 2;
-
-    return parseFloat((100 - ((expire - bestNumber) / (expire - start)) * 100).toFixed(decimals));
-  }
-};
-
-export function UnbondRecords() {
+export const UnbondRecords = ({ dataSource }: { dataSource: UnbondDataSourceState[] }) => {
+  const { api, network } = useApi();
+  const { refreshAssets } = useAccount();
+  const { queueExtrinsic } = useQueue();
+  const { controllerAccount, stashAccount, updateStakingDerive } = useStaking();
+  const { spanCount } = useSlashingSpans(stashAccount);
   const { t } = useTranslation();
-  const { network, api } = useApi();
-  const { pagination, setPagination, stakingRecord } = useStakingRecords('unbonding');
-  const [bestNumber, setBestNumber] = useState<number>(0);
 
-  const columns: ColumnType<AccountRecord>[] = [
+  const handleWithdraw = useCallback(() => {
+    queueExtrinsic({
+      signAddress: controllerAccount,
+      extrinsic:
+        api.tx.staking.withdrawUnbonded?.meta.args.length === 1
+          ? api.tx.staking.withdrawUnbonded(spanCount)
+          : api.tx.staking.withdrawUnbonded(),
+      txSuccessCb: () => {
+        refreshAssets();
+        updateStakingDerive();
+      },
+    });
+  }, [api, controllerAccount, spanCount, queueExtrinsic, refreshAssets, updateStakingDerive]);
+
+  const columns: ColumnsType<UnbondDataSourceState> = [
     {
       title: 'No.',
       key: 'index',
-      width: '5%',
+      dataIndex: 'index',
+      width: '6%',
       align: 'center',
       render: (_1, _2, index) => index + 1,
     },
     {
-      title: 'Extrinsic ID',
-      dataIndex: 'extrinsic_index',
-      render: (value: string) => {
-        const [height, index] = value.split('-');
-
-        return (
-          <SubscanLink network={network.name} extrinsic={{ height, index }}>
-            {value}
-          </SubscanLink>
-        );
-      },
-    },
-    {
-      title: 'Progress',
-      key: 'progress',
-      render(_, record) {
-        const height = parseInt(record.unbonding_extrinsic_index.split('-')[0], 10);
-        return (
-          <div className="px-4">
-            <div className="flex justify-between items-center">
-              <span>{format(new Date(record.unbonding_at), DATE_FORMAT)}</span>
-              <span className="mx-2">-</span>
-              <span>{format(new Date(record.unbonding_end), DATE_FORMAT)}</span>
-            </div>
-            {bestNumber && (
-              <Progress
-                percent={calcProgress(height, record.unbonding_block_end, bestNumber)}
-                showInfo={false}
-                status="normal"
-                strokeWidth={4}
-                trailColor="#EBEBEB"
-              />
-            )}
-          </div>
-        );
-      },
-    },
-    {
       title: 'Amount',
+      key: 'amount',
       dataIndex: 'amount',
-      render: (value, record) => {
-        return (
-          <span className="inline-flex items-center">
-            <span>{fromWei({ value }, prettyNumber)}</span>
-            <span className="uppercase ml-2">{record.currency}</span>
-          </span>
-        );
-      },
+      align: 'center',
+      render: (value) => (
+        <span>
+          {fromWei({ value }, prettyNumber)} {network.tokens.ring.symbol}
+        </span>
+      ),
     },
     {
-      title: 'status',
+      title: 'Until',
+      key: 'until',
+      dataIndex: 'until',
+      align: 'center',
+      render: (value: BlockNumber) => <span>{value}</span>,
+    },
+    {
+      title: 'Status',
+      key: 'status',
       dataIndex: 'status',
-      render: (_, record) => {
-        return <span>{record.unbonding_block_end > bestNumber ? t('Unbonding') : t('Unbonded')}</span>;
-      },
+      align: 'center',
+      render: (value: UnbondType) =>
+        value === UnbondType.UNBONDED ? (
+          <div className="flex justify-center">
+            <Button onClick={handleWithdraw} className="p-0 flex items-center justify-center w-28">
+              {t('Withdraw')}
+            </Button>
+          </div>
+        ) : (
+          '-'
+        ),
     },
   ];
 
-  useEffect(() => {
-    api.derive.chain.bestNumber().then((res) => {
-      setBestNumber(res.toJSON());
-    });
-  }, [api]);
-
   return (
     <Table
-      rowKey={'Id'}
+      rowKey={(record) => `${record.amount.toString()}-${record.status}-${record.symbol}-${record.until.toString()}`}
       columns={columns}
-      pagination={{ ...pagination, total: stakingRecord.count }}
-      dataSource={stakingRecord.list ?? undefined}
-      onChange={({ pageSize = 0, current = 0 }) => {
-        setPagination({ ...pagination, pageSize, current });
-      }}
+      dataSource={dataSource}
       className="whitespace-nowrap"
     />
   );
-}
+};

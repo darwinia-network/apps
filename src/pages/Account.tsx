@@ -35,7 +35,7 @@ function Page() {
           ))}
         </div>
 
-        <StakingHistory tokens={assets.map((item) => item.token)} />
+        <StakingHistory />
       </Tabs.TabPane>
 
       <Tabs.TabPane key="cross" tab={<CustomTab text={t('Cross Chain')} tabKey="cross" activeKey={activeKey} />}>
