@@ -87,7 +87,7 @@ export const RelayerDetail = ({
   const { network } = useApi();
   const rewardsSlashsRef = useRef<HTMLDivElement>(null);
   const feeHistoryRef = useRef<HTMLDivElement>(null);
-  const [quoteSegmented, setQuoteSegmented] = useState(SegmentedType.ALL);
+  const [feeSegmented, setFeeSegmented] = useState(SegmentedType.ALL);
   const [rewardSlashSegmented, setRewardSlashSegmented] = useState(SegmentedType.ALL);
 
   const [dataSource, setDataSource] = useState<RelayerData[]>([]);
@@ -114,7 +114,7 @@ export const RelayerDetail = ({
   const { data: feeHistoryData, loading: feeHistoryLoading } = useQuery(RELAYER_FEE_HISTORY, {
     variables: {
       relayer: `${destination}-${relayerAddress}`,
-      lastTime: getSegmentedDateByType(rewardSlashSegmented),
+      lastTime: getSegmentedDateByType(feeSegmented),
     },
     pollInterval: LONG_LONG_DURATION,
     notifyOnNetworkStatusChange: true,
@@ -234,7 +234,7 @@ export const RelayerDetail = ({
           return acc;
         }, {} as Record<string, BN>) || {};
 
-      const rewardAndSlashDate = Object.keys(
+      const rewardAndSlashDate = Array.from(
         Object.keys(slashDaysCount)
           .concat(Object.keys(rewardDaysCount))
           .reduce((acc, cur) => {
@@ -449,7 +449,7 @@ export const RelayerDetail = ({
           </div>
           <div className="relative" style={{ width: '49%' }}>
             <div className="flex items-center justify-end">
-              <Segmented value={quoteSegmented} onSelect={setQuoteSegmented} />
+              <Segmented value={feeSegmented} onSelect={setFeeSegmented} />
             </div>
             <Spin spinning={feeHistoryLoading}>
               <div ref={feeHistoryRef} className="h-96 w-full" />

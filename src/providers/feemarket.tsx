@@ -7,7 +7,7 @@ const networksDestinations: Record<PolkadotTypeNetwork, CrossChainDestination[]>
   crab: [],
   // crab: ['Darwinia', 'CrabParachain'],
   darwinia: [],
-  pangolin: ['Pangoro', 'PangolinParachain'],
+  pangolin: ['PangolinParachain', 'Pangoro'],
   pangoro: [],
 };
 
