@@ -3,7 +3,7 @@ import { Tabs, Empty } from 'antd';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-// import { Overview } from '../components/feemarket/Overview';
+import { Overview } from '../components/feemarket/Overview';
 // import { Relayers } from '../components/feemarket/Relayers';
 // import { RelayerDetail } from '../components/feemarket/RelayerDetail';
 // import { Orders } from '../components/feemarket/Orders';
@@ -11,7 +11,7 @@ import { useTranslation } from 'react-i18next';
 import { useApi, useFeeMarket } from '../hooks';
 import { FeeMarketTab, SearchParamsKey } from '../model';
 import { GraphqlProvider } from '../providers';
-// import { CustomTab } from '../components/widget/CustomTab';
+import { CustomTab } from '../components/widget/CustomTab';
 
 // eslint-disable-next-line complexity
 function Page() {
@@ -36,12 +36,12 @@ function Page() {
         onChange={(key) => setActiveKey(key as FeeMarketTab)}
         className={`lg:px-8 px-4 w-full mx-auto dark:shadow-none dark:border-transparent pb-5 page-account-tabs page-account-tabs-${network.name}`}
       >
-        {/* <Tabs.TabPane
+        <Tabs.TabPane
           key={FeeMarketTab.OVERVIEW}
           tab={<CustomTab text={t('Overview')} tabKey={FeeMarketTab.OVERVIEW} activeKey={activeKey} />}
         >
           <Overview destination={destination} />
-        </Tabs.TabPane> */}
+        </Tabs.TabPane>
         {/* <Tabs.TabPane
           key={FeeMarketTab.RELAYERS}
           tab={<CustomTab text={t('Relayers')} tabKey={FeeMarketTab.RELAYERS} activeKey={activeKey} />}
