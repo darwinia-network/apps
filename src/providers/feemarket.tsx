@@ -1,5 +1,6 @@
-import { createContext, PropsWithChildren, useMemo, useState } from 'react';
-import type { CrossChainDestination, PolkadotTypeNetwork } from '../model';
+import { createContext, PropsWithChildren, useEffect, useMemo, useState } from 'react';
+import { useLocation } from 'react-router-dom';
+import { CrossChainDestination, PolkadotTypeNetwork, SearchParamsKey } from '../model';
 import { useApi } from '../hooks';
 
 const networksDestinations: Record<PolkadotTypeNetwork, CrossChainDestination[]> = {
@@ -11,7 +12,7 @@ const networksDestinations: Record<PolkadotTypeNetwork, CrossChainDestination[]>
 };
 
 export interface FeeMarketCtx {
-  destination: CrossChainDestination;
+  destination: CrossChainDestination | null | undefined;
   supportedDestinations: CrossChainDestination[];
 
   setDestination: (dest: CrossChainDestination) => void;
@@ -20,15 +21,23 @@ export interface FeeMarketCtx {
 export const FeeMarketContext = createContext<FeeMarketCtx>({} as FeeMarketCtx);
 
 export const FeeMarketProvider = ({ children }: PropsWithChildren<unknown>) => {
-  const dest = new URL(window.location.href).searchParams.get('dest');
   const { network } = useApi();
+  const { search } = useLocation();
+
+  const searchParams = new URLSearchParams(search);
+  const dest = searchParams.get(SearchParamsKey.DESTINATION);
+
   const supportedDestinations = useMemo(
     () => networksDestinations[network.name as PolkadotTypeNetwork] || [],
     [network.name]
   );
   const [destination, setDestination] = useState<CrossChainDestination>(
-    supportedDestinations.find((item) => item === dest) ?? supportedDestinations[0] ?? 'Default'
+    supportedDestinations.find((item) => item === dest) ?? supportedDestinations[0]
   );
+
+  useEffect(() => {
+    setDestination(supportedDestinations[0]);
+  }, [supportedDestinations]);
 
   return (
     <FeeMarketContext.Provider

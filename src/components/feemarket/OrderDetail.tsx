@@ -1,5 +1,5 @@
 import { Card, Descriptions, Badge, Divider, Breadcrumb, Spin } from 'antd';
-import { NavLink, useLocation } from 'react-router-dom';
+import { NavLink, useLocation, withRouter } from 'react-router-dom';
 import { useQuery } from '@apollo/client';
 import { formatDistance } from 'date-fns';
 
@@ -12,7 +12,7 @@ import { fromWei, prettyNumber } from '../../utils';
 import { AccountName } from '../widget/account/AccountName';
 
 // eslint-disable-next-line complexity
-export const OrderDetail = () => {
+const Component = () => {
   const { network } = useApi();
   const { search } = useLocation();
 
@@ -188,3 +188,5 @@ export const OrderDetail = () => {
     </>
   );
 };
+
+export const OrderDetail = withRouter(Component);

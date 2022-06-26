@@ -1,23 +1,25 @@
 import { Card, Spin } from 'antd';
 import { useTranslation } from 'react-i18next';
 import { useRef, useEffect, useState } from 'react';
-import * as echarts from 'echarts/core';
-import { GridComponent, GridComponentOption, TooltipComponent, TooltipComponentOption } from 'echarts/components';
-import { BarChart, BarSeriesOption } from 'echarts/charts';
-import { LineChart, LineSeriesOption } from 'echarts/charts';
-import { SVGRenderer } from 'echarts/renderers';
-import { UniversalTransition } from 'echarts/features';
 import type { Option, Vec, u128 } from '@polkadot/types';
 import { BN_ONE } from '@polkadot/util';
 import { Balance, AccountId32 } from '@polkadot/types/interfaces';
 import { timer, switchMap, from, forkJoin, tap, EMPTY } from 'rxjs';
 import { useQuery } from '@apollo/client';
 import { formatDistanceStrict } from 'date-fns';
+
+import * as echarts from 'echarts/core';
+import { GridComponent, GridComponentOption, TooltipComponent, TooltipComponentOption } from 'echarts/components';
+import { BarChart, BarSeriesOption } from 'echarts/charts';
+import { LineChart, LineSeriesOption } from 'echarts/charts';
+import { SVGRenderer } from 'echarts/renderers';
+import { UniversalTransition } from 'echarts/features';
+
 import { Statistics } from '../widget/Statistics';
 import { LONG_LONG_DURATION, QUERY_FEEMARKET_RECORD, QUERY_INPROGRESS_ORDERS, OVERVIEW_FOR_CHART } from '../../config';
-import { useApi, useFeeMarket } from '../../hooks';
+import { useApi } from '../../hooks';
 import { getFeeMarketModule, prettyNumber, fromWei, getSegmentedDateByType } from '../../utils';
-import { PalletFeeMarketRelayer, SegmentedType, ChartState } from '../../model';
+import { PalletFeeMarketRelayer, SegmentedType, ChartState, CrossChainDestination } from '../../model';
 import { PrettyAmount } from '../../components/widget/PrettyAmount';
 import { Segmented } from '../widget/fee-market';
 
@@ -27,10 +29,26 @@ type EChartsOption = echarts.ComposeOption<
   GridComponentOption | BarSeriesOption | LineSeriesOption | TooltipComponentOption
 >;
 
-export const Overview = () => {
+export const Overview = ({ destination }: { destination: CrossChainDestination }) => {
   const { api, network } = useApi();
-  const { destination } = useFeeMarket();
-  const { loading: feemarketLoading, data: feeMarketRecord } = useQuery(QUERY_FEEMARKET_RECORD, {
+  const { t } = useTranslation();
+
+  const totalOrdersRef = useRef<HTMLDivElement>(null);
+  const feeHistoryRef = useRef<HTMLDivElement>(null);
+
+  const [feeSgmentedType, setFeeSegmentedType] = useState(SegmentedType.ALL);
+  const [orderSegmentedType, setOrderSegmentedType] = useState(SegmentedType.ALL);
+
+  const [feeHistory, setFeeHistory] = useState<ChartState>({ date: [], data: [] });
+  const [totalOrders, setTotalOrders] = useState<ChartState>({ date: [], data: [] });
+  const [currentFee, setCurrentFee] = useState<{ value?: Balance; loading: boolean }>({ loading: true });
+  const [totalRelayers, setTotalRelayers] = useState<{ total: number; inactive: number; loading: boolean }>({
+    total: 0,
+    inactive: 0,
+    loading: true,
+  });
+
+  const { loading: feemarketLoading, data: feeMarketData } = useQuery(QUERY_FEEMARKET_RECORD, {
     variables: { destination },
     pollInterval: LONG_LONG_DURATION,
     notifyOnNetworkStatusChange: true,
@@ -39,8 +57,6 @@ export const Overview = () => {
     variables: { destination },
     pollInterval: LONG_LONG_DURATION,
   });
-  const [feeSgmentedType, setFeeSegmentedType] = useState(SegmentedType.ALL);
-  const [orderSegmentedType, setOrderSegmentedType] = useState(SegmentedType.ALL);
   const { data: feeHistoryChart } = useQuery(OVERVIEW_FOR_CHART, {
     variables: { destination, date: getSegmentedDateByType(feeSgmentedType) },
     pollInterval: LONG_LONG_DURATION,
@@ -48,17 +64,6 @@ export const Overview = () => {
   const { data: totalOrdersChart } = useQuery(OVERVIEW_FOR_CHART, {
     variables: { destination, date: getSegmentedDateByType(orderSegmentedType) },
     pollInterval: LONG_LONG_DURATION,
-  });
-  const { t } = useTranslation();
-  const totalOrdersRef = useRef<HTMLDivElement>(null);
-  const feeHistoryRef = useRef<HTMLDivElement>(null);
-  const [feeHistory, setFeeHistory] = useState<ChartState>({ date: [], data: [] });
-  const [totalOrders, setTotalOrders] = useState<ChartState>({ date: [], data: [] });
-  const [currentFee, setCurrentFee] = useState<{ value?: Balance; loading: boolean }>({ loading: true });
-  const [totalRelayers, setTotalRelayers] = useState<{ total: number; inactive: number; loading: boolean }>({
-    total: 0,
-    inactive: 0,
-    loading: true,
   });
 
   useEffect(() => {
@@ -254,7 +259,7 @@ export const Overview = () => {
                 <span>
                   {formatDistanceStrict(
                     new Date(),
-                    new Date(Date.now() + (feeMarketRecord?.feeMarketEntity?.averageSpeed || 0))
+                    new Date(Date.now() + (feeMarketData?.feeMarketEntity?.averageSpeed || 0))
                   )}
                 </span>
               </Spin>
@@ -275,9 +280,7 @@ export const Overview = () => {
             title={t('Total Rewards')}
             value={
               <Spin size="small" spinning={feemarketLoading}>
-                <PrettyAmount
-                  amount={fromWei({ value: feeMarketRecord?.feeMarketEntity?.totalRewards }, prettyNumber)}
-                />
+                <PrettyAmount amount={fromWei({ value: feeMarketData?.feeMarketEntity?.totalRewards }, prettyNumber)} />
                 <span> {network.tokens.ring.symbol}</span>
               </Spin>
             }
@@ -287,7 +290,7 @@ export const Overview = () => {
             title={t('Total Orders')}
             value={
               <Spin size="small" spinning={feemarketLoading}>
-                <span>{feeMarketRecord?.feeMarketEntity?.totalOrders || 0}</span>
+                <span>{feeMarketData?.feeMarketEntity?.totalOrders || 0}</span>
               </Spin>
             }
           />

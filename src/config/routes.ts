@@ -19,8 +19,8 @@ export enum Path {
   portal = '/portal',
   migration = '/migration',
   feemarket = '/feemarket',
-  orderDeatil = 'order_detail',
-  relayerDetail = 'relayer_detail',
+  orderDeatil = '/order_detail',
+  relayerDetail = '/relayer_detail',
 }
 
 export const routes: RouteProps[] = [

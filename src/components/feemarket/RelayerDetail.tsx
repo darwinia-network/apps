@@ -1,5 +1,5 @@
 import { Card, Breadcrumb, Table } from 'antd';
-import { NavLink, useLocation } from 'react-router-dom';
+import { NavLink, useLocation, withRouter } from 'react-router-dom';
 import { ColumnsType } from 'antd/lib/table';
 import { useRef, useEffect, useState } from 'react';
 import { useQuery } from '@apollo/client';
@@ -24,7 +24,7 @@ import { UniversalTransition } from 'echarts/features';
 import { CanvasRenderer } from 'echarts/renderers';
 
 import { Segmented } from '../widget/fee-market';
-import { SegmentedType, RelayerDetailData, ChartState, SearchParamsKey, RelayerRole } from '../../model';
+import { SegmentedType, RelayerDetailData, ChartState, SearchParamsKey, RelayerRole, FeeMarketTab } from '../../model';
 import { Path } from '../../config/routes';
 import { AccountName } from '../widget/account/AccountName';
 import { RELAYER_DETAIL, LONG_LONG_DURATION, DATE_FORMAT } from '../../config';
@@ -63,7 +63,7 @@ type RelayerData = {
   relayerRole: RelayerRole[];
 };
 
-export const RelayerDetail = () => {
+const Component = () => {
   const { network } = useApi();
   const { search } = useLocation();
   const [quoteSegmented, setQuoteSegmented] = useState(SegmentedType.ALL);
@@ -101,6 +101,12 @@ export const RelayerDetail = () => {
       title: 'Order ID',
       key: 'orderId',
       dataIndex: 'orderId',
+      render: (value) => {
+        const searchParams = new URLSearchParams();
+        searchParams.set(SearchParamsKey.ORDER, value);
+        searchParams.set(SearchParamsKey.DESTINATION, destination || '');
+        return <NavLink to={`${Path.orderDeatil}?${searchParams.toString()}`}>{value}</NavLink>;
+      },
     },
     {
       title: 'Relayer Role',
@@ -386,7 +392,7 @@ export const RelayerDetail = () => {
     <>
       <Breadcrumb separator=">" className="flex">
         <Breadcrumb.Item>
-          <NavLink to={`${Path.feemarket}?tab=relayers`}>Relayers</NavLink>
+          <NavLink to={`${Path.feemarket}?tab=${FeeMarketTab.RELAYERS}`}>Relayers</NavLink>
         </Breadcrumb.Item>
         <Breadcrumb.Item>
           <AccountName account={relayerAddress || 'Unknown'} />
@@ -415,3 +421,5 @@ export const RelayerDetail = () => {
     </>
   );
 };
+
+export const RelayerDetail = withRouter(Component);

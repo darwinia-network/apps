@@ -7,9 +7,11 @@ import type { Option, Vec } from '@polkadot/types';
 import { BN } from '@polkadot/util';
 import type { Balance, AccountId32 } from '@polkadot/types/interfaces';
 import { useApolloClient } from '@apollo/client';
+
 import { getFeeMarketModule, fromWei, prettyNumber } from '../../utils';
-import { useApi, useFeeMarket } from '../../hooks';
-import type { PalletFeeMarketRelayer } from '../../model';
+import { useApi } from '../../hooks';
+import { PalletFeeMarketRelayer, CrossChainDestination, SearchParamsKey } from '../../model';
+import { Path } from '../../config/routes';
 import { LONG_LONG_DURATION, QUERY_RELAYER } from '../../config';
 import { IdentAccountName } from '../widget/account/IdentAccountName';
 
@@ -30,10 +32,9 @@ enum RelayerTab {
 const renderBalance = (value: Balance | string | number, symbol: string): string =>
   new BN(value).isZero() ? fromWei({ value }, prettyNumber) : `${fromWei({ value }, prettyNumber)} ${symbol}`;
 
-export const Relayers = () => {
+export const Relayers = ({ destination }: { destination: CrossChainDestination }) => {
   const { api, network } = useApi();
   const apollo = useApolloClient();
-  const { destination } = useFeeMarket();
   const [tab, setTab] = useState(RelayerTab.ALL);
   const [loading, setLoaing] = useState(false);
   const [relayers, setRelayers] = useState<PalletFeeMarketRelayer[]>([]);
@@ -46,11 +47,11 @@ export const Relayers = () => {
       key: 'relayer',
       dataIndex: 'relayer',
       render: (value) => {
-        const searchParams = new URL(window.location.href).searchParams;
-        searchParams.set('relayer', value);
-        searchParams.set('dest', destination);
+        const searchParams = new URLSearchParams();
+        searchParams.set(SearchParamsKey.RELAYER, value);
+        searchParams.set(SearchParamsKey.DESTINATION, destination);
         return (
-          <NavLink to={`?${searchParams.toString()}`}>
+          <NavLink to={`${Path.relayerDetail}?${searchParams.toString()}`}>
             <IdentAccountName account={value} iconSize={24} />
           </NavLink>
         );

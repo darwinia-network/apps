@@ -12,9 +12,10 @@ import { PieChart, PieSeriesOption } from 'echarts/charts';
 import { LabelLayout } from 'echarts/features';
 import { CanvasRenderer } from 'echarts/renderers';
 
+import { Path } from '../../config/routes';
 import { ORDERS_STATISTICS, ORDERS_TOTAL_ORDERS, LONG_LONG_DURATION } from '../../config';
-import { useFeeMarket, useApi } from '../../hooks';
-import { OrdersStatisticsData, OrdersTotalOrderData } from '../../model';
+import { useApi } from '../../hooks';
+import { OrdersStatisticsData, OrdersTotalOrderData, CrossChainDestination, SearchParamsKey } from '../../model';
 import { IdentAccountName } from '../widget/account/IdentAccountName';
 import { SubscanLink } from '../widget/SubscanLink';
 
@@ -74,9 +75,8 @@ interface FilterData {
 }
 
 // eslint-disable-next-line complexity
-export const Orders = () => {
+export const Orders = ({ destination }: { destination: CrossChainDestination }) => {
   const { network } = useApi();
-  const { destination } = useFeeMarket();
   const dataSourceRef = useRef<OrderData[]>([]);
   const statisticCharRef = useRef<HTMLDivElement>(null);
   const [dataSource, setDataSource] = useState<OrderData[]>([]);
@@ -109,10 +109,10 @@ export const Orders = () => {
       key: 'orderId',
       dataIndex: 'orderId',
       render: (value) => {
-        const searchParams = new URL(window.location.href).searchParams;
-        searchParams.set('orderid', value);
-        searchParams.set('dest', destination);
-        return <NavLink to={`?${searchParams.toString()}`}>{value}</NavLink>;
+        const searchParams = new URLSearchParams();
+        searchParams.set(SearchParamsKey.ORDER, value);
+        searchParams.set(SearchParamsKey.DESTINATION, destination);
+        return <NavLink to={`${Path.orderDeatil}?${searchParams.toString()}`}>{value}</NavLink>;
       },
     },
     {

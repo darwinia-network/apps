@@ -13,7 +13,7 @@ import { CustomTab } from '../components/widget/CustomTab';
 
 function Page() {
   const { network } = useApi();
-  const { supportedDestinations } = useFeeMarket();
+  const { supportedDestinations, destination } = useFeeMarket();
   const { search } = useLocation();
   const { t } = useTranslation();
 
@@ -24,7 +24,7 @@ function Page() {
     Object.values(FeeMarketTab).includes(tab as FeeMarketTab) ? (tab as FeeMarketTab) : FeeMarketTab.OVERVIEW
   );
 
-  return supportedDestinations.length ? (
+  return supportedDestinations.length && destination ? (
     <GraphqlProvider>
       <Tabs
         activeKey={activeKey}
@@ -35,19 +35,19 @@ function Page() {
           key={FeeMarketTab.OVERVIEW}
           tab={<CustomTab text={t('Overview')} tabKey={FeeMarketTab.OVERVIEW} activeKey={activeKey} />}
         >
-          <Overview />
+          <Overview destination={destination} />
         </Tabs.TabPane>
         <Tabs.TabPane
           key={FeeMarketTab.RELAYERS}
           tab={<CustomTab text={t('Relayers')} tabKey={FeeMarketTab.RELAYERS} activeKey={activeKey} />}
         >
-          <Relayers />
+          <Relayers destination={destination} />
         </Tabs.TabPane>
         <Tabs.TabPane
           key={FeeMarketTab.OREDERS}
           tab={<CustomTab text={t('Orders')} tabKey={FeeMarketTab.OREDERS} activeKey={activeKey} />}
         >
-          <Orders />
+          <Orders destination={destination} />
         </Tabs.TabPane>
       </Tabs>
     </GraphqlProvider>
