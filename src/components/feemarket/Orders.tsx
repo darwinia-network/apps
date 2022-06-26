@@ -193,47 +193,65 @@ export const Orders = ({ destination }: { destination: CrossChainDestination }) 
     setDataSource(
       // eslint-disable-next-line complexity
       dataSourceRef.current.filter((item) => {
-        let match: boolean | undefined = undefined;
-
         if (duration) {
-          match =
-            duration[0].isBefore(item.createTime) && (item.finishTime ? duration[1].isAfter(item.finishTime) : true);
+          if (
+            !(duration[0].isBefore(item.createTime) && (item.finishTime ? duration[1].isAfter(item.finishTime) : true))
+          ) {
+            return false;
+          }
         }
 
         if (block) {
-          match = (match === undefined || match) && (item.startBlock === block || item.confirmBlock === block);
+          if (!(item.startBlock === block || item.confirmBlock === block)) {
+            return false;
+          }
         }
 
         switch (state) {
           // case FilterState.ALL:
           case FilterState.FINISHED:
-            match = (match === undefined || match) && item.confirmedSlotIndex !== null;
+            if (!(item.confirmedSlotIndex !== null)) {
+              return false;
+            }
             break;
           case FilterState.IN_PROGRESS:
-            match = (match === undefined || match) && item.confirmedSlotIndex === null;
+            if (!(item.confirmedSlotIndex === null)) {
+              return false;
+            }
             break;
           case FilterState.OUT_OF_SLOT:
-            match = (match === undefined || match) && item.confirmedSlotIndex === -1;
+            if (!(item.confirmedSlotIndex === -1)) {
+              return false;
+            }
             break;
         }
 
         switch (slot) {
           // case FilterSlot.ALL:
           case FilterSlot.SLOT_1:
-            match = (match === undefined || match) && item.confirmedSlotIndex === 0;
+            if (!(item.confirmedSlotIndex === 0)) {
+              return false;
+            }
             break;
           case FilterSlot.SLOT_2:
-            match = (match === undefined || match) && item.confirmedSlotIndex === 1;
+            if (!(item.confirmedSlotIndex === 1)) {
+              return false;
+            }
             break;
           case FilterSlot.SLOT_3:
-            match = (match === undefined || match) && item.confirmedSlotIndex === 2; // eslint-disable-line no-magic-numbers
+            // eslint-disable-next-line no-magic-numbers
+            if (!(item.confirmedSlotIndex === 2)) {
+              return false;
+            }
             break;
           case FilterSlot.OUT_OF_SLOT:
-            match = (match === undefined || match) && item.confirmedSlotIndex === -1;
+            if (!(item.confirmedSlotIndex === -1)) {
+              return false;
+            }
             break;
         }
 
-        return match === undefined || match;
+        return true;
       })
     );
   }, []);
