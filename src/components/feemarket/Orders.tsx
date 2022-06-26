@@ -4,7 +4,6 @@ import { CheckCircleOutlined, ClockCircleOutlined, ExclamationCircleOutlined } f
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import { useQuery } from '@apollo/client';
-import { formatDistanceStrict } from 'date-fns';
 import type { Moment } from 'moment';
 
 import * as echarts from 'echarts/core';
@@ -138,19 +137,38 @@ export const Orders = () => {
       title: 'Start Block',
       key: 'startBlock',
       dataIndex: 'startBlock',
-      render: (value) => <SubscanLink network={network.name} block={value} prefix="#" />,
+      render: (value, record) => (
+        <div className="flex flex-col justify-center">
+          <SubscanLink network={network.name} block={value} prefix="#" />
+          <span>({record.createTime})</span>
+        </div>
+      ),
     },
     {
       title: 'Confirm Block',
       key: 'confirmBlock',
       dataIndex: 'confirmBlock',
-      render: (value) => (value ? <SubscanLink network={network.name} block={value} prefix="#" /> : '-'),
+      render: (value, record) =>
+        value ? (
+          <div className="flex flex-col justify-center">
+            <SubscanLink network={network.name} block={value} prefix="#" />
+            {record.finishTime ? <span>({record.finishTime})</span> : null}
+          </div>
+        ) : (
+          '-'
+        ),
     },
     {
-      title: 'Time',
-      key: 'finishTime',
-      dataIndex: 'finishTime',
-      render: (value) => (value ? formatDistanceStrict(new Date(value), new Date()) : '-'),
+      title: 'Status',
+      key: 'status',
+      render: (_, record) =>
+        record.confirmedSlotIndex === null ? (
+          <Badge status="processing" text={FilterState.IN_PROGRESS} />
+        ) : record.confirmedSlotIndex === -1 ? (
+          <Badge status="warning" text={FilterState.OUT_OF_SLOT} />
+        ) : (
+          <Badge status="success" text={FilterState.FINISHED} />
+        ),
     },
   ];
 
@@ -365,13 +383,13 @@ export const Orders = () => {
             <Select className="w-32">
               <Select.Option value={FilterState.ALL}>{FilterState.ALL}</Select.Option>
               <Select.Option value={FilterState.FINISHED}>
-                <Badge color="green" text={FilterState.FINISHED} />
+                <Badge status="success" text={FilterState.FINISHED} />
               </Select.Option>
               <Select.Option value={FilterState.IN_PROGRESS}>
-                <Badge color="blue" text={FilterState.IN_PROGRESS} />
+                <Badge status="processing" text={FilterState.IN_PROGRESS} />
               </Select.Option>
               <Select.Option value={FilterState.OUT_OF_SLOT}>
-                <Badge color="gold" text={FilterState.OUT_OF_SLOT} />
+                <Badge status="warning" text={FilterState.OUT_OF_SLOT} />
               </Select.Option>
             </Select>
           </Form.Item>

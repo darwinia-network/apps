@@ -24,18 +24,28 @@ export enum SegmentedType {
 
 interface RelayerDetailOrdersData {
   id: string;
-  assignedRelayerId: string;
+  assignedRelayerId?: string | null;
   deliveredRelayerId: string;
   confirmedRelayerId: string;
   confirmedSlotIndex: string;
   createBlock: number;
   finishBlock: number;
   finishTime: string;
+  assignedRelayers: string[];
   rewards: {
     nodes: {
-      assignedAmount: string;
+      assignedAmount?: string | null;
       deliveredAmount: string;
       confirmedAmount: string;
+      assignedRelayerId?: string | null;
+      deliveredRelayerId: string;
+      confirmedRelayerId: string;
+    }[];
+  };
+  slashs: {
+    nodes: {
+      amount: string;
+      relayerId: string;
     }[];
   };
 }

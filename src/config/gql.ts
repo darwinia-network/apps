@@ -91,11 +91,79 @@ export const RELAYER_DETAIL = gql`
           createBlock
           finishBlock
           finishTime
+          assignedRelayers
           rewards {
             nodes {
               assignedAmount
               deliveredAmount
               confirmedAmount
+              assignedRelayerId
+              deliveredRelayerId
+              confirmedRelayerId
+            }
+          }
+          slashs {
+            nodes {
+              amount
+              relayerId
+            }
+          }
+        }
+      }
+      deliveredOrders {
+        nodes {
+          id
+          assignedRelayerId
+          deliveredRelayerId
+          confirmedRelayerId
+          confirmedSlotIndex
+          createBlock
+          finishBlock
+          finishTime
+          assignedRelayers
+          rewards {
+            nodes {
+              assignedAmount
+              deliveredAmount
+              confirmedAmount
+              assignedRelayerId
+              deliveredRelayerId
+              confirmedRelayerId
+            }
+          }
+          slashs {
+            nodes {
+              amount
+              relayerId
+            }
+          }
+        }
+      }
+      confirmedOrders {
+        nodes {
+          id
+          assignedRelayerId
+          deliveredRelayerId
+          confirmedRelayerId
+          confirmedSlotIndex
+          createBlock
+          finishBlock
+          finishTime
+          assignedRelayers
+          rewards {
+            nodes {
+              assignedAmount
+              deliveredAmount
+              confirmedAmount
+              assignedRelayerId
+              deliveredRelayerId
+              confirmedRelayerId
+            }
+          }
+          slashs {
+            nodes {
+              amount
+              relayerId
             }
           }
         }

@@ -41,7 +41,13 @@ export const OrderDetail = ({ orderid, destination }: { orderid: string; destina
                 '-'
               )}
             </Descriptions.Item>
-            <Descriptions.Item label="Sender">{data?.orderEntity?.sender || '-'}</Descriptions.Item>
+            <Descriptions.Item label="Sender">
+              {data?.orderEntity?.sender ? (
+                <SubscanLink copyable address={data.orderEntity.sender} network={network.name} />
+              ) : (
+                '-'
+              )}
+            </Descriptions.Item>
             <Descriptions.Item label="State">
               {data?.orderEntity?.confirmedSlotIndex === undefined ? (
                 <Badge status="processing" text="Cross-chain in progress" />
@@ -67,23 +73,31 @@ export const OrderDetail = ({ orderid, destination }: { orderid: string; destina
 
           <Divider className="my-2" />
 
-          <Descriptions column={1} title="Time:">
+          <Descriptions column={1}>
             <Descriptions.Item label="Start Block">
-              {data?.orderEntity?.createBlock ? `#${data.orderEntity.createBlock}` : '-'}
-            </Descriptions.Item>
-            <Descriptions.Item label="End Block">
-              {data?.orderEntity?.finishBlock ? `#${data.orderEntity.finishBlock}` : '-'}
+              {data?.orderEntity?.createBlock ? (
+                <SubscanLink network={network.name} block={data.orderEntity.createBlock.toString()} prefix="#" />
+              ) : (
+                '-'
+              )}
             </Descriptions.Item>
             <Descriptions.Item label="Start Time">
               {data?.orderEntity?.createTime
-                ? `${formatDistance(new Date(data.orderEntity.createTime), new Date())} ( ${
+                ? `${formatDistance(new Date(data.orderEntity.createTime), new Date(), { addSuffix: true })} ( ${
                     data.orderEntity.createTime
                   } )`
                 : '-'}
             </Descriptions.Item>
+            <Descriptions.Item label="End Block">
+              {data?.orderEntity?.finishBlock ? (
+                <SubscanLink network={network.name} block={data.orderEntity.finishBlock.toString()} prefix="#" />
+              ) : (
+                '-'
+              )}
+            </Descriptions.Item>
             <Descriptions.Item label="End Time">
               {data?.orderEntity?.finishTime
-                ? `${formatDistance(new Date(data.orderEntity.finishTime), new Date())} ( ${
+                ? `${formatDistance(new Date(data.orderEntity.finishTime), new Date(), { addSuffix: true })} ( ${
                     data.orderEntity.finishTime
                   } )`
                 : '-'}
@@ -137,11 +151,21 @@ export const OrderDetail = ({ orderid, destination }: { orderid: string; destina
             <>
               <Divider className="my-2" />
               <Descriptions column={1} title="Slashs:">
-                <Descriptions.Item label="Sent Block">#{data.orderEntity.slashs.nodes[0].sentTime}</Descriptions.Item>
-                <Descriptions.Item label="Confirm Block">
-                  #{data.orderEntity.slashs.nodes[0].confirmTime}
+                <Descriptions.Item label="Sent Block">
+                  <SubscanLink
+                    network={network.name}
+                    block={data.orderEntity.slashs.nodes[0].sentTime.toString()}
+                    prefix="#"
+                  />
                 </Descriptions.Item>
-                <Descriptions.Item label="Delay Block">#{data.orderEntity.slashs.nodes[0].delayTime}</Descriptions.Item>
+                <Descriptions.Item label="Confirm Block">
+                  <SubscanLink
+                    network={network.name}
+                    block={data.orderEntity.slashs.nodes[0].confirmTime.toString()}
+                    prefix="#"
+                  />
+                </Descriptions.Item>
+                <Descriptions.Item label="Delay Blocks">{data.orderEntity.slashs.nodes[0].delayTime}</Descriptions.Item>
                 {data?.orderEntity?.slashs.nodes.map((node) => (
                   <Descriptions.Item label="Assigned Relayer" key={node.relayerId}>
                     <AccountName account={node.relayerId.split('-')[1]} />

@@ -27,8 +27,6 @@ import { Segmented } from '../widget/fee-market';
 import { SegmentedType, RelayerDetailData, ChartState, CrossChainDestination } from '../../model';
 import { Path } from '../../config/routes';
 import { AccountName } from '../widget/account/AccountName';
-import { IdentAccountName } from '../widget/account/IdentAccountName';
-import { SubscanLink } from '../widget/SubscanLink';
 import { RELAYER_DETAIL, LONG_LONG_DURATION, DATE_FORMAT } from '../../config';
 import { useApi } from '../../hooks';
 import { fromWei, prettyNumber, getSegmentedDateByType } from '../../utils';
@@ -55,14 +53,21 @@ type EChartsOption = echarts.ComposeOption<
   | LineSeriesOption
 >;
 
+enum RelayerRole {
+  INIT_ASSIGNED = 'Init Assigned Relayer',
+  SLOT_ASSIGNED = 'Slot Assigned Relayer',
+  DELIVERY = 'Delivery Relayer',
+  CONFIRM = 'Confirm Relayer',
+}
+
 type RelayerData = {
   orderId: string;
-  deliveryRelayer: string;
-  confirmationRelayer: string;
-  slotAssignedRelayer: string;
   startBlock: number;
   confirmBlock: number;
   time: string;
+  reward: BN;
+  slash: BN;
+  relayerRole: RelayerRole[];
 };
 
 export const RelayerDetail = ({
@@ -105,40 +110,48 @@ export const RelayerDetail = ({
       dataIndex: 'orderId',
     },
     {
-      title: 'Delivery Relayer',
-      key: 'deliveryRelayer',
-      dataIndex: 'deliveryRelayer',
-      render: (value) => <IdentAccountName account={value} />,
+      title: 'Relayer Role',
+      key: 'relayerRole',
+      dataIndex: 'relayerRole',
+      render: (value: RelayerRole[]) => (
+        <div className="flex flex-col justify-center">
+          {value.map((item) => (
+            <span key={item}>{item}</span>
+          ))}
+        </div>
+      ),
     },
     {
-      title: 'Confirmation Relayer',
-      key: 'confirmationRelayer',
-      dataIndex: 'confirmationRelayer',
-      render: (value) => <IdentAccountName account={value} />,
+      title: 'Reward',
+      key: 'reward',
+      dataIndex: 'reward',
+      render: (value: BN) =>
+        value.isZero() ? (
+          '0'
+        ) : (
+          <span>
+            {fromWei({ value }, prettyNumber)} {network.tokens.ring.symbol}
+          </span>
+        ),
     },
     {
-      title: 'Slot Assigned Relayer',
-      key: 'slotAssignedRelayer',
-      dataIndex: 'slotAssignedRelayer',
-      render: (value) => <IdentAccountName account={value} />,
+      title: 'Slash',
+      key: 'slash',
+      dataIndex: 'slash',
+      render: (value: BN) =>
+        value.isZero() ? (
+          '0'
+        ) : (
+          <span>
+            {fromWei({ value }, prettyNumber)} {network.tokens.ring.symbol}
+          </span>
+        ),
     },
     {
-      title: 'Start Block',
-      key: 'startBlock',
-      dataIndex: 'startBlock',
-      render: (value) => <SubscanLink network={network.name} block={value} prefix="#" />,
-    },
-    {
-      title: 'Confirm Block',
-      key: 'confirmBlock',
-      dataIndex: 'confirmBlock',
-      render: (value) => <SubscanLink network={network.name} block={value} prefix="#" />,
-    },
-    {
-      title: 'Finish Time',
+      title: 'Time',
       key: 'time',
       dataIndex: 'time',
-      render: (value) => formatDistanceStrict(new Date(value), new Date()),
+      render: (value) => formatDistanceStrict(new Date(value), new Date(), { addSuffix: true }),
     },
   ];
 
@@ -218,14 +231,51 @@ export const RelayerDetail = ({
 
       setDataSource(
         orders.map((order) => {
+          const role: RelayerRole[] = [];
+
+          if (order.assignedRelayers.some((item) => item === relayerAddress)) {
+            role.push(RelayerRole.INIT_ASSIGNED);
+          }
+          if (order.assignedRelayerId?.split('-')[1] === relayerAddress) {
+            role.push(RelayerRole.SLOT_ASSIGNED);
+          }
+          if (order.deliveredRelayerId.split('-')[1] === relayerAddress) {
+            role.push(RelayerRole.DELIVERY);
+          }
+          if (order.confirmedRelayerId.split('-')[1] === relayerAddress) {
+            role.push(RelayerRole.CONFIRM);
+          }
+
           return {
             orderId: order.id.split('-')[1],
-            deliveryRelayer: order.deliveredRelayerId.split('-')[1],
-            confirmationRelayer: order.confirmedRelayerId.split('-')[1],
-            slotAssignedRelayer: order.assignedRelayerId.split('-')[1],
+            relayerRole: role,
             startBlock: order.createBlock,
             confirmBlock: order.finishBlock,
             time: order.finishTime,
+            reward: order.rewards.nodes.reduce((acc, cur) => {
+              let value = acc;
+
+              if (cur.assignedRelayerId?.split('-')[1] === relayerAddress && cur.assignedAmount) {
+                value = value.add(new BN(cur.assignedAmount));
+              }
+              if (cur.deliveredRelayerId.split('-')[1] === relayerAddress) {
+                value = value.add(new BN(cur.deliveredAmount));
+              }
+              if (cur.confirmedRelayerId.split('-')[1] === relayerAddress) {
+                value = value.add(new BN(cur.confirmedAmount));
+              }
+
+              return value;
+            }, BN_ZERO),
+            slash: order.slashs.nodes.reduce((acc, cur) => {
+              let value = acc;
+
+              if (cur.relayerId.split('-')[1] === relayerAddress) {
+                value = value.add(new BN(cur.amount));
+              }
+
+              return value;
+            }, BN_ZERO),
           };
         })
       );
@@ -234,7 +284,7 @@ export const RelayerDetail = ({
       setQuoteHistory({ date: [], data: [] });
       setSlashRewardHistory({ date: [], slash: [], reward: [] });
     }
-  }, [data]);
+  }, [data, relayerAddress]);
 
   useEffect(() => {
     if (!inOutHistoryRef.current) {
@@ -280,16 +330,6 @@ export const RelayerDetail = ({
       ],
       series: [
         {
-          name: 'Reward',
-          type: 'bar',
-          tooltip: {
-            valueFormatter(value) {
-              return `${value} ${network.tokens.ring.symbol}`;
-            },
-          },
-          data: slashRewardHistory.reward,
-        },
-        {
           name: 'Slash',
           type: 'bar',
           tooltip: {
@@ -298,6 +338,16 @@ export const RelayerDetail = ({
             },
           },
           data: slashRewardHistory.slash,
+        },
+        {
+          name: 'Reward',
+          type: 'bar',
+          tooltip: {
+            valueFormatter(value) {
+              return `${value} ${network.tokens.ring.symbol}`;
+            },
+          },
+          data: slashRewardHistory.reward,
         },
       ],
     };

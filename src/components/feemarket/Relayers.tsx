@@ -196,8 +196,12 @@ export const Relayers = () => {
     <>
       <div className="flex items-end justify-between">
         <Radio.Group onChange={(e) => setTab(e.target.value)} value={tab}>
-          <Radio.Button value={RelayerTab.ALL}>All Relayers</Radio.Button>
-          <Radio.Button value={RelayerTab.ASSIGNED}>Assigned Relayers</Radio.Button>
+          <Radio.Button value={RelayerTab.ALL}>
+            <span>All Relayers</span>
+          </Radio.Button>
+          <Radio.Button value={RelayerTab.ASSIGNED}>
+            <span>Assigned Relayers</span>
+          </Radio.Button>
         </Radio.Group>
         <Input
           size="large"
