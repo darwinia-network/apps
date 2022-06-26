@@ -1,5 +1,5 @@
 import { Card, Breadcrumb, Table } from 'antd';
-import { NavLink, useLocation, withRouter } from 'react-router-dom';
+import { NavLink, Link } from 'react-router-dom';
 import { ColumnsType } from 'antd/lib/table';
 import { useRef, useEffect, useState } from 'react';
 import { useQuery } from '@apollo/client';
@@ -24,7 +24,15 @@ import { UniversalTransition } from 'echarts/features';
 import { CanvasRenderer } from 'echarts/renderers';
 
 import { Segmented } from '../widget/fee-market';
-import { SegmentedType, RelayerDetailData, ChartState, SearchParamsKey, RelayerRole, FeeMarketTab } from '../../model';
+import {
+  SegmentedType,
+  RelayerDetailData,
+  ChartState,
+  SearchParamsKey,
+  RelayerRole,
+  FeeMarketTab,
+  CrossChainDestination,
+} from '../../model';
 import { Path } from '../../config/routes';
 import { AccountName } from '../widget/account/AccountName';
 import { RELAYER_DETAIL, LONG_LONG_DURATION, DATE_FORMAT } from '../../config';
@@ -63,15 +71,16 @@ type RelayerData = {
   relayerRole: RelayerRole[];
 };
 
-const Component = () => {
+export const RelayerDetail = ({
+  relayer: relayerAddress,
+  destination,
+}: {
+  relayer: string;
+  destination: CrossChainDestination;
+}) => {
   const { network } = useApi();
-  const { search } = useLocation();
   const [quoteSegmented, setQuoteSegmented] = useState(SegmentedType.ALL);
   const [rewardSlashSegmented, setRewardSlashSegmented] = useState(SegmentedType.ALL);
-
-  const searchParams = new URLSearchParams(search);
-  const relayerAddress = searchParams.get(SearchParamsKey.RELAYER);
-  const destination = searchParams.get(SearchParamsKey.DESTINATION);
 
   const { loading, data } = useQuery(RELAYER_DETAIL, {
     variables: {
@@ -103,9 +112,14 @@ const Component = () => {
       dataIndex: 'orderId',
       render: (value) => {
         const searchParams = new URLSearchParams();
+        searchParams.set(SearchParamsKey.TAB, FeeMarketTab.OREDERS);
         searchParams.set(SearchParamsKey.ORDER, value);
         searchParams.set(SearchParamsKey.DESTINATION, destination || '');
-        return <NavLink to={`${Path.orderDeatil}?${searchParams.toString()}`}>{value}</NavLink>;
+        return (
+          <Link to={`${Path.feemarket}?${searchParams.toString()}`} target="_blank">
+            {value}
+          </Link>
+        );
       },
     },
     {
@@ -421,5 +435,3 @@ const Component = () => {
     </>
   );
 };
-
-export const RelayerDetail = withRouter(Component);

@@ -5,12 +5,15 @@ import { useTranslation } from 'react-i18next';
 
 import { Overview } from '../components/feemarket/Overview';
 import { Relayers } from '../components/feemarket/Relayers';
+import { RelayerDetail } from '../components/feemarket/RelayerDetail';
 import { Orders } from '../components/feemarket/Orders';
+import { OrderDetail } from '../components/feemarket/OrderDetail';
 import { useApi, useFeeMarket } from '../hooks';
 import { FeeMarketTab, SearchParamsKey } from '../model';
 import { GraphqlProvider } from '../providers';
 import { CustomTab } from '../components/widget/CustomTab';
 
+// eslint-disable-next-line complexity
 function Page() {
   const { network } = useApi();
   const { supportedDestinations, destination } = useFeeMarket();
@@ -19,6 +22,8 @@ function Page() {
 
   const searchParams = new URLSearchParams(search);
   const tab = searchParams.get(SearchParamsKey.TAB);
+  const orderid = searchParams.get(SearchParamsKey.ORDER);
+  const relayer = searchParams.get(SearchParamsKey.RELAYER);
 
   const [activeKey, setActiveKey] = useState<FeeMarketTab>(
     Object.values(FeeMarketTab).includes(tab as FeeMarketTab) ? (tab as FeeMarketTab) : FeeMarketTab.OVERVIEW
@@ -41,13 +46,17 @@ function Page() {
           key={FeeMarketTab.RELAYERS}
           tab={<CustomTab text={t('Relayers')} tabKey={FeeMarketTab.RELAYERS} activeKey={activeKey} />}
         >
-          <Relayers destination={destination} />
+          {relayer ? (
+            <RelayerDetail relayer={relayer} destination={destination} />
+          ) : (
+            <Relayers destination={destination} />
+          )}
         </Tabs.TabPane>
         <Tabs.TabPane
           key={FeeMarketTab.OREDERS}
           tab={<CustomTab text={t('Orders')} tabKey={FeeMarketTab.OREDERS} activeKey={activeKey} />}
         >
-          <Orders destination={destination} />
+          {orderid ? <OrderDetail orderid={orderid} destination={destination} /> : <Orders destination={destination} />}
         </Tabs.TabPane>
       </Tabs>
     </GraphqlProvider>

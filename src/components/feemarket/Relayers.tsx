@@ -10,8 +10,7 @@ import { useApolloClient } from '@apollo/client';
 
 import { getFeeMarketModule, fromWei, prettyNumber } from '../../utils';
 import { useApi } from '../../hooks';
-import { PalletFeeMarketRelayer, CrossChainDestination, SearchParamsKey } from '../../model';
-import { Path } from '../../config/routes';
+import { PalletFeeMarketRelayer, CrossChainDestination, SearchParamsKey, FeeMarketTab } from '../../model';
 import { LONG_LONG_DURATION, QUERY_RELAYER } from '../../config';
 import { IdentAccountName } from '../widget/account/IdentAccountName';
 
@@ -48,10 +47,11 @@ export const Relayers = ({ destination }: { destination: CrossChainDestination }
       dataIndex: 'relayer',
       render: (value) => {
         const searchParams = new URLSearchParams();
+        searchParams.set(SearchParamsKey.TAB, FeeMarketTab.RELAYERS);
         searchParams.set(SearchParamsKey.RELAYER, value);
         searchParams.set(SearchParamsKey.DESTINATION, destination);
         return (
-          <NavLink to={`${Path.relayerDetail}?${searchParams.toString()}`}>
+          <NavLink to={`?${searchParams.toString()}`}>
             <IdentAccountName account={value} iconSize={24} />
           </NavLink>
         );

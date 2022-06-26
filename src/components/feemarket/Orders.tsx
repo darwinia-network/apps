@@ -12,10 +12,15 @@ import { PieChart, PieSeriesOption } from 'echarts/charts';
 import { LabelLayout } from 'echarts/features';
 import { CanvasRenderer } from 'echarts/renderers';
 
-import { Path } from '../../config/routes';
 import { ORDERS_STATISTICS, ORDERS_TOTAL_ORDERS, LONG_LONG_DURATION } from '../../config';
 import { useApi } from '../../hooks';
-import { OrdersStatisticsData, OrdersTotalOrderData, CrossChainDestination, SearchParamsKey } from '../../model';
+import {
+  OrdersStatisticsData,
+  OrdersTotalOrderData,
+  CrossChainDestination,
+  SearchParamsKey,
+  FeeMarketTab,
+} from '../../model';
 import { IdentAccountName } from '../widget/account/IdentAccountName';
 import { SubscanLink } from '../widget/SubscanLink';
 
@@ -110,9 +115,10 @@ export const Orders = ({ destination }: { destination: CrossChainDestination }) 
       dataIndex: 'orderId',
       render: (value) => {
         const searchParams = new URLSearchParams();
+        searchParams.set(SearchParamsKey.TAB, FeeMarketTab.OREDERS);
         searchParams.set(SearchParamsKey.ORDER, value);
         searchParams.set(SearchParamsKey.DESTINATION, destination);
-        return <NavLink to={`${Path.orderDeatil}?${searchParams.toString()}`}>{value}</NavLink>;
+        return <NavLink to={`?${searchParams.toString()}`}>{value}</NavLink>;
       },
     },
     {
