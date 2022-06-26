@@ -20,6 +20,8 @@ import {
   CrossChainDestination,
   SearchParamsKey,
   FeeMarketTab,
+  SlotState,
+  OrderStatus,
 } from '../../model';
 import { IdentAccountName } from '../widget/account/IdentAccountName';
 import { SubscanLink } from '../widget/SubscanLink';
@@ -56,20 +58,15 @@ enum TimeDimension {
   BLOCK = 'Block',
 }
 
-enum FilterState {
+enum FilterAll {
   ALL = 'All',
-  FINISHED = 'Finished',
-  IN_PROGRESS = 'In Progress',
-  OUT_OF_SLOT = 'Out of Slot',
 }
 
-enum FilterSlot {
-  ALL = 'All',
-  SLOT_1 = 'Slot 1',
-  SLOT_2 = 'Slot 2',
-  SLOT_3 = 'Slot 3',
-  OUT_OF_SLOT = 'Out of Slot',
-}
+type FilterState = FilterAll | OrderStatus;
+const FilterState = { ...FilterAll, ...OrderStatus };
+
+type FilterSlot = FilterAll | SlotState;
+const FilterSlot = { ...FilterAll, ...SlotState };
 
 interface FilterData {
   dimension: TimeDimension;
@@ -309,7 +306,7 @@ export const Orders = ({ destination }: { destination: CrossChainDestination }) 
               <Spin size="small" spinning={statisticsLoading}>
                 <div className="flex flex-col items-center">
                   <CheckCircleOutlined className="text-xl" />
-                  <span>Finished</span>
+                  <span>{OrderStatus.FINISHED}</span>
                 </div>
               </Spin>
             }
@@ -321,7 +318,7 @@ export const Orders = ({ destination }: { destination: CrossChainDestination }) 
               <Spin size="small" spinning={statisticsLoading}>
                 <div className="flex flex-col items-center">
                   <ClockCircleOutlined className="text-xl" />
-                  <span>In Progress</span>
+                  <span>{OrderStatus.IN_PROGRESS}</span>
                 </div>
               </Spin>
             }
@@ -333,7 +330,7 @@ export const Orders = ({ destination }: { destination: CrossChainDestination }) 
               <Spin size="small" spinning={statisticsLoading}>
                 <div className="flex flex-col items-center">
                   <ExclamationCircleOutlined className="text-xl" />
-                  <span>Out of Slot</span>
+                  <span>{OrderStatus.OUT_OF_SLOT}</span>
                 </div>
               </Spin>
             }

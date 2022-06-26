@@ -192,3 +192,16 @@ export enum RelayerRole {
   DELIVERY = 'Delivery Relayer',
   CONFIRM = 'Confirm Relayer',
 }
+
+export enum SlotState {
+  SLOT_1 = 'Slot 1',
+  SLOT_2 = 'Slot 2',
+  SLOT_3 = 'Slot 3',
+  OUT_OF_SLOT = 'Out of Slot',
+}
+
+export enum OrderStatus {
+  FINISHED = 'Finished',
+  IN_PROGRESS = 'In Progress',
+  OUT_OF_SLOT = 'Out of Slot',
+}
