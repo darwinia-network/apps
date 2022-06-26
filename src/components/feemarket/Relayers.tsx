@@ -11,7 +11,7 @@ import { useApolloClient } from '@apollo/client';
 import { getFeeMarketModule, fromWei, prettyNumber } from '../../utils';
 import { useApi } from '../../hooks';
 import { PalletFeeMarketRelayer, CrossChainDestination, SearchParamsKey, FeeMarketTab } from '../../model';
-import { LONG_LONG_DURATION, QUERY_RELAYER } from '../../config';
+import { LONG_LONG_DURATION, RELAYER_TOTAL_ORDERS_SLASHS_REWARDS } from '../../config';
 import { IdentAccountName } from '../widget/account/IdentAccountName';
 
 type RelayerData = {
@@ -153,7 +153,7 @@ export const Relayers = ({ destination }: { destination: CrossChainDestination }
     const sub$$ = forkJoin(
       relayers.map((relayer) =>
         apollo.query({
-          query: QUERY_RELAYER,
+          query: RELAYER_TOTAL_ORDERS_SLASHS_REWARDS,
           variables: { relayer: `${destination}-${relayer.id.toString()}` },
         })
       )
@@ -170,11 +170,10 @@ export const Relayers = ({ destination }: { destination: CrossChainDestination }
         }[]
       ) => {
         dataSourceRef.current = res.map(({ data }, index) => {
+          const relayer = relayers[index];
           const orders = data?.relayerEntity?.totalOrders || 0;
           const slashs = data?.relayerEntity?.totalSlashs || '0';
           const rewards = data?.relayerEntity?.totalRewards || '0';
-
-          const relayer = relayers[index];
 
           return {
             relayer: relayer.id.toString(),
