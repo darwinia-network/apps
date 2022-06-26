@@ -76,10 +76,8 @@ export const Overview = ({ destination }: { destination: CrossChainDestination }
       )
       .subscribe((res) => {
         if (res.isSome) {
-          const lastRelayers = res.unwrap().pop();
-          if (lastRelayers) {
-            setCurrentFee({ loading: false, value: lastRelayers.fee });
-          }
+          const last = res.unwrap().pop();
+          setCurrentFee({ loading: false, value: last?.fee || undefined });
         } else {
           setCurrentFee({ loading: false, value: undefined });
         }
