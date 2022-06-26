@@ -4,10 +4,10 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { Overview } from '../components/feemarket/Overview';
-import { Relayers } from '../components/feemarket/Relayers';
-import { RelayerDetail } from '../components/feemarket/RelayerDetail';
-import { Orders } from '../components/feemarket/Orders';
-import { OrderDetail } from '../components/feemarket/OrderDetail';
+// import { Relayers } from '../components/feemarket/Relayers';
+// import { RelayerDetail } from '../components/feemarket/RelayerDetail';
+// import { Orders } from '../components/feemarket/Orders';
+// import { OrderDetail } from '../components/feemarket/OrderDetail';
 import { useApi, useFeeMarket } from '../hooks';
 import { FeeMarketTab, SearchParamsKey } from '../model';
 import { GraphqlProvider } from '../providers';
@@ -22,8 +22,8 @@ function Page() {
 
   const searchParams = new URLSearchParams(search);
   const tab = searchParams.get(SearchParamsKey.TAB);
-  const orderid = searchParams.get(SearchParamsKey.ORDER);
-  const relayer = searchParams.get(SearchParamsKey.RELAYER);
+  // const orderid = searchParams.get(SearchParamsKey.ORDER);
+  // const relayer = searchParams.get(SearchParamsKey.RELAYER);
 
   const [activeKey, setActiveKey] = useState<FeeMarketTab>(
     Object.values(FeeMarketTab).includes(tab as FeeMarketTab) ? (tab as FeeMarketTab) : FeeMarketTab.OVERVIEW
@@ -42,7 +42,7 @@ function Page() {
         >
           <Overview destination={destination} />
         </Tabs.TabPane>
-        <Tabs.TabPane
+        {/* <Tabs.TabPane
           key={FeeMarketTab.RELAYERS}
           tab={<CustomTab text={t('Relayers')} tabKey={FeeMarketTab.RELAYERS} activeKey={activeKey} />}
         >
@@ -57,7 +57,7 @@ function Page() {
           tab={<CustomTab text={t('Orders')} tabKey={FeeMarketTab.OREDERS} activeKey={activeKey} />}
         >
           {orderid ? <OrderDetail orderid={orderid} destination={destination} /> : <Orders destination={destination} />}
-        </Tabs.TabPane>
+        </Tabs.TabPane> */}
       </Tabs>
     </GraphqlProvider>
   ) : (
