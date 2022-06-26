@@ -158,3 +158,16 @@ export interface OrderDetailData {
     };
   };
 }
+
+export enum FeeMarketTab {
+  OVERVIEW = 'overview',
+  RELAYERS = 'relayers',
+  OREDERS = 'oreders',
+}
+
+export enum RelayerRole {
+  INIT_ASSIGNED = 'Init Assigned Relayer',
+  SLOT_ASSIGNED = 'Slot Assigned Relayer',
+  DELIVERY = 'Delivery Relayer',
+  CONFIRM = 'Confirm Relayer',
+}

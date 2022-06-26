@@ -1,19 +1,25 @@
 import { Card, Descriptions, Badge, Divider, Breadcrumb, Spin } from 'antd';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useLocation } from 'react-router-dom';
 import { useQuery } from '@apollo/client';
 import { formatDistance } from 'date-fns';
 
 import { Path } from '../../config/routes';
 import { ORDER_DETAIL, LONG_LONG_DURATION } from '../../config';
-import type { OrderDetailData, CrossChainDestination } from '../../model';
+import { OrderDetailData, SearchParamsKey } from '../../model';
 import { useApi } from '../../hooks';
 import { SubscanLink } from '../widget/SubscanLink';
 import { fromWei, prettyNumber } from '../../utils';
 import { AccountName } from '../widget/account/AccountName';
 
 // eslint-disable-next-line complexity
-export const OrderDetail = ({ orderid, destination }: { orderid: string; destination: CrossChainDestination }) => {
+export const OrderDetail = () => {
   const { network } = useApi();
+  const { search } = useLocation();
+
+  const searchParams = new URLSearchParams(search);
+  const orderid = searchParams.get(SearchParamsKey.ORDER);
+  const destination = searchParams.get(SearchParamsKey.DESTINATION);
+
   const { loading, data } = useQuery(ORDER_DETAIL, {
     variables: { orderid: `${destination}-${orderid}` },
     pollInterval: LONG_LONG_DURATION,

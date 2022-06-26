@@ -1,8 +1,8 @@
-import { createContext, PropsWithChildren, useState } from 'react';
+import { createContext, PropsWithChildren, useMemo, useState } from 'react';
 import type { CrossChainDestination, PolkadotTypeNetwork } from '../model';
 import { useApi } from '../hooks';
 
-const supportedDestinations: Record<PolkadotTypeNetwork, CrossChainDestination[]> = {
+const networksDestinations: Record<PolkadotTypeNetwork, CrossChainDestination[]> = {
   crab: [],
   // crab: ['Darwinia', 'CrabParachain'],
   darwinia: [],
@@ -12,7 +12,7 @@ const supportedDestinations: Record<PolkadotTypeNetwork, CrossChainDestination[]
 
 export interface FeeMarketCtx {
   destination: CrossChainDestination;
-  supportedDestinations: typeof supportedDestinations;
+  supportedDestinations: CrossChainDestination[];
 
   setDestination: (dest: CrossChainDestination) => void;
 }
@@ -22,9 +22,12 @@ export const FeeMarketContext = createContext<FeeMarketCtx>({} as FeeMarketCtx);
 export const FeeMarketProvider = ({ children }: PropsWithChildren<unknown>) => {
   const dest = new URL(window.location.href).searchParams.get('dest');
   const { network } = useApi();
-  const supporteds = supportedDestinations[network.name as PolkadotTypeNetwork];
+  const supportedDestinations = useMemo(
+    () => networksDestinations[network.name as PolkadotTypeNetwork] || [],
+    [network.name]
+  );
   const [destination, setDestination] = useState<CrossChainDestination>(
-    supporteds.find((item) => item === dest) ?? supporteds[0] ?? 'Default'
+    supportedDestinations.find((item) => item === dest) ?? supportedDestinations[0] ?? 'Default'
   );
 
   return (

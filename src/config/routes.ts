@@ -1,11 +1,15 @@
 import { RouteProps } from 'react-router-dom';
-import { Page404 } from '../components/widget/Page404';
+
 import { Account } from '../pages/Account';
 import { Migration } from '../pages/Migration';
 import { Portal } from '../pages/Portal';
 import { Staking } from '../pages/Staking';
 import { Toolbox } from '../pages/Toolbox';
 import { FeeMarket } from '../pages/FeeMarket';
+
+import { Page404 } from '../components/widget/Page404';
+import { OrderDetail } from '../components/feemarket/OrderDetail';
+import { RelayerDetail } from '../components/feemarket/RelayerDetail';
 
 export enum Path {
   root = '/',
@@ -15,6 +19,8 @@ export enum Path {
   portal = '/portal',
   migration = '/migration',
   feemarket = '/feemarket',
+  orderDeatil = 'order_detail',
+  relayerDetail = 'relayer_detail',
 }
 
 export const routes: RouteProps[] = [
@@ -52,6 +58,16 @@ export const routes: RouteProps[] = [
     exact: true,
     path: Path.feemarket,
     children: FeeMarket,
+  },
+  {
+    exact: true,
+    path: Path.orderDeatil,
+    children: OrderDetail,
+  },
+  {
+    exact: true,
+    path: Path.relayerDetail,
+    children: RelayerDetail,
   },
   {
     path: '*',

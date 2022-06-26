@@ -1,69 +1,53 @@
-import { withRouter } from 'react-router-dom';
+import { withRouter, useLocation } from 'react-router-dom';
 import { Tabs, Empty } from 'antd';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+
 import { Overview } from '../components/feemarket/Overview';
 import { Relayers } from '../components/feemarket/Relayers';
-import { RelayerDetail } from '../components/feemarket/RelayerDetail';
 import { Orders } from '../components/feemarket/Orders';
-import { OrderDetail } from '../components/feemarket/OrderDetail';
-import { useApi } from '../hooks';
-import type { CrossChainDestination } from '../model';
+import { useApi, useFeeMarket } from '../hooks';
+import { FeeMarketTab, SearchParamsKey } from '../model';
 import { GraphqlProvider } from '../providers';
 import { CustomTab } from '../components/widget/CustomTab';
 
-enum TabsKeys {
-  overview = 'overview',
-  relayers = 'relayers',
-  orders = 'orders',
-}
-
-// eslint-disable-next-line complexity
 function Page() {
-  const searchParams = new URL(window.location.href).searchParams;
-  const tab = searchParams.get('tab');
-  const orderid = searchParams.get('orderid');
-  const relayer = searchParams.get('relayer');
-  const destination = searchParams.get('dest');
-
   const { network } = useApi();
+  const { supportedDestinations } = useFeeMarket();
+  const { search } = useLocation();
   const { t } = useTranslation();
-  const [activeKey, setActiveKey] = useState<TabsKeys>(
-    Object.values(TabsKeys).includes(tab as TabsKeys) ? (tab as TabsKeys) : TabsKeys.overview
+
+  const searchParams = new URLSearchParams(search);
+  const tab = searchParams.get(SearchParamsKey.TAB);
+
+  const [activeKey, setActiveKey] = useState<FeeMarketTab>(
+    Object.values(FeeMarketTab).includes(tab as FeeMarketTab) ? (tab as FeeMarketTab) : FeeMarketTab.OVERVIEW
   );
 
-  return network.name === 'pangolin' ? (
+  return supportedDestinations.length ? (
     <GraphqlProvider>
       <Tabs
         activeKey={activeKey}
-        onChange={(key) => setActiveKey(key as TabsKeys)}
+        onChange={(key) => setActiveKey(key as FeeMarketTab)}
         className={`lg:px-8 px-4 w-full mx-auto dark:shadow-none dark:border-transparent pb-5 page-account-tabs page-account-tabs-${network.name}`}
       >
         <Tabs.TabPane
-          key={TabsKeys.overview}
-          tab={<CustomTab text={t('Overview')} tabKey={TabsKeys.overview} activeKey={activeKey} />}
+          key={FeeMarketTab.OVERVIEW}
+          tab={<CustomTab text={t('Overview')} tabKey={FeeMarketTab.OVERVIEW} activeKey={activeKey} />}
         >
           <Overview />
         </Tabs.TabPane>
         <Tabs.TabPane
-          key={TabsKeys.relayers}
-          tab={<CustomTab text={t('Relayers')} tabKey={TabsKeys.relayers} activeKey={activeKey} />}
+          key={FeeMarketTab.RELAYERS}
+          tab={<CustomTab text={t('Relayers')} tabKey={FeeMarketTab.RELAYERS} activeKey={activeKey} />}
         >
-          {relayer && destination ? (
-            <RelayerDetail relayer={relayer} destination={destination as CrossChainDestination} />
-          ) : (
-            <Relayers />
-          )}
+          <Relayers />
         </Tabs.TabPane>
         <Tabs.TabPane
-          key={TabsKeys.orders}
-          tab={<CustomTab text={t('Orders')} tabKey={TabsKeys.orders} activeKey={activeKey} />}
+          key={FeeMarketTab.OREDERS}
+          tab={<CustomTab text={t('Orders')} tabKey={FeeMarketTab.OREDERS} activeKey={activeKey} />}
         >
-          {orderid && destination ? (
-            <OrderDetail orderid={orderid} destination={destination as CrossChainDestination} />
-          ) : (
-            <Orders />
-          )}
+          <Orders />
         </Tabs.TabPane>
       </Tabs>
     </GraphqlProvider>

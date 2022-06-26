@@ -19,7 +19,6 @@ import { THEME } from './config';
 import { routes } from './config/routes';
 import { useApi, useFeeMarket } from './hooks';
 import { readStorage, updateStorage } from './utils';
-import { PolkadotTypeNetwork } from './model';
 
 const { Sider, Content } = Layout;
 
@@ -160,7 +159,7 @@ function App() {
                 </h2>
                 <CrossChainDestinationSelector
                   defaultDestination={destination}
-                  destinations={supportedDestinations[network.name as PolkadotTypeNetwork]}
+                  destinations={supportedDestinations}
                   onSelect={setDestination}
                 />
               </div>

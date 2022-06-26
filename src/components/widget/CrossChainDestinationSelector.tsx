@@ -22,13 +22,13 @@ export const CrossChainDestinationSelector = ({
   defaultDestination?: CrossChainDestination;
   onSelect: (destination: CrossChainDestination) => void;
 }) => {
-  const match = useRouteMatch({
+  const matchPath = useRouteMatch({
     path: Path.feemarket,
     exact: true,
   });
   const options = destinations.map((item) => ({ label: labels[item], value: item }));
 
-  return match && destinations.length ? (
+  return matchPath && destinations.length ? (
     <Select options={options} onSelect={onSelect} defaultValue={defaultDestination} style={{ minWidth: '10rem' }} />
   ) : null;
 };

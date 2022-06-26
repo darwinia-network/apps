@@ -18,3 +18,10 @@ export interface IModalProps<T = unknown> {
   confirm?: (account: T) => void;
   cancel: () => void;
 }
+
+export enum SearchParamsKey {
+  TAB = 'tab',
+  ORDER = 'order',
+  RELAYER = 'relayer',
+  DESTINATION = 'dest',
+}
