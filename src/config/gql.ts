@@ -46,49 +46,56 @@ export const QUERY_RELAYER = gql`
   }
 `;
 
-export const RELAYER_DETAIL = gql`
-  query RelayerDetail($relayer: String!, $feeDate: Datetime!, $slashDate: Datetime!, $rewardDate: Datetime!) {
+export const RELAYER_REWARDS_AND_SLASHS = gql`
+  query RelayerRewardsAndSlashs($relayer: String!, $lastTime: Datetime!) {
     relayerEntity(id: $relayer) {
-      feeHistory(filter: { newfeeTime: { greaterThan: $feeDate } }, orderBy: NEWFEE_TIME_ASC) {
-        nodes {
-          fee
-          newfeeTime
-        }
-      }
-      slashs(filter: { slashTime: { greaterThan: $slashDate } }, orderBy: SLASH_TIME_ASC) {
+      slashs(filter: { slashTime: { greaterThan: $lastTime } }, orderBy: SLASH_TIME_ASC) {
         nodes {
           amount
           slashTime
         }
       }
-      assignedRewards(filter: { rewardTime: { greaterThan: $rewardDate } }) {
+      assignedRewards(filter: { rewardTime: { greaterThan: $lastTime } }) {
         nodes {
           rewardTime
           assignedAmount
         }
       }
-      deliveredRewards(filter: { rewardTime: { greaterThan: $rewardDate } }) {
+      deliveredRewards(filter: { rewardTime: { greaterThan: $lastTime } }) {
         nodes {
           rewardTime
           deliveredAmount
         }
       }
-      confirmedRewards(filter: { rewardTime: { greaterThan: $rewardDate } }) {
+      confirmedRewards(filter: { rewardTime: { greaterThan: $lastTime } }) {
         nodes {
           rewardTime
           confirmedAmount
         }
       }
+    }
+  }
+`;
 
+export const RELAYER_FEE_HISTORY = gql`
+  query RelayerFeeHistory($relayer: String!, $lastTime: Datetime!) {
+    relayerEntity(id: $relayer) {
+      feeHistory(filter: { newfeeTime: { greaterThan: $lastTime } }, orderBy: NEWFEE_TIME_ASC) {
+        nodes {
+          fee
+          newfeeTime
+        }
+      }
+    }
+  }
+`;
+
+export const RELAYER_ORDERS = gql`
+  query RelayerOrders($relayer: String!) {
+    relayerEntity(id: $relayer) {
       assignedOrders {
         nodes {
           id
-          assignedRelayerId
-          deliveredRelayerId
-          confirmedRelayerId
-          confirmedSlotIndex
-          createBlock
-          finishBlock
           finishTime
           assignedRelayers
           rewards {
@@ -112,12 +119,6 @@ export const RELAYER_DETAIL = gql`
       deliveredOrders {
         nodes {
           id
-          assignedRelayerId
-          deliveredRelayerId
-          confirmedRelayerId
-          confirmedSlotIndex
-          createBlock
-          finishBlock
           finishTime
           assignedRelayers
           rewards {
@@ -141,12 +142,6 @@ export const RELAYER_DETAIL = gql`
       confirmedOrders {
         nodes {
           id
-          assignedRelayerId
-          deliveredRelayerId
-          confirmedRelayerId
-          confirmedSlotIndex
-          createBlock
-          finishBlock
           finishTime
           assignedRelayers
           rewards {

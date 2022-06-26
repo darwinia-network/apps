@@ -22,14 +22,8 @@ export enum SegmentedType {
   L30D,
 }
 
-interface RelayerDetailOrdersData {
+interface RelayerOrderData {
   id: string;
-  assignedRelayerId?: string | null;
-  deliveredRelayerId: string;
-  confirmedRelayerId: string;
-  confirmedSlotIndex: string;
-  createBlock: number;
-  finishBlock: number;
   finishTime: string;
   assignedRelayers: string[];
   rewards: {
@@ -50,14 +44,22 @@ interface RelayerDetailOrdersData {
   };
 }
 
-export interface RelayerDetailData {
+export interface RelayerOrders {
   relayerEntity?: {
-    feeHistory?: {
-      nodes: {
-        fee: string;
-        newfeeTime: string;
-      }[];
+    assignedOrders?: {
+      nodes: RelayerOrderData[];
     };
+    deliveredOrders?: {
+      nodes: RelayerOrderData[];
+    };
+    confirmedOrders?: {
+      nodes: RelayerOrderData[];
+    };
+  };
+}
+
+export interface RelayerRewardsAndSlashs {
+  relayerEntity?: {
     slashs?: {
       nodes: {
         amount: string;
@@ -82,14 +84,16 @@ export interface RelayerDetailData {
         confirmedAmount: string;
       }[];
     };
-    assignedOrders?: {
-      nodes: RelayerDetailOrdersData[];
-    };
-    deliveredOrders?: {
-      nodes: RelayerDetailOrdersData[];
-    };
-    confirmedOrders?: {
-      nodes: RelayerDetailOrdersData[];
+  };
+}
+
+export interface RelayerFeeHistory {
+  relayerEntity?: {
+    feeHistory?: {
+      nodes: {
+        fee: string;
+        newfeeTime: string;
+      }[];
     };
   };
 }
