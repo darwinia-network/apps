@@ -20,7 +20,7 @@ import {
   LONG_LONG_DURATION,
   QUERY_FEEMARKET_RECORD,
   IN_PROGRESS_ORDERS_ASSIGNED_RELAYERS,
-  OVERVIEW_FOR_CHART,
+  TOTAL_ORDERS_AND_FEE_HISTORY,
 } from '../../config';
 import { useApi } from '../../hooks';
 import { getFeeMarketModule, prettyNumber, fromWei, getSegmentedDateByType } from '../../utils';
@@ -30,6 +30,7 @@ import {
   ChartState,
   CrossChainDestination,
   InProgressOrdersAssignedRelayers,
+  TotalOrdersAndFeeHistory,
 } from '../../model';
 import { PrettyAmount } from '../../components/widget/PrettyAmount';
 import { Segmented } from '../widget/fee-market';
@@ -70,14 +71,14 @@ export const Overview = ({ destination }: { destination: CrossChainDestination }
   }) as {
     data: InProgressOrdersAssignedRelayers | null;
   };
-  const { data: feeHistoryChart } = useQuery(OVERVIEW_FOR_CHART, {
+  const { data: feeHistoryData } = useQuery(TOTAL_ORDERS_AND_FEE_HISTORY, {
     variables: { destination, date: getSegmentedDateByType(feeSgmentedType) },
     pollInterval: LONG_LONG_DURATION,
-  });
-  const { data: totalOrdersChart } = useQuery(OVERVIEW_FOR_CHART, {
+  }) as { data: TotalOrdersAndFeeHistory | null };
+  const { data: totalOrdersData } = useQuery(TOTAL_ORDERS_AND_FEE_HISTORY, {
     variables: { destination, date: getSegmentedDateByType(orderSegmentedType) },
     pollInterval: LONG_LONG_DURATION,
-  });
+  }) as { data: TotalOrdersAndFeeHistory | null };
 
   useEffect(() => {
     const sub$$ = timer(0, LONG_LONG_DURATION)
@@ -102,19 +103,20 @@ export const Overview = ({ destination }: { destination: CrossChainDestination }
   useEffect(() => {
     setTotalRelayers((prev) => ({ ...prev, loading: true }));
 
-    const relayersInprogressOrders = inProgressOrders?.orderEntities?.nodes.reduce((acc, cur) => {
-      cur.assignedRelayers.forEach((r) => {
-        acc[r] = acc[r] ? acc[r] + 1 : 1;
-      });
+    const relayersInprogressOrders =
+      inProgressOrders?.orderEntities?.nodes.reduce((acc, cur) => {
+        cur.assignedRelayers.forEach((r) => {
+          acc[r] = acc[r] ? acc[r] + 1 : 1;
+        });
 
-      return acc;
-    }, {} as Record<string, number>);
+        return acc;
+      }, {} as Record<string, number>) || {};
 
     const sub$$ = from(api.query[getFeeMarketModule(destination)].relayers<Vec<AccountId32>>())
       .pipe(
         tap((total) => setTotalRelayers((prev) => ({ ...prev, total: total.length }))),
         switchMap((total) => {
-          const relayers = Object.keys(relayersInprogressOrders || {}).filter((relayer) =>
+          const relayers = Object.keys(relayersInprogressOrders).filter((relayer) =>
             total.map((account) => account.toString()).includes(relayer)
           );
 
@@ -135,7 +137,7 @@ export const Overview = ({ destination }: { destination: CrossChainDestination }
           res.forEach((relayer) => {
             if (
               relayer.collateral
-                .div(collateralPerOrder.muln((relayersInprogressOrders || {})[relayer.id.toString()]))
+                .div(collateralPerOrder.muln(relayersInprogressOrders[relayer.id.toString()]))
                 .lt(BN_ONE)
             ) {
               inactive++;
@@ -152,37 +154,39 @@ export const Overview = ({ destination }: { destination: CrossChainDestination }
   }, [inProgressOrders, api, destination]);
 
   useEffect(() => {
-    const feeDate: string[] = [];
-    const feeData: string[] = [];
+    const { date, data } = feeHistoryData?.orderEntities?.nodes.reduce(
+      ({ date, data }, { fee, createTime }) => {
+        date.push(createTime.split('.')[0].replace(/-/g, '/'));
+        data.push(fromWei({ value: fee }, prettyNumber));
 
-    feeHistoryChart?.orderEntities.nodes.map(({ createTime, fee }: { createTime: string; fee: string }) => {
-      feeDate.push(createTime.split('.')[0].replace(/-/g, '/'));
-      feeData.push(fromWei({ value: fee }, prettyNumber));
-    });
+        return { date, data };
+      },
+      { date: [], data: [] } as { date: string[]; data: string[] }
+    ) || { date: [], data: [] };
 
-    setFeeHistory({ date: feeDate, data: feeData });
-  }, [feeHistoryChart?.orderEntities.nodes]);
+    setFeeHistory({ date, data });
+  }, [feeHistoryData?.orderEntities?.nodes]);
 
   useEffect(() => {
-    const ordersDate: string[] = [];
-    const ordersData: string[] = [];
+    const daysCount =
+      totalOrdersData?.orderEntities?.nodes.reduce((acc, { createTime }) => {
+        const day = createTime.split('T')[0];
+        acc[day] = acc[day] ? acc[day] + 1 : 1;
+        return acc;
+      }, {} as Record<string, number>) || {};
 
-    const dayCount: Record<string, number> = {};
+    const { date, data } = Object.keys(daysCount).reduce(
+      ({ date, data }, day) => {
+        date.push(day.replace(/-/g, '/'));
+        data.push(daysCount[day].toString());
 
-    totalOrdersChart?.orderEntities.nodes.map(({ createTime }: { createTime: string }) => {
-      const day = createTime.split('T')[0];
-      const count = dayCount[day] || 0;
+        return { date, data };
+      },
+      { date: [], data: [] } as { date: string[]; data: string[] }
+    ) || { date: [], data: [] };
 
-      dayCount[day] = count + 1;
-    });
-
-    Object.keys(dayCount).forEach((day) => {
-      ordersDate.push(day.replace(/-/g, '/'));
-      ordersData.push(dayCount[day].toString());
-    });
-
-    setTotalOrders({ date: ordersDate, data: ordersData });
-  }, [totalOrdersChart?.orderEntities.nodes]);
+    setTotalOrders({ date, data });
+  }, [totalOrdersData?.orderEntities?.nodes]);
 
   useEffect(() => {
     if (!totalOrdersRef.current) {

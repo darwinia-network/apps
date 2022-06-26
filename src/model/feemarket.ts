@@ -102,6 +102,15 @@ export interface InProgressOrdersAssignedRelayers {
   };
 }
 
+export interface TotalOrdersAndFeeHistory {
+  orderEntities?: {
+    nodes: {
+      fee: string;
+      createTime: string;
+    }[];
+  };
+}
+
 export type ChartState = {
   date: string[];
   data: string[];
