@@ -3,9 +3,9 @@ import { Tabs, Empty } from 'antd';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { Overview } from '../components/feemarket/Overview';
-// import { Relayers } from '../components/feemarket/Relayers';
-// import { RelayerDetail } from '../components/feemarket/RelayerDetail';
+// import { Overview } from '../components/feemarket/Overview';
+import { Relayers } from '../components/feemarket/Relayers';
+import { RelayerDetail } from '../components/feemarket/RelayerDetail';
 // import { Orders } from '../components/feemarket/Orders';
 // import { OrderDetail } from '../components/feemarket/OrderDetail';
 import { useApi, useFeeMarket } from '../hooks';
@@ -23,7 +23,7 @@ function Page() {
   const searchParams = new URLSearchParams(search);
   const tab = searchParams.get(SearchParamsKey.TAB);
   // const orderid = searchParams.get(SearchParamsKey.ORDER);
-  // const relayer = searchParams.get(SearchParamsKey.RELAYER);
+  const relayer = searchParams.get(SearchParamsKey.RELAYER);
 
   const [activeKey, setActiveKey] = useState<FeeMarketTab>(
     Object.values(FeeMarketTab).includes(tab as FeeMarketTab) ? (tab as FeeMarketTab) : FeeMarketTab.OVERVIEW
@@ -36,13 +36,13 @@ function Page() {
         onChange={(key) => setActiveKey(key as FeeMarketTab)}
         className={`lg:px-8 px-4 w-full mx-auto dark:shadow-none dark:border-transparent pb-5 page-account-tabs page-account-tabs-${network.name}`}
       >
-        <Tabs.TabPane
+        {/* <Tabs.TabPane
           key={FeeMarketTab.OVERVIEW}
           tab={<CustomTab text={t('Overview')} tabKey={FeeMarketTab.OVERVIEW} activeKey={activeKey} />}
         >
           <Overview destination={destination} />
-        </Tabs.TabPane>
-        {/* <Tabs.TabPane
+        </Tabs.TabPane> */}
+        <Tabs.TabPane
           key={FeeMarketTab.RELAYERS}
           tab={<CustomTab text={t('Relayers')} tabKey={FeeMarketTab.RELAYERS} activeKey={activeKey} />}
         >
@@ -52,7 +52,7 @@ function Page() {
             <Relayers destination={destination} />
           )}
         </Tabs.TabPane>
-        <Tabs.TabPane
+        {/* <Tabs.TabPane
           key={FeeMarketTab.OREDERS}
           tab={<CustomTab text={t('Orders')} tabKey={FeeMarketTab.OREDERS} activeKey={activeKey} />}
         >
