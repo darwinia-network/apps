@@ -16,10 +16,21 @@ import { SVGRenderer } from 'echarts/renderers';
 import { UniversalTransition } from 'echarts/features';
 
 import { Statistics } from '../widget/Statistics';
-import { LONG_LONG_DURATION, QUERY_FEEMARKET_RECORD, QUERY_INPROGRESS_ORDERS, OVERVIEW_FOR_CHART } from '../../config';
+import {
+  LONG_LONG_DURATION,
+  QUERY_FEEMARKET_RECORD,
+  IN_PROGRESS_ORDERS_ASSIGNED_RELAYERS,
+  OVERVIEW_FOR_CHART,
+} from '../../config';
 import { useApi } from '../../hooks';
 import { getFeeMarketModule, prettyNumber, fromWei, getSegmentedDateByType } from '../../utils';
-import { PalletFeeMarketRelayer, SegmentedType, ChartState, CrossChainDestination } from '../../model';
+import {
+  PalletFeeMarketRelayer,
+  SegmentedType,
+  ChartState,
+  CrossChainDestination,
+  InProgressOrdersAssignedRelayers,
+} from '../../model';
 import { PrettyAmount } from '../../components/widget/PrettyAmount';
 import { Segmented } from '../widget/fee-market';
 
@@ -53,10 +64,12 @@ export const Overview = ({ destination }: { destination: CrossChainDestination }
     pollInterval: LONG_LONG_DURATION,
     notifyOnNetworkStatusChange: true,
   });
-  const { data: inProgressOrders } = useQuery(QUERY_INPROGRESS_ORDERS, {
+  const { data: inProgressOrders } = useQuery(IN_PROGRESS_ORDERS_ASSIGNED_RELAYERS, {
     variables: { destination },
     pollInterval: LONG_LONG_DURATION,
-  });
+  }) as {
+    data: InProgressOrdersAssignedRelayers | null;
+  };
   const { data: feeHistoryChart } = useQuery(OVERVIEW_FOR_CHART, {
     variables: { destination, date: getSegmentedDateByType(feeSgmentedType) },
     pollInterval: LONG_LONG_DURATION,
@@ -88,21 +101,20 @@ export const Overview = ({ destination }: { destination: CrossChainDestination }
 
   useEffect(() => {
     setTotalRelayers((prev) => ({ ...prev, loading: true }));
-    const inProgressOrdersRelayers: Record<string, number> = {};
 
-    inProgressOrders?.orderEntities.nodes.forEach(({ assignedRelayers }: { assignedRelayers: string[] }) => {
-      assignedRelayers.forEach((relayer) => {
-        inProgressOrdersRelayers[relayer] = inProgressOrdersRelayers[relayer]
-          ? inProgressOrdersRelayers[relayer] + 1
-          : 1;
+    const relayersInprogressOrders = inProgressOrders?.orderEntities?.nodes.reduce((acc, cur) => {
+      cur.assignedRelayers.forEach((r) => {
+        acc[r] = acc[r] ? acc[r] + 1 : 1;
       });
-    });
+
+      return acc;
+    }, {} as Record<string, number>);
 
     const sub$$ = from(api.query[getFeeMarketModule(destination)].relayers<Vec<AccountId32>>())
       .pipe(
         tap((total) => setTotalRelayers((prev) => ({ ...prev, total: total.length }))),
         switchMap((total) => {
-          const relayers = Object.keys(inProgressOrdersRelayers).filter((relayer) =>
+          const relayers = Object.keys(relayersInprogressOrders || {}).filter((relayer) =>
             total.map((account) => account.toString()).includes(relayer)
           );
 
@@ -123,7 +135,7 @@ export const Overview = ({ destination }: { destination: CrossChainDestination }
           res.forEach((relayer) => {
             if (
               relayer.collateral
-                .div(collateralPerOrder.muln(inProgressOrdersRelayers[relayer.id.toString()]))
+                .div(collateralPerOrder.muln((relayersInprogressOrders || {})[relayer.id.toString()]))
                 .lt(BN_ONE)
             ) {
               inactive++;

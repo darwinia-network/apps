@@ -12,7 +12,7 @@ export const QUERY_FEEMARKET_RECORD = gql`
   }
 `;
 
-export const QUERY_INPROGRESS_ORDERS = gql`
+export const IN_PROGRESS_ORDERS_ASSIGNED_RELAYERS = gql`
   query QueryInProgressOrders($destination: String!) {
     orderEntities(filter: { and: [{ id: { startsWith: $destination } }, { phase: { equalTo: Created } }] }) {
       nodes {

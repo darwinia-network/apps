@@ -94,6 +94,14 @@ export interface RelayerDetailData {
   };
 }
 
+export interface InProgressOrdersAssignedRelayers {
+  orderEntities?: {
+    nodes: {
+      assignedRelayers: string[];
+    }[];
+  };
+}
+
 export type ChartState = {
   date: string[];
   data: string[];
