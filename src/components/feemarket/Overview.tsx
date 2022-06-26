@@ -71,14 +71,14 @@ export const Overview = ({ destination }: { destination: CrossChainDestination }
   }) as {
     data: InProgressOrdersAssignedRelayers | null;
   };
-  const { data: feeHistoryData } = useQuery(TOTAL_ORDERS_AND_FEE_HISTORY, {
+  const { data: feeHistoryData, loading: feeHistoryLoading } = useQuery(TOTAL_ORDERS_AND_FEE_HISTORY, {
     variables: { destination, date: getSegmentedDateByType(feeSgmentedType) },
     pollInterval: LONG_LONG_DURATION,
-  }) as { data: TotalOrdersAndFeeHistory | null };
-  const { data: totalOrdersData } = useQuery(TOTAL_ORDERS_AND_FEE_HISTORY, {
+  }) as { data: TotalOrdersAndFeeHistory | null; loading: boolean };
+  const { data: totalOrdersData, loading: totalOrdersLoading } = useQuery(TOTAL_ORDERS_AND_FEE_HISTORY, {
     variables: { destination, date: getSegmentedDateByType(orderSegmentedType) },
     pollInterval: LONG_LONG_DURATION,
-  }) as { data: TotalOrdersAndFeeHistory | null };
+  }) as { data: TotalOrdersAndFeeHistory | null; loading: boolean };
 
   useEffect(() => {
     const sub$$ = timer(0, LONG_LONG_DURATION)
@@ -316,14 +316,18 @@ export const Overview = ({ destination }: { destination: CrossChainDestination }
             <h3 className="font-medium text-base text-black opacity-80">Total orders</h3>
             <Segmented onSelect={setOrderSegmentedType} value={orderSegmentedType} />
           </div>
-          <div ref={totalOrdersRef} className="h-96 w-11/12" />
+          <Spin spinning={totalOrdersLoading}>
+            <div ref={totalOrdersRef} className="h-96 w-11/12" />
+          </Spin>
         </Card>
         <Card className="shadow-xxl" style={{ width: '49.5%' }}>
           <div className="flex items-center justify-between">
             <h3 className="font-medium text-base text-black opacity-80">Fee History</h3>
             <Segmented onSelect={setFeeSegmentedType} value={feeSgmentedType} />
           </div>
-          <div ref={feeHistoryRef} className="h-96 w-11/12" />
+          <Spin spinning={feeHistoryLoading}>
+            <div ref={feeHistoryRef} className="h-96 w-11/12" />
+          </Spin>
         </Card>
       </div>
     </>
