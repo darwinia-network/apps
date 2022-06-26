@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 
 import { Overview } from '../components/feemarket/Overview';
 import { Relayers } from '../components/feemarket/Relayers';
-import { RelayerDetail } from '../components/feemarket/RelayerDetail';
+// import { RelayerDetail } from '../components/feemarket/RelayerDetail';
 // import { Orders } from '../components/feemarket/Orders';
 // import { OrderDetail } from '../components/feemarket/OrderDetail';
 import { useApi, useFeeMarket } from '../hooks';
@@ -23,7 +23,7 @@ function Page() {
   const searchParams = new URLSearchParams(search);
   const tab = searchParams.get(SearchParamsKey.TAB);
   // const orderid = searchParams.get(SearchParamsKey.ORDER);
-  const relayer = searchParams.get(SearchParamsKey.RELAYER);
+  // const relayer = searchParams.get(SearchParamsKey.RELAYER);
 
   const [activeKey, setActiveKey] = useState<FeeMarketTab>(
     Object.values(FeeMarketTab).includes(tab as FeeMarketTab) ? (tab as FeeMarketTab) : FeeMarketTab.OVERVIEW
@@ -46,11 +46,12 @@ function Page() {
           key={FeeMarketTab.RELAYERS}
           tab={<CustomTab text={t('Relayers')} tabKey={FeeMarketTab.RELAYERS} activeKey={activeKey} />}
         >
-          {relayer ? (
+          {/* {relayer ? (
             <RelayerDetail relayer={relayer} destination={destination} />
           ) : (
             <Relayers destination={destination} />
-          )}
+          )} */}
+          <Relayers destination={destination} />
         </Tabs.TabPane>
         {/* <Tabs.TabPane
           key={FeeMarketTab.OREDERS}
