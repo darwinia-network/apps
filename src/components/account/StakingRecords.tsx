@@ -2,12 +2,28 @@ import { Card, Tabs } from 'antd';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { Option } from '@polkadot/types';
+import type { BlockNumber, Balance } from '@polkadot/types/interfaces';
 import { StakingRecordType, UnbondDataSourceState, UnbondType } from '../staking/interface';
 import { useApi, useBestNumber, useStaking } from '../../hooks';
 import { CustomTab } from '../widget/CustomTab';
 import type { DarwiniaStakingStructsStakingLedger } from '../../api-derive/types';
 import { UnbondRecords } from './UnbondRecords';
 import { LockedRecords } from './LockedRecords';
+
+const calcuUnondedOrUndonding = (
+  unbondeds: UnbondDataSourceState[],
+  unbondings: UnbondDataSourceState[],
+  symbol: string,
+  amount: Balance,
+  until: BlockNumber,
+  currentHeight: number | null | undefined
+): [UnbondDataSourceState[], UnbondDataSourceState[]] => {
+  if (until.ltn(currentHeight || 0)) {
+    return [unbondeds.concat([{ amount, until, status: UnbondType.UNBONDED, symbol }]), [...unbondings]];
+  } else {
+    return [[...unbondeds], unbondings.concat([{ amount, until, status: UnbondType.UNBONDING, symbol }])];
+  }
+};
 
 export function StakingRecords() {
   const { api, network } = useApi();
@@ -37,55 +53,19 @@ export function StakingRecords() {
   }, [api, controllerAccount]);
 
   useEffect(() => {
-    const { ringUnbondeds, ringUnbondings } = ledger?.ringStakingLock.unbondings.reduce(
-      ({ ringUnbondeds, ringUnbondings }, { amount, until }) => {
-        if (until.ltn(bestNumber || 0)) {
-          ringUnbondeds.push({
-            amount,
-            until,
-            status: UnbondType.UNBONDED,
-            symbol: network.tokens.ring.symbol,
-          });
-        } else {
-          ringUnbondings.push({
-            amount,
-            until,
-            status: UnbondType.UNBONDING,
-            symbol: network.tokens.ring.symbol,
-          });
-        }
-        return { ringUnbondeds, ringUnbondings };
+    const [ringUnbondeds, ringUnbondings] = ledger?.ringStakingLock.unbondings.reduce(
+      ([unbondeds, unbondings], { amount, until }) => {
+        return calcuUnondedOrUndonding(unbondeds, unbondings, network.tokens.ring.symbol, amount, until, bestNumber);
       },
-      { ringUnbondeds: [], ringUnbondings: [] } as {
-        ringUnbondeds: UnbondDataSourceState[];
-        ringUnbondings: UnbondDataSourceState[];
-      }
-    ) || { ringUnbondeds: [], ringUnbondings: [] };
+      [[], []] as [UnbondDataSourceState[], UnbondDataSourceState[]]
+    ) || [[], []];
 
-    const { ktonUnbondeds, ktonUnbondings } = ledger?.ktonStakingLock.unbondings.reduce(
-      ({ ktonUnbondeds, ktonUnbondings }, { amount, until }) => {
-        if (until.ltn(bestNumber || 0)) {
-          ktonUnbondeds.push({
-            amount,
-            until,
-            status: UnbondType.UNBONDED,
-            symbol: network.tokens.kton.symbol,
-          });
-        } else {
-          ktonUnbondings.push({
-            amount,
-            until,
-            status: UnbondType.UNBONDING,
-            symbol: network.tokens.kton.symbol,
-          });
-        }
-        return { ktonUnbondeds, ktonUnbondings };
+    const [ktonUnbondeds, ktonUnbondings] = ledger?.ktonStakingLock.unbondings.reduce(
+      ([unbondeds, unbondings], { amount, until }) => {
+        return calcuUnondedOrUndonding(unbondeds, unbondings, network.tokens.kton.symbol, amount, until, bestNumber);
       },
-      { ktonUnbondeds: [], ktonUnbondings: [] } as {
-        ktonUnbondeds: UnbondDataSourceState[];
-        ktonUnbondings: UnbondDataSourceState[];
-      }
-    ) || { ktonUnbondeds: [], ktonUnbondings: [] };
+      [[], []] as [UnbondDataSourceState[], UnbondDataSourceState[]]
+    ) || [[], []];
 
     setUnondedDataSource(ringUnbondeds.concat(ktonUnbondeds).sort((a, b) => a.until.cmp(b.until)));
     setUnondingDataSource(ringUnbondings.concat(ktonUnbondings).sort((a, b) => a.until.cmp(b.until)));
