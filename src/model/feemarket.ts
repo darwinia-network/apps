@@ -190,7 +190,7 @@ export enum RelayerRole {
   INIT_ASSIGNED = 'Init Assigned Relayer',
   SLOT_ASSIGNED = 'Slot Assigned Relayer',
   DELIVERY = 'Delivery Relayer',
-  CONFIRM = 'Confirm Relayer',
+  CONFIRM = 'Confirmation Relayer',
 }
 
 export enum SlotState {

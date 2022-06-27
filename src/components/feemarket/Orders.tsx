@@ -5,6 +5,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import { useQuery } from '@apollo/client';
 import type { Moment } from 'moment';
+import { useTranslation } from 'react-i18next';
 
 import * as echarts from 'echarts/core';
 import { TooltipComponent, TooltipComponentOption, LegendComponent, LegendComponentOption } from 'echarts/components';
@@ -45,7 +46,7 @@ type OrderData = {
 
 enum SearchType {
   ORDER_ID = 'Order ID',
-  SENDER_ADDRESS = 'Sendet Address',
+  SENDER_ADDRESS = 'Sender Address',
 }
 
 type SearchData = {
@@ -79,6 +80,7 @@ interface FilterData {
 // eslint-disable-next-line complexity
 export const Orders = ({ destination }: { destination: CrossChainDestination }) => {
   const { network } = useApi();
+  const { t } = useTranslation();
   const dataSourceRef = useRef<OrderData[]>([]);
   const statisticCharRef = useRef<HTMLDivElement>(null);
   const [dataSource, setDataSource] = useState<OrderData[]>([]);
@@ -107,7 +109,7 @@ export const Orders = ({ destination }: { destination: CrossChainDestination }) 
 
   const columns: ColumnsType<OrderData> = [
     {
-      title: 'Order ID',
+      title: t('Order ID'),
       key: 'orderId',
       dataIndex: 'orderId',
       render: (value) => {
@@ -119,25 +121,25 @@ export const Orders = ({ destination }: { destination: CrossChainDestination }) 
       },
     },
     {
-      title: 'Delivery Relayer',
+      title: t('Delivery Relayer'),
       key: 'deliveryRelayer',
       dataIndex: 'deliveryRelayer',
       render: (value) => (value ? <IdentAccountName account={value} /> : '-'),
     },
     {
-      title: 'Confirmation Relayer',
+      title: t('Confirmation Relayer'),
       key: 'confirmationRelayer',
       dataIndex: 'confirmationRelayer',
       render: (value) => (value ? <IdentAccountName account={value} /> : '-'),
     },
     {
-      title: 'Assigned Relayer',
+      title: t('Assigned Relayer'),
       key: 'assignedRelayer',
       dataIndex: 'assignedRelayer',
       render: (value) => (value ? <IdentAccountName account={value} /> : '-'),
     },
     {
-      title: 'Start Block',
+      title: t('Start Block'),
       key: 'createBlock',
       dataIndex: 'createBlock',
       render: (value, record) => (
@@ -148,7 +150,7 @@ export const Orders = ({ destination }: { destination: CrossChainDestination }) 
       ),
     },
     {
-      title: 'Confirm Block',
+      title: t('Confirm Block'),
       key: 'finishBlock',
       dataIndex: 'finishBlock',
       render: (value, record) =>
@@ -162,7 +164,7 @@ export const Orders = ({ destination }: { destination: CrossChainDestination }) 
         ),
     },
     {
-      title: 'Status',
+      title: t('Status'),
       key: 'status',
       render: (_, record) =>
         record.confirmedSlotIndex === null ? (
@@ -292,9 +294,12 @@ export const Orders = ({ destination }: { destination: CrossChainDestination }) 
             show: false,
           },
           data: [
-            { value: statisticsData?.feeMarketEntity?.totalFinished || 0, name: 'Finished' },
-            { value: statisticsData?.feeMarketEntity?.totalInProgress || 0, name: 'In-progress' },
-            { value: statisticsData?.feeMarketEntity?.totalOutOfSlot || 0, name: 'Out-of-slot' },
+            { value: statisticsData?.feeMarketEntity?.totalFinished || 0, name: t(OrderStatus.FINISHED) as string },
+            {
+              value: statisticsData?.feeMarketEntity?.totalInProgress || 0,
+              name: t(OrderStatus.IN_PROGRESS) as string,
+            },
+            { value: statisticsData?.feeMarketEntity?.totalOutOfSlot || 0, name: t(OrderStatus.OUT_OF_SLOT) as string },
           ],
         },
       ],
@@ -304,7 +309,7 @@ export const Orders = ({ destination }: { destination: CrossChainDestination }) 
     instance.setOption(option);
 
     return () => instance.dispose();
-  }, [statisticsData?.feeMarketEntity]);
+  }, [statisticsData?.feeMarketEntity, t]);
 
   return (
     <>
@@ -316,7 +321,7 @@ export const Orders = ({ destination }: { destination: CrossChainDestination }) 
               <Spin size="small" spinning={statisticsLoading}>
                 <div className="flex flex-col items-center">
                   <CheckCircleOutlined className="text-xl" />
-                  <span>{OrderStatus.FINISHED}</span>
+                  <span>{t(OrderStatus.FINISHED)}</span>
                 </div>
               </Spin>
             }
@@ -328,7 +333,7 @@ export const Orders = ({ destination }: { destination: CrossChainDestination }) 
               <Spin size="small" spinning={statisticsLoading}>
                 <div className="flex flex-col items-center">
                   <ClockCircleOutlined className="text-xl" />
-                  <span>{OrderStatus.IN_PROGRESS}</span>
+                  <span>{t(OrderStatus.IN_PROGRESS)}</span>
                 </div>
               </Spin>
             }
@@ -340,7 +345,7 @@ export const Orders = ({ destination }: { destination: CrossChainDestination }) 
               <Spin size="small" spinning={statisticsLoading}>
                 <div className="flex flex-col items-center">
                   <ExclamationCircleOutlined className="text-xl" />
-                  <span>{OrderStatus.OUT_OF_SLOT}</span>
+                  <span>{t(OrderStatus.OUT_OF_SLOT)}</span>
                 </div>
               </Spin>
             }
@@ -354,14 +359,14 @@ export const Orders = ({ destination }: { destination: CrossChainDestination }) 
           <Input
             addonBefore={
               <Select value={search.type} onSelect={(type) => setSearch((prev) => ({ ...prev, type }))}>
-                <Select.Option value={SearchType.ORDER_ID}>{SearchType.ORDER_ID}</Select.Option>
-                <Select.Option value={SearchType.SENDER_ADDRESS}>{SearchType.SENDER_ADDRESS}</Select.Option>
+                <Select.Option value={SearchType.ORDER_ID}>{t(SearchType.ORDER_ID)}</Select.Option>
+                <Select.Option value={SearchType.SENDER_ADDRESS}>{t(SearchType.SENDER_ADDRESS)}</Select.Option>
               </Select>
             }
             className="w-96"
             onChange={(e) => setSearch((prev) => ({ ...prev, value: e.target.value }))}
           />
-          <Button onClick={handleSearch}>Search</Button>
+          <Button onClick={handleSearch}>{t('Search')}</Button>
         </div>
 
         <Form<FilterData>
@@ -377,46 +382,46 @@ export const Orders = ({ destination }: { destination: CrossChainDestination }) 
           initialValues={{ dimension: filter.dimension, state: filter.state, slot: filter.slot }}
           onFinish={handleFilter}
         >
-          <Form.Item name="dimension" label="Time Dimension">
+          <Form.Item name="dimension" label={t('Time Dimension')}>
             <Select className="w-20">
-              <Select.Option value={TimeDimension.DATE}>{TimeDimension.DATE}</Select.Option>
-              <Select.Option value={TimeDimension.BLOCK}>{TimeDimension.BLOCK}</Select.Option>
+              <Select.Option value={TimeDimension.DATE}>{t(TimeDimension.DATE)}</Select.Option>
+              <Select.Option value={TimeDimension.BLOCK}>{t(TimeDimension.BLOCK)}</Select.Option>
             </Select>
           </Form.Item>
           {filter.dimension === TimeDimension.DATE ? (
-            <Form.Item name="duration" label="Date Range">
+            <Form.Item name="duration" label={t('Date Range')}>
               <DatePicker.RangePicker />
             </Form.Item>
           ) : (
-            <Form.Item name="block" label="Block">
+            <Form.Item name="block" label={t('Block')}>
               <InputNumber min={1} step={1} />
             </Form.Item>
           )}
-          <Form.Item name={`state`} label="State">
+          <Form.Item name={`state`} label={t('State')}>
             <Select className="w-32">
               <Select.Option value={FilterState.ALL}>{FilterState.ALL}</Select.Option>
               <Select.Option value={FilterState.FINISHED}>
-                <Badge status="success" text={FilterState.FINISHED} />
+                <Badge status="success" text={t(FilterState.FINISHED)} />
               </Select.Option>
               <Select.Option value={FilterState.IN_PROGRESS}>
-                <Badge status="processing" text={FilterState.IN_PROGRESS} />
+                <Badge status="processing" text={t(FilterState.IN_PROGRESS)} />
               </Select.Option>
               <Select.Option value={FilterState.OUT_OF_SLOT}>
-                <Badge status="warning" text={FilterState.OUT_OF_SLOT} />
+                <Badge status="warning" text={t(FilterState.OUT_OF_SLOT)} />
               </Select.Option>
             </Select>
           </Form.Item>
-          <Form.Item name={`slot`} label="Slot">
+          <Form.Item name={`slot`} label={t('Slot')}>
             <Select className="w-24">
-              <Select.Option value={FilterSlot.ALL}>{FilterSlot.ALL}</Select.Option>
-              <Select.Option value={FilterSlot.SLOT_1}>{FilterSlot.SLOT_1}</Select.Option>
-              <Select.Option value={FilterSlot.SLOT_2}>{FilterSlot.SLOT_2}</Select.Option>
-              <Select.Option value={FilterSlot.SLOT_3}>{FilterSlot.SLOT_3}</Select.Option>
-              <Select.Option value={FilterSlot.OUT_OF_SLOT}>{FilterSlot.OUT_OF_SLOT}</Select.Option>
+              <Select.Option value={FilterSlot.ALL}>{t(FilterSlot.ALL)}</Select.Option>
+              <Select.Option value={FilterSlot.SLOT_1}>{t(FilterSlot.SLOT_1)}</Select.Option>
+              <Select.Option value={FilterSlot.SLOT_2}>{t(FilterSlot.SLOT_2)}</Select.Option>
+              <Select.Option value={FilterSlot.SLOT_3}>{t(FilterSlot.SLOT_3)}</Select.Option>
+              <Select.Option value={FilterSlot.OUT_OF_SLOT}>{t(FilterSlot.OUT_OF_SLOT)}</Select.Option>
             </Select>
           </Form.Item>
           <Form.Item>
-            <Button htmlType="submit">Filter</Button>
+            <Button htmlType="submit">{t('Filter')}</Button>
           </Form.Item>
         </Form>
       </Card>

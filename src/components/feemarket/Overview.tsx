@@ -312,7 +312,7 @@ export const Overview = ({ destination }: { destination: CrossChainDestination }
       <div className="flex items-center justify-between mt-8">
         <Card className="shadow-xxl" style={{ width: '49.5%' }}>
           <div className="flex items-center justify-between">
-            <h3 className="font-medium text-base text-black opacity-80">Total orders</h3>
+            <h3 className="font-medium text-base text-black opacity-80">{t('Total Orders')}</h3>
             <Segmented onSelect={setOrderSegmentedType} value={orderSegmentedType} />
           </div>
           <Spin spinning={totalOrdersLoading}>
@@ -321,7 +321,7 @@ export const Overview = ({ destination }: { destination: CrossChainDestination }
         </Card>
         <Card className="shadow-xxl" style={{ width: '49.5%' }}>
           <div className="flex items-center justify-between">
-            <h3 className="font-medium text-base text-black opacity-80">Fee History</h3>
+            <h3 className="font-medium text-base text-black opacity-80">{t('Fee History')}</h3>
             <Segmented onSelect={setFeeSegmentedType} value={feeSgmentedType} />
           </div>
           <Spin spinning={feeHistoryLoading}>

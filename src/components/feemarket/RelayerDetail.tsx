@@ -5,6 +5,7 @@ import { useRef, useEffect, useState } from 'react';
 import { useQuery } from '@apollo/client';
 import { format, compareAsc, formatDistanceStrict } from 'date-fns';
 import { BN, BN_ZERO } from '@polkadot/util';
+import { useTranslation } from 'react-i18next';
 
 import * as echarts from 'echarts/core';
 import {
@@ -85,6 +86,7 @@ export const RelayerDetail = ({
   destination: CrossChainDestination;
 }) => {
   const { network } = useApi();
+  const { t } = useTranslation();
   const rewardsSlashsRef = useRef<HTMLDivElement>(null);
   const feeHistoryRef = useRef<HTMLDivElement>(null);
   const [feeSegmented, setFeeSegmented] = useState(SegmentedType.ALL);
@@ -133,7 +135,7 @@ export const RelayerDetail = ({
 
   const columns: ColumnsType<RelayerData> = [
     {
-      title: 'Order ID',
+      title: t('Order ID'),
       key: 'orderId',
       dataIndex: 'orderId',
       render: (value) => {
@@ -149,19 +151,19 @@ export const RelayerDetail = ({
       },
     },
     {
-      title: 'Relayer Role',
+      title: t('Relayer Role'),
       key: 'relayerRole',
       dataIndex: 'relayerRole',
       render: (value: RelayerRole[]) => (
         <div className="flex flex-col justify-center">
           {value.map((item) => (
-            <span key={item}>{item}</span>
+            <span key={item}>{t(item)}</span>
           ))}
         </div>
       ),
     },
     {
-      title: 'Reward',
+      title: t('Reward'),
       key: 'reward',
       dataIndex: 'reward',
       render: (value: BN) =>
@@ -174,7 +176,7 @@ export const RelayerDetail = ({
         ),
     },
     {
-      title: 'Slash',
+      title: t('Slash'),
       key: 'slash',
       dataIndex: 'slash',
       render: (value: BN) =>
@@ -187,7 +189,7 @@ export const RelayerDetail = ({
         ),
     },
     {
-      title: 'Time',
+      title: t('Time'),
       key: 'time',
       dataIndex: 'time',
       render: (value) => formatDistanceStrict(new Date(value), new Date(), { addSuffix: true }),
@@ -330,7 +332,7 @@ export const RelayerDetail = ({
 
     const option: EChartsOption = {
       title: {
-        text: 'Reward & Slash',
+        text: t('Reward & Slash'),
         left: 0,
       },
       tooltip: {
@@ -393,7 +395,7 @@ export const RelayerDetail = ({
     instance.setOption(option);
 
     return () => instance.dispose();
-  }, [network.tokens.ring.symbol, rewardsAndSlashsState]);
+  }, [network.tokens.ring.symbol, rewardsAndSlashsState, t]);
 
   useEffect(() => {
     if (!feeHistoryRef.current) {
@@ -402,7 +404,7 @@ export const RelayerDetail = ({
 
     const option: EChartsOption = {
       title: {
-        text: 'Quote History',
+        text: t('Quote History'),
         left: 0,
       },
       xAxis: {
@@ -424,13 +426,13 @@ export const RelayerDetail = ({
     instance.setOption(option);
 
     return () => instance.dispose();
-  }, [feeHistoryState]);
+  }, [feeHistoryState, t]);
 
   return (
     <>
       <Breadcrumb separator=">" className="flex">
         <Breadcrumb.Item>
-          <NavLink to={`${Path.feemarket}?tab=${FeeMarketTab.RELAYERS}`}>Relayers</NavLink>
+          <NavLink to={`${Path.feemarket}?tab=${FeeMarketTab.RELAYERS}`}>{t('Relayers')}</NavLink>
         </Breadcrumb.Item>
         <Breadcrumb.Item>
           <AccountName account={relayerAddress || 'Unknown'} />

@@ -7,6 +7,7 @@ import type { Option, Vec } from '@polkadot/types';
 import { BN } from '@polkadot/util';
 import type { Balance, AccountId32 } from '@polkadot/types/interfaces';
 import { useApolloClient } from '@apollo/client';
+import { useTranslation } from 'react-i18next';
 
 import { getFeeMarketModule, fromWei, prettyNumber } from '../../utils';
 import { useApi } from '../../hooks';
@@ -34,6 +35,7 @@ const renderBalance = (value: Balance | string | number, symbol: string): string
 export const Relayers = ({ destination }: { destination: CrossChainDestination }) => {
   const { api, network } = useApi();
   const apollo = useApolloClient();
+  const { t } = useTranslation();
   const [tab, setTab] = useState(RelayerTab.ALL);
   const [loading, setLoaing] = useState(false);
   const [relayers, setRelayers] = useState<PalletFeeMarketRelayer[]>([]);
@@ -42,7 +44,7 @@ export const Relayers = ({ destination }: { destination: CrossChainDestination }
 
   const columns: ColumnsType<RelayerData> = [
     {
-      title: 'Relayer',
+      title: t('Relayer'),
       key: 'relayer',
       dataIndex: 'relayer',
       render: (value) => {
@@ -58,34 +60,34 @@ export const Relayers = ({ destination }: { destination: CrossChainDestination }
       },
     },
     {
-      title: 'Count(orders)',
+      title: t('Count(orders)'),
       key: 'countOrders',
       dataIndex: 'countOrders',
       sorter: (a, b) => a.countOrders - b.countOrders,
     },
     {
-      title: 'Collateral',
+      title: t('Collateral'),
       key: 'collateral',
       dataIndex: 'collateral',
       render: (value) => renderBalance(value, network.tokens.ring.symbol),
       sorter: (a, b) => a.collateral.cmp(b.collateral),
     },
     {
-      title: 'Quote',
+      title: t('Quote'),
       key: 'quote',
       dataIndex: 'quote',
       render: (value) => renderBalance(value, network.tokens.ring.symbol),
       sorter: (a, b) => a.quote.cmp(b.quote),
     },
     {
-      title: 'Sum(reward)',
+      title: t('Sum(reward)'),
       key: 'sumReward',
       dataIndex: 'sumReward',
       render: (value) => renderBalance(value, network.tokens.ring.symbol),
       sorter: (a, b) => a.sumReward.cmp(b.sumReward),
     },
     {
-      title: 'Sum(slash)',
+      title: t('Sum(slash)'),
       key: 'sumSlash',
       dataIndex: 'sumSlash',
       render: (value) => renderBalance(value, network.tokens.ring.symbol),
@@ -197,16 +199,16 @@ export const Relayers = ({ destination }: { destination: CrossChainDestination }
       <div className="flex items-end justify-between">
         <Radio.Group onChange={(e) => setTab(e.target.value)} value={tab}>
           <Radio.Button value={RelayerTab.ALL}>
-            <span>All Relayers</span>
+            <span>{t('All Relayers')}</span>
           </Radio.Button>
           <Radio.Button value={RelayerTab.ASSIGNED}>
-            <span>Assigned Relayers</span>
+            <span>{t('Assigned Relayers')}</span>
           </Radio.Button>
         </Radio.Group>
         <Input
           size="large"
           className="mb-2 w-96"
-          placeholder="Filter by relayer address"
+          placeholder={t('Filter by relayer address')}
           onChange={handleFilterChange}
         />
       </div>
