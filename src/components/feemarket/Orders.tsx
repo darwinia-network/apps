@@ -193,18 +193,15 @@ export const Orders = ({ destination }: { destination: CrossChainDestination }) 
     setDataSource(
       // eslint-disable-next-line complexity
       dataSourceRef.current.filter((item) => {
-        if (duration) {
-          if (
-            !(duration[0].isBefore(item.createTime) && (item.finishTime ? duration[1].isAfter(item.finishTime) : true))
-          ) {
-            return false;
-          }
+        if (
+          duration &&
+          !(duration[0].isBefore(item.createTime) && (item.finishTime ? duration[1].isAfter(item.finishTime) : true))
+        ) {
+          return false;
         }
 
-        if (block) {
-          if (!(item.startBlock === block || item.confirmBlock === block)) {
-            return false;
-          }
+        if (block && !(item.startBlock === block || item.confirmBlock === block)) {
+          return false;
         }
 
         switch (state) {
