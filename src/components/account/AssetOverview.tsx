@@ -5,16 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { from, Subscription } from 'rxjs';
 import { useApi, useWallet, useAccount } from '../../hooks';
 import { AssetOverviewProps, DarwiniaAsset } from '../../model';
-import {
-  fromWei,
-  getUnit,
-  insufficientBalanceRule,
-  isRing,
-  isSameAddress,
-  prettyNumber,
-  toWei,
-  isValidAddress,
-} from '../../utils';
+import { fromWei, getUnit, insufficientBalanceRule, isRing, prettyNumber, toWei, isValidAddress } from '../../utils';
 import { FormModal } from '../widget/FormModal';
 import { PrettyAmount } from '../widget/PrettyAmount';
 import { BalanceControl } from '../widget/form-control/BalanceControl';
@@ -105,6 +96,11 @@ export function AssetOverview({ asset, loading, refresh }: AssetOverviewProps) {
           refresh();
         }}
         onCancel={() => setIsVisible(false)}
+        onValuesChange={(value) => {
+          if (value?.to !== undefined) {
+            setRecipient(value.to);
+          }
+        }}
         initialValues={{ from: account?.displayAddress || '', to: recipient }}
         extrinsic={(values) => {
           const { to, amount } = values;
@@ -135,20 +131,7 @@ export function AssetOverview({ asset, loading, refresh }: AssetOverviewProps) {
           disabled
         ></AddressItem>
 
-        <AddressItem
-          name="to"
-          label={'Receiver'}
-          rules={[
-            {
-              validator(_, value) {
-                setRecipient(value);
-                return !isSameAddress(account?.displayAddress || '', value) ? Promise.resolve() : Promise.reject();
-              },
-              message: t('The sending address and the receiving address cannot be the same'),
-            },
-          ]}
-          extra={null}
-        />
+        <AddressItem name="to" label={'Receiver'} extra={null} />
 
         <Form.Item
           name="amount"
