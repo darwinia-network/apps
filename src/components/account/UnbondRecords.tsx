@@ -11,6 +11,7 @@ import { useApi, useAccount, useQueue, useStaking, useSlashingSpans, useBlockTim
 import { UnbondType, UnbondDataSourceState } from '../staking/interface';
 import { fromWei, prettyNumber, processTime } from '../../utils';
 import { DATE_FORMAT, FOURTEEN_DAYS_IN_MILLISECOND } from '../../config';
+import { Rebond } from '../staking/action';
 
 type CurrentBlockTime = { block: number; time: number };
 
@@ -114,16 +115,17 @@ export const UnbondRecords = ({ dataSource }: { dataSource: UnbondDataSourceStat
       key: 'status',
       dataIndex: 'status',
       align: 'center',
-      render: (value: UnbondType) =>
-        value === UnbondType.UNBONDED ? (
-          <div className="flex justify-center">
+      render: (value: UnbondType) => (
+        <div className="flex justify-center">
+          {value === UnbondType.UNBONDED ? (
             <Button onClick={handleWithdraw} className="p-0 flex items-center justify-center w-28">
               {t('Withdraw')}
             </Button>
-          </div>
-        ) : (
-          '-'
-        ),
+          ) : (
+            <Rebond type="default" className="p-0 flex items-center justify-center w-28" />
+          )}
+        </div>
+      ),
     },
   ];
 
