@@ -10,7 +10,7 @@ import type { DarwiniaStakingStructsStakingLedger } from '../../api-derive/types
 import { UnbondRecords } from './UnbondRecords';
 import { LockedRecords } from './LockedRecords';
 
-const calcuUnondedOrUndonding = (
+const calcuUnbondedOrUnbonding = (
   unbondeds: UnbondDataSourceState[],
   unbondings: UnbondDataSourceState[],
   symbol: string,
@@ -55,14 +55,14 @@ export function StakingRecords() {
   useEffect(() => {
     const [ringUnbondeds, ringUnbondings] = ledger?.ringStakingLock.unbondings.reduce(
       ([unbondeds, unbondings], { amount, until }) => {
-        return calcuUnondedOrUndonding(unbondeds, unbondings, network.tokens.ring.symbol, amount, until, bestNumber);
+        return calcuUnbondedOrUnbonding(unbondeds, unbondings, network.tokens.ring.symbol, amount, until, bestNumber);
       },
       [[], []] as [UnbondDataSourceState[], UnbondDataSourceState[]]
     ) || [[], []];
 
     const [ktonUnbondeds, ktonUnbondings] = ledger?.ktonStakingLock.unbondings.reduce(
       ([unbondeds, unbondings], { amount, until }) => {
-        return calcuUnondedOrUndonding(unbondeds, unbondings, network.tokens.kton.symbol, amount, until, bestNumber);
+        return calcuUnbondedOrUnbonding(unbondeds, unbondings, network.tokens.kton.symbol, amount, until, bestNumber);
       },
       [[], []] as [UnbondDataSourceState[], UnbondDataSourceState[]]
     ) || [[], []];
