@@ -9,6 +9,12 @@ export const LONG_LONG_DURATION = 30 * 1000;
 
 export const ONE_DAY_IN_MILLISECOND = 24 * 60 * 60 * 1000;
 
+export const SEVEN_DAYS_IN_MILLISECOND = 7 * ONE_DAY_IN_MILLISECOND;
+
+export const FOURTEEN_DAYS_IN_MILLISECOND = 14 * ONE_DAY_IN_MILLISECOND;
+
+export const THIRTY_DAYS_IN_MILLISECOND = 30 * ONE_DAY_IN_MILLISECOND;
+
 export const DATE_FORMAT = 'yyyy/MM/dd';
 
 export const DATE_TIME_FORMATE = 'yyyy/MM/dd HH:mm:ss';
