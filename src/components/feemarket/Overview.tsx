@@ -207,7 +207,6 @@ export const Overview = ({ destination }: { destination: CrossChainDestination }
       },
       series: [
         {
-          // eslint-disable-next-line no-magic-numbers
           data: totalOrders.data,
           type: 'bar',
         },
