@@ -26,7 +26,7 @@ const calcuStakingTime = (until: BlockNumber, current: CurrentBlockTime | undefi
   return { startTime, expireTime };
 };
 
-export const UnbondRecords = ({ dataSource }: { dataSource: UnbondDataSourceState[] }) => {
+export const UnbondRecords = ({ dataSource, loading }: { dataSource: UnbondDataSourceState[]; loading: boolean }) => {
   const { api, network } = useApi();
   const { refreshAssets } = useAccount();
   const { queueExtrinsic } = useQueue();
@@ -134,6 +134,7 @@ export const UnbondRecords = ({ dataSource }: { dataSource: UnbondDataSourceStat
       rowKey={(record) => `${record.amount.toString()}-${record.status}-${record.symbol}-${record.until.toString()}`}
       columns={columns}
       dataSource={dataSource}
+      loading={loading}
       className="whitespace-nowrap"
     />
   );

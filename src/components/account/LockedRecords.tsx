@@ -44,7 +44,13 @@ const calcFine = (record: DataSourceState): string => {
   return fromWei({ value: rewardOrigin.minus(rewardActual).multipliedBy(times).toString() });
 };
 
-export const LockedRecords = ({ locks }: { locks: DarwiniaStakingStructsTimeDepositItem[] }) => {
+export const LockedRecords = ({
+  locks,
+  loading,
+}: {
+  locks: DarwiniaStakingStructsTimeDepositItem[];
+  loading: boolean;
+}) => {
   const { api, network } = useApi();
   const { account } = useAccount();
   const { queueExtrinsic } = useQueue();
@@ -189,7 +195,13 @@ export const LockedRecords = ({ locks }: { locks: DarwiniaStakingStructsTimeDepo
 
   return (
     <>
-      <Table rowKey={'index'} columns={columns} dataSource={dataSource} className="whitespace-nowrap" />
+      <Table
+        rowKey={'index'}
+        columns={columns}
+        dataSource={dataSource}
+        loading={loading}
+        className="whitespace-nowrap"
+      />
 
       <Modal
         title={t('Confirm to continue')}

@@ -30,6 +30,7 @@ export function StakingRecords() {
   const { controllerAccount } = useStaking();
   const { bestNumber } = useBestNumber();
   const { t } = useTranslation();
+  const [loading, setLoading] = useState(false);
   const [activeKey, setActiveKey] = useState(StakingRecordType.LOCKS);
   const [ledger, setLedger] = useState<DarwiniaStakingStructsStakingLedger | null>();
   const [unbondedDataSource, setUnondedDataSource] = useState<UnbondDataSourceState[]>([]);
@@ -41,11 +42,13 @@ export function StakingRecords() {
       return;
     }
 
+    setLoading(true);
     let unsub: () => void = () => undefined;
 
     (async () => {
       unsub = await api.query.staking.ledger(controllerAccount, (res: Option<DarwiniaStakingStructsStakingLedger>) => {
         setLedger(res.isSome ? res.unwrap() : null);
+        setLoading(false);
       });
     })();
 
@@ -82,7 +85,7 @@ export function StakingRecords() {
           key={StakingRecordType.LOCKS}
           tab={<CustomTab text={t(StakingRecordType.LOCKS)} tabKey={StakingRecordType.LOCKS} activeKey={activeKey} />}
         >
-          <LockedRecords locks={ledger?.depositItems || []} />
+          <LockedRecords locks={ledger?.depositItems || []} loading={loading} />
         </Tabs.TabPane>
         <Tabs.TabPane
           key={StakingRecordType.UNBONDING}
@@ -94,7 +97,7 @@ export function StakingRecords() {
             />
           }
         >
-          <UnbondRecords dataSource={unbondingDataSource} />
+          <UnbondRecords dataSource={unbondingDataSource} loading={loading} />
         </Tabs.TabPane>
         <Tabs.TabPane
           key={StakingRecordType.UNBONDED}
@@ -102,7 +105,7 @@ export function StakingRecords() {
             <CustomTab text={t(StakingRecordType.UNBONDED)} tabKey={StakingRecordType.UNBONDED} activeKey={activeKey} />
           }
         >
-          <UnbondRecords dataSource={unbondedDataSource} />
+          <UnbondRecords dataSource={unbondedDataSource} loading={loading} />
         </Tabs.TabPane>
       </Tabs>
     </Card>
