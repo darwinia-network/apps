@@ -14,9 +14,12 @@ import { DATE_FORMAT } from '../../config';
 
 type CurrentBlockTime = { block: number; time: number };
 
-const calcuUntil = (until: BlockNumber, current: CurrentBlockTime | undefined, period: number) => {
+const formatUntil = (until: BlockNumber, current: CurrentBlockTime | undefined, period: number) => {
   if (current && period) {
-    return format(new Date((until.toNumber() - current.block) * period + current.time), DATE_FORMAT);
+    return `#${until.toNumber()} (≈${format(
+      new Date((until.toNumber() - current.block) * period + current.time),
+      DATE_FORMAT
+    )})`;
   } else {
     return `#${until.toNumber()}`;
   }
@@ -84,7 +87,7 @@ export const UnbondRecords = ({ dataSource }: { dataSource: UnbondDataSourceStat
       key: 'until',
       dataIndex: 'until',
       align: 'center',
-      render: (value: BlockNumber) => <span>{calcuUntil(value, currentBlockTime, blockTime)}</span>,
+      render: (value: BlockNumber) => <span>{formatUntil(value, currentBlockTime, blockTime)}</span>,
     },
     {
       title: 'Status',
