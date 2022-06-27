@@ -90,7 +90,7 @@ export const UnbondRecords = ({ dataSource }: { dataSource: UnbondDataSourceStat
       render: (value: BlockNumber) => <span>{formatUntil(value, currentBlockTime, blockTime)}</span>,
     },
     {
-      title: 'Status',
+      title: 'Action',
       key: 'status',
       dataIndex: 'status',
       align: 'center',

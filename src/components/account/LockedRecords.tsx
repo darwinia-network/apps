@@ -161,7 +161,7 @@ export const LockedRecords = ({ locks }: { locks: DarwiniaStakingStructsTimeDepo
       ),
     },
     {
-      title: 'Status',
+      title: 'Action',
       key: 'status',
       dataIndex: 'status',
       align: 'center',
