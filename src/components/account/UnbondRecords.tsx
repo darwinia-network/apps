@@ -2,27 +2,27 @@ import type { BlockNumber } from '@polkadot/types/interfaces';
 import type { u64 } from '@polkadot/types';
 import type { ColumnsType } from 'antd/lib/table';
 import { useCallback, useEffect, useState } from 'react';
-import { Button, Table } from 'antd';
+import { Button, Table, Progress } from 'antd';
 import { useTranslation } from 'react-i18next';
 import { format } from 'date-fns';
 import { forkJoin, from } from 'rxjs';
 
 import { useApi, useAccount, useQueue, useStaking, useSlashingSpans, useBlockTime } from '../../hooks';
 import { UnbondType, UnbondDataSourceState } from '../staking/interface';
-import { fromWei, prettyNumber } from '../../utils';
-import { DATE_FORMAT } from '../../config';
+import { fromWei, prettyNumber, processTime } from '../../utils';
+import { DATE_FORMAT, FOURTEEN_DAYS_IN_MILLISECOND } from '../../config';
 
 type CurrentBlockTime = { block: number; time: number };
 
-const formatUntil = (until: BlockNumber, current: CurrentBlockTime | undefined, period: number) => {
+const calcuStakingTime = (until: BlockNumber, current: CurrentBlockTime | undefined, period: number) => {
+  let startTime = 0;
+  let expireTime = 0;
+
   if (current && period) {
-    return `#${until.toNumber()} (≈${format(
-      new Date((until.toNumber() - current.block) * period + current.time),
-      DATE_FORMAT
-    )})`;
-  } else {
-    return `#${until.toNumber()}`;
+    expireTime = (until.toNumber() - current.block) * period + current.time;
+    startTime = expireTime - FOURTEEN_DAYS_IN_MILLISECOND;
   }
+  return { startTime, expireTime };
 };
 
 export const UnbondRecords = ({ dataSource }: { dataSource: UnbondDataSourceState[] }) => {
@@ -83,11 +83,31 @@ export const UnbondRecords = ({ dataSource }: { dataSource: UnbondDataSourceStat
       ),
     },
     {
-      title: 'Until',
+      title: 'Duration',
       key: 'until',
       dataIndex: 'until',
       align: 'center',
-      render: (value: BlockNumber) => <span>{formatUntil(value, currentBlockTime, blockTime)}</span>,
+      width: '30%',
+      render: (value: BlockNumber) => {
+        const { startTime, expireTime } = calcuStakingTime(value, currentBlockTime, blockTime);
+
+        return (
+          <div className="px-4">
+            <div className="flex justify-between items-center">
+              <span>{format(new Date(startTime), DATE_FORMAT)}</span>
+              <span className="mx-2">-</span>
+              <span>{format(new Date(expireTime), DATE_FORMAT)}</span>
+            </div>
+            <Progress
+              percent={processTime(startTime, expireTime)}
+              showInfo={false}
+              status="normal"
+              strokeWidth={4}
+              trailColor="#EBEBEB"
+            />
+          </div>
+        );
+      },
     },
     {
       title: 'Action',

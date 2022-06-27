@@ -1,5 +1,5 @@
 import { Table, Progress, Button, Modal } from 'antd';
-import { format, getUnixTime } from 'date-fns';
+import { format } from 'date-fns';
 import { useState, useCallback, useEffect } from 'react';
 import { BN } from '@polkadot/util';
 import type { Balance } from '@polkadot/types/interfaces';
@@ -9,7 +9,7 @@ import type { ColumnsType } from 'antd/lib/table';
 
 import { useApi, useQueue, useAccount, useStaking } from '../../hooks';
 import { DATE_FORMAT, THIRTY_DAYS_IN_MILLISECOND } from '../../config';
-import { fromWei, prettyNumber, ringToKton } from '../../utils';
+import { fromWei, prettyNumber, ringToKton, processTime } from '../../utils';
 import type { DarwiniaStakingStructsTimeDepositItem, TsInMs } from '../../api-derive/types';
 
 enum LockStatus {
@@ -42,12 +42,6 @@ const calcFine = (record: DataSourceState): string => {
   const times = 3;
 
   return fromWei({ value: rewardOrigin.minus(rewardActual).multipliedBy(times).toString() });
-};
-const processTime = (start: number, expire: number): number => {
-  const now = getUnixTime(new Date());
-  const end = getUnixTime(expire);
-
-  return end <= now ? 100 : 100 - ((end - now) / (end - getUnixTime(start))) * 100;
 };
 
 export const LockedRecords = ({ locks }: { locks: DarwiniaStakingStructsTimeDepositItem[] }) => {
