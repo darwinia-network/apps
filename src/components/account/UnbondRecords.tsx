@@ -1,20 +1,36 @@
 import type { BlockNumber } from '@polkadot/types/interfaces';
+import type { u64 } from '@polkadot/types';
 import type { ColumnsType } from 'antd/lib/table';
-import { useCallback } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Button, Table } from 'antd';
 import { useTranslation } from 'react-i18next';
+import { format } from 'date-fns';
+import { forkJoin, from } from 'rxjs';
 
-import { useApi, useAccount, useQueue, useStaking, useSlashingSpans } from '../../hooks';
+import { useApi, useAccount, useQueue, useStaking, useSlashingSpans, useBlockTime } from '../../hooks';
 import { UnbondType, UnbondDataSourceState } from '../staking/interface';
 import { fromWei, prettyNumber } from '../../utils';
+import { DATE_FORMAT } from '../../config';
+
+type CurrentBlockTime = { block: number; time: number };
+
+const calcuUntil = (until: BlockNumber, current: CurrentBlockTime | undefined, period: number) => {
+  if (current && period) {
+    return format(new Date((until.toNumber() - current.block) * period + current.time), DATE_FORMAT);
+  } else {
+    return `#${until.toNumber()}`;
+  }
+};
 
 export const UnbondRecords = ({ dataSource }: { dataSource: UnbondDataSourceState[] }) => {
   const { api, network } = useApi();
   const { refreshAssets } = useAccount();
   const { queueExtrinsic } = useQueue();
+  const [blockTime] = useBlockTime(1); // milliseconds
   const { controllerAccount, stashAccount, updateStakingDerive } = useStaking();
   const { spanCount } = useSlashingSpans(stashAccount);
   const { t } = useTranslation();
+  const [currentBlockTime, setCurrentBlockTime] = useState<CurrentBlockTime>();
 
   const handleWithdraw = useCallback(() => {
     queueExtrinsic({
@@ -29,6 +45,19 @@ export const UnbondRecords = ({ dataSource }: { dataSource: UnbondDataSourceStat
       },
     });
   }, [api, controllerAccount, spanCount, queueExtrinsic, refreshAssets, updateStakingDerive]);
+
+  useEffect(() => {
+    const sub$$ = forkJoin([api.rpc.chain.getHeader(), from(api.query.timestamp.now() as Promise<u64>)]).subscribe(
+      ([header, now]) => {
+        setCurrentBlockTime({
+          block: header.number.toNumber(),
+          time: now.toNumber(),
+        });
+      }
+    );
+
+    return () => sub$$.unsubscribe();
+  }, [api]);
 
   const columns: ColumnsType<UnbondDataSourceState> = [
     {
@@ -55,7 +84,7 @@ export const UnbondRecords = ({ dataSource }: { dataSource: UnbondDataSourceStat
       key: 'until',
       dataIndex: 'until',
       align: 'center',
-      render: (value: BlockNumber) => <span>{value}</span>,
+      render: (value: BlockNumber) => <span>{calcuUntil(value, currentBlockTime, blockTime)}</span>,
     },
     {
       title: 'Status',
