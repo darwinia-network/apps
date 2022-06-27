@@ -116,7 +116,7 @@ export interface TotalOrdersAndFeeHistory {
 }
 
 export type ChartState = {
-  date: string[];
+  dates: string[];
   data: string[];
 };
 

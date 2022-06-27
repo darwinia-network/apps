@@ -91,13 +91,13 @@ export const RelayerDetail = ({
   const [rewardSlashSegmented, setRewardSlashSegmented] = useState(SegmentedType.ALL);
 
   const [dataSource, setDataSource] = useState<RelayerData[]>([]);
-  const [feeHistoryState, setFeeHistoryState] = useState<ChartState>({ date: [], data: [] });
+  const [feeHistoryState, setFeeHistoryState] = useState<ChartState>({ dates: [], data: [] });
   const [rewardsAndSlashsState, setRewardsAndSlashsState] = useState<{
-    date: string[];
+    dates: string[];
     slash: string[];
     reward: string[];
   }>({
-    date: [],
+    dates: [],
     slash: [],
     reward: [],
   });
@@ -234,7 +234,7 @@ export const RelayerDetail = ({
           return acc;
         }, {} as Record<string, BN>) || {};
 
-      const rewardAndSlashDate = Array.from(
+      const rewardAndSlashDates = Array.from(
         Object.keys(slashDaysCount)
           .concat(Object.keys(rewardDaysCount))
           .reduce((acc, cur) => {
@@ -244,8 +244,8 @@ export const RelayerDetail = ({
       ).sort((a, b) => compareAsc(new Date(a), new Date(b)));
 
       setRewardsAndSlashsState({
-        date: rewardAndSlashDate,
-        ...(rewardAndSlashDate.reduce(
+        dates: rewardAndSlashDates,
+        ...(rewardAndSlashDates.reduce(
           ({ slash, reward }, day) => {
             reward.push(rewardDaysCount[day] ? fromWei({ value: rewardDaysCount[day] }, prettyNumber) : '0');
             slash.push(slashDaysCount[day] ? fromWei({ value: slashDaysCount[day] }, prettyNumber) : '0');
@@ -255,7 +255,7 @@ export const RelayerDetail = ({
         ) || { reward: [], slash: [] }),
       });
     } else {
-      setRewardsAndSlashsState({ date: [], slash: [], reward: [] });
+      setRewardsAndSlashsState({ dates: [], slash: [], reward: [] });
     }
   }, [rewardsAndSlashsData?.relayerEntity]);
 
@@ -264,11 +264,11 @@ export const RelayerDetail = ({
       const fees = feeHistoryData.relayerEntity.feeHistory?.nodes || [];
 
       setFeeHistoryState({
-        date: fees.map((fee) => format(new Date(fee.newfeeTime), DATE_FORMAT)),
+        dates: fees.map((fee) => format(new Date(fee.newfeeTime), DATE_FORMAT)),
         data: fees.map((fee) => fromWei({ value: fee.fee }, prettyNumber)),
       });
     } else {
-      setFeeHistoryState({ date: [], data: [] });
+      setFeeHistoryState({ dates: [], data: [] });
     }
   }, [feeHistoryData?.relayerEntity]);
 
@@ -349,7 +349,7 @@ export const RelayerDetail = ({
       xAxis: [
         {
           type: 'category',
-          data: rewardsAndSlashsState.date,
+          data: rewardsAndSlashsState.dates,
           axisPointer: {
             type: 'shadow',
           },
@@ -407,7 +407,7 @@ export const RelayerDetail = ({
       },
       xAxis: {
         type: 'category',
-        data: feeHistoryState.date,
+        data: feeHistoryState.dates,
       },
       yAxis: {
         type: 'value',

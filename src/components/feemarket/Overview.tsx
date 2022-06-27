@@ -51,8 +51,8 @@ export const Overview = ({ destination }: { destination: CrossChainDestination }
   const [feeSgmentedType, setFeeSegmentedType] = useState(SegmentedType.ALL);
   const [orderSegmentedType, setOrderSegmentedType] = useState(SegmentedType.ALL);
 
-  const [feeHistory, setFeeHistory] = useState<ChartState>({ date: [], data: [] });
-  const [totalOrders, setTotalOrders] = useState<ChartState>({ date: [], data: [] });
+  const [feeHistory, setFeeHistory] = useState<ChartState>({ dates: [], data: [] });
+  const [totalOrders, setTotalOrders] = useState<ChartState>({ dates: [], data: [] });
   const [currentFee, setCurrentFee] = useState<{ value?: Balance; loading: boolean }>({ loading: true });
   const [totalRelayers, setTotalRelayers] = useState<{ total: number; inactive: number; loading: boolean }>({
     total: 0,
@@ -154,17 +154,17 @@ export const Overview = ({ destination }: { destination: CrossChainDestination }
   }, [inProgressOrders, api, destination]);
 
   useEffect(() => {
-    const { date, data } = feeHistoryData?.orderEntities?.nodes.reduce(
-      ({ date, data }, { fee, createTime }) => {
-        date.push(createTime.split('.')[0].replace(/-/g, '/'));
+    const { dates, data } = feeHistoryData?.orderEntities?.nodes.reduce(
+      ({ dates, data }, { fee, createTime }) => {
+        dates.push(createTime.split('.')[0].replace(/-/g, '/'));
         data.push(fromWei({ value: fee }, prettyNumber));
 
-        return { date, data };
+        return { dates, data };
       },
-      { date: [], data: [] } as { date: string[]; data: string[] }
-    ) || { date: [], data: [] };
+      { dates: [], data: [] } as ChartState
+    ) || { dates: [], data: [] };
 
-    setFeeHistory({ date, data });
+    setFeeHistory({ dates, data });
   }, [feeHistoryData?.orderEntities?.nodes]);
 
   useEffect(() => {
@@ -175,17 +175,17 @@ export const Overview = ({ destination }: { destination: CrossChainDestination }
         return acc;
       }, {} as Record<string, number>) || {};
 
-    const { date, data } = Object.keys(daysCount).reduce(
-      ({ date, data }, day) => {
-        date.push(day.replace(/-/g, '/'));
+    const { dates, data } = Object.keys(daysCount).reduce(
+      ({ dates, data }, day) => {
+        dates.push(day.replace(/-/g, '/'));
         data.push(daysCount[day].toString());
 
-        return { date, data };
+        return { dates, data };
       },
-      { date: [], data: [] } as { date: string[]; data: string[] }
-    ) || { date: [], data: [] };
+      { dates: [], data: [] } as ChartState
+    ) || { dates: [], data: [] };
 
-    setTotalOrders({ date, data });
+    setTotalOrders({ dates, data });
   }, [totalOrdersData?.orderEntities?.nodes]);
 
   useEffect(() => {
@@ -200,7 +200,7 @@ export const Overview = ({ destination }: { destination: CrossChainDestination }
       },
       xAxis: {
         type: 'category',
-        data: totalOrders.date,
+        data: totalOrders.dates,
       },
       yAxis: {
         type: 'value',
@@ -232,7 +232,7 @@ export const Overview = ({ destination }: { destination: CrossChainDestination }
       },
       xAxis: {
         type: 'category',
-        data: feeHistory.date,
+        data: feeHistory.dates,
       },
       yAxis: {
         type: 'value',
