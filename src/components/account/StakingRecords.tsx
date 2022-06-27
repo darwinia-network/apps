@@ -9,7 +9,7 @@ import type { DarwiniaStakingStructsStakingLedger } from '../../api-derive/types
 import { UnbondRecords } from './UnbondRecords';
 import { LockedRecords } from './LockedRecords';
 
-export function StakingHistory() {
+export function StakingRecords() {
   const { api, network } = useApi();
   const { controllerAccount } = useStaking();
   const { bestNumber } = useBestNumber();

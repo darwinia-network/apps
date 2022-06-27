@@ -2,7 +2,7 @@ import { Button, Card, Tabs } from 'antd';
 import { useTranslation } from 'react-i18next';
 import { withRouter } from 'react-router-dom';
 import { useState } from 'react';
-import { StakingHistory } from '../components/account/StakingHistory';
+import { StakingRecords } from '../components/account/StakingRecords';
 import { AssetOverview } from '../components/account/AssetOverview';
 import { useAccount, useApi } from '../hooks';
 import { CustomTab } from '../components/widget/CustomTab';
@@ -35,7 +35,7 @@ function Page() {
           ))}
         </div>
 
-        <StakingHistory />
+        <StakingRecords />
       </Tabs.TabPane>
 
       <Tabs.TabPane key="cross" tab={<CustomTab text={t('Cross Chain')} tabKey="cross" activeKey={activeKey} />}>
