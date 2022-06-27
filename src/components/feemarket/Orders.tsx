@@ -35,8 +35,8 @@ type OrderData = {
   deliveryRelayer?: string | null;
   confirmationRelayer?: string | null;
   assignedRelayer?: string;
-  startBlock: number;
-  confirmBlock?: number | null;
+  createBlock: number;
+  finishBlock?: number | null;
   sender: string;
   createTime: string;
   finishTime?: string | null;
@@ -138,8 +138,8 @@ export const Orders = ({ destination }: { destination: CrossChainDestination }) 
     },
     {
       title: 'Start Block',
-      key: 'startBlock',
-      dataIndex: 'startBlock',
+      key: 'createBlock',
+      dataIndex: 'createBlock',
       render: (value, record) => (
         <div className="flex flex-col justify-center">
           <SubscanLink network={network.name} block={value} prefix="#" />
@@ -149,8 +149,8 @@ export const Orders = ({ destination }: { destination: CrossChainDestination }) 
     },
     {
       title: 'Confirm Block',
-      key: 'confirmBlock',
-      dataIndex: 'confirmBlock',
+      key: 'finishBlock',
+      dataIndex: 'finishBlock',
       render: (value, record) =>
         value ? (
           <div className="flex flex-col justify-center">
@@ -200,7 +200,7 @@ export const Orders = ({ destination }: { destination: CrossChainDestination }) 
           return false;
         }
 
-        if (block && !(item.startBlock === block || item.confirmBlock === block)) {
+        if (block && !(item.createBlock === block || item.finishBlock === block)) {
           return false;
         }
 
@@ -255,16 +255,11 @@ export const Orders = ({ destination }: { destination: CrossChainDestination }) 
 
   useEffect(() => {
     dataSourceRef.current = (totalOrdersData?.orderEntities?.nodes || []).map((node) => ({
+      ...node,
       orderId: node.id.split('-')[1],
       deliveryRelayer: node.deliveredRelayerId?.split('-')[1],
       confirmationRelayer: node.confirmedRelayerId?.split('-')[1],
       assignedRelayer: node.assignedRelayerId?.split('-')[1],
-      startBlock: node.createBlock,
-      confirmBlock: node.finishBlock,
-      createTime: node.createTime,
-      finishTime: node.finishTime,
-      sender: node.sender,
-      confirmedSlotIndex: node.confirmedSlotIndex,
     }));
 
     setDataSource(dataSourceRef.current);
