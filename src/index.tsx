@@ -9,7 +9,14 @@ import { ErrorBoundary } from './components/widget/ErrorBoundary';
 import { BallScalePulse } from './components/widget/BallScalePulse';
 import { THEME } from './config';
 import './index.scss';
-import { AccountProvider, ApiProvider, QueueProvider, StakingProvider, WalletProvider } from './providers';
+import {
+  AccountProvider,
+  ApiProvider,
+  QueueProvider,
+  StakingProvider,
+  WalletProvider,
+  FeeMarketProvider,
+} from './providers';
 import reportWebVitals from './reportWebVitals';
 import './theme/antd/index.less';
 import { readStorage } from './utils';
@@ -33,7 +40,9 @@ ReactDOM.render(
             <AccountProvider>
               <QueueProvider>
                 <StakingProvider>
-                  <App />
+                  <FeeMarketProvider>
+                    <App />
+                  </FeeMarketProvider>
                 </StakingProvider>
               </QueueProvider>
             </AccountProvider>

@@ -1,5 +1,5 @@
 import { Typography } from 'antd';
-import { CSSProperties, PropsWithChildren } from 'react';
+import { CSSProperties, PropsWithChildren, ReactNode } from 'react';
 import { Network } from '../../model';
 
 const { Link } = Typography;
@@ -14,6 +14,7 @@ interface SubscanLinkProps extends PropsWithChildren<unknown> {
   style?: CSSProperties;
   txHash?: string;
   query?: string;
+  prefix?: ReactNode;
 }
 
 // eslint-disable-next-line complexity
@@ -26,6 +27,7 @@ export function SubscanLink({
   block,
   txHash,
   query,
+  prefix,
   ...other
 }: SubscanLinkProps) {
   if (address) {
@@ -53,7 +55,7 @@ export function SubscanLink({
   if (txHash) {
     return (
       <Link href={`https://${network}.subscan.io/extrinsic/${txHash}`} target="_blank" {...other}>
-        {children}
+        {children || txHash}
       </Link>
     );
   }
@@ -61,6 +63,7 @@ export function SubscanLink({
   if (block) {
     return (
       <Link href={`https://${network}.subscan.io/block/${block}`} target="_blank" {...other}>
+        {prefix}
         {children || block}
       </Link>
     );

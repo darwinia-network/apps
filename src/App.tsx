@@ -13,10 +13,11 @@ import { ConnectWallet } from './components/widget/ConnectWallet';
 import { ActiveAccount } from './components/widget/account/ActiveAccount';
 import { Language } from './components/widget/Language';
 import { getActiveNav, SideNav } from './components/widget/SideNav';
+import { CrossChainDestinationSelector } from './components/widget/CrossChainDestinationSelector';
 import { toggleTheme } from './components/widget/ThemeSwitch';
 import { THEME } from './config';
 import { routes } from './config/routes';
-import { useApi } from './hooks';
+import { useApi, useFeeMarket } from './hooks';
 import { readStorage, updateStorage } from './utils';
 
 const { Sider, Content } = Layout;
@@ -116,6 +117,7 @@ function IntroGuide() {
 function App() {
   const { t } = useTranslation();
   const { network } = useApi();
+  const { supportedDestinations, setDestination } = useFeeMarket();
   const [theme] = useState<THEME>(readStorage().theme ?? THEME.LIGHT);
   const location = useLocation();
   const [collapsed, setCollapsed] = useState(false);
@@ -149,11 +151,14 @@ function App() {
                 <Logo withText />
               </div>
 
-              <h2
-                className={`font-semibold not-italic text-2xl bg-${network.name} text-transparent hidden lg:block bg-clip-text`}
-              >
-                {t(activeNav.length ? activeNav[0].label : '')}
-              </h2>
+              <div className="flex items-center space-x-3">
+                <h2
+                  className={`font-semibold not-italic text-2xl bg-${network.name} text-transparent hidden lg:block bg-clip-text`}
+                >
+                  {t(activeNav.length ? activeNav[0].label : '')}
+                </h2>
+                <CrossChainDestinationSelector destinations={supportedDestinations} onSelect={setDestination} />
+              </div>
             </div>
 
             <div className="flex items-center gap-4">

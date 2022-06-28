@@ -11,3 +11,4 @@ export * from './assets';
 export * from './wallet';
 export * from './bestNumber';
 export * from './blockTime';
+export * from './feemarket';

@@ -5,8 +5,8 @@
   "scripts": {
     "start": "cross-env CHOKIDAR_USEPOLLING=1 PORT=3006 craco start",
     "start:dev": "cross-env PORT=3006 REACT_APP_HOST_TYPE=dev craco start",
-    "build": "cross-env CI=false GENERATE_SOURCEMAP=false craco build --max_old_space_size=2048",
-    "build:dev": "cross-env CI=false REACT_APP_HOST_TYPE=dev craco build --max_old_space_size=2048",
+    "build": "cross-env CI=false GENERATE_SOURCEMAP=false craco --max_old_space_size=4096 build",
+    "build:dev": "cross-env CI=false REACT_APP_HOST_TYPE=dev craco --max_old_space_size=4096 build",
     "stylelint": "stylelint \"src/**/*.scss\" --config stylelint.config.js",
     "i18next:scanner": "i18next-scanner --config i18next-scanner.config.js",
     "lint": "eslint './src/**/*.{ts,tsx}' -c .eslintrc.js --fix",
@@ -16,6 +16,7 @@
   },
   "dependencies": {
     "@ant-design/icons": "^4.6.2",
+    "@apollo/client": "^3.6.8",
     "@craco/craco": "^6.1.2",
     "@darwinia/types": "^2.7.2",
     "@fontsource/ibm-plex-sans": "^4.5.2",
@@ -31,8 +32,9 @@
     "craco-antd": "^1.19.0",
     "date-fns": "^2.22.1",
     "date-fns-tz": "^1.1.6",
+    "echarts": "^5.3.2",
     "file-saver": "^2.0.5",
-    "graphql-hooks": "^5.2.0",
+    "graphql": "^16.5.0",
     "i18next": "^20.3.1",
     "i18next-browser-languagedetector": "^6.1.1",
     "i18next-http-backend": "^1.2.6",
@@ -126,7 +128,10 @@
     ]
   },
   "lint-staged": {
-    "*.{ts,tsx}": ["prettier -w", "eslint --cache --fix"],
+    "*.{ts,tsx}": [
+      "prettier -w",
+      "eslint --cache --fix"
+    ],
     "*.{css,scss}": "stylelint --fix"
   },
   "config": {
