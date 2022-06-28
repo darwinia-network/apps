@@ -46,6 +46,10 @@ export const ClaimKton = ({
   }, [dvmAddress, api]);
 
   const handleClaimKton = useCallback(() => {
+    if (!dvmKton?.address) {
+      return;
+    }
+
     try {
       setBusy(true);
 
@@ -84,7 +88,7 @@ export const ClaimKton = ({
         description: (error as Error).message,
       });
     }
-  }, [dvmAddress, dvmKton.address, ktonToClaim, getKtonToClaim, onSuccess]);
+  }, [dvmAddress, dvmKton?.address, ktonToClaim, getKtonToClaim, onSuccess]);
 
   useEffect(() => {
     const sub$$ = getKtonToClaim();

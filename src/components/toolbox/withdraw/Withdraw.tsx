@@ -46,6 +46,7 @@ const capitalLetters = (str: string) => {
   return str.slice(0, 1).toUpperCase() + str.slice(1).toLowerCase();
 };
 
+// eslint-disable-next-line complexity
 export function Withdraw() {
   const { t } = useTranslation();
   const { api, network } = useApi();
@@ -78,8 +79,8 @@ export function Withdraw() {
   );
 
   const refreshDvmBalances = useCallback(
-    () => from(getDvmBalances(kton.address, activeAccount || '')).subscribe(setDvmBalances),
-    [activeAccount, kton.address]
+    () => from(getDvmBalances(kton?.address || '', activeAccount || '')).subscribe(setDvmBalances),
+    [activeAccount, kton?.address]
   );
 
   const handleWithdraw = useCallback(() => {
@@ -139,7 +140,7 @@ export function Withdraw() {
             setBusy(false);
           }
         });
-      } else if (asset === kton.symbol) {
+      } else if (asset === kton?.symbol) {
         const contract = new web3.eth.Contract(abi.ktonABI, kton.address);
 
         const tx = contract.methods
@@ -271,10 +272,9 @@ export function Withdraw() {
           <Form.Item label={t('Asset')} name="asset" rules={[{ required: true }]}>
             <Select
               size="large"
-              options={[
-                { label: ring.symbol, value: ring.symbol },
-                { label: kton.symbol, value: kton.symbol },
-              ]}
+              options={[{ label: ring.symbol, value: ring.symbol }].concat(
+                kton?.symbol ? [{ label: kton.symbol, value: kton.symbol }] : []
+              )}
             />
           </Form.Item>
           <Form.Item

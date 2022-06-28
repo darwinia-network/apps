@@ -16,7 +16,7 @@ function Page() {
     network: { ss58Prefix, name },
   } = useApi();
   const [address, setAddress] = useState('');
-  const displayDvm = useMemo(() => name === 'crab' || name === 'pangolin', [name]);
+  const displayDvm = useMemo(() => name === 'crab' || name === 'pangolin' || name === 'pangoro', [name]);
 
   return (
     <MetamaskProvider>

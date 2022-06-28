@@ -12,7 +12,7 @@ export interface DVMToken {
 
 interface DVMTokenConfig {
   ring: DVMToken;
-  kton: DVMToken;
+  kton?: DVMToken;
 }
 
 interface ProviderConfig {
