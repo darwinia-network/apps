@@ -76,11 +76,13 @@ export async function getDvmBalances(ktonTokenAddress: string, account: string):
       console.error(err);
     }
 
-    try {
-      const contract = new web3.eth.Contract(abi.ktonABI, ktonTokenAddress);
-      kton = await contract.methods.balanceOf(account).call();
-    } catch (err) {
-      console.error(err);
+    if (ktonTokenAddress) {
+      try {
+        const contract = new web3.eth.Contract(abi.ktonABI, ktonTokenAddress);
+        kton = await contract.methods.balanceOf(account).call();
+      } catch (err) {
+        console.error(err);
+      }
     }
   }
 
