@@ -399,7 +399,7 @@ export const Orders = ({ destination }: { destination: CrossChainDestination }) 
           )}
           <Form.Item name={`state`} label={t('State')}>
             <Select className="w-32">
-              <Select.Option value={FilterState.ALL}>{FilterState.ALL}</Select.Option>
+              <Select.Option value={FilterState.ALL}>{t(FilterState.ALL)}</Select.Option>
               <Select.Option value={FilterState.FINISHED}>
                 <Badge status="success" text={t(FilterState.FINISHED)} />
               </Select.Option>
