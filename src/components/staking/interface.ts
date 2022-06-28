@@ -1,4 +1,4 @@
-import type { Balance } from '@polkadot/types/interfaces';
+import type { Balance, BlockNumber } from '@polkadot/types/interfaces';
 import { Token } from '../../model';
 
 export interface AccountHistoryProps {
@@ -18,7 +18,7 @@ export enum UnbondType {
 
 export interface UnbondDataSourceState {
   amount: Balance;
-  until: string;
+  until: BlockNumber;
   status: UnbondType;
   symbol: string;
 }

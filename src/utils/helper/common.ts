@@ -1,6 +1,6 @@
 import { BN } from '@polkadot/util';
 import { EMPTY } from 'rxjs';
-import { addDays, fromUnixTime } from 'date-fns';
+import { addDays, fromUnixTime, getUnixTime } from 'date-fns';
 
 // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any
 export function empty(...args: any[]) {
@@ -107,4 +107,11 @@ export const checkBrower = () => {
   } else {
     return 'Unknown';
   }
+};
+
+export const processTime = (start: number, expire: number): number => {
+  const now = getUnixTime(new Date());
+  const end = getUnixTime(expire);
+
+  return end <= now ? 100 : 100 - ((end - now) / (end - getUnixTime(start))) * 100;
 };

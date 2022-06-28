@@ -9,6 +9,7 @@ import { FormModal } from '../../widget/FormModal';
 import { AddressItem } from '../../widget/form-control/AddressItem';
 import { FundItem } from '../../widget/form-control/FundItem';
 import { Label } from '../../widget/form-control/Label';
+import { StakingActionProps } from './interface';
 
 interface RebondFormValues {
   stash: string;
@@ -16,7 +17,7 @@ interface RebondFormValues {
   [key: string]: unknown;
 }
 
-export function Rebond() {
+export function Rebond({ type = 'text', className }: StakingActionProps) {
   const { t } = useTranslation();
   const { api } = useApi();
   const { assets } = useAccount();
@@ -42,7 +43,7 @@ export function Rebond() {
 
   return (
     <>
-      <Button type="text" onClick={() => setIsVisible(true)}>
+      <Button type={type} className={className} onClick={() => setIsVisible(true)}>
         {t('Rebond funds')}
       </Button>
 

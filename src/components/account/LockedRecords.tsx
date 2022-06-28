@@ -8,10 +8,9 @@ import BigNumber from 'bignumber.js';
 import type { ColumnsType } from 'antd/lib/table';
 
 import { useApi, useQueue, useAccount, useStaking } from '../../hooks';
-import { DATE_FORMAT, ONE_DAY_IN_MILLISECOND } from '../../config';
-import { fromWei, prettyNumber, ringToKton } from '../../utils';
+import { DATE_FORMAT, THIRTY_DAYS_IN_MILLISECOND } from '../../config';
+import { fromWei, prettyNumber, ringToKton, processTime } from '../../utils';
 import type { DarwiniaStakingStructsTimeDepositItem, TsInMs } from '../../api-derive/types';
-import { processTime } from './stakingRecords';
 
 enum LockStatus {
   LOCKING,
@@ -35,22 +34,23 @@ const calcFine = (record: DataSourceState): string => {
     duration: { startTime, expireTime },
   } = record;
 
-  const month = expireTime
-    .sub(startTime.toBn())
-    // eslint-disable-next-line no-magic-numbers
-    .div(new BN(30 * ONE_DAY_IN_MILLISECOND))
-    .toNumber();
+  const month = expireTime.sub(startTime.toBn()).div(new BN(THIRTY_DAYS_IN_MILLISECOND)).toNumber();
 
   const rewardOrigin = new BigNumber(ringToKton(value.toString(), month));
-  // eslint-disable-next-line no-magic-numbers
-  const rewardMonth = Math.floor((new Date().getTime() - startTime.toNumber()) / (30 * ONE_DAY_IN_MILLISECOND));
+  const rewardMonth = Math.floor((new Date().getTime() - startTime.toNumber()) / THIRTY_DAYS_IN_MILLISECOND);
   const rewardActual = new BigNumber(ringToKton(value.toString(), rewardMonth));
   const times = 3;
 
   return fromWei({ value: rewardOrigin.minus(rewardActual).multipliedBy(times).toString() });
 };
 
-export const LockedRecords = ({ locks }: { locks: DarwiniaStakingStructsTimeDepositItem[] }) => {
+export const LockedRecords = ({
+  locks,
+  loading,
+}: {
+  locks: DarwiniaStakingStructsTimeDepositItem[];
+  loading: boolean;
+}) => {
   const { api, network } = useApi();
   const { account } = useAccount();
   const { queueExtrinsic } = useQueue();
@@ -84,7 +84,7 @@ export const LockedRecords = ({ locks }: { locks: DarwiniaStakingStructsTimeDepo
           .unwrap()
           .sub(startTime.unwrap().toBn())
           // eslint-disable-next-line no-magic-numbers
-          .div(new BN(30 * ONE_DAY_IN_MILLISECOND))
+          .div(new BN(THIRTY_DAYS_IN_MILLISECOND))
           .toNumber();
 
         return {
@@ -156,7 +156,7 @@ export const LockedRecords = ({ locks }: { locks: DarwiniaStakingStructsTimeDepo
       ),
     },
     {
-      title: 'Status',
+      title: 'Action',
       key: 'status',
       dataIndex: 'status',
       align: 'center',
@@ -195,7 +195,13 @@ export const LockedRecords = ({ locks }: { locks: DarwiniaStakingStructsTimeDepo
 
   return (
     <>
-      <Table rowKey={'index'} columns={columns} dataSource={dataSource} className="whitespace-nowrap" />
+      <Table
+        rowKey={'index'}
+        columns={columns}
+        dataSource={dataSource}
+        loading={loading}
+        className="whitespace-nowrap"
+      />
 
       <Modal
         title={t('Confirm to continue')}

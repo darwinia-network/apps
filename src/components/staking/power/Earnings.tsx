@@ -5,7 +5,6 @@ import { useTranslation } from 'react-i18next';
 import { switchMapTo, takeWhile, timer } from 'rxjs';
 import { LONG_DURATION } from '../../../config';
 import { useAccount, useApi, useIsMounted, useStaking, useStakingRewards } from '../../../hooks';
-import { StakingHistory } from '../../../model';
 import { fromWei, isRing, prettyNumber, rxPost } from '../../../utils';
 import { Statistics } from '../../widget/Statistics';
 import { SubscanLink } from '../../widget/SubscanLink';
@@ -43,7 +42,7 @@ export function Earnings({ updateEraIndex }: PowerDetailProps) {
       .pipe(
         takeWhile(() => isMounted),
         switchMapTo(
-          rxPost<StakingHistory>({
+          rxPost<{ sum: string }>({
             url: `https://${network.name}.webapi.subscan.io/api/scan/staking_history`,
             params: { page: 0, row: 10, address: stashAccount },
           })
