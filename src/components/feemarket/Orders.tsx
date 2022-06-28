@@ -23,6 +23,7 @@ import {
   FeeMarketTab,
   SlotState,
   OrderStatus,
+  RelayerRole,
 } from '../../model';
 import { IdentAccountName } from '../widget/account/IdentAccountName';
 import { SubscanLink } from '../widget/SubscanLink';
@@ -112,6 +113,8 @@ export const Orders = ({ destination }: { destination: CrossChainDestination }) 
       title: t('Order ID'),
       key: 'orderId',
       dataIndex: 'orderId',
+      width: '6%',
+      align: 'center',
       render: (value) => {
         const searchParams = new URLSearchParams();
         searchParams.set(SearchParamsKey.TAB, FeeMarketTab.OREDERS);
@@ -121,27 +124,61 @@ export const Orders = ({ destination }: { destination: CrossChainDestination }) 
       },
     },
     {
-      title: t('Delivery Relayer'),
-      key: 'deliveryRelayer',
-      dataIndex: 'deliveryRelayer',
-      render: (value) => (value ? <IdentAccountName account={value} /> : '-'),
-    },
-    {
-      title: t('Confirmation Relayer'),
-      key: 'confirmationRelayer',
-      dataIndex: 'confirmationRelayer',
-      render: (value) => (value ? <IdentAccountName account={value} /> : '-'),
-    },
-    {
-      title: t('Assigned Relayer'),
+      title: (
+        <div className="flex justify-center">
+          <span>{t(RelayerRole.ASSIGNED)}</span>
+        </div>
+      ),
       key: 'assignedRelayer',
       dataIndex: 'assignedRelayer',
-      render: (value) => (value ? <IdentAccountName account={value} /> : '-'),
+      render: (value) =>
+        value ? (
+          <IdentAccountName account={value} />
+        ) : (
+          <div className="flex justify-center">
+            <span>-</span>
+          </div>
+        ),
+    },
+    {
+      title: (
+        <div className="flex justify-center">
+          <span>{t(RelayerRole.DELIVERY)}</span>
+        </div>
+      ),
+      key: 'deliveryRelayer',
+      dataIndex: 'deliveryRelayer',
+      render: (value) =>
+        value ? (
+          <IdentAccountName account={value} />
+        ) : (
+          <div className="flex justify-center">
+            <span>-</span>
+          </div>
+        ),
+    },
+    {
+      title: (
+        <div className="flex justify-center">
+          <span>{t(RelayerRole.CONFIRMED)}</span>
+        </div>
+      ),
+      key: 'confirmationRelayer',
+      dataIndex: 'confirmationRelayer',
+      render: (value) =>
+        value ? (
+          <IdentAccountName account={value} />
+        ) : (
+          <div className="flex justify-center">
+            <span>-</span>
+          </div>
+        ),
     },
     {
       title: t('Start Block'),
       key: 'createBlock',
       dataIndex: 'createBlock',
+      align: 'center',
       render: (value, record) => (
         <div className="flex flex-col justify-center">
           <SubscanLink network={network.name} block={value} prefix="#" />
@@ -153,6 +190,7 @@ export const Orders = ({ destination }: { destination: CrossChainDestination }) 
       title: t('Confirm Block'),
       key: 'finishBlock',
       dataIndex: 'finishBlock',
+      align: 'center',
       render: (value, record) =>
         value ? (
           <div className="flex flex-col justify-center">
@@ -166,6 +204,7 @@ export const Orders = ({ destination }: { destination: CrossChainDestination }) 
     {
       title: t('Status'),
       key: 'status',
+      align: 'center',
       render: (_, record) =>
         record.confirmedSlotIndex === null ? (
           <Badge status="processing" text={FilterState.IN_PROGRESS} />

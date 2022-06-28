@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next';
 
 import { Path } from '../../config/routes';
 import { ORDER_DETAIL, LONG_LONG_DURATION } from '../../config';
-import { OrderDetailData, CrossChainDestination, SlotState } from '../../model';
+import { OrderDetailData, CrossChainDestination, SlotState, RelayerRole } from '../../model';
 import { useApi } from '../../hooks';
 import { SubscanLink } from '../widget/SubscanLink';
 import { fromWei, prettyNumber } from '../../utils';
@@ -111,7 +111,7 @@ export const OrderDetail = ({ orderid, destination }: { orderid: string; destina
               <Divider className="my-2" />
               <Descriptions column={1} title={t('Rewards:')}>
                 {data.orderEntity.rewards.nodes[0].assignedRelayerId && (
-                  <Descriptions.Item label={t('Assigned Relayer')}>
+                  <Descriptions.Item label={t(RelayerRole.ASSIGNED)}>
                     <AccountName account={data.orderEntity.rewards.nodes[0].assignedRelayerId.split('-')[1]} />
                     <span>
                       &nbsp;
@@ -121,7 +121,7 @@ export const OrderDetail = ({ orderid, destination }: { orderid: string; destina
                     </span>
                   </Descriptions.Item>
                 )}
-                <Descriptions.Item label={t('Delivery Relayer')}>
+                <Descriptions.Item label={t(RelayerRole.DELIVERY)}>
                   <AccountName account={data.orderEntity.rewards.nodes[0].deliveredRelayerId.split('-')[1]} />
                   <span>
                     &nbsp;
@@ -130,7 +130,7 @@ export const OrderDetail = ({ orderid, destination }: { orderid: string; destina
                     }`}
                   </span>
                 </Descriptions.Item>
-                <Descriptions.Item label={t('Confirmation Relayer')}>
+                <Descriptions.Item label={t(RelayerRole.CONFIRMED)}>
                   <AccountName account={data.orderEntity.rewards.nodes[0].confirmedRelayerId.split('-')[1]} />
                   <span>
                     &nbsp;
@@ -171,7 +171,7 @@ export const OrderDetail = ({ orderid, destination }: { orderid: string; destina
                   {data.orderEntity.slashs.nodes[0].delayTime}
                 </Descriptions.Item>
                 {data?.orderEntity?.slashs.nodes.map((node) => (
-                  <Descriptions.Item label={t('Init Assigned Relayer')} key={node.relayerId}>
+                  <Descriptions.Item label={t(RelayerRole.ASSIGNED)} key={node.relayerId}>
                     <AccountName account={node.relayerId.split('-')[1]} />
                     <span>
                       &nbsp;{`| ${fromWei({ value: node.amount }, prettyNumber)} ${network.tokens.ring.symbol}`}

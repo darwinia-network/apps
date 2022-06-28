@@ -6,6 +6,7 @@ import { useQuery } from '@apollo/client';
 import { format, compareAsc, formatDistanceStrict } from 'date-fns';
 import { BN, BN_ZERO } from '@polkadot/util';
 import { useTranslation } from 'react-i18next';
+import { uniqBy } from 'lodash';
 
 import * as echarts from 'echarts/core';
 import {
@@ -138,6 +139,7 @@ export const RelayerDetail = ({
       title: t('Order ID'),
       key: 'orderId',
       dataIndex: 'orderId',
+      align: 'center',
       render: (value) => {
         const searchParams = new URLSearchParams();
         searchParams.set(SearchParamsKey.TAB, FeeMarketTab.OREDERS);
@@ -154,6 +156,7 @@ export const RelayerDetail = ({
       title: t('Relayer Role'),
       key: 'relayerRole',
       dataIndex: 'relayerRole',
+      align: 'center',
       render: (value: RelayerRole[]) => (
         <div className="flex flex-col justify-center">
           {value.map((item) => (
@@ -166,6 +169,7 @@ export const RelayerDetail = ({
       title: t('Reward'),
       key: 'reward',
       dataIndex: 'reward',
+      align: 'center',
       render: (value: BN) =>
         value.isZero() ? (
           '0'
@@ -179,6 +183,7 @@ export const RelayerDetail = ({
       title: t('Slash'),
       key: 'slash',
       dataIndex: 'slash',
+      align: 'center',
       render: (value: BN) =>
         value.isZero() ? (
           '0'
@@ -192,6 +197,7 @@ export const RelayerDetail = ({
       title: t('Time'),
       key: 'time',
       dataIndex: 'time',
+      align: 'center',
       render: (value) => formatDistanceStrict(new Date(value), new Date(), { addSuffix: true }),
     },
   ];
@@ -278,47 +284,50 @@ export const RelayerDetail = ({
     if (relayerOrdersData?.relayerEntity) {
       const { assignedOrders, deliveredOrders, confirmedOrders } = relayerOrdersData.relayerEntity;
 
-      const orders = (assignedOrders?.nodes || [])
-        .concat(deliveredOrders?.nodes || [])
-        .concat(confirmedOrders?.nodes || []);
+      const orders = uniqBy(
+        (assignedOrders?.nodes || []).concat(deliveredOrders?.nodes || []).concat(confirmedOrders?.nodes || []),
+        'id'
+      );
 
       setDataSource(
-        orders.map((order) => {
-          const role: RelayerRole[] = [];
+        orders
+          .map((order) => {
+            const role = new Set<RelayerRole>();
 
-          if (order.assignedRelayers.some((item) => item === relayerAddress)) {
-            role.push(RelayerRole.INIT_ASSIGNED);
-          }
+            if (order.assignedRelayers.some((item) => item === relayerAddress)) {
+              role.add(RelayerRole.ASSIGNED);
+            }
 
-          const reward = order.rewards.nodes.reduce((acc, cur) => {
-            if (cur.assignedRelayerId?.split('-')[1] === relayerAddress && cur.assignedAmount) {
-              role.push(RelayerRole.SLOT_ASSIGNED);
-              acc = acc.add(new BN(cur.assignedAmount));
-            }
-            if (cur.deliveredRelayerId.split('-')[1] === relayerAddress) {
-              role.push(RelayerRole.DELIVERY);
-              acc = acc.add(new BN(cur.deliveredAmount));
-            }
-            if (cur.confirmedRelayerId.split('-')[1] === relayerAddress) {
-              role.push(RelayerRole.CONFIRM);
-              acc = acc.add(new BN(cur.confirmedAmount));
-            }
-            return acc;
-          }, BN_ZERO);
-
-          return {
-            orderId: order.id.split('-')[1],
-            relayerRole: role,
-            time: order.finishTime,
-            reward,
-            slash: order.slashs.nodes.reduce((acc, cur) => {
-              if (cur.relayerId.split('-')[1] === relayerAddress) {
-                acc = acc.add(new BN(cur.amount));
+            const reward = order.rewards.nodes.reduce((acc, cur) => {
+              if (cur.assignedRelayerId?.split('-')[1] === relayerAddress && cur.assignedAmount) {
+                role.add(RelayerRole.ASSIGNED);
+                acc = acc.add(new BN(cur.assignedAmount));
+              }
+              if (cur.deliveredRelayerId.split('-')[1] === relayerAddress) {
+                role.add(RelayerRole.DELIVERY);
+                acc = acc.add(new BN(cur.deliveredAmount));
+              }
+              if (cur.confirmedRelayerId.split('-')[1] === relayerAddress) {
+                role.add(RelayerRole.CONFIRMED);
+                acc = acc.add(new BN(cur.confirmedAmount));
               }
               return acc;
-            }, BN_ZERO),
-          };
-        })
+            }, BN_ZERO);
+
+            return {
+              orderId: order.id.split('-')[1],
+              relayerRole: Array.from(role),
+              time: order.finishTime,
+              reward,
+              slash: order.slashs.nodes.reduce((acc, cur) => {
+                if (cur.relayerId.split('-')[1] === relayerAddress) {
+                  acc = acc.add(new BN(cur.amount));
+                }
+                return acc;
+              }, BN_ZERO),
+            };
+          })
+          .sort((a, b) => Number(b.orderId) - Number(a.orderId))
       );
     } else {
       setDataSource([]);

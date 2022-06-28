@@ -44,7 +44,11 @@ export const Relayers = ({ destination }: { destination: CrossChainDestination }
 
   const columns: ColumnsType<RelayerData> = [
     {
-      title: t('Relayer'),
+      title: (
+        <div className="flex justify-center">
+          <span>{t('Relayer')}</span>
+        </div>
+      ),
       key: 'relayer',
       dataIndex: 'relayer',
       render: (value) => {
@@ -63,12 +67,14 @@ export const Relayers = ({ destination }: { destination: CrossChainDestination }
       title: t('Count(orders)'),
       key: 'countOrders',
       dataIndex: 'countOrders',
+      align: 'center',
       sorter: (a, b) => a.countOrders - b.countOrders,
     },
     {
       title: t('Collateral'),
       key: 'collateral',
       dataIndex: 'collateral',
+      align: 'center',
       render: (value) => renderBalance(value, network.tokens.ring.symbol),
       sorter: (a, b) => a.collateral.cmp(b.collateral),
     },
@@ -76,6 +82,7 @@ export const Relayers = ({ destination }: { destination: CrossChainDestination }
       title: t('Quote'),
       key: 'quote',
       dataIndex: 'quote',
+      align: 'center',
       render: (value) => renderBalance(value, network.tokens.ring.symbol),
       sorter: (a, b) => a.quote.cmp(b.quote),
     },
@@ -83,6 +90,7 @@ export const Relayers = ({ destination }: { destination: CrossChainDestination }
       title: t('Sum(reward)'),
       key: 'sumReward',
       dataIndex: 'sumReward',
+      align: 'center',
       render: (value) => renderBalance(value, network.tokens.ring.symbol),
       sorter: (a, b) => a.sumReward.cmp(b.sumReward),
     },
@@ -90,6 +98,7 @@ export const Relayers = ({ destination }: { destination: CrossChainDestination }
       title: t('Sum(slash)'),
       key: 'sumSlash',
       dataIndex: 'sumSlash',
+      align: 'center',
       render: (value) => renderBalance(value, network.tokens.ring.symbol),
       sorter: (a, b) => a.sumSlash.cmp(b.sumSlash),
     },

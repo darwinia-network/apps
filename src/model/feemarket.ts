@@ -187,10 +187,9 @@ export enum FeeMarketTab {
 }
 
 export enum RelayerRole {
-  INIT_ASSIGNED = 'Init Assigned Relayer',
-  SLOT_ASSIGNED = 'Slot Assigned Relayer',
+  ASSIGNED = 'Assigned Relayer',
   DELIVERY = 'Delivery Relayer',
-  CONFIRM = 'Confirmation Relayer',
+  CONFIRMED = 'Confirmed Relayer',
 }
 
 export enum SlotState {
