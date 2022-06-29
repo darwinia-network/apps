@@ -5,6 +5,7 @@
   },
   "include": [
     "src",
-    "src/global.d.ts"
+    "src/global.d.ts",
+    "src/components/widget/param/.tsx"
   ]
 }

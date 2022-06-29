@@ -5,6 +5,7 @@ import { withRouter } from 'react-router-dom';
 import web3 from 'web3';
 import { Withdraw } from '../components/toolbox/withdraw';
 import { Deposits } from '../components/toolbox/deposits/';
+import { Decoder } from '../components/toolbox//decode';
 import { Label } from '../components/widget/form-control/Label';
 import { useApi } from '../hooks';
 import { MetamaskProvider } from '../providers/metamask';
@@ -92,6 +93,10 @@ function Page() {
             <Deposits />
           </Tabs.TabPane>
         )}
+
+        <Tabs.TabPane tab={t('Decode')} key="decode">
+          <Decoder />
+        </Tabs.TabPane>
       </Tabs>
     </MetamaskProvider>
   );
