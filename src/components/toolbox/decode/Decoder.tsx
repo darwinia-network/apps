@@ -7,6 +7,8 @@ import { useCallback, useState } from 'react';
 
 import { useApi } from '../../../hooks';
 import { Label } from '../../widget/form-control/Label';
+import { DisplayExtrinsic } from '../../widget/DisplayExtrinsic';
+import { CallDisplay } from '../../widget/CallDisplay';
 import { Decoded } from './Decoded';
 
 interface ExtrinsicInfo {
@@ -92,11 +94,19 @@ export const Decoder = () => {
         <Input size="large" placeholder="0x" />
       </Form.Item>
 
-      <Form.Item label={<Label text={t('Decoded result')} />} name="result">
-        <Card>
-          <Decoded extrinsic={decoded} isCall={isCall} withData={false} />
-        </Card>
-      </Form.Item>
+      {decoded && (
+        <Form.Item label={<Label text={t('Decoded result')} />} name="result">
+          <Card>
+            {extrinsicFn && extrinsicCall && (
+              <>
+                <DisplayExtrinsic defaultValue={extrinsicFn} label={t('decoded call')} />
+                <CallDisplay value={extrinsicCall} />
+              </>
+            )}
+            <Decoded extrinsic={decoded} isCall={isCall} withData={false} />
+          </Card>
+        </Form.Item>
+      )}
     </Form>
   );
 };

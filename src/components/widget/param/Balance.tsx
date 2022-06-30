@@ -1,9 +1,13 @@
+import type { Props } from '../../../model/param';
 import { Bare } from './Bare';
+import { StaticParam } from './StaticParam';
 
-export const Balance = () => {
-  return (
-    <Bare>
-      <span>Balance</span>
-    </Bare>
-  );
+export const Balance: React.FC<Props> = (props) => {
+  const { className = '', isDisabled } = props;
+
+  if (isDisabled) {
+    return <StaticParam {...props} />;
+  }
+
+  return <Bare className={className}>Balance Component</Bare>;
 };

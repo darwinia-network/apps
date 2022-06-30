@@ -1,3 +1,4 @@
+import type { WithTranslation } from 'react-i18next';
 import type { Registry, TypeDef } from '@polkadot/types/types';
 
 export type RawParamValue = unknown | undefined;
@@ -48,3 +49,11 @@ export interface ParamDef {
   name?: string;
   type: TypeDef;
 }
+
+export interface BareProps {
+  children?: React.ReactNode;
+  className?: string;
+  style?: React.CSSProperties;
+}
+
+export type I18nProps = BareProps & WithTranslation;

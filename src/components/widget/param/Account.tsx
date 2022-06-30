@@ -1,14 +1,13 @@
-import { useState } from 'react';
 import type { Props } from '../../../model/param';
-import { InputAddress } from '../InputAddress';
 import { Bare } from './Bare';
+import { StaticParam } from './StaticParam';
 
-export const Account = ({ className, defaultValue: { value } }: Props) => {
-  const [defaultValue] = useState(() => (value as string)?.toString());
+export const Account: React.FC<Props> = (props) => {
+  const { className = '', isDisabled } = props;
 
-  return (
-    <Bare className={className}>
-      <InputAddress defaultValue={defaultValue} />
-    </Bare>
-  );
+  if (isDisabled) {
+    return <StaticParam {...props} />;
+  }
+
+  return <Bare className={className}>Account Component</Bare>;
 };

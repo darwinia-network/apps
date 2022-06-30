@@ -72,7 +72,7 @@ export const DecodedInspect = ({ inspect, label, className, hex }: Props) => {
                   href={link}
                   rel="noreferrer"
                   target="_blank"
-                  className="whitespace-nowrap overflow-hidden overflow-ellipsis"
+                  className="block overflow-hidden overflow-ellipsis whitespace-nowrap"
                 >
                   {path}
                 </a>

@@ -2,7 +2,7 @@ interface Props {
   defaultValue?: Uint8Array | string | null;
 }
 
-export const InputAddress = ({ defaultValue }: Props) => {
+export const DisplayAddress = ({ defaultValue }: Props) => {
   void defaultValue;
 
   return (

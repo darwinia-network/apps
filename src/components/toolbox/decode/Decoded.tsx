@@ -44,7 +44,7 @@ export const Decoded: React.FC<Props> = ({ extrinsic, className, isCall, withDat
   }
 
   return (
-    <div className={`grid grid-cols-2 gap-x-2 ${className}`}>
+    <div className={`mt-2 grid grid-cols-2 gap-x-2 ${className}`}>
       <div className="flex flex-col">
         {withData && (
           <Output label={t('encoded call data')}>
