@@ -1,25 +1,30 @@
-import { useState, useEffect } from 'react';
-import { from } from 'rxjs';
+import { useState, useEffect, useCallback } from 'react';
+import { from, EMPTY } from 'rxjs';
 import type { Option } from '@polkadot/types';
 import type { AccountId32 } from '@polkadot/types/interfaces';
-import { useApi } from '..';
+
+import { useApi } from '../api';
 
 export const useControllerAccount = (account?: string | null) => {
   const { api } = useApi();
   const [controllerAccount, setControllerAccount] = useState<string | null>();
 
-  useEffect(() => {
-    if (!account) {
+  const refresh = useCallback(() => {
+    if (account) {
+      return from<Promise<Option<AccountId32>>>(api.query.staking.bonded(account)).subscribe((bonded) => {
+        setControllerAccount(bonded.isSome ? bonded.unwrap().toString() : account);
+      });
+    } else {
       setControllerAccount(null);
-      return;
+      return EMPTY.subscribe();
     }
-
-    const sub$$ = from<Promise<Option<AccountId32>>>(api.query.staking.bonded(account)).subscribe((bonded) => {
-      setControllerAccount(bonded.isSome ? bonded.unwrap().toString() : account);
-    });
-
-    return () => sub$$.unsubscribe();
   }, [api, account]);
 
-  return { controllerAccount };
+  useEffect(() => {
+    const sub$$ = refresh();
+
+    return () => sub$$.unsubscribe();
+  }, [refresh]);
+
+  return { controllerAccount, refreshControllerAccount: refresh };
 };

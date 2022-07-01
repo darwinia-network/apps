@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { from } from 'rxjs';
+import { useState, useEffect, useCallback } from 'react';
+import { from, EMPTY } from 'rxjs';
 import type { Option } from '@polkadot/types';
 
 import { useApi } from '../../hooks';
@@ -9,20 +9,24 @@ export const useStashAccount = (controllerAccount?: string | null) => {
   const { api } = useApi();
   const [stashAccount, setStashAccount] = useState<string | null>();
 
-  useEffect(() => {
-    if (!controllerAccount) {
+  const refresh = useCallback(() => {
+    if (controllerAccount) {
+      return from<Promise<Option<DarwiniaStakingStructsStakingLedger>>>(
+        api.query.staking.ledger(controllerAccount)
+      ).subscribe((ledger) => {
+        setStashAccount(ledger.isSome ? ledger.unwrap().stash.toString() : controllerAccount);
+      });
+    } else {
       setStashAccount(null);
-      return;
+      return EMPTY.subscribe();
     }
-
-    const sub$$ = from<Promise<Option<DarwiniaStakingStructsStakingLedger>>>(
-      api.query.staking.ledger(controllerAccount)
-    ).subscribe((ledger) => {
-      setStashAccount(ledger.isSome ? ledger.unwrap().stash.toString() : controllerAccount);
-    });
-
-    return () => sub$$.unsubscribe();
   }, [api, controllerAccount]);
 
-  return { stashAccount };
+  useEffect(() => {
+    const sub$$ = refresh();
+
+    return () => sub$$.unsubscribe();
+  }, [refresh]);
+
+  return { stashAccount, refreshStashAccount: refresh };
 };
