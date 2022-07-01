@@ -93,29 +93,34 @@ export function ClaimRewards({ eraSelectionIndex, onSuccess = () => undefined, t
                   type="primary"
                   size="large"
                   loading={busy}
-                  onClick={() => {
-                    const extrinsics = createPayout(api, payoutValidators);
-                    extrinsics.forEach((extrinsic, index) => {
-                      setBusy(true);
-                      queueExtrinsic({
-                        signAddress: signer || '',
-                        extrinsic,
-                        txFailedCb: () => {
-                          if (index + 1 === extrinsics.length) {
-                            setBusy(false);
-                          }
-                        },
-                        txSuccessCb: () => {
-                          if (index + 1 === extrinsics.length) {
-                            onSuccess();
-                            refresh();
-                            updateStakingDerive();
-                            setIsVisible(false);
-                            setBusy(false);
-                          }
-                        },
+                  onClick={async () => {
+                    if (signer) {
+                      const extrinsics = createPayout(api, payoutValidators);
+                      const nonce = (await api.rpc.system.accountNextIndex(signer)).toNumber();
+
+                      extrinsics.forEach((extrinsic, index) => {
+                        setBusy(true);
+                        queueExtrinsic({
+                          extrinsic,
+                          signAddress: signer,
+                          nonce: nonce + index,
+                          txFailedCb: () => {
+                            if (index + 1 >= extrinsics.length) {
+                              setBusy(false);
+                            }
+                          },
+                          txSuccessCb: () => {
+                            if (index + 1 >= extrinsics.length) {
+                              onSuccess();
+                              refresh();
+                              updateStakingDerive();
+                              setIsVisible(false);
+                              setBusy(false);
+                            }
+                          },
+                        });
                       });
-                    });
+                    }
                   }}
                   className="block mx-auto w-full border-none rounded-lg"
                 >
