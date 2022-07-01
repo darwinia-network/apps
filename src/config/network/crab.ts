@@ -31,7 +31,6 @@ export const crabConfig: DVMChainConfig = {
   isTest: false,
   name: 'crab',
   provider: {
-    etherscan: '',
     rpc: 'wss://crab-rpc.darwinia.network',
   },
   type: ['polkadot', 'darwinia'],

@@ -9,6 +9,8 @@ const networksDestinations: Record<PolkadotTypeNetwork, CrossChainDestination[]>
   darwinia: [],
   pangolin: ['PangolinParachain', 'Pangoro'],
   pangoro: [],
+  'crab-parachain': [],
+  'pangolin-parachain': [],
 };
 
 export interface FeeMarketCtx {

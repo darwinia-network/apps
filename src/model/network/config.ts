@@ -17,7 +17,6 @@ interface DVMTokenConfig {
 
 interface ProviderConfig {
   rpc: string;
-  etherscan: string;
 }
 
 export interface ChainConfig {
@@ -37,6 +36,7 @@ export interface EthereumChainConfig extends ChainConfig {
 
 export interface PolkadotChainConfig extends ChainConfig {
   ss58Prefix: number;
+  isParachain?: boolean;
   subquery?: {
     endpoint: string;
   };

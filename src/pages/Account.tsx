@@ -21,6 +21,8 @@ function Page() {
     darwinia: t('You can transfer RING/KTON through the cross-chain bridge between Ethereum and Darwinia.'),
     pangolin: t('You can transfer PRING/PKTON through the cross-chain bridge between Pangolin and Ropsten.'),
     pangoro: t('You can transfer ORING through the cross-chain bridge between Pangoro and Pangolin Smart Chain.'),
+    'crab-parachain': '',
+    'pangolin-parachain': '',
   };
 
   return (
@@ -38,19 +40,21 @@ function Page() {
         <StakingRecords />
       </Tabs.TabPane>
 
-      <Tabs.TabPane key="cross" tab={<CustomTab text={t('Cross Chain')} tabKey="cross" activeKey={activeKey} />}>
-        <Card className="shadow-xxl">
-          <p className="mb-4 opacity-60">{crossChainPrompt[network.name as PolkadotTypeNetwork]}</p>
-          <Button
-            type="primary"
-            onClick={() => {
-              window.open('https://wormhole.darwinia.network', '_blank');
-            }}
-          >
-            {t('Go to Helix')}
-          </Button>
-        </Card>
-      </Tabs.TabPane>
+      {crossChainPrompt[network.name as PolkadotTypeNetwork] && (
+        <Tabs.TabPane key="cross" tab={<CustomTab text={t('Cross Chain')} tabKey="cross" activeKey={activeKey} />}>
+          <Card className="shadow-xxl">
+            <p className="mb-4 opacity-60">{crossChainPrompt[network.name as PolkadotTypeNetwork]}</p>
+            <Button
+              type="primary"
+              onClick={() => {
+                window.open('https://wormhole.darwinia.network', '_blank');
+              }}
+            >
+              {t('Go to Helix')}
+            </Button>
+          </Card>
+        </Tabs.TabPane>
+      )}
     </Tabs>
   );
 }

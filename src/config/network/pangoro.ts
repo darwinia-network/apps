@@ -26,7 +26,6 @@ export const pangoroConfig: DVMChainConfig = {
   isTest: true,
   name: 'pangoro',
   provider: {
-    etherscan: '',
     rpc: 'wss://pangoro-rpc.darwinia.network',
   },
   ss58Prefix: 18,

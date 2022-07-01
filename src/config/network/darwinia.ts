@@ -9,7 +9,6 @@ export const darwiniaConfig: PolkadotChainConfig = {
   isTest: false,
   name: 'darwinia',
   provider: {
-    etherscan: '',
     rpc: 'wss://rpc.darwinia.network',
   },
   ss58Prefix: 18,

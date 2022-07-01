@@ -31,7 +31,6 @@ export const pangolinConfig: DVMChainConfig = {
   isTest: true,
   name: 'pangolin',
   provider: {
-    etherscan: 'wss://ropsten.infura.io/ws/v3/5350449ccd2349afa007061e62ee1409',
     rpc: 'wss://pangolin-rpc.darwinia.network',
   },
   ss58Prefix: 42,
