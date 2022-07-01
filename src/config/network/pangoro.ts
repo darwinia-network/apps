@@ -23,9 +23,6 @@ export const pangoroConfig: DVMChainConfig = {
     logoMinor: '/image/pangoro.png',
     logoWithText: '',
   },
-  endpoints: {
-    mmr: '',
-  },
   isTest: true,
   name: 'pangoro',
   provider: {

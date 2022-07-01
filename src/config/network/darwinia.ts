@@ -8,9 +8,6 @@ export const darwiniaConfig: PolkadotChainConfig = {
   },
   isTest: false,
   name: 'darwinia',
-  endpoints: {
-    mmr: 'https://api.subquery.network/sq/darwinia-network/darwinia-mmr',
-  },
   provider: {
     etherscan: '',
     rpc: 'wss://rpc.darwinia.network',
