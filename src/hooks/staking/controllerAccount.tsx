@@ -7,7 +7,7 @@ import { useApi } from '../api';
 
 export const useControllerAccount = (account?: string | null) => {
   const { api } = useApi();
-  const [controllerAccount, setControllerAccount] = useState<string | null>();
+  const [controllerAccount, setControllerAccount] = useState<string | null>(null);
 
   const refresh = useCallback(() => {
     if (account) {

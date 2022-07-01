@@ -44,7 +44,7 @@ export function SetController() {
           updateValidators();
           updateStakingDerive();
         }}
-        initialValues={{ controller: controllerAccount, stash: stashAccount }}
+        initialValues={{ controller: controllerAccount || undefined, stash: stashAccount || undefined }}
       >
         <AddressItem name="stash" label="Stash account" disabled extra={null} />
 

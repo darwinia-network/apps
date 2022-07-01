@@ -3,7 +3,7 @@ import { u8aConcat, u8aToHex } from '@polkadot/util';
 import { Button, Dropdown, Menu } from 'antd';
 import { useMemo, useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { from } from 'rxjs';
+import { from, EMPTY } from 'rxjs';
 import type { DeriveStakingAccount } from '../../../api-derive/types';
 import { useApi, useStaking, useQueue, useSlashingSpans, useAccount, useWallet } from '../../../hooks';
 import {
@@ -66,31 +66,35 @@ export function Actions({ eraSelectionIndex, disabled }: ActionsProps) {
   }, [stakingDerive]);
 
   const isOwnController = useMemo(
-    () => accounts.map((item) => item.displayAddress).includes(controllerAccount),
+    () => !!controllerAccount && accounts.map((item) => item.displayAddress).includes(controllerAccount),
     [accounts, controllerAccount]
   );
 
-  const refreshStakingAccount = useCallback(
-    () =>
-      from(api.derive.staking.account(stashAccount) as unknown as Promise<DeriveStakingAccount>).subscribe(
+  const refreshStakingAccount = useCallback(() => {
+    if (stashAccount) {
+      return from(api.derive.staking.account(stashAccount) as unknown as Promise<DeriveStakingAccount>).subscribe(
         setStakingAccount
-      ),
-    [api, stashAccount]
-  );
+      );
+    } else {
+      return EMPTY.subscribe();
+    }
+  }, [api, stashAccount]);
 
   const withdrawFunds = useCallback(() => {
-    queueExtrinsic({
-      signAddress: controllerAccount,
-      extrinsic:
-        api.tx.staking.withdrawUnbonded?.meta.args.length === 1
-          ? api.tx.staking.withdrawUnbonded(spanCount)
-          : api.tx.staking.withdrawUnbonded(),
-      txSuccessCb: () => {
-        refreshAssets();
-        updateStakingDerive();
-        refreshStakingAccount();
-      },
-    });
+    if (controllerAccount) {
+      queueExtrinsic({
+        signAddress: controllerAccount,
+        extrinsic:
+          api.tx.staking.withdrawUnbonded?.meta.args.length === 1
+            ? api.tx.staking.withdrawUnbonded(spanCount)
+            : api.tx.staking.withdrawUnbonded(),
+        txSuccessCb: () => {
+          refreshAssets();
+          updateStakingDerive();
+          refreshStakingAccount();
+        },
+      });
+    }
   }, [api, controllerAccount, queueExtrinsic, refreshStakingAccount, refreshAssets, updateStakingDerive, spanCount]);
 
   useEffect(() => {
@@ -103,14 +107,16 @@ export function Actions({ eraSelectionIndex, disabled }: ActionsProps) {
       {isNominating || isValidating ? (
         <Button
           onClick={() => {
-            queueExtrinsic({
-              signAddress: controllerAccount,
-              extrinsic: api.tx.staking.chill(),
-              txSuccessCb: () => {
-                updateValidators();
-                updateStakingDerive();
-              },
-            });
+            if (controllerAccount) {
+              queueExtrinsic({
+                signAddress: controllerAccount,
+                extrinsic: api.tx.staking.chill(),
+                txSuccessCb: () => {
+                  updateValidators();
+                  updateStakingDerive();
+                },
+              });
+            }
           }}
           className="w-full lg:w-auto"
           disabled={disabled}

@@ -15,7 +15,7 @@ interface ModalFormProps<Values extends Record<string, unknown>> {
   extrinsic: (val: Values) => SubmittableExtrinsic<'promise', ISubmittableResult>;
   initialValues?: Partial<Values>;
   modalProps: ModalProps;
-  signer?: string;
+  signer?: string | null;
   onFail?: TxFailedCallback;
   onSuccess?: TxCallback;
   onCancel: () => void;

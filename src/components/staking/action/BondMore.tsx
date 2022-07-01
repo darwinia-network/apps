@@ -34,6 +34,11 @@ export function BondMore() {
   const [duration, setDuration] = useState(0);
 
   useEffect(() => {
+    if (!stashAccount) {
+      setBalances(null);
+      return;
+    }
+
     const sub$$ = from(api.derive.balances.all(stashAccount)).subscribe((res) => {
       setBalances(res);
     });
@@ -66,7 +71,7 @@ export function BondMore() {
           refreshAssets();
         }}
         signer={stashAccount}
-        initialValues={{ stash: stashAccount, promiseMonth: duration, accept: false }}
+        initialValues={{ stash: stashAccount || undefined, promiseMonth: duration, accept: false }}
       >
         <AddressItem name="stash" label="Stash account" disabled />
 

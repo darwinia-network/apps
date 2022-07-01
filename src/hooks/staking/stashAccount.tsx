@@ -7,7 +7,7 @@ import type { DarwiniaStakingStructsStakingLedger } from '../../api-derive/types
 
 export const useStashAccount = (controllerAccount?: string | null) => {
   const { api } = useApi();
-  const [stashAccount, setStashAccount] = useState<string | null>();
+  const [stashAccount, setStashAccount] = useState<string | null>(null);
 
   const refresh = useCallback(() => {
     if (controllerAccount) {

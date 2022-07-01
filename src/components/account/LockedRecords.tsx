@@ -174,14 +174,16 @@ export const LockedRecords = ({
           ) : (
             <Button
               onClick={() => {
-                const extrinsic = api.tx.staking.claimMatureDeposits();
-                queueExtrinsic({
-                  signAddress: controllerAccount,
-                  extrinsic,
-                  txSuccessCb: () => {
-                    updateStakingDerive();
-                  },
-                });
+                if (controllerAccount) {
+                  const extrinsic = api.tx.staking.claimMatureDeposits();
+                  queueExtrinsic({
+                    signAddress: controllerAccount,
+                    extrinsic,
+                    txSuccessCb: () => {
+                      updateStakingDerive();
+                    },
+                  });
+                }
               }}
               className="p-0 flex items-center justify-center w-28"
             >

@@ -19,6 +19,7 @@ interface SetValidatorFormValues {
 
 const COMM_MUL = 10000000;
 
+// eslint-disable-next-line complexity
 export function SetValidator({ disabled, label, type = 'text' }: StakingActionProps) {
   const { t } = useTranslation();
   const { api } = useApi();
@@ -51,8 +52,8 @@ export function SetValidator({ disabled, label, type = 'text' }: StakingActionPr
         }}
         signer={controllerAccount}
         initialValues={{
-          stash: stashAccount,
-          controller: controllerAccount,
+          stash: stashAccount || undefined,
+          controller: controllerAccount || undefined,
           percentage: (validatorPrefs?.commission.unwrap().toNumber() ?? 0) / COMM_MUL,
         }}
       >

@@ -66,7 +66,7 @@ export function Rebond({ type = 'text', className }: StakingActionProps) {
           updateStakingDerive();
         }}
         signer={controllerAccount}
-        initialValues={{ stash: stashAccount }}
+        initialValues={{ stash: stashAccount || undefined }}
       >
         <AddressItem
           name="stash"

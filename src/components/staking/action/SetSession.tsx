@@ -15,6 +15,7 @@ interface SetSessionFormValues {
   [key: string]: unknown;
 }
 
+// eslint-disable-next-line complexity
 export function SetSession({ label, disabled, type = 'text', className = '' }: StakingActionProps) {
   const { t } = useTranslation();
   const { api } = useApi();
@@ -47,7 +48,7 @@ export function SetSession({ label, disabled, type = 'text', className = '' }: S
           setIsVisible(false);
         }}
         signer={controllerAccount}
-        initialValues={{ controller: controllerAccount }}
+        initialValues={{ controller: controllerAccount || undefined }}
       >
         <AddressItem name="controller" label="Controller account" disabled extra={null} />
 

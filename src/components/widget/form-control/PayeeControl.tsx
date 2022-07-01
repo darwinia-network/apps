@@ -31,17 +31,17 @@ export function PayeeControl({ onChange, value }: CustomFormControlProps<Payee>)
     () => [
       {
         type: 'Staked',
-        account: stashAccount,
+        account: stashAccount || '',
         label: t('Stash account (increase the amount at stake)'),
       },
       {
         type: 'Stash',
-        account: stashAccount,
+        account: stashAccount || '',
         label: t('Stash account (do not increase the amount at stake)'),
       },
       {
         type: 'Controller',
-        account: controllerAccount,
+        account: controllerAccount || '',
         label: t('Controller account'),
       },
       {
@@ -59,7 +59,10 @@ export function PayeeControl({ onChange, value }: CustomFormControlProps<Payee>)
         size="large"
         onChange={(opt) => {
           setType(opt);
-          triggerChange({ account: options.find((item) => item.type === opt)?.account ?? stashAccount, type: opt });
+          triggerChange({
+            account: options.find((item) => item.type === opt)?.account ?? stashAccount ?? '',
+            type: opt,
+          });
         }}
         value={value?.type}
       >
