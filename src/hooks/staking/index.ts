@@ -5,3 +5,4 @@ export * from './staking';
 export * from './stash';
 export * from './validatorPrefs';
 export * from './controllerAccount';
+export * from './stashAccount';
