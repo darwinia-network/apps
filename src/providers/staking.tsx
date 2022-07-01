@@ -16,7 +16,6 @@ export interface StakingCtx {
   isNominating: boolean;
   isStakingDeriveLoading: boolean;
   isStakingLedgerEmpty: boolean;
-  isStashAccountOwner: boolean;
   isValidating: boolean;
   isInElection: boolean;
   stakingDerive: DeriveStakingAccount | null;
@@ -66,10 +65,6 @@ function getStashAccount(bonded: Option<GenericAccountId>[], ledger: Option<Stak
   return result;
 }
 
-function isOwner(bonded: Option<GenericAccountId>[], ledger: Option<StakingLedger>): boolean {
-  return ledger.isSome || bonded.some((value) => value.isSome);
-}
-
 export const StakingContext = createContext<StakingCtx | null>(null);
 
 export const StakingProvider = ({ children }: React.PropsWithChildren<unknown>) => {
@@ -79,7 +74,6 @@ export const StakingProvider = ({ children }: React.PropsWithChildren<unknown>) 
   const [controllerAccount, setControllerAccount] = useState<string>(account?.displayAddress || '');
   const [stashAccount, setStashAccount] = useState<string>(account?.displayAddress || '');
   const [stashAccounts, setStashAccounts] = useState<string[]>([]);
-  const [isStashAccountOwner, setIsStashAccountOwner] = useState<boolean>(true);
   const [stakingDerive, setStakingDerive] = useState<DeriveStakingAccount | null>(null);
   const [isStakingDeriveLoading, setIsStakingDeriveLoading] = useState<boolean>(false);
   const [validators, setValidators] = useState<PalletStakingValidatorPrefs | null>(null);
@@ -176,17 +170,14 @@ export const StakingProvider = ({ children }: React.PropsWithChildren<unknown>) 
           getSource(controller).pipe(
             map(([bonded, ledger]) => {
               const stash = getStashAccount(bonded, ledger);
-              const is = isOwner(bonded, ledger);
-
-              return { controller, stash, is };
+              return { controller, stash };
             })
           )
         )
       )
-      .subscribe(({ controller, stash, is }) => {
+      .subscribe(({ controller, stash }) => {
         setControllerAccount(controller);
         setStashAccount(stash);
-        setIsStashAccountOwner(is);
       });
   }, [account, api]);
 
@@ -219,7 +210,6 @@ export const StakingProvider = ({ children }: React.PropsWithChildren<unknown>) 
         isNominating,
         isStakingDeriveLoading,
         isStakingLedgerEmpty,
-        isStashAccountOwner,
         isValidating,
         isInElection,
         stakingDerive,
