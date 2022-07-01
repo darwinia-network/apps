@@ -19,7 +19,7 @@ export function SetController() {
   const { api } = useApi();
   const { account } = useAccount();
   const [isVisible, setIsVisible] = useState(false);
-  const { stashAccount, controllerAccount, updateValidators, updateStakingDerive, updateControllerAndStash } =
+  const { stashAccount, controllerAccount, updateValidators, updateStakingDerive, refreshControllerAndStashAccount } =
     useStaking();
 
   const currentAccount = useMemo(() => account?.displayAddress || '', [account]);
@@ -40,7 +40,7 @@ export function SetController() {
         }}
         onSuccess={() => {
           setIsVisible(false);
-          updateControllerAndStash();
+          refreshControllerAndStashAccount();
           updateValidators();
           updateStakingDerive();
         }}

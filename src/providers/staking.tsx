@@ -4,7 +4,7 @@ import { PalletStakingValidatorPrefs } from '@polkadot/types/lookup';
 import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react';
 import { combineLatest, from, tap } from 'rxjs';
 import { DeriveStakingAccount } from '../api-derive/types';
-import { useWallet, useApi, useIsMountedOperator, useAccount, useControllerAccount, useStashAccount } from '../hooks';
+import { useWallet, useApi, useIsMountedOperator, useAccount, useControllerAndStashAccount } from '../hooks';
 import { isSameAddress } from '../utils';
 
 export interface StakingCtx {
@@ -22,7 +22,7 @@ export interface StakingCtx {
   stashAccounts: string[];
   updateStakingDerive: () => void;
   updateValidators: () => void;
-  updateControllerAndStash: () => void;
+  refreshControllerAndStashAccount: () => void;
   validators: PalletStakingValidatorPrefs | null;
 }
 
@@ -32,8 +32,9 @@ export const StakingProvider = ({ children }: React.PropsWithChildren<unknown>) 
   const { api } = useApi();
   const { accounts } = useWallet();
   const { account } = useAccount();
-  const { controllerAccount, refreshControllerAccount } = useControllerAccount(account?.displayAddress);
-  const { stashAccount, refreshStashAccount } = useStashAccount(controllerAccount);
+  const { controllerAccount, stashAccount, refreshControllerAndStashAccount } = useControllerAndStashAccount(
+    account?.displayAddress
+  );
   const [stashAccounts, setStashAccounts] = useState<string[]>([]);
   const [stakingDerive, setStakingDerive] = useState<DeriveStakingAccount | null>(null);
   const [isStakingDeriveLoading, setIsStakingDeriveLoading] = useState<boolean>(false);
@@ -114,14 +115,9 @@ export const StakingProvider = ({ children }: React.PropsWithChildren<unknown>) 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const updateControllerAndStash = useCallback(() => {
-    refreshControllerAccount();
-    refreshStashAccount();
-  }, [refreshControllerAccount, refreshStashAccount]);
-
   useEffect(() => {
-    updateControllerAndStash();
-  }, [updateControllerAndStash]);
+    refreshControllerAndStashAccount();
+  }, [refreshControllerAndStashAccount]);
 
   useEffect(() => {
     const sub$$ = from<Promise<ElectionStatus>>(
@@ -156,7 +152,7 @@ export const StakingProvider = ({ children }: React.PropsWithChildren<unknown>) 
         stashAccounts,
         updateStakingDerive,
         updateValidators,
-        updateControllerAndStash,
+        refreshControllerAndStashAccount,
         validators,
       }}
     >

@@ -6,3 +6,4 @@ export * from './stash';
 export * from './validatorPrefs';
 export * from './controllerAccount';
 export * from './stashAccount';
+export * from './controllerAndStashAccount';
