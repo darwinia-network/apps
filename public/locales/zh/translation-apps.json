@@ -158,6 +158,7 @@
   "Unbond": "解除质押",
   "Unbond amount": "解冻数量",
   "Unbond funds": "解除质押资金",
+  "Locks": "锁定",
   "Unbonded": "已解冻",
   "Unbonding": "解冻中",
   "Unbonding The amount of tokens that has been unlocked but in the unbonding period.": "解冻中: 已选择取出但在等待期限的 token。",
