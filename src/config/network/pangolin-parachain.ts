@@ -12,7 +12,7 @@ export const pangolinParachainConfig: PolkadotChainConfig = {
   provider: {
     rpc: 'wss://pangolin-parachain-rpc.darwinia.network',
   },
-  ss58Prefix: 42,
+  ss58Prefix: 18,
   type: ['polkadot', 'darwinia'],
   tokens: {
     ring: { decimal: '18', symbol: 'PRING' },
