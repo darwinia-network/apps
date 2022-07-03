@@ -118,13 +118,13 @@ export function AssetOverview({ asset, loading, refresh }: AssetOverviewProps) {
           extra={
             <span className="ml-4 mt-2 text-xs">
               <span className="mr-2">{t('transferrable')}:</span>
-              {transferrable ? (
+              {transferrable === null ? (
+                <Spin size="small" />
+              ) : (
                 <span>
                   {fromWei({ value: transferrable, unit: getUnit(Number(asset.token?.decimal)) || 'gwei' })}{' '}
                   {asset.token?.symbol}
                 </span>
-              ) : (
-                <Spin size="small" />
               )}
             </span>
           }
