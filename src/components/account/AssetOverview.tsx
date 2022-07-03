@@ -1,5 +1,5 @@
 import { Button, Card, Form, Spin } from 'antd';
-import { BN_HUNDRED, BN, isFunction } from '@polkadot/util';
+import { BN_HUNDRED, BN, BN_ZERO, isFunction } from '@polkadot/util';
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { from, Subscription } from 'rxjs';
@@ -44,7 +44,7 @@ export function AssetOverview({ asset, loading, refresh }: AssetOverviewProps) {
           const adjFee = partialFee.muln(110).div(BN_HUNDRED);
           const max = new BN(asset.max as string).sub(adjFee);
 
-          setTransferrable(max.gt(api.consts.balances?.existentialDeposit) ? max : null);
+          setTransferrable(max.gt(api.consts.balances?.existentialDeposit) ? max : BN_ZERO);
         });
       } else {
         setTransferrable(new BN(asset.max as string));
