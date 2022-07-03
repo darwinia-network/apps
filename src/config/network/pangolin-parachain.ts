@@ -6,8 +6,7 @@ export const pangolinParachainConfig: PolkadotChainConfig = {
     logoMinor: '/image/pangolin.svg',
     logoWithText: '/image/pangolin-logo.svg',
   },
-  isTest: true,
-  isParachain: true,
+  category: 'parachain',
   name: 'pangolin-parachain',
   provider: {
     rpc: 'wss://pangolin-parachain-rpc.darwinia.network',

@@ -6,7 +6,7 @@ export const darwiniaConfig: PolkadotChainConfig = {
     logoMinor: '/image/darwinia.svg',
     logoWithText: '/image/darwinia-logo.svg',
   },
-  isTest: false,
+  category: 'live',
   name: 'darwinia',
   provider: {
     rpc: 'wss://rpc.darwinia.network',

@@ -142,6 +142,7 @@
   "Switch Account": "切换账户",
   "Targets": "目标",
   "Test networks": "测试网络",
+  "Parachain networks": "平行链网络",
   "The amount of funds to unbond, this is adjusted using the bonded funds on the stash account.": "解除担保的资金数额，这是用资金账户上的担保资金来调整的。",
   "The controller is the account that will be used to control any nominating or validating actions. Should not match another stash or controller.": "控制账户是将用于控制任何提名或验证操作的帐户。 不应与其他资金账户或控制器匹配。",
   "The destination account for any payments as either a nominator or validator": "作为提名人或验证人的任何付款的目标帐户",

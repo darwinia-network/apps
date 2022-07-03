@@ -21,7 +21,7 @@ interface ProviderConfig {
 
 export interface ChainConfig {
   facade: Facade;
-  isTest: boolean;
+  category: 'live' | 'test' | 'parachain';
   name: Network;
   provider: ProviderConfig;
   type: NetworkCategory[];
@@ -36,7 +36,6 @@ export interface EthereumChainConfig extends ChainConfig {
 
 export interface PolkadotChainConfig extends ChainConfig {
   ss58Prefix: number;
-  isParachain?: boolean;
   subquery?: {
     endpoint: string;
   };

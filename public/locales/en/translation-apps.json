@@ -141,6 +141,7 @@
   "Switch Account": "Switch Account",
   "Targets": "Targets",
   "Test networks": "Test networks",
+  "Parachain networks": "Parachain networks",
   "The amount of funds to unbond, this is adjusted using the bonded funds on the stash account.": "The amount of funds to unbond, this is adjusted using the bonded funds on the stash account.",
   "The controller is the account that will be used to control any nominating or validating actions. Should not match another stash or controller.": "The controller is the account that will be used to control any nominating or validating actions. Should not match another stash or controller.",
   "The destination account for any payments as either a nominator or validator": "The destination account for any payments as either a nominator or validator",

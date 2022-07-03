@@ -28,7 +28,7 @@ export const crabConfig: DVMChainConfig = {
     logoMinor: '/image/crab.svg',
     logoWithText: '/image/crab-logo.svg',
   },
-  isTest: false,
+  category: 'live',
   name: 'crab',
   provider: {
     rpc: 'wss://crab-rpc.darwinia.network',

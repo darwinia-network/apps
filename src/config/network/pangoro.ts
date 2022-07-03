@@ -23,7 +23,7 @@ export const pangoroConfig: DVMChainConfig = {
     logoMinor: '/image/pangoro.png',
     logoWithText: '',
   },
-  isTest: true,
+  category: 'test',
   name: 'pangoro',
   provider: {
     rpc: 'wss://pangoro-rpc.darwinia.network',

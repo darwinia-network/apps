@@ -28,7 +28,7 @@ export const pangolinConfig: DVMChainConfig = {
     logoMinor: '/image/pangolin.svg',
     logoWithText: '/image/pangolin-logo.svg',
   },
-  isTest: true,
+  category: 'test',
   name: 'pangolin',
   provider: {
     rpc: 'wss://pangolin-rpc.darwinia.network',

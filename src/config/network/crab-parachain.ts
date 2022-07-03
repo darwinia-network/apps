@@ -6,8 +6,7 @@ export const crabParachainConfig: PolkadotChainConfig = {
     logoMinor: '/image/crab.svg',
     logoWithText: '/image/crab-logo.svg',
   },
-  isTest: false,
-  isParachain: true,
+  category: 'parachain',
   name: 'crab-parachain',
   provider: {
     rpc: 'wss://crab-parachain-rpc.darwinia.network/',
