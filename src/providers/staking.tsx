@@ -2,7 +2,7 @@ import { DeriveStakingOverview } from '@polkadot/api-derive/staking/types';
 import { ElectionStatus } from '@polkadot/types/interfaces';
 import { PalletStakingValidatorPrefs } from '@polkadot/types/lookup';
 import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react';
-import { combineLatest, from, tap } from 'rxjs';
+import { combineLatest, from, tap, EMPTY } from 'rxjs';
 import { DeriveStakingAccount } from '../api-derive/types';
 import { useWallet, useApi, useIsMountedOperator, useAccount, useControllerAndStashAccount } from '../hooks';
 import { isSameAddress } from '../utils';
@@ -16,6 +16,7 @@ export interface StakingCtx {
   isStakingLedgerEmpty: boolean;
   isValidating: boolean;
   isInElection: boolean;
+  isSupportedStaking: boolean;
   stakingDerive: DeriveStakingAccount | null;
   stakingOverview: DeriveStakingOverview | null;
   stashAccount: string | null;
@@ -35,12 +36,15 @@ export const StakingProvider = ({ children }: React.PropsWithChildren<unknown>) 
   const { controllerAccount, stashAccount, refreshControllerAndStashAccount } = useControllerAndStashAccount(
     account?.displayAddress
   );
+  const { takeWhileIsMounted } = useIsMountedOperator();
   const [stashAccounts, setStashAccounts] = useState<string[]>([]);
   const [stakingDerive, setStakingDerive] = useState<DeriveStakingAccount | null>(null);
   const [isStakingDeriveLoading, setIsStakingDeriveLoading] = useState<boolean>(false);
   const [validators, setValidators] = useState<PalletStakingValidatorPrefs | null>(null);
   const [stakingOverview, setStakingOverview] = useState<DeriveStakingOverview | null>(null);
   const [isInElection, setIsInElection] = useState<boolean>(false);
+
+  const isSupportedStaking = useMemo(() => !!api.tx.staking, [api]);
 
   const availableValidators = useMemo(() => {
     if (stakingOverview && stashAccounts) {
@@ -69,15 +73,15 @@ export const StakingProvider = ({ children }: React.PropsWithChildren<unknown>) 
   }, [stashAccount, stashAccounts, validators]);
 
   const isNominating = useMemo(() => !!stakingDerive?.nominators.length, [stakingDerive]);
+
   const isStakingLedgerEmpty = useMemo(
     () => !stakingDerive || !stakingDerive.stakingLedger || stakingDerive.stakingLedger.isEmpty,
     [stakingDerive]
   );
-  const { takeWhileIsMounted } = useIsMountedOperator();
 
   const updateStakingDerive = useCallback(() => {
-    if (account) {
-      from(api.derive.staking.account(account.displayAddress))
+    if (account && isSupportedStaking) {
+      return from(api.derive.staking.account(account.displayAddress))
         .pipe(
           tap(() => setIsStakingDeriveLoading(true)),
           takeWhileIsMounted()
@@ -89,51 +93,79 @@ export const StakingProvider = ({ children }: React.PropsWithChildren<unknown>) 
           },
           error: () => setIsStakingDeriveLoading(false),
         });
+    } else {
+      setStakingDerive(null);
+      return EMPTY.subscribe();
     }
-  }, [api, account, takeWhileIsMounted]);
+  }, [api, account, isSupportedStaking, takeWhileIsMounted]);
 
   const updateValidators = useCallback(() => {
-    from<Promise<PalletStakingValidatorPrefs>>(api.query.staking.validators(stashAccount))
-      .pipe(takeWhileIsMounted())
-      .subscribe((res) => setValidators(res));
-  }, [api, stashAccount, takeWhileIsMounted]);
+    if (isSupportedStaking && stashAccount) {
+      return from<Promise<PalletStakingValidatorPrefs>>(api.query.staking.validators(stashAccount))
+        .pipe(takeWhileIsMounted())
+        .subscribe((res) => setValidators(res));
+    } else {
+      setValidators(null);
+      return EMPTY.subscribe();
+    }
+  }, [api, stashAccount, isSupportedStaking, takeWhileIsMounted]);
 
   const updateStakingOverview = useCallback(() => {
-    combineLatest([api.derive.session.indexes(), api.derive.staking.validators()])
-      .pipe(takeWhileIsMounted())
-      .subscribe(([idx, val]) => setStakingOverview({ ...idx, ...val }));
-  }, [api, takeWhileIsMounted]);
+    if (isSupportedStaking) {
+      return combineLatest([api.derive.session.indexes(), api.derive.staking.validators()])
+        .pipe(takeWhileIsMounted())
+        .subscribe(([idx, val]) => setStakingOverview({ ...idx, ...val }));
+    } else {
+      setStakingOverview(null);
+      return EMPTY.subscribe();
+    }
+  }, [api, isSupportedStaking, takeWhileIsMounted]);
 
   useEffect(() => {
+    if (!isSupportedStaking) {
+      setStashAccounts([]);
+      return;
+    }
+
     const sub$$ = from(api.derive.staking.stashes()).subscribe((res) => {
       setStashAccounts(res.map((item) => item.toString()));
     });
 
-    return () => {
-      sub$$.unsubscribe();
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    return () => sub$$.unsubscribe();
+  }, [api, isSupportedStaking]);
 
   useEffect(() => {
-    refreshControllerAndStashAccount();
-  }, [refreshControllerAndStashAccount]);
+    if (!isSupportedStaking) {
+      setIsInElection(false);
+      return;
+    }
 
-  useEffect(() => {
     const sub$$ = from<Promise<ElectionStatus>>(
       api.query.staking?.eraElectionStatus ? api.query.staking.eraElectionStatus() : Promise.resolve({ isOpen: false })
     ).subscribe((status: ElectionStatus) => setIsInElection(status.isOpen));
-    return () => {
-      sub$$.unsubscribe();
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+
+    return () => sub$$.unsubscribe();
+  }, [api, isSupportedStaking]);
 
   useEffect(() => {
-    updateStakingDerive();
-    updateValidators();
-    updateStakingOverview();
-  }, [updateStakingDerive, updateStakingOverview, updateValidators]);
+    const sub$$ = refreshControllerAndStashAccount();
+    return () => sub$$.unsubscribe();
+  }, [refreshControllerAndStashAccount]);
+
+  useEffect(() => {
+    const sub$$ = updateStakingDerive();
+    return () => sub$$.unsubscribe();
+  }, [updateStakingDerive]);
+
+  useEffect(() => {
+    const sub$$ = updateStakingOverview();
+    return () => sub$$.unsubscribe();
+  }, [updateStakingOverview]);
+
+  useEffect(() => {
+    const sub$$ = updateValidators();
+    return () => sub$$.unsubscribe();
+  }, [updateValidators]);
 
   return (
     <StakingContext.Provider
@@ -146,6 +178,7 @@ export const StakingProvider = ({ children }: React.PropsWithChildren<unknown>) 
         isStakingLedgerEmpty,
         isValidating,
         isInElection,
+        isSupportedStaking,
         stakingDerive,
         stakingOverview,
         stashAccount,

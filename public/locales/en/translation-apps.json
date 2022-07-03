@@ -295,5 +295,6 @@
   "Priority slot": "Priority slot",
   "To Treaury": "To Treaury",
   "Sent Block": "Sent Block",
-  "Delay Blocks": "Delay Blocks"
+  "Delay Blocks": "Delay Blocks",
+  "Parachain now does not support staking": "Parachain now does not support staking"
 }

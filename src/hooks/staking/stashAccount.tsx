@@ -10,7 +10,7 @@ export const useStashAccount = (controllerAccount?: string | null) => {
   const [stashAccount, setStashAccount] = useState<string | null>(null);
 
   const refresh = useCallback(() => {
-    if (controllerAccount) {
+    if (controllerAccount && api.query.staking) {
       return from<Promise<Option<DarwiniaStakingStructsStakingLedger>>>(
         api.query.staking.ledger(controllerAccount)
       ).subscribe((ledger) => {

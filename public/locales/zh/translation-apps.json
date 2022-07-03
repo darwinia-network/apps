@@ -297,5 +297,6 @@
   "Priority slot": "时间槽位",
   "To Treaury": "国库",
   "Sent Block": "发送区块",
-  "Delay Blocks": "延迟区块数"
+  "Delay Blocks": "延迟区块数",
+  "Parachain now does not support staking": "平行链现在不支持质押"
 }

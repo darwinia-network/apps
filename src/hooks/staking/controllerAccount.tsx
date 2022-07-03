@@ -10,7 +10,7 @@ export const useControllerAccount = (account?: string | null) => {
   const [controllerAccount, setControllerAccount] = useState<string | null>(null);
 
   const refresh = useCallback(() => {
-    if (account) {
+    if (account && api.query.staking) {
       return from<Promise<Option<AccountId32>>>(api.query.staking.bonded(account)).subscribe((bonded) => {
         setControllerAccount(bonded.isSome ? bonded.unwrap().toString() : account);
       });
