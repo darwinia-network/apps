@@ -7,7 +7,7 @@ import { useTranslation } from 'react-i18next';
 import BigNumber from 'bignumber.js';
 import type { ColumnsType } from 'antd/lib/table';
 
-import { useApi, useQueue, useAccount, useStaking } from '../../hooks';
+import { useApi, useQueue, useStaking } from '../../hooks';
 import { DATE_FORMAT, THIRTY_DAYS_IN_MILLISECOND } from '../../config';
 import { fromWei, prettyNumber, ringToKton, processTime } from '../../utils';
 import type { DarwiniaStakingStructsTimeDepositItem, TsInMs } from '../../api-derive/types';
@@ -52,7 +52,6 @@ export const LockedRecords = ({
   loading: boolean;
 }) => {
   const { api, network } = useApi();
-  const { account } = useAccount();
   const { queueExtrinsic } = useQueue();
   const { controllerAccount, updateStakingDerive } = useStaking();
   const { t } = useTranslation();
@@ -60,20 +59,18 @@ export const LockedRecords = ({
   const [unlockEarlier, setUnlockEarlier] = useState<DataSourceState | null>();
 
   const handleUnlockEarlier = useCallback(() => {
-    if (!unlockEarlier?.duration.expireTime) {
-      return;
+    if (unlockEarlier?.duration.expireTime && controllerAccount) {
+      const extrinsic = api.tx.staking.tryClaimDepositsWithPunish(unlockEarlier.duration.expireTime);
+      queueExtrinsic({
+        signAddress: controllerAccount,
+        extrinsic,
+        txSuccessCb: () => {
+          setUnlockEarlier(null);
+          updateStakingDerive();
+        },
+      });
     }
-
-    const extrinsic = api.tx.staking.tryClaimDepositsWithPunish(unlockEarlier.duration.expireTime);
-    queueExtrinsic({
-      signAddress: account?.address || '',
-      extrinsic,
-      txSuccessCb: () => {
-        setUnlockEarlier(null);
-        updateStakingDerive();
-      },
-    });
-  }, [account, api, unlockEarlier, queueExtrinsic, updateStakingDerive]);
+  }, [api, unlockEarlier, controllerAccount, queueExtrinsic, updateStakingDerive]);
 
   useEffect(() => {
     setDataSource(
