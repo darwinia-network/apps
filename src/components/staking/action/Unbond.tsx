@@ -8,6 +8,7 @@ import { FormModal } from '../../widget/FormModal';
 import { AddressItem } from '../../widget/form-control/AddressItem';
 import { FundItem } from '../../widget/form-control/FundItem';
 import { Label } from '../../widget/form-control/Label';
+import { StakingActionProps } from './interface';
 
 interface UnbondFormValues {
   controller: string;
@@ -15,7 +16,7 @@ interface UnbondFormValues {
   [key: string]: unknown;
 }
 
-export function Unbond() {
+export function Unbond({ type = 'text', className = '', size }: StakingActionProps) {
   const { t } = useTranslation();
   const { api } = useApi();
   const [isVisible, setIsVisible] = useState(false);
@@ -41,7 +42,13 @@ export function Unbond() {
 
   return (
     <>
-      <Button disabled={!isControllerAccountOwner} onClick={() => setIsVisible(true)} type="text">
+      <Button
+        disabled={!isControllerAccountOwner}
+        onClick={() => setIsVisible(true)}
+        type={type}
+        className={className}
+        size={size}
+      >
         {t('Unbond funds')}
       </Button>
 

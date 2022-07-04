@@ -17,7 +17,7 @@ interface RebondFormValues {
   [key: string]: unknown;
 }
 
-export function Rebond({ type = 'text', className }: StakingActionProps) {
+export function Rebond({ type = 'text', className = '', size }: StakingActionProps) {
   const { t } = useTranslation();
   const { api } = useApi();
   const { assets } = useAccount();
@@ -43,7 +43,7 @@ export function Rebond({ type = 'text', className }: StakingActionProps) {
 
   return (
     <>
-      <Button type={type} className={className} onClick={() => setIsVisible(true)}>
+      <Button type={type} onClick={() => setIsVisible(true)} className={className} size={size}>
         {t('Rebond funds')}
       </Button>
 

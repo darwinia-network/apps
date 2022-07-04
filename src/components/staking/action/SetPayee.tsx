@@ -9,6 +9,7 @@ import { AddressItem } from '../../widget/form-control/AddressItem';
 import { Label } from '../../widget/form-control/Label';
 import { Payee, PayeeType } from '../../widget/form-control/PayeeControl';
 import { PayeeItem } from '../../widget/form-control/PayeeItem';
+import type { StakingActionProps } from './interface';
 
 interface SetPayeeFormValues {
   controller: string;
@@ -16,7 +17,7 @@ interface SetPayeeFormValues {
   [key: string]: unknown;
 }
 
-export function SetPayee() {
+export function SetPayee({ type = 'text', className = '', size }: StakingActionProps) {
   const { t } = useTranslation();
   const { api } = useApi();
   const [isVisible, setIsVisible] = useState(false);
@@ -38,7 +39,13 @@ export function SetPayee() {
 
   return (
     <>
-      <Button type="text" disabled={!isControllerAccountOwner} onClick={() => setIsVisible(true)}>
+      <Button
+        type={type}
+        disabled={!isControllerAccountOwner}
+        onClick={() => setIsVisible(true)}
+        className={className}
+        size={size}
+      >
         {t('Change reward destination')}
       </Button>
 
