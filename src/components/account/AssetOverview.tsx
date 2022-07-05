@@ -68,7 +68,9 @@ export function AssetOverview({ asset, loading, refresh }: AssetOverviewProps) {
           <div>
             <h1 className="uppercase text-lg font-medium text-black dark:text-white">{asset.token?.symbol}</h1>
             <Spin spinning={loading} size="small">
-              <PrettyAmount amount={fromWei({ value: asset.total }, prettyNumber)} />
+              <PrettyAmount
+                amount={fromWei({ value: asset.total, unit: getUnit(Number(asset.token.decimal)) }, prettyNumber)}
+              />
             </Spin>
           </div>
         </div>
@@ -79,7 +81,10 @@ export function AssetOverview({ asset, loading, refresh }: AssetOverviewProps) {
           <div className="inline-flex items-center">
             <span className="opacity-60 font-normal text-base">{t('Available')}:</span>
             <Spin spinning={loading} size="small">
-              <PrettyAmount amount={fromWei({ value: asset.max }, prettyNumber)} integerClassName="ml-2" />
+              <PrettyAmount
+                amount={fromWei({ value: asset.max, unit: getUnit(Number(asset.token.decimal)) }, prettyNumber)}
+                integerClassName="ml-2"
+              />
             </Spin>
           </div>
 
