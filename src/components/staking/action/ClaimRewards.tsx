@@ -14,7 +14,7 @@ import {
 } from '../../../hooks';
 import { fromWei, prettyNumber } from '../../../utils';
 import { SelectAccountModal } from '../../widget/account/SelectAccountModal';
-import { StakingActionProps } from './interface';
+import type { StakingActionProps } from './interface';
 
 interface ClaimRewardsProps extends StakingActionProps {
   eraSelectionIndex: number;
@@ -47,7 +47,13 @@ const createPayout = (
   }
 };
 
-export function ClaimRewards({ eraSelectionIndex, onSuccess = () => undefined, type = 'text' }: ClaimRewardsProps) {
+export function ClaimRewards({
+  eraSelectionIndex,
+  onSuccess = () => undefined,
+  type = 'text',
+  className = '',
+  size,
+}: ClaimRewardsProps) {
   const { t } = useTranslation();
   const { api } = useApi();
   const { accounts } = useWallet();
@@ -74,6 +80,8 @@ export function ClaimRewards({ eraSelectionIndex, onSuccess = () => undefined, t
           disabled={!hasPayoutValidator}
           loading={isLoadingRewards}
           onClick={() => setIsVisible(true)}
+          className={className}
+          size={size}
         >
           <span>{t('Claim Reward')}</span>
         </Button>
@@ -93,29 +101,34 @@ export function ClaimRewards({ eraSelectionIndex, onSuccess = () => undefined, t
                   type="primary"
                   size="large"
                   loading={busy}
-                  onClick={() => {
-                    const extrinsics = createPayout(api, payoutValidators);
-                    extrinsics.forEach((extrinsic, index) => {
-                      setBusy(true);
-                      queueExtrinsic({
-                        signAddress: signer || '',
-                        extrinsic,
-                        txFailedCb: () => {
-                          if (index + 1 === extrinsics.length) {
-                            setBusy(false);
-                          }
-                        },
-                        txSuccessCb: () => {
-                          if (index + 1 === extrinsics.length) {
-                            onSuccess();
-                            refresh();
-                            updateStakingDerive();
-                            setIsVisible(false);
-                            setBusy(false);
-                          }
-                        },
+                  onClick={async () => {
+                    if (signer) {
+                      const extrinsics = createPayout(api, payoutValidators);
+                      const nonce = (await api.rpc.system.accountNextIndex(signer)).toNumber();
+
+                      extrinsics.forEach((extrinsic, index) => {
+                        setBusy(true);
+                        queueExtrinsic({
+                          extrinsic,
+                          signAddress: signer,
+                          nonce: nonce + index,
+                          txFailedCb: () => {
+                            if (index + 1 >= extrinsics.length) {
+                              setBusy(false);
+                            }
+                          },
+                          txSuccessCb: () => {
+                            if (index + 1 >= extrinsics.length) {
+                              onSuccess();
+                              refresh();
+                              updateStakingDerive();
+                              setIsVisible(false);
+                              setBusy(false);
+                            }
+                          },
+                        });
                       });
-                    });
+                    }
                   }}
                   className="block mx-auto w-full border-none rounded-lg"
                 >

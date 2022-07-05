@@ -11,6 +11,7 @@ import { Label } from '../../widget/form-control/Label';
 import { PromiseMonthItem } from '../../widget/form-control/PromiseMonthItem';
 import { FormModal } from '../../widget/FormModal';
 import { KtonReward } from '../power/KtonReward';
+import type { StakingActionProps } from './interface';
 
 interface DepositFormValues {
   stash: string;
@@ -20,7 +21,7 @@ interface DepositFormValues {
   [key: string]: unknown;
 }
 
-export function Deposit() {
+export function Deposit({ type = 'text', className = '', size }: StakingActionProps) {
   const { t } = useTranslation();
   const { api } = useApi();
   const [isVisible, setIsVisible] = useState(false);
@@ -47,7 +48,13 @@ export function Deposit() {
 
   return (
     <>
-      <Button onClick={() => setIsVisible(true)} disabled={!isControllerAccountOwner} type="text">
+      <Button
+        onClick={() => setIsVisible(true)}
+        disabled={!isControllerAccountOwner}
+        type={type}
+        className={className}
+        size={size}
+      >
         {t('Lock extra')}
       </Button>
 

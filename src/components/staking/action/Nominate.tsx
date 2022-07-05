@@ -30,6 +30,8 @@ export function Nominate({
   defaultSelects,
   disabled,
   type = 'text',
+  className = '',
+  size,
   ...rest
 }: StakingActionProps & { defaultSelects?: string[] }) {
   const { t } = useTranslation();
@@ -98,11 +100,13 @@ export function Nominate({
     <>
       <Button
         type={type}
-        {...rest}
         disabled={disabled || isInElection || !controllerAccount || !stashAccount}
         onClick={() => {
           setIsVisible(true);
         }}
+        className={className}
+        size={size}
+        {...rest}
       >
         {t(label ?? 'Nominate')}
       </Button>
