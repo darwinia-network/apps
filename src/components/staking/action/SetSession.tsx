@@ -15,7 +15,8 @@ interface SetSessionFormValues {
   [key: string]: unknown;
 }
 
-export function SetSession({ label, disabled, type = 'text', className = '' }: StakingActionProps) {
+// eslint-disable-next-line complexity
+export function SetSession({ label, disabled, type = 'text', className = '', size }: StakingActionProps) {
   const { t } = useTranslation();
   const { api } = useApi();
   const { isNominating, isInElection, controllerAccount, stashAccount } = useStaking();
@@ -31,6 +32,7 @@ export function SetSession({ label, disabled, type = 'text', className = '' }: S
         type={type}
         disabled={disabled || isInElection}
         className={className}
+        size={size}
       >
         {t(label ?? 'Session Key')}
       </Button>

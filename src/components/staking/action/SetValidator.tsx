@@ -19,7 +19,8 @@ interface SetValidatorFormValues {
 
 const COMM_MUL = 10000000;
 
-export function SetValidator({ disabled, label, type = 'text' }: StakingActionProps) {
+// eslint-disable-next-line complexity
+export function SetValidator({ disabled, label, type = 'text', className = '', size }: StakingActionProps) {
   const { t } = useTranslation();
   const { api } = useApi();
   const { isInElection, controllerAccount, stashAccount } = useStaking();
@@ -34,6 +35,8 @@ export function SetValidator({ disabled, label, type = 'text' }: StakingActionPr
         disabled={disabled || isInElection || !controllerAccount || !stashAccount}
         type={type}
         onClick={() => setIsVisible(true)}
+        className={className}
+        size={size}
       >
         {btnText}
       </Button>
