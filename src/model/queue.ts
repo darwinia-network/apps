@@ -56,20 +56,20 @@ export interface QueueTxExtrinsic {
   txSuccessCb?: TxCallback;
   txStartCb?: () => void;
   txUpdateCb?: TxCallback;
-  signAddress: string;
+  signAddress?: string | null;
 }
 
 export interface QueueTxRpc {
   rpc: DefinitionRpcExt;
   values: unknown[];
-  signAddress: string;
+  signAddress?: string | null;
 }
 
 export interface QueueTx {
   error?: Error;
   extrinsic?: SubmittableExtrinsic;
   id: number;
-  signAddress: string;
+  signAddress?: string | null;
   result?: unknown;
   removeItem: () => void;
   rpc: DefinitionRpcExt;

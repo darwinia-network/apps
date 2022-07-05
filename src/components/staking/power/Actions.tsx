@@ -81,20 +81,18 @@ export function Actions({ eraSelectionIndex, disabled }: ActionsProps) {
   }, [api, stashAccount]);
 
   const withdrawFunds = useCallback(() => {
-    if (controllerAccount) {
-      queueExtrinsic({
-        signAddress: controllerAccount,
-        extrinsic:
-          api.tx.staking.withdrawUnbonded?.meta.args.length === 1
-            ? api.tx.staking.withdrawUnbonded(spanCount)
-            : api.tx.staking.withdrawUnbonded(),
-        txSuccessCb: () => {
-          refreshAssets();
-          updateStakingDerive();
-          refreshStakingAccount();
-        },
-      });
-    }
+    queueExtrinsic({
+      signAddress: controllerAccount,
+      extrinsic:
+        api.tx.staking.withdrawUnbonded?.meta.args.length === 1
+          ? api.tx.staking.withdrawUnbonded(spanCount)
+          : api.tx.staking.withdrawUnbonded(),
+      txSuccessCb: () => {
+        refreshAssets();
+        updateStakingDerive();
+        refreshStakingAccount();
+      },
+    });
   }, [api, controllerAccount, queueExtrinsic, refreshStakingAccount, refreshAssets, updateStakingDerive, spanCount]);
 
   useEffect(() => {
@@ -107,16 +105,14 @@ export function Actions({ eraSelectionIndex, disabled }: ActionsProps) {
       {isNominating || isValidating ? (
         <Button
           onClick={() => {
-            if (controllerAccount) {
-              queueExtrinsic({
-                signAddress: controllerAccount,
-                extrinsic: api.tx.staking.chill(),
-                txSuccessCb: () => {
-                  updateValidators();
-                  updateStakingDerive();
-                },
-              });
-            }
+            queueExtrinsic({
+              signAddress: controllerAccount,
+              extrinsic: api.tx.staking.chill(),
+              txSuccessCb: () => {
+                updateValidators();
+                updateStakingDerive();
+              },
+            });
           }}
           className="w-full lg:w-auto"
           disabled={disabled}

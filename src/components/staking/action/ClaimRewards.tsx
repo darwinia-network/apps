@@ -98,7 +98,7 @@ export function ClaimRewards({ eraSelectionIndex, onSuccess = () => undefined, t
                     extrinsics.forEach((extrinsic, index) => {
                       setBusy(true);
                       queueExtrinsic({
-                        signAddress: signer || '',
+                        signAddress: signer,
                         extrinsic,
                         txFailedCb: () => {
                           if (index + 1 === extrinsics.length) {

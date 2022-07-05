@@ -66,7 +66,7 @@ export const LockedRecords = ({
 
     const extrinsic = api.tx.staking.tryClaimDepositsWithPunish(unlockEarlier.duration.expireTime);
     queueExtrinsic({
-      signAddress: account?.address || '',
+      signAddress: account?.address,
       extrinsic,
       txSuccessCb: () => {
         setUnlockEarlier(null);
@@ -174,16 +174,14 @@ export const LockedRecords = ({
           ) : (
             <Button
               onClick={() => {
-                if (controllerAccount) {
-                  const extrinsic = api.tx.staking.claimMatureDeposits();
-                  queueExtrinsic({
-                    signAddress: controllerAccount,
-                    extrinsic,
-                    txSuccessCb: () => {
-                      updateStakingDerive();
-                    },
-                  });
-                }
+                const extrinsic = api.tx.staking.claimMatureDeposits();
+                queueExtrinsic({
+                  signAddress: controllerAccount,
+                  extrinsic,
+                  txSuccessCb: () => {
+                    updateStakingDerive();
+                  },
+                });
               }}
               className="p-0 flex items-center justify-center w-28"
             >

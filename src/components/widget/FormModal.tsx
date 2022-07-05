@@ -44,7 +44,7 @@ export function FormModal<V extends Record<string, unknown>>({
   const { t } = useTranslation();
   const [busy, setBusy] = useState(false);
 
-  const signAddress = useMemo(() => signer ?? (account?.displayAddress || ''), [signer, account]);
+  const signAddress = useMemo(() => signer ?? account?.displayAddress, [signer, account]);
 
   useEffect(() => {
     if (visible) {

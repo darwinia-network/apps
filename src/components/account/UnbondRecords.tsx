@@ -37,19 +37,17 @@ export const UnbondRecords = ({ dataSource, loading }: { dataSource: UnbondDataS
   const [currentBlockTime, setCurrentBlockTime] = useState<CurrentBlockTime>();
 
   const handleWithdraw = useCallback(() => {
-    if (controllerAccount) {
-      queueExtrinsic({
-        signAddress: controllerAccount,
-        extrinsic:
-          api.tx.staking.withdrawUnbonded?.meta.args.length === 1
-            ? api.tx.staking.withdrawUnbonded(spanCount)
-            : api.tx.staking.withdrawUnbonded(),
-        txSuccessCb: () => {
-          refreshAssets();
-          updateStakingDerive();
-        },
-      });
-    }
+    queueExtrinsic({
+      signAddress: controllerAccount,
+      extrinsic:
+        api.tx.staking.withdrawUnbonded?.meta.args.length === 1
+          ? api.tx.staking.withdrawUnbonded(spanCount)
+          : api.tx.staking.withdrawUnbonded(),
+      txSuccessCb: () => {
+        refreshAssets();
+        updateStakingDerive();
+      },
+    });
   }, [api, controllerAccount, spanCount, queueExtrinsic, refreshAssets, updateStakingDerive]);
 
   useEffect(() => {
