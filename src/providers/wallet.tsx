@@ -74,8 +74,7 @@ export const WalletProvider = ({ children }: PropsWithChildren<unknown>) => {
   }, []);
 
   useEffect(() => {
-    const readOnlyAddress =
-      new URL(window.location.href).searchParams.get('address') || '5DXNxrbYboFHxX7CZdqgqfWfCBdSn2MKBRjCNLpahV2Pff6C';
+    const readOnlyAddress = new URL(window.location.href).searchParams.get('address');
     const readOnly =
       readOnlyAddress && isValidAddress(readOnlyAddress)
         ? [
