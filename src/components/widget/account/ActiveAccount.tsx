@@ -86,11 +86,8 @@ export const ActiveAccount = () => {
               className={`-top-1 -right-2 ${account?.meta.source === SEARCH_PARAMS_SOURCE ? '' : 'hidden'}`}
             >
               <AccountWithNetwork
-                onClick={(event) => {
-                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                  if ((event.target as any).tagName === 'SPAN') {
-                    setVisible(true);
-                  }
+                onClick={() => {
+                  setVisible(true);
                 }}
                 account={account}
                 className="text-white hidden lg:flex cursor-pointer"
