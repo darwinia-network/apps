@@ -13,6 +13,7 @@ import { PromiseMonthItem } from '../../widget/form-control/PromiseMonthItem';
 import { FormModal } from '../../widget/FormModal';
 import { KtonReward } from '../power/KtonReward';
 import { PowerReward } from '../power/PowerReward';
+import type { StakingActionProps } from './interface';
 
 interface BondMoreFormValues {
   stash: string;
@@ -22,7 +23,7 @@ interface BondMoreFormValues {
   [key: string]: unknown;
 }
 
-export function BondMore() {
+export function BondMore({ type = 'text', className = '', size }: StakingActionProps) {
   const { t } = useTranslation();
   const { api } = useApi();
   const [isVisible, setIsVisible] = useState(false);
@@ -48,7 +49,13 @@ export function BondMore() {
 
   return (
     <>
-      <Button onClick={() => setIsVisible(true)} type="text" disabled={!hasFreeBalance}>
+      <Button
+        onClick={() => setIsVisible(true)}
+        type={type}
+        disabled={!hasFreeBalance}
+        className={className}
+        size={size}
+      >
         {t('Bond more funds')}
       </Button>
 

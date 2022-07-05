@@ -1,7 +1,7 @@
 import { SubmittableExtrinsic } from '@polkadot/api/promise/types';
 import { SubmittableResult } from '@polkadot/api';
 import { AccountId, Address } from '@polkadot/types/interfaces';
-import { DefinitionRpcExt } from '@polkadot/types/types';
+import { DefinitionRpcExt, AnyNumber } from '@polkadot/types/types';
 
 export type Actions = 'create' | 'edit' | 'restore' | 'forget' | 'backup' | 'changePassword' | 'transfer';
 
@@ -51,12 +51,13 @@ export interface QueueTxResult {
 }
 
 export interface QueueTxExtrinsic {
+  nonce?: AnyNumber;
   extrinsic?: SubmittableExtrinsic;
+  signAddress?: string | null;
   txFailedCb?: TxFailedCallback;
   txSuccessCb?: TxCallback;
   txStartCb?: () => void;
   txUpdateCb?: TxCallback;
-  signAddress?: string | null;
 }
 
 export interface QueueTxRpc {
@@ -69,6 +70,7 @@ export interface QueueTx {
   error?: Error;
   extrinsic?: SubmittableExtrinsic;
   id: number;
+  nonce?: AnyNumber;
   signAddress?: string | null;
   result?: unknown;
   removeItem: () => void;

@@ -1,6 +1,6 @@
 import { Card, Spin } from 'antd';
 import { useTranslation } from 'react-i18next';
-import { useRef, useEffect, useState } from 'react';
+import { useEffect, useState, createRef } from 'react';
 import type { Option, Vec, u128 } from '@polkadot/types';
 import { BN_ONE } from '@polkadot/util';
 import { Balance, AccountId32 } from '@polkadot/types/interfaces';
@@ -45,8 +45,8 @@ export const Overview = ({ destination }: { destination: CrossChainDestination }
   const { api, network } = useApi();
   const { t } = useTranslation();
 
-  const totalOrdersRef = useRef<HTMLDivElement>(null);
-  const feeHistoryRef = useRef<HTMLDivElement>(null);
+  const totalOrdersRef = createRef<HTMLDivElement>();
+  const feeHistoryRef = createRef<HTMLDivElement>();
 
   const [feeSgmentedType, setFeeSegmentedType] = useState(SegmentedType.ALL);
   const [orderSegmentedType, setOrderSegmentedType] = useState(SegmentedType.ALL);
@@ -189,7 +189,7 @@ export const Overview = ({ destination }: { destination: CrossChainDestination }
   }, [totalOrdersData?.orderEntities?.nodes]);
 
   useEffect(() => {
-    if (!totalOrdersRef.current) {
+    if (!totalOrdersRef.current || totalOrdersRef.current.clientHeight === 0) {
       return;
     }
 
@@ -217,10 +217,10 @@ export const Overview = ({ destination }: { destination: CrossChainDestination }
     instance.setOption(option);
 
     return () => instance.dispose();
-  }, [totalOrders]);
+  }, [totalOrders, totalOrdersRef]);
 
   useEffect(() => {
-    if (!feeHistoryRef.current) {
+    if (!feeHistoryRef.current || feeHistoryRef.current.clientHeight === 0) {
       return;
     }
 
@@ -249,7 +249,7 @@ export const Overview = ({ destination }: { destination: CrossChainDestination }
     instance.setOption(option);
 
     return () => instance.dispose();
-  }, [feeHistory]);
+  }, [feeHistory, feeHistoryRef]);
 
   return (
     <>
