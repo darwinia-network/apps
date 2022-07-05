@@ -298,5 +298,5 @@
   "To Treaury": "国库",
   "Sent Block": "发送区块",
   "Delay Blocks": "延迟区块数",
-  "Insufficient {{kton}} balance": "{{kton}} 余额不足"
+  "Insufficient {{kton}} balance in stash account": "资金账户的 {{kton}} 余额不足"
 }

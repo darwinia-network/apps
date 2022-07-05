@@ -296,5 +296,5 @@
   "To Treaury": "To Treaury",
   "Sent Block": "Sent Block",
   "Delay Blocks": "Delay Blocks",
-  "Insufficient {{kton}} balance": "Insufficient {{kton}} balance"
+  "Insufficient {{kton}} balance in stash account": "Insufficient {{kton}} balance in stash account"
 }

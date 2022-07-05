@@ -8,7 +8,7 @@ import BigNumber from 'bignumber.js';
 import type { ColumnsType } from 'antd/lib/table';
 
 import { DarwiniaAsset } from 'src/model';
-import { useApi, useQueue, useStaking, useAccount } from '../../hooks';
+import { useApi, useQueue, useStaking, useAssets } from '../../hooks';
 import { DATE_FORMAT, THIRTY_DAYS_IN_MILLISECOND } from '../../config';
 import { fromWei, prettyNumber, ringToKton, processTime, toWei } from '../../utils';
 import type { DarwiniaStakingStructsTimeDepositItem, TsInMs } from '../../api-derive/types';
@@ -53,9 +53,9 @@ export const LockedRecords = ({
   loading: boolean;
 }) => {
   const { api, network } = useApi();
-  const { assets } = useAccount();
   const { queueExtrinsic } = useQueue();
-  const { controllerAccount, updateStakingDerive } = useStaking();
+  const { controllerAccount, stashAccount, updateStakingDerive } = useStaking();
+  const { assets: stashAssets } = useAssets(stashAccount);
   const { t } = useTranslation();
   const [dataSource, setDataSource] = useState<DataSourceState[]>([]);
 
@@ -165,7 +165,7 @@ export const LockedRecords = ({
               onClick={() => {
                 const penalty = calcFine(record);
                 const isInsufficient = new BN(
-                  assets.find((asset) => asset.asset === DarwiniaAsset.kton)?.max || '0'
+                  stashAssets.find((asset) => asset.asset === DarwiniaAsset.kton)?.max || '0'
                 ).lt(new BN(toWei({ value: penalty })));
 
                 Modal.confirm({
@@ -184,7 +184,7 @@ export const LockedRecords = ({
                       </p>
                       {isInsufficient ? (
                         <span className="text-red-400 text-xs">
-                          {t('Insufficient {{kton}} balance', { kton: network.tokens.kton.symbol })}
+                          {t('Insufficient {{kton}} balance in stash account', { kton: network.tokens.kton.symbol })}
                         </span>
                       ) : null}
                     </>
