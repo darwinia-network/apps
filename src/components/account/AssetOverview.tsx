@@ -106,7 +106,7 @@ export function AssetOverview({ asset, loading, refresh }: AssetOverviewProps) {
             setRecipient(value.to);
           }
         }}
-        initialValues={{ from: account?.displayAddress || '', to: recipient }}
+        initialValues={{ from: account?.displayAddress, to: recipient }}
         extrinsic={(values) => {
           const { to, amount } = values;
           const moduleName = isRing(asset.token?.symbol) ? 'balances' : 'kton';

@@ -48,7 +48,7 @@ export function SetSession({ label, disabled, type = 'text', className = '' }: S
           setIsVisible(false);
         }}
         signer={controllerAccount}
-        initialValues={{ controller: controllerAccount || undefined }}
+        initialValues={{ controller: controllerAccount }}
       >
         <AddressItem name="controller" label="Controller account" disabled extra={null} />
 

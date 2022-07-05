@@ -64,7 +64,7 @@ export function SetPayee() {
         }}
         signer={controllerAccount}
         initialValues={{
-          controller: controllerAccount || undefined,
+          controller: controllerAccount,
           payee: destination
             ? destination.isAccount
               ? { type: 'Account', account: destination.asAccount.toString() }

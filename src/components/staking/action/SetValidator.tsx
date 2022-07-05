@@ -52,8 +52,8 @@ export function SetValidator({ disabled, label, type = 'text' }: StakingActionPr
         }}
         signer={controllerAccount}
         initialValues={{
-          stash: stashAccount || undefined,
-          controller: controllerAccount || undefined,
+          stash: stashAccount,
+          controller: controllerAccount,
           percentage: (validatorPrefs?.commission.unwrap().toNumber() ?? 0) / COMM_MUL,
         }}
       >

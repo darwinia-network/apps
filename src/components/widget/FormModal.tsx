@@ -9,11 +9,11 @@ import { useTranslation } from 'react-i18next';
 import { validateMessages } from '../../config';
 import i18n from '../../config/i18n';
 import { useAccount, useQueue } from '../../hooks';
-import { TxFailedCallback, TxCallback } from '../../model';
+import { TxFailedCallback, TxCallback, WithNull } from '../../model';
 
 interface ModalFormProps<Values extends Record<string, unknown>> {
   extrinsic: (val: Values) => SubmittableExtrinsic<'promise', ISubmittableResult>;
-  initialValues?: Partial<Values>;
+  initialValues?: WithNull<Partial<Values>>;
   modalProps: ModalProps;
   signer?: string | null;
   onFail?: TxFailedCallback;

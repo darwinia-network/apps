@@ -70,7 +70,7 @@ export function Deposit() {
           updateValidators();
           updateStakingDerive();
         }}
-        initialValues={{ stash: stashAccount || undefined, promiseMonth: duration, accept: false }}
+        initialValues={{ stash: stashAccount, promiseMonth: duration, accept: false }}
       >
         <AddressItem
           name="stash"

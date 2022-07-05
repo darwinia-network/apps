@@ -122,8 +122,8 @@ export function Nominate({
         }}
         signer={controllerAccount}
         initialValues={{
-          controller: controllerAccount || undefined,
-          stash: stashAccount || undefined,
+          controller: controllerAccount,
+          stash: stashAccount,
           targets: defaultSelected,
         }}
       >

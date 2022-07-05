@@ -71,7 +71,7 @@ export function BondMore() {
           refreshAssets();
         }}
         signer={stashAccount}
-        initialValues={{ stash: stashAccount || undefined, promiseMonth: duration, accept: false }}
+        initialValues={{ stash: stashAccount, promiseMonth: duration, accept: false }}
       >
         <AddressItem name="stash" label="Stash account" disabled />
 

@@ -68,7 +68,7 @@ export function Unbond() {
           updateStakingDerive();
         }}
         signer={controllerAccount}
-        initialValues={{ controller: controllerAccount || undefined }}
+        initialValues={{ controller: controllerAccount }}
       >
         <AddressItem
           label="Controller account"
