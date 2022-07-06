@@ -28,12 +28,14 @@ body {
 
 .darwinia-light-select,
 .crab-light-select,
+.crab-parachain-light-select,
 .pangoro-light-select,
 .pangolin-light-select,
+.pangolin-parachain-light-select,
 .darwinia-dark-select,
-.crab-dark-select,
+.crab-parachain-dark-select,
 .pangoro-dark-select,
-.pangolin-dark-select {
+.pangolin-parachain-dark-select {
   .ant-select-selector {
     padding: 0 !important;
   }
@@ -73,13 +75,17 @@ body {
 }
 
 .crab-light-select .ant-select-selector,
-.crab-dark-select .ant-select-selector {
+.crab-parachain-light-select .ant-select-selector,
+.crab-dark-select .ant-select-selector,
+.crab-parachain-dark-select .ant-select-selector {
   border-color: #ec3783 !important;
 }
 
 .pangolin-light-select .ant-select-selector,
+.pangolin-parachain-light-select .ant-select-selector,
 .pangoro-light-select .ant-select-selector,
 .pangolin-dark-select .ant-select-selector,
+.pangolin-parachain-dark-select .ant-select-selector,
 .pangoro-dark-select .ant-select-selector {
   border-color: #5745de !important;
 }
@@ -212,7 +218,8 @@ body {
   }
 }
 
-.page-account-tabs-crab {
+.page-account-tabs-crab,
+.page-account-tabs-crab-parachain {
   > .ant-tabs-nav::before {
     background: #ec3783;
   }
@@ -224,7 +231,8 @@ body {
   }
 }
 
-.page-account-tabs-pangolin {
+.page-account-tabs-pangolin,
+.page-account-tabs-pangolin-parachain {
   > .ant-tabs-nav::before {
     background: #5745de;
   }
@@ -236,7 +244,8 @@ body {
   }
 }
 
-.network-radio-button-crab:hover {
+.network-radio-button-crab:hover,
+.network-radio-button-crab-parachain:hover {
   border-color: #ec3783 !important;
 }
 
@@ -245,7 +254,8 @@ body {
   background: linear-gradient(#ffffff, #ffffff) padding-box, linear-gradient(to right, #5745de, #ec3783) border-box !important;
 }
 
-.network-radio-button-pangolin:hover {
+.network-radio-button-pangolin:hover,
+.network-radio-button-pangolin-parachain:hover {
   border-color: #5745de !important;
 }
 
@@ -267,7 +277,8 @@ body {
   }
 }
 
-.staking-earnings-time-btn-checked-crab {
+.staking-earnings-time-btn-checked-crab,
+.staking-earnings-time-btn-checked-crab-parachain {
   border-radius: 10px !important;
   background: #ec3783 !important;
 }
@@ -277,7 +288,8 @@ body {
   background: linear-gradient(-45deg, #fe3876 0%, #7c30dd 71%, #3a30dd 100%) !important;
 }
 
-.staking-earnings-time-btn-checked-pangolin {
+.staking-earnings-time-btn-checked-pangolin,
+.staking-earnings-time-btn-checked-pangolin-parachain {
   border-radius: 10px !important;
   background: #5745de !important;
 }

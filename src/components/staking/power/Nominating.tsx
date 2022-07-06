@@ -40,6 +40,11 @@ function Nominators() {
   const [nominators, setNominators] = useState<[string, Power][] | null>(null);
 
   useEffect(() => {
+    if (!stashAccount) {
+      setNominators(null);
+      return;
+    }
+
     const sub$$ = from(api.derive.staking.query(stashAccount, { withLedger: true })).subscribe((stakingInfo) =>
       setNominators(
         (stakingInfo as unknown as DeriveStakingQuery).exposure?.others.map((item) => [

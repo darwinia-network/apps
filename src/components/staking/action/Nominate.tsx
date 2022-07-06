@@ -24,11 +24,14 @@ interface NominateFormValues {
   [key: string]: unknown;
 }
 
+// eslint-disable-next-line complexity
 export function Nominate({
   label,
   defaultSelects,
   disabled,
   type = 'text',
+  className = '',
+  size,
   ...rest
 }: StakingActionProps & { defaultSelects?: string[] }) {
   const { t } = useTranslation();
@@ -97,11 +100,13 @@ export function Nominate({
     <>
       <Button
         type={type}
-        {...rest}
         disabled={disabled || isInElection || !controllerAccount || !stashAccount}
         onClick={() => {
           setIsVisible(true);
         }}
+        className={className}
+        size={size}
+        {...rest}
       >
         {t(label ?? 'Nominate')}
       </Button>
@@ -120,7 +125,11 @@ export function Nominate({
           updateStakingDerive();
         }}
         signer={controllerAccount}
-        initialValues={{ controller: controllerAccount, stash: stashAccount, targets: defaultSelected }}
+        initialValues={{
+          controller: controllerAccount,
+          stash: stashAccount,
+          targets: defaultSelected,
+        }}
       >
         <AddressItem name="controller" label="Controller account" disabled={!defaultSelects} />
         <AddressItem name="stash" label="Stash account" disabled />

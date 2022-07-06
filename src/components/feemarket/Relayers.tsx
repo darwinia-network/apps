@@ -208,10 +208,10 @@ export const Relayers = ({ destination }: { destination: CrossChainDestination }
       <div className="flex items-end justify-between">
         <Radio.Group onChange={(e) => setTab(e.target.value)} value={tab}>
           <Radio.Button value={RelayerTab.ALL}>
-            <span>{t('All Relayers')}</span>
+            <span className="relayers-sub-tab">{t('All Relayers')}</span>
           </Radio.Button>
           <Radio.Button value={RelayerTab.ASSIGNED}>
-            <span>{t('Assigned Relayers')}</span>
+            <span className="relayers-sub-tab">{t('Assigned Relayers')}</span>
           </Radio.Button>
         </Radio.Group>
         <Input

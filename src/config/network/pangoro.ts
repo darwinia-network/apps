@@ -23,13 +23,9 @@ export const pangoroConfig: DVMChainConfig = {
     logoMinor: '/image/pangoro.png',
     logoWithText: '',
   },
-  endpoints: {
-    mmr: '',
-  },
-  isTest: true,
+  category: 'test',
   name: 'pangoro',
   provider: {
-    etherscan: '',
     rpc: 'wss://pangoro-rpc.darwinia.network',
   },
   ss58Prefix: 18,

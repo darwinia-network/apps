@@ -8,25 +8,27 @@ import { FormModal } from '../../widget/FormModal';
 import { AddressItem } from '../../widget/form-control/AddressItem';
 import { Label } from '../../widget/form-control/Label';
 import { validateController } from '../../../utils';
+import type { StakingActionProps } from './interface';
+
 interface SetControllerFormValues {
   stash: string;
   controller: string;
   [key: string]: unknown;
 }
 
-export function SetController() {
+export function SetController({ type = 'text', className = '', size }: StakingActionProps) {
   const { t } = useTranslation();
   const { api } = useApi();
   const { account } = useAccount();
   const [isVisible, setIsVisible] = useState(false);
-  const { stashAccount, controllerAccount, updateValidators, updateStakingDerive, updateControllerAndStash } =
+  const { stashAccount, controllerAccount, updateValidators, updateStakingDerive, refreshControllerAndStashAccount } =
     useStaking();
 
   const currentAccount = useMemo(() => account?.displayAddress || '', [account]);
 
   return (
     <>
-      <Button onClick={() => setIsVisible(true)} type="text">
+      <Button onClick={() => setIsVisible(true)} type={type} className={className} size={size}>
         {t('Change controller account')}
       </Button>
 
@@ -40,7 +42,7 @@ export function SetController() {
         }}
         onSuccess={() => {
           setIsVisible(false);
-          updateControllerAndStash();
+          refreshControllerAndStashAccount();
           updateValidators();
           updateStakingDerive();
         }}

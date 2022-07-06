@@ -23,18 +23,14 @@ export const crabConfig: DVMChainConfig = {
     },
     rpcUrls: ['https://crab-rpc.darwinia.network/'],
   },
-  endpoints: {
-    mmr: '',
-  },
   facade: {
     logo: '/image/crab.png',
     logoMinor: '/image/crab.svg',
     logoWithText: '/image/crab-logo.svg',
   },
-  isTest: false,
+  category: 'live',
   name: 'crab',
   provider: {
-    etherscan: '',
     rpc: 'wss://crab-rpc.darwinia.network',
   },
   type: ['polkadot', 'darwinia'],

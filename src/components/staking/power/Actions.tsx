@@ -1,9 +1,9 @@
 import { SettingFilled } from '@ant-design/icons';
 import { u8aConcat, u8aToHex } from '@polkadot/util';
 import { Button, Dropdown, Menu } from 'antd';
-import { useMemo, useCallback, useEffect, useState } from 'react';
+import { useMemo, useCallback, useEffect, useState, PropsWithChildren } from 'react';
 import { useTranslation } from 'react-i18next';
-import { from } from 'rxjs';
+import { from, EMPTY } from 'rxjs';
 import type { DeriveStakingAccount } from '../../../api-derive/types';
 import { useApi, useStaking, useQueue, useSlashingSpans, useAccount, useWallet } from '../../../hooks';
 import {
@@ -23,6 +23,12 @@ interface ActionsProps {
   disabled?: boolean;
   eraSelectionIndex: number;
 }
+
+const ActionDropdownItem = ({ itemKey, children }: PropsWithChildren<{ itemKey: string }>) => (
+  <Menu.Item key={itemKey} className="p-0 my-1">
+    {children}
+  </Menu.Item>
+);
 
 // eslint-disable-next-line complexity
 export function Actions({ eraSelectionIndex, disabled }: ActionsProps) {
@@ -66,17 +72,19 @@ export function Actions({ eraSelectionIndex, disabled }: ActionsProps) {
   }, [stakingDerive]);
 
   const isOwnController = useMemo(
-    () => accounts.map((item) => item.displayAddress).includes(controllerAccount),
+    () => !!controllerAccount && accounts.map((item) => item.displayAddress).includes(controllerAccount),
     [accounts, controllerAccount]
   );
 
-  const refreshStakingAccount = useCallback(
-    () =>
-      from(api.derive.staking.account(stashAccount) as unknown as Promise<DeriveStakingAccount>).subscribe(
+  const refreshStakingAccount = useCallback(() => {
+    if (stashAccount) {
+      return from(api.derive.staking.account(stashAccount) as unknown as Promise<DeriveStakingAccount>).subscribe(
         setStakingAccount
-      ),
-    [api, stashAccount]
-  );
+      );
+    } else {
+      return EMPTY.subscribe();
+    }
+  }, [api, stashAccount]);
 
   const withdrawFunds = useCallback(() => {
     queueExtrinsic({
@@ -131,58 +139,60 @@ export function Actions({ eraSelectionIndex, disabled }: ActionsProps) {
         disabled={disabled}
         overlay={
           <Menu>
-            <Menu.Item key="claimRewards">
-              <ClaimRewards eraSelectionIndex={eraSelectionIndex} />
-            </Menu.Item>
+            <ActionDropdownItem itemKey="claimRewards">
+              <ClaimRewards className="w-full text-left" size="large" eraSelectionIndex={eraSelectionIndex} />
+            </ActionDropdownItem>
 
-            <Menu.Item key="bondMore">
-              <BondMore />
-            </Menu.Item>
+            <ActionDropdownItem itemKey="bondMore">
+              <BondMore className="w-full text-left" size="large" />
+            </ActionDropdownItem>
 
-            <Menu.Item key="unbond">
-              <Unbond />
-            </Menu.Item>
+            <ActionDropdownItem itemKey="unbond">
+              <Unbond className="w-full text-left" size="large" />
+            </ActionDropdownItem>
 
-            <Menu.Item key="deposit">
-              <Deposit />
-            </Menu.Item>
+            <ActionDropdownItem itemKey="deposit">
+              <Deposit className="w-full text-left" size="large" />
+            </ActionDropdownItem>
 
-            <Menu.Item key="rebond">
-              <Rebond />
-            </Menu.Item>
+            <ActionDropdownItem itemKey="rebond">
+              <Rebond className="w-full text-left" size="large" />
+            </ActionDropdownItem>
 
-            <Menu.Item key="withdrawUnbonded">
+            <ActionDropdownItem itemKey="withdrawUnbonded">
               <Button
                 type="text"
                 disabled={!isOwnController || !stakingAccount?.redeemable?.gtn(0)}
                 onClick={withdrawFunds}
+                className="w-full text-left"
+                size="large"
               >
                 {t('Withdraw unbonded funds')}
               </Button>
-            </Menu.Item>
+            </ActionDropdownItem>
 
-            <Menu.Item key="controller">
-              <SetController />
-            </Menu.Item>
+            <ActionDropdownItem itemKey="controller">
+              <SetController className="w-full text-left" size="large" />
+            </ActionDropdownItem>
 
-            <Menu.Item key="payee">
-              <SetPayee />
-            </Menu.Item>
+            <ActionDropdownItem itemKey="payee">
+              <SetPayee className="w-full text-left" size="large" />
+            </ActionDropdownItem>
 
             {isValidating && (
-              <Menu.Item key="validator">
-                <SetValidator />
-              </Menu.Item>
+              <ActionDropdownItem itemKey="validator">
+                <SetValidator className="w-full text-left" size="large" />
+              </ActionDropdownItem>
             )}
 
             {isNominating ? (
-              <Menu.Item key="nominees">
-                <Nominate label="Set nominees" />
-              </Menu.Item>
+              <ActionDropdownItem itemKey="nominees">
+                <Nominate className="w-full text-left" size="large" label="Set nominees" />
+              </ActionDropdownItem>
             ) : (
-              <Menu.Item key="session">
-                <SetSession label="Set session key" />
-              </Menu.Item>
+              <ActionDropdownItem itemKey="session">
+                <SetSession className="w-full text-left" size="large" label="Set session key" />
+              </ActionDropdownItem>
             )}
           </Menu>
         }

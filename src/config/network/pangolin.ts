@@ -23,18 +23,14 @@ export const pangolinConfig: DVMChainConfig = {
     },
     rpcUrls: ['https://pangolin-rpc.darwinia.network/'],
   },
-  endpoints: {
-    mmr: 'https://api.subquery.network/sq/darwinia-network/pangolin-mmr',
-  },
   facade: {
     logo: '/image/pangolin.png',
     logoMinor: '/image/pangolin.svg',
     logoWithText: '/image/pangolin-logo.svg',
   },
-  isTest: true,
+  category: 'test',
   name: 'pangolin',
   provider: {
-    etherscan: 'wss://ropsten.infura.io/ws/v3/5350449ccd2349afa007061e62ee1409',
     rpc: 'wss://pangolin-rpc.darwinia.network',
   },
   ss58Prefix: 42,

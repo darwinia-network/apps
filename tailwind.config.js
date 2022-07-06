@@ -20,7 +20,9 @@ module.exports = {
       backgroundColor: (_) => ({
         antDark: '#151e33',
         crab: '#EC3783',
+        'crab-parachain': '#EC3783',
         pangolin: '#5745DE',
+        'pangolin-parachain': '#5745DE',
         pangoro: '#5745DE',
       }),
       borderRadius: {
@@ -36,10 +38,16 @@ module.exports = {
         crab: {
           main: '#EC3783',
         },
+        'crab-parachain': {
+          main: '#EC3783',
+        },
         darwinia: {
           main: '#3a30dd',
         },
         pangolin: {
+          main: '#5745DE',
+        },
+        'pangolin-parachain': {
           main: '#5745DE',
         },
         pangoro: {

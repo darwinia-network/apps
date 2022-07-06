@@ -1,73 +1,30 @@
 import { DeriveStakingOverview } from '@polkadot/api-derive/staking/types';
-import { GenericAccountId, Option } from '@polkadot/types';
 import { ElectionStatus } from '@polkadot/types/interfaces';
-import { StakingLedger } from '@polkadot/types/interfaces/staking';
 import { PalletStakingValidatorPrefs } from '@polkadot/types/lookup';
 import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react';
-import { combineLatest, from, map, switchMap, tap, zip } from 'rxjs';
+import { combineLatest, from, tap, EMPTY } from 'rxjs';
 import { DeriveStakingAccount } from '../api-derive/types';
-import { useWallet, useApi, useIsMountedOperator, useAccount } from '../hooks';
+import { useWallet, useApi, useIsMountedOperator, useAccount, useControllerAndStashAccount } from '../hooks';
 import { isSameAddress } from '../utils';
 
 export interface StakingCtx {
   availableValidators: string[];
-  controllerAccount: string;
+  controllerAccount: string | null;
   isControllerAccountOwner: boolean;
   isNominating: boolean;
   isStakingDeriveLoading: boolean;
   isStakingLedgerEmpty: boolean;
-  isStashAccountOwner: boolean;
   isValidating: boolean;
   isInElection: boolean;
+  isSupportedStaking: boolean;
   stakingDerive: DeriveStakingAccount | null;
   stakingOverview: DeriveStakingOverview | null;
-  stashAccount: string;
+  stashAccount: string | null;
   stashAccounts: string[];
   updateStakingDerive: () => void;
   updateValidators: () => void;
-  updateControllerAndStash: () => void;
+  refreshControllerAndStashAccount: () => void;
   validators: PalletStakingValidatorPrefs | null;
-}
-
-function getControllerAccount(
-  assumedControllerAccount: string,
-  bonded?: Option<GenericAccountId>[],
-  ledger?: Option<StakingLedger>
-): string {
-  if (bonded && ledger) {
-    bonded.forEach((value): void => {
-      if (value.isSome) {
-        assumedControllerAccount = value.unwrap().toString();
-      }
-    });
-  }
-
-  return assumedControllerAccount;
-}
-
-function getStashAccount(bonded: Option<GenericAccountId>[], ledger: Option<StakingLedger>): string {
-  let result = '';
-
-  bonded.forEach((value): void => {
-    if (value.isSome) {
-      // !FIXME: max result.length: 1 ? bug?
-      result = value.unwrap().toString();
-    }
-  });
-
-  if (ledger.isSome) {
-    const stashAccount = ledger.unwrap().stash.toString();
-
-    if (result !== stashAccount) {
-      result = stashAccount;
-    }
-  }
-
-  return result;
-}
-
-function isOwner(bonded: Option<GenericAccountId>[], ledger: Option<StakingLedger>): boolean {
-  return ledger.isSome || bonded.some((value) => value.isSome);
 }
 
 export const StakingContext = createContext<StakingCtx | null>(null);
@@ -76,15 +33,18 @@ export const StakingProvider = ({ children }: React.PropsWithChildren<unknown>) 
   const { api } = useApi();
   const { accounts } = useWallet();
   const { account } = useAccount();
-  const [controllerAccount, setControllerAccount] = useState<string>(account?.displayAddress || '');
-  const [stashAccount, setStashAccount] = useState<string>(account?.displayAddress || '');
+  const { controllerAccount, stashAccount, refreshControllerAndStashAccount } = useControllerAndStashAccount(
+    account?.displayAddress
+  );
+  const { takeWhileIsMounted } = useIsMountedOperator();
   const [stashAccounts, setStashAccounts] = useState<string[]>([]);
-  const [isStashAccountOwner, setIsStashAccountOwner] = useState<boolean>(true);
   const [stakingDerive, setStakingDerive] = useState<DeriveStakingAccount | null>(null);
   const [isStakingDeriveLoading, setIsStakingDeriveLoading] = useState<boolean>(false);
   const [validators, setValidators] = useState<PalletStakingValidatorPrefs | null>(null);
   const [stakingOverview, setStakingOverview] = useState<DeriveStakingOverview | null>(null);
   const [isInElection, setIsInElection] = useState<boolean>(false);
+
+  const isSupportedStaking = useMemo(() => !!api.tx.staking, [api]);
 
   const availableValidators = useMemo(() => {
     if (stakingOverview && stashAccounts) {
@@ -105,6 +65,7 @@ export const StakingProvider = ({ children }: React.PropsWithChildren<unknown>) 
 
   const isValidating = useMemo(() => {
     return (
+      !!stashAccount &&
       !!validators &&
       (!(Array.isArray(validators) ? validators[1].isEmpty : validators.isEmpty) ||
         stashAccounts.includes(stashAccount))
@@ -112,15 +73,15 @@ export const StakingProvider = ({ children }: React.PropsWithChildren<unknown>) 
   }, [stashAccount, stashAccounts, validators]);
 
   const isNominating = useMemo(() => !!stakingDerive?.nominators.length, [stakingDerive]);
+
   const isStakingLedgerEmpty = useMemo(
     () => !stakingDerive || !stakingDerive.stakingLedger || stakingDerive.stakingLedger.isEmpty,
     [stakingDerive]
   );
-  const { takeWhileIsMounted } = useIsMountedOperator();
 
   const updateStakingDerive = useCallback(() => {
-    if (account) {
-      from(api.derive.staking.account(account.displayAddress))
+    if (account && isSupportedStaking) {
+      return from(api.derive.staking.account(account.displayAddress))
         .pipe(
           tap(() => setIsStakingDeriveLoading(true)),
           takeWhileIsMounted()
@@ -132,83 +93,79 @@ export const StakingProvider = ({ children }: React.PropsWithChildren<unknown>) 
           },
           error: () => setIsStakingDeriveLoading(false),
         });
+    } else {
+      setStakingDerive(null);
+      return EMPTY.subscribe();
     }
-  }, [api, account, takeWhileIsMounted]);
+  }, [api, account, isSupportedStaking, takeWhileIsMounted]);
 
   const updateValidators = useCallback(() => {
-    from<Promise<PalletStakingValidatorPrefs>>(api.query.staking.validators(stashAccount))
-      .pipe(takeWhileIsMounted())
-      .subscribe((res) => setValidators(res));
-  }, [api, stashAccount, takeWhileIsMounted]);
+    if (isSupportedStaking && stashAccount) {
+      return from<Promise<PalletStakingValidatorPrefs>>(api.query.staking.validators(stashAccount))
+        .pipe(takeWhileIsMounted())
+        .subscribe((res) => setValidators(res));
+    } else {
+      setValidators(null);
+      return EMPTY.subscribe();
+    }
+  }, [api, stashAccount, isSupportedStaking, takeWhileIsMounted]);
 
   const updateStakingOverview = useCallback(() => {
-    combineLatest([api.derive.session.indexes(), api.derive.staking.validators()])
-      .pipe(takeWhileIsMounted())
-      .subscribe(([idx, val]) => setStakingOverview({ ...idx, ...val }));
-  }, [api, takeWhileIsMounted]);
+    if (isSupportedStaking) {
+      return combineLatest([api.derive.session.indexes(), api.derive.staking.validators()])
+        .pipe(takeWhileIsMounted())
+        .subscribe(([idx, val]) => setStakingOverview({ ...idx, ...val }));
+    } else {
+      setStakingOverview(null);
+      return EMPTY.subscribe();
+    }
+  }, [api, isSupportedStaking, takeWhileIsMounted]);
 
   useEffect(() => {
+    if (!isSupportedStaking) {
+      setStashAccounts([]);
+      return;
+    }
+
     const sub$$ = from(api.derive.staking.stashes()).subscribe((res) => {
       setStashAccounts(res.map((item) => item.toString()));
     });
 
-    return () => {
-      sub$$.unsubscribe();
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    return () => sub$$.unsubscribe();
+  }, [api, isSupportedStaking]);
 
-  const updateControllerAndStash = useCallback(() => {
-    if (!account) {
+  useEffect(() => {
+    if (!isSupportedStaking) {
+      setIsInElection(false);
       return;
     }
 
-    const getSource = (address: string) =>
-      zip([
-        from<Promise<Option<GenericAccountId>[]>>(api.query.staking.bonded.multi([address])),
-        from<Promise<Option<StakingLedger>>>(api.query.staking.ledger(address)),
-      ]);
-
-    getSource(account.displayAddress)
-      .pipe(
-        map(([bonded, ledger]) => getControllerAccount(account.displayAddress, bonded, ledger)),
-        switchMap((controller) =>
-          getSource(controller).pipe(
-            map(([bonded, ledger]) => {
-              const stash = getStashAccount(bonded, ledger);
-              const is = isOwner(bonded, ledger);
-
-              return { controller, stash, is };
-            })
-          )
-        )
-      )
-      .subscribe(({ controller, stash, is }) => {
-        setControllerAccount(controller);
-        setStashAccount(stash);
-        setIsStashAccountOwner(is);
-      });
-  }, [account, api]);
-
-  useEffect(() => {
-    updateControllerAndStash();
-  }, [updateControllerAndStash]);
-
-  useEffect(() => {
     const sub$$ = from<Promise<ElectionStatus>>(
       api.query.staking?.eraElectionStatus ? api.query.staking.eraElectionStatus() : Promise.resolve({ isOpen: false })
     ).subscribe((status: ElectionStatus) => setIsInElection(status.isOpen));
-    return () => {
-      sub$$.unsubscribe();
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+
+    return () => sub$$.unsubscribe();
+  }, [api, isSupportedStaking]);
 
   useEffect(() => {
-    updateStakingDerive();
-    updateValidators();
-    updateStakingOverview();
-  }, [updateStakingDerive, updateStakingOverview, updateValidators]);
+    const sub$$ = refreshControllerAndStashAccount();
+    return () => sub$$.unsubscribe();
+  }, [refreshControllerAndStashAccount]);
+
+  useEffect(() => {
+    const sub$$ = updateStakingDerive();
+    return () => sub$$.unsubscribe();
+  }, [updateStakingDerive]);
+
+  useEffect(() => {
+    const sub$$ = updateStakingOverview();
+    return () => sub$$.unsubscribe();
+  }, [updateStakingOverview]);
+
+  useEffect(() => {
+    const sub$$ = updateValidators();
+    return () => sub$$.unsubscribe();
+  }, [updateValidators]);
 
   return (
     <StakingContext.Provider
@@ -219,16 +176,16 @@ export const StakingProvider = ({ children }: React.PropsWithChildren<unknown>) 
         isNominating,
         isStakingDeriveLoading,
         isStakingLedgerEmpty,
-        isStashAccountOwner,
         isValidating,
         isInElection,
+        isSupportedStaking,
         stakingDerive,
         stakingOverview,
         stashAccount,
         stashAccounts,
         updateStakingDerive,
         updateValidators,
-        updateControllerAndStash,
+        refreshControllerAndStashAccount,
         validators,
       }}
     >
