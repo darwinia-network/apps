@@ -71,13 +71,53 @@ const FilterState = { ...FilterAll, ...OrderStatus };
 type FilterSlot = FilterAll | SlotState;
 const FilterSlot = { ...FilterAll, ...SlotState };
 
+type BlockFilterInputState = {
+  start?: number | null;
+  end?: number | null;
+};
+
 interface FilterData {
   dimension: TimeDimension;
   state: FilterState;
   slot: FilterSlot;
-  block?: number | null;
+  block?: BlockFilterInputState | null;
   duration?: [start: Moment, end: Moment] | null;
 }
+
+const BlockFilterInput = ({
+  value,
+  onChange = (_) => undefined,
+}: {
+  value?: BlockFilterInputState;
+  onChange?: (value: BlockFilterInputState) => void;
+}) => {
+  const { t } = useTranslation();
+
+  return (
+    <div className="flex justify-between items-center space-x-2">
+      <InputNumber
+        min={1}
+        step={1}
+        placeholder={t('Start block')}
+        onChange={(v) => {
+          onChange({ start: v, end: value?.end });
+        }}
+      />
+      <span>-</span>
+      <InputNumber
+        min={1}
+        step={1}
+        placeholder={t('End block')}
+        onChange={(v) => {
+          onChange({
+            start: value?.start,
+            end: v,
+          });
+        }}
+      />
+    </div>
+  );
+};
 
 // eslint-disable-next-line complexity
 export const Orders = ({ destination }: { destination: CrossChainDestination }) => {
@@ -253,7 +293,13 @@ export const Orders = ({ destination }: { destination: CrossChainDestination }) 
           }
         }
 
-        if (block && !(item.createBlock === block || item.finishBlock === block)) {
+        if (
+          block &&
+          !(
+            (block.start && block.start <= item.createBlock) ||
+            (block.end && item.finishBlock && item.finishBlock <= block.end)
+          )
+        ) {
           return false;
         }
 
@@ -445,7 +491,7 @@ export const Orders = ({ destination }: { destination: CrossChainDestination }) 
             </Form.Item>
           ) : (
             <Form.Item name="block" label={t('Block')}>
-              <InputNumber min={1} step={1} />
+              <BlockFilterInput />
             </Form.Item>
           )}
           <Form.Item name={`state`} label={t('State')}>
