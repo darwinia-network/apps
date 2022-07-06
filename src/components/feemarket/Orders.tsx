@@ -393,11 +393,11 @@ export const Orders = ({ destination }: { destination: CrossChainDestination }) 
             show: false,
           },
           data: [
-            { value: statisticsData?.feeMarketEntity?.totalFinished || 0, name: t(OrderStatus.FINISHED) as string },
             {
               value: statisticsData?.feeMarketEntity?.totalInProgress || 0,
               name: t(OrderStatus.IN_PROGRESS) as string,
             },
+            { value: statisticsData?.feeMarketEntity?.totalFinished || 0, name: t(OrderStatus.FINISHED) as string },
             { value: statisticsData?.feeMarketEntity?.totalOutOfSlot || 0, name: t(OrderStatus.OUT_OF_SLOT) as string },
           ],
         },
