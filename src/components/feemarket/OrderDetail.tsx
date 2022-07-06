@@ -2,7 +2,7 @@ import { Card, Descriptions, Badge, Divider, Breadcrumb, Spin } from 'antd';
 import { NavLink } from 'react-router-dom';
 import { useQuery } from '@apollo/client';
 import { formatDistance } from 'date-fns';
-import { useTranslation } from 'react-i18next';
+import { useTranslation, TFunction } from 'react-i18next';
 
 import { Path } from '../../config/routes';
 import { ORDER_DETAIL, LONG_LONG_DURATION } from '../../config';
@@ -11,6 +11,21 @@ import { useApi } from '../../hooks';
 import { SubscanLink } from '../widget/SubscanLink';
 import { fromWei, prettyNumber } from '../../utils';
 import { AccountName } from '../widget/account/AccountName';
+
+const getPrioritySlot = (t: TFunction, confirmedSlotIndex?: number | null): string => {
+  switch (confirmedSlotIndex) {
+    case -1:
+      return t(SlotState.OUT_OF_SLOT);
+    case 0:
+      return t(SlotState.SLOT_1);
+    case 1:
+      return t(SlotState.SLOT_2);
+    case 2: // eslint-disable-line no-magic-numbers
+      return t(SlotState.SLOT_3);
+    default:
+      return '-';
+  }
+};
 
 // eslint-disable-next-line complexity
 export const OrderDetail = ({ orderid, destination }: { orderid: string; destination: CrossChainDestination }) => {
@@ -65,11 +80,7 @@ export const OrderDetail = ({ orderid, destination }: { orderid: string; destina
                 : '-'}
             </Descriptions.Item>
             <Descriptions.Item label={t('Priority slot')}>
-              {data?.orderEntity?.confirmedSlotIndex === undefined
-                ? '-'
-                : data.orderEntity.confirmedSlotIndex === -1
-                ? t(SlotState.OUT_OF_SLOT)
-                : `#${data.orderEntity.confirmedSlotIndex + 1}`}
+              {getPrioritySlot(t, data?.orderEntity?.confirmedSlotIndex)}
             </Descriptions.Item>
           </Descriptions>
 
