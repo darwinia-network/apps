@@ -27,6 +27,7 @@ const calcMax = (lockItem: any, current: BN) => {
  * @description other api can get balances:  api.derive.balances.all, api.query.system.account;
  * @see https://github.com/darwinia-network/wormhole-ui/issues/142
  */
+// eslint-disable-next-line complexity
 export async function getDarwiniaBalances(api: ApiPromise, account = ''): Promise<[string, string]> {
   // FIXME: (api.rpc as any).balances.usableBalance(0, '') result is not 0, manual reset
   if (!account) {
@@ -39,8 +40,9 @@ export async function getDarwiniaBalances(api: ApiPromise, account = ''): Promis
     const {
       data: { free, freeKton },
     }: { data: AccountData } = await api.query.system.account(account);
+
     const locks: PalletBalancesBalanceLock[] = await api.query.balances.locks(account);
-    const ktonLocks: PalletBalancesBalanceLock[] = await api.query.kton.locks(account);
+    const ktonLocks: PalletBalancesBalanceLock[] = (await api.query.kton?.locks(account)) ?? [];
 
     let maxLock = BN_ZERO;
     let maxKtonLock = BN_ZERO;
@@ -54,7 +56,7 @@ export async function getDarwiniaBalances(api: ApiPromise, account = ''): Promis
     });
 
     const ring = free.sub(maxLock);
-    const kton = freeKton.sub(maxKtonLock);
+    const kton = freeKton?.sub(maxKtonLock) ?? BN_ZERO;
 
     return [ring.isNeg() ? BN_ZERO.toString() : ring.toString(), kton.isNeg() ? BN_ZERO.toString() : kton.toString()];
   } catch (err) {

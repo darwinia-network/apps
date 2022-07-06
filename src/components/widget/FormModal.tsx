@@ -9,13 +9,13 @@ import { useTranslation } from 'react-i18next';
 import { validateMessages } from '../../config';
 import i18n from '../../config/i18n';
 import { useAccount, useQueue } from '../../hooks';
-import { TxFailedCallback, TxCallback } from '../../model';
+import { TxFailedCallback, TxCallback, WithNull } from '../../model';
 
 interface ModalFormProps<Values extends Record<string, unknown>> {
   extrinsic: (val: Values) => SubmittableExtrinsic<'promise', ISubmittableResult>;
-  initialValues?: Partial<Values>;
+  initialValues?: WithNull<Partial<Values>>;
   modalProps: ModalProps;
-  signer?: string;
+  signer?: string | null;
   onFail?: TxFailedCallback;
   onSuccess?: TxCallback;
   onCancel: () => void;
@@ -44,7 +44,7 @@ export function FormModal<V extends Record<string, unknown>>({
   const { t } = useTranslation();
   const [busy, setBusy] = useState(false);
 
-  const signAddress = useMemo(() => signer ?? (account?.displayAddress || ''), [signer, account]);
+  const signAddress = useMemo(() => signer ?? account?.displayAddress, [signer, account]);
 
   useEffect(() => {
     if (visible) {

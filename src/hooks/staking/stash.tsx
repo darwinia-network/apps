@@ -161,7 +161,7 @@ export function useOwnStashIds(): string[] | undefined {
   return stashIds;
 }
 
-export function useOwnEraReward(maxEras?: number, stashAccount = '') {
+export function useOwnEraReward(maxEras?: number, stashAccount: string | null = '') {
   const { api } = useApi();
   const isMounted = useIsMounted();
   const stashIds = useOwnStashIds();
@@ -174,7 +174,10 @@ export function useOwnEraReward(maxEras?: number, stashAccount = '') {
     reward: { rewardCount: 0, isLoadingRewards: true, rewards: null },
     payoutValidators: [],
   });
-  const ids = useMemo(() => ([stashAccount] || stashIds || []).filter((item) => !!item), [stashIds, stashAccount]);
+  const ids = useMemo(
+    () => ((!!stashAccount && [stashAccount]) || stashIds || []).filter((item) => !!item),
+    [stashIds, stashAccount]
+  );
 
   const refresh = useCallback(() => {
     if (!ids || !ids.length) {
@@ -217,11 +220,16 @@ export function useOwnEraReward(maxEras?: number, stashAccount = '') {
   return { ...state, refresh };
 }
 
-export function useSlashingSpans(stashId: string) {
+export function useSlashingSpans(stashId?: string | null) {
   const { api } = useApi();
   const [spanCount, setSpanCount] = useState(0);
 
   useEffect(() => {
+    if (!stashId) {
+      setSpanCount(0);
+      return;
+    }
+
     const sub$$ = from(api.query.staking.slashingSpans(stashId))
       .pipe(
         map((optSpans) =>

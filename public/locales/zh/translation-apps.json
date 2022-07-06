@@ -142,6 +142,7 @@
   "Switch Account": "切换账户",
   "Targets": "目标",
   "Test networks": "测试网络",
+  "Parachain networks": "平行链网络",
   "The amount of funds to unbond, this is adjusted using the bonded funds on the stash account.": "解除担保的资金数额，这是用资金账户上的担保资金来调整的。",
   "The controller is the account that will be used to control any nominating or validating actions. Should not match another stash or controller.": "控制账户是将用于控制任何提名或验证操作的帐户。 不应与其他资金账户或控制器匹配。",
   "The destination account for any payments as either a nominator or validator": "作为提名人或验证人的任何付款的目标帐户",
@@ -157,6 +158,7 @@
   "Unbond": "解除质押",
   "Unbond amount": "解冻数量",
   "Unbond funds": "解除质押资金",
+  "Locks": "锁定",
   "Unbonded": "已解冻",
   "Unbonding": "解冻中",
   "Unbonding The amount of tokens that has been unlocked but in the unbonding period.": "解冻中: 已选择取出但在等待期限的 token。",
@@ -297,5 +299,6 @@
   "Priority slot": "时间槽位",
   "To Treaury": "国库",
   "Sent Block": "发送区块",
-  "Delay Blocks": "延迟区块数"
+  "Delay Blocks": "延迟区块数",
+  "Parachain now does not support staking": "平行链现在不支持质押"
 }

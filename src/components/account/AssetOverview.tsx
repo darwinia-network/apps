@@ -1,5 +1,5 @@
 import { Button, Card, Form, Spin } from 'antd';
-import { BN_HUNDRED, BN, isFunction } from '@polkadot/util';
+import { BN_HUNDRED, BN, BN_ZERO, isFunction } from '@polkadot/util';
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { from, Subscription } from 'rxjs';
@@ -44,7 +44,7 @@ export function AssetOverview({ asset, loading, refresh }: AssetOverviewProps) {
           const adjFee = partialFee.muln(110).div(BN_HUNDRED);
           const max = new BN(asset.max as string).sub(adjFee);
 
-          setTransferrable(max.gt(api.consts.balances?.existentialDeposit) ? max : null);
+          setTransferrable(max.gt(api.consts.balances?.existentialDeposit) ? max : BN_ZERO);
         });
       } else {
         setTransferrable(new BN(asset.max as string));
@@ -68,7 +68,9 @@ export function AssetOverview({ asset, loading, refresh }: AssetOverviewProps) {
           <div>
             <h1 className="uppercase text-lg font-medium text-black dark:text-white">{asset.token?.symbol}</h1>
             <Spin spinning={loading} size="small">
-              <PrettyAmount amount={fromWei({ value: asset.total }, prettyNumber)} />
+              <PrettyAmount
+                amount={fromWei({ value: asset.total, unit: getUnit(Number(asset.token.decimal)) }, prettyNumber)}
+              />
             </Spin>
           </div>
         </div>
@@ -79,7 +81,10 @@ export function AssetOverview({ asset, loading, refresh }: AssetOverviewProps) {
           <div className="inline-flex items-center">
             <span className="opacity-60 font-normal text-base">{t('Available')}:</span>
             <Spin spinning={loading} size="small">
-              <PrettyAmount amount={fromWei({ value: asset.max }, prettyNumber)} integerClassName="ml-2" />
+              <PrettyAmount
+                amount={fromWei({ value: asset.max, unit: getUnit(Number(asset.token.decimal)) }, prettyNumber)}
+                integerClassName="ml-2"
+              />
             </Spin>
           </div>
 
@@ -101,7 +106,7 @@ export function AssetOverview({ asset, loading, refresh }: AssetOverviewProps) {
             setRecipient(value.to);
           }
         }}
-        initialValues={{ from: account?.displayAddress || '', to: recipient }}
+        initialValues={{ from: account?.displayAddress, to: recipient }}
         extrinsic={(values) => {
           const { to, amount } = values;
           const moduleName = isRing(asset.token?.symbol) ? 'balances' : 'kton';
@@ -118,13 +123,13 @@ export function AssetOverview({ asset, loading, refresh }: AssetOverviewProps) {
           extra={
             <span className="ml-4 mt-2 text-xs">
               <span className="mr-2">{t('transferrable')}:</span>
-              {transferrable ? (
+              {transferrable === null ? (
+                <Spin size="small" />
+              ) : (
                 <span>
                   {fromWei({ value: transferrable, unit: getUnit(Number(asset.token?.decimal)) || 'gwei' })}{' '}
                   {asset.token?.symbol}
                 </span>
-              ) : (
-                <Spin size="small" />
               )}
             </span>
           }

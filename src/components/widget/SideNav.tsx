@@ -1,6 +1,5 @@
 import { CaretLeftFilled } from '@ant-design/icons';
 import { Menu, Select } from 'antd';
-import { groupBy } from 'lodash';
 import { PropsWithChildren, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useLocation } from 'react-router-dom';
@@ -30,7 +29,9 @@ interface Nav {
 
 const { Option } = Select;
 
-const NETWORK_GROUP = groupBy(NETWORK_CONFIGURATIONS, (item) => item.isTest);
+const NETWORKS_LIVE = NETWORK_CONFIGURATIONS.filter((item) => item.category === 'live');
+const NETWORKS_TEST = NETWORK_CONFIGURATIONS.filter((item) => item.category === 'test');
+const NETWORKS_PARACHAIN = NETWORK_CONFIGURATIONS.filter((item) => item.category === 'parachain');
 
 const navigators: Nav[] = [
   { label: 'Account', path: Path.account, Icon: AccountIcon },
@@ -84,16 +85,20 @@ export function SideNav({ collapsed, theme, toggle, children }: PropsWithChildre
 
     return collapsed ? (
       <>
-        {NETWORK_GROUP['false'].map((item) => ele(item))}
-        {NETWORK_GROUP['true'].map((item) => ele(item))}
+        {NETWORKS_LIVE.map((item) => ele(item))}
+        {NETWORKS_TEST.map((item) => ele(item))}
+        {NETWORKS_PARACHAIN.map((item) => ele(item))}
       </>
     ) : (
       <>
         <Select.OptGroup key="product" label={collapsed ? '' : t('Live networks')}>
-          {NETWORK_GROUP['false'].map((item) => ele(item))}
+          {NETWORKS_LIVE.map((item) => ele(item))}
         </Select.OptGroup>
         <Select.OptGroup key="test" label={collapsed ? '' : t('Test networks')}>
-          {NETWORK_GROUP['true'].map((item) => ele(item))}
+          {NETWORKS_TEST.map((item) => ele(item))}
+        </Select.OptGroup>
+        <Select.OptGroup key="parachain" label={collapsed ? '' : t('Parachain networks')}>
+          {NETWORKS_PARACHAIN.map((item) => ele(item))}
         </Select.OptGroup>
       </>
     );

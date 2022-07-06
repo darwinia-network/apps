@@ -59,7 +59,10 @@ export const signAndSendTx = (
           queueSetTxStatus(id, 'signing');
           txStartCb();
         }),
-        switchMap((signer) => extrinsic.signAsync(signAddress, { signer, nonce })),
+        switchMap((signer) => {
+          assert(signAddress, 'Must specify an account as sender');
+          return extrinsic.signAsync(signAddress, { signer, nonce });
+        }),
         tap(() => queueSetTxStatus(id, 'sending')),
         switchMap(
           () =>

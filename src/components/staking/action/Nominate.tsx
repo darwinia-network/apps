@@ -125,7 +125,11 @@ export function Nominate({
           updateStakingDerive();
         }}
         signer={controllerAccount}
-        initialValues={{ controller: controllerAccount, stash: stashAccount, targets: defaultSelected }}
+        initialValues={{
+          controller: controllerAccount,
+          stash: stashAccount,
+          targets: defaultSelected,
+        }}
       >
         <AddressItem name="controller" label="Controller account" disabled={!defaultSelects} />
         <AddressItem name="stash" label="Stash account" disabled />

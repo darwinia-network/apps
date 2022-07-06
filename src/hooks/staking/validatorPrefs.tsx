@@ -5,7 +5,7 @@ import { Option } from '@polkadot/types';
 import { useState, useEffect } from 'react';
 import { useApi } from '../../hooks';
 
-export const useValidatorPrefs = (account: string, eraIndex?: EraIndex) => {
+export const useValidatorPrefs = (account?: string | null, eraIndex?: EraIndex) => {
   const { api } = useApi();
   const [validatorPrefs, setValidatorPrefs] = useState<ValidatorPrefs | null>(null);
 

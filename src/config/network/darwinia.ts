@@ -6,13 +6,9 @@ export const darwiniaConfig: PolkadotChainConfig = {
     logoMinor: '/image/darwinia.svg',
     logoWithText: '/image/darwinia-logo.svg',
   },
-  isTest: false,
+  category: 'live',
   name: 'darwinia',
-  endpoints: {
-    mmr: 'https://api.subquery.network/sq/darwinia-network/darwinia-mmr',
-  },
   provider: {
-    etherscan: '',
     rpc: 'wss://rpc.darwinia.network',
   },
   ss58Prefix: 18,

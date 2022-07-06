@@ -141,6 +141,7 @@
   "Switch Account": "Switch Account",
   "Targets": "Targets",
   "Test networks": "Test networks",
+  "Parachain networks": "Parachain networks",
   "The amount of funds to unbond, this is adjusted using the bonded funds on the stash account.": "The amount of funds to unbond, this is adjusted using the bonded funds on the stash account.",
   "The controller is the account that will be used to control any nominating or validating actions. Should not match another stash or controller.": "The controller is the account that will be used to control any nominating or validating actions. Should not match another stash or controller.",
   "The destination account for any payments as either a nominator or validator": "The destination account for any payments as either a nominator or validator",
@@ -156,6 +157,7 @@
   "Unbond": "Unbond",
   "Unbond amount": "Unbond amount",
   "Unbond funds": "Unbond funds",
+  "Locks": "Locks",
   "Unbonded": "Unbonded",
   "Unbonding": "Unbonding",
   "Unbonding The amount of tokens that has been unlocked but in the unbonding period.": "Unbonding: The amount of tokens that has been unlocked but in the unbonding period.",
@@ -295,5 +297,6 @@
   "Priority slot": "Priority slot",
   "To Treaury": "To Treaury",
   "Sent Block": "Sent Block",
-  "Delay Blocks": "Delay Blocks"
+  "Delay Blocks": "Delay Blocks",
+  "Parachain now does not support staking": "Parachain now does not support staking"
 }

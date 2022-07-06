@@ -66,7 +66,7 @@ export const LockedRecords = ({
 
     const extrinsic = api.tx.staking.tryClaimDepositsWithPunish(unlockEarlier.duration.expireTime);
     queueExtrinsic({
-      signAddress: account?.address || '',
+      signAddress: account?.address,
       extrinsic,
       txSuccessCb: () => {
         setUnlockEarlier(null);

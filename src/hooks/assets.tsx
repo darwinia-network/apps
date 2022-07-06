@@ -7,12 +7,11 @@ import { SYSTEM_NETWORK_CONFIGURATIONS } from '../config';
 import { Asset, DarwiniaAsset, Token, Network } from '../model';
 import { getDarwiniaBalances } from '../utils';
 
-const getToken = (tokens: Token[], network: Network, target: DarwiniaAsset) => {
+const getToken = (tokens: Token[], network: Network, target: DarwiniaAsset, defaultToken: Token) => {
   const networkTokens = SYSTEM_NETWORK_CONFIGURATIONS.find((v) => v.name === network)?.tokens;
   const result = tokens.find((token) => networkTokens && token.symbol === networkTokens[target].symbol);
-  const unknown: Token = { symbol: 'unknown', decimal: '9' };
 
-  return result || unknown;
+  return result || defaultToken;
 };
 
 export const useAssets = (account: string) => {
@@ -43,13 +42,13 @@ export const useAssets = (account: string) => {
               max: ring,
               asset: DarwiniaAsset.ring,
               total: free,
-              token: getToken(chain.tokens, network.name, DarwiniaAsset.ring),
+              token: getToken(chain.tokens, network.name, DarwiniaAsset.ring, network.tokens.ring),
             },
             {
               max: kton,
               asset: DarwiniaAsset.kton,
               total: freeKton,
-              token: getToken(chain.tokens, network.name, DarwiniaAsset.kton),
+              token: getToken(chain.tokens, network.name, DarwiniaAsset.kton, network.tokens.kton),
             },
           ]);
           setLoading(false);
@@ -70,13 +69,13 @@ export const useAssets = (account: string) => {
         max: 0,
         asset: DarwiniaAsset.ring,
         total: BN_ZERO,
-        token: getToken(chain.tokens, network.name, DarwiniaAsset.ring),
+        token: getToken(chain.tokens, network.name, DarwiniaAsset.ring, network.tokens.ring),
       },
       {
         max: 0,
         asset: DarwiniaAsset.kton,
         total: BN_ZERO,
-        token: getToken(chain.tokens, network.name, DarwiniaAsset.kton),
+        token: getToken(chain.tokens, network.name, DarwiniaAsset.kton, network.tokens.kton),
       },
     ]);
   }, [network, account, chain]);
