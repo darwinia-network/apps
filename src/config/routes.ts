@@ -18,44 +18,37 @@ export enum Path {
   feemarket = '/feemarket',
 }
 
-export const routes: RouteProps[] = [
+export const routes: (RouteProps & { PageComponent: React.ComponentType })[] = [
   {
-    exact: true,
     path: Path.root,
-    children: Account,
+    PageComponent: Account,
   },
   {
-    exact: true,
     path: Path.account,
-    children: Account,
+    PageComponent: Account,
   },
   {
-    exact: true,
     path: Path.staking,
-    children: Staking,
+    PageComponent: Staking,
   },
   {
-    exact: true,
     path: Path.toolbox,
-    children: Toolbox,
+    PageComponent: Toolbox,
   },
   {
-    exact: true,
     path: Path.portal,
-    children: Portal,
+    PageComponent: Portal,
   },
   {
-    exact: true,
     path: Path.migration,
-    children: Migration,
+    PageComponent: Migration,
   },
   {
-    exact: true,
     path: Path.feemarket,
-    children: FeeMarket,
+    PageComponent: FeeMarket,
   },
   {
     path: '*',
-    children: Page404,
+    PageComponent: Page404,
   },
 ];
