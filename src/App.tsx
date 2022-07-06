@@ -5,7 +5,7 @@ import { Steps } from 'intro.js-react';
 import isMobile from 'is-mobile';
 import { useEffect, useMemo, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
-import { Route, Switch, useLocation } from 'react-router-dom';
+import { Routes, Route, useLocation } from 'react-router-dom';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import { Signer } from './components/widget/Signer';
 import { QueueStatus } from './components/widget/QueueStatus';
@@ -175,11 +175,11 @@ function App() {
           <Content>
             <TransitionGroup>
               <CSSTransition key={location.pathname} timeout={300} classNames="fade">
-                <Switch location={location}>
+                <Routes location={location}>
                   {routes.map((item, index) => (
                     <Route key={index} {...item}></Route>
                   ))}
-                </Switch>
+                </Routes>
               </CSSTransition>
             </TransitionGroup>
           </Content>

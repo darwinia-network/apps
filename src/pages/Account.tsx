@@ -1,6 +1,5 @@
 import { Button, Card, Tabs } from 'antd';
 import { useTranslation } from 'react-i18next';
-import { withRouter } from 'react-router-dom';
 import { useState } from 'react';
 import { StakingRecords } from '../components/account/StakingRecords';
 import { AssetOverview } from '../components/account/AssetOverview';
@@ -10,7 +9,7 @@ import { PolkadotTypeNetwork } from '../model';
 
 type TypeTabKeys = 'asset' | 'cross';
 
-function Page() {
+export function Account() {
   const { t } = useTranslation();
   const { network } = useApi();
   const { assets, assetsLoading, refreshAssets } = useAccount();
@@ -58,5 +57,3 @@ function Page() {
     </Tabs>
   );
 }
-
-export const Account = withRouter(Page);

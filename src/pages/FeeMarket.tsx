@@ -1,4 +1,4 @@
-import { withRouter, useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { Tabs, Empty } from 'antd';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -14,7 +14,7 @@ import { GraphqlProvider } from '../providers';
 import { CustomTab } from '../components/widget/CustomTab';
 
 // eslint-disable-next-line complexity
-function Page() {
+export function FeeMarket() {
   const { network } = useApi();
   const { supportedDestinations, destination } = useFeeMarket();
   const { search } = useLocation();
@@ -66,5 +66,3 @@ function Page() {
     </div>
   );
 }
-
-export const FeeMarket = withRouter(Page);

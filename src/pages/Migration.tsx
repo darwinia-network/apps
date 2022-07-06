@@ -3,12 +3,11 @@ import { Button, Card, List, Tabs } from 'antd';
 import AntdLink from 'antd/lib/typography/Link';
 import FileSaver from 'file-saver';
 import { Trans, useTranslation } from 'react-i18next';
-import { withRouter } from 'react-router-dom';
 import { EllipsisMiddle } from '../components/widget/EllipsisMiddle';
 import { useApi, useWallet } from '../hooks';
 import { LOCAL_SOURCE } from '../config';
 
-function Page() {
+export function Migration() {
   const { t } = useTranslation();
   const { network } = useApi();
   const { accounts } = useWallet();
@@ -64,5 +63,3 @@ function Page() {
     </div>
   );
 }
-
-export const Migration = withRouter(Page);

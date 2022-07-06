@@ -1,7 +1,7 @@
 import { Tabs, Empty } from 'antd';
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useLocation, withRouter } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { StakingOverview } from '../components/staking/overview/StakingOverview';
 import { Power } from '../components/staking/power/Power';
 import { Targets } from '../components/staking/targets/Targets';
@@ -11,7 +11,7 @@ import { CustomTab } from '../components/widget/CustomTab';
 
 type TypeTabKeys = 'power' | 'overview' | 'targets' | 'waiting';
 
-function Page() {
+export function Staking() {
   const { t } = useTranslation();
   const { network } = useApi();
   const { isSupportedStaking } = useStaking();
@@ -51,5 +51,3 @@ function Page() {
     </div>
   );
 }
-
-export const Staking = withRouter(Page);

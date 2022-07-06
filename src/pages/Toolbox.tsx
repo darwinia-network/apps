@@ -1,7 +1,6 @@
 import { Form, Input, Tabs, Typography } from 'antd';
 import { useState, useMemo } from 'react';
 import { useTranslation, Trans } from 'react-i18next';
-import { withRouter } from 'react-router-dom';
 import web3 from 'web3';
 import { Withdraw } from '../components/toolbox/withdraw';
 import { Deposits } from '../components/toolbox/deposits/';
@@ -10,7 +9,7 @@ import { useApi } from '../hooks';
 import { MetamaskProvider } from '../providers/metamask';
 import { convertToSS58, dvmAddressToAccountId } from '../utils';
 
-function Page() {
+export function Toolbox() {
   const { t } = useTranslation();
   const {
     network: { ss58Prefix, name },
@@ -96,5 +95,3 @@ function Page() {
     </MetamaskProvider>
   );
 }
-
-export const Toolbox = withRouter(Page);

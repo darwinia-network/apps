@@ -20,37 +20,37 @@ export enum Path {
 
 export const routes: RouteProps[] = [
   {
-    exact: true,
+    caseSensitive: true,
     path: Path.root,
     children: Account,
   },
   {
-    exact: true,
+    caseSensitive: true,
     path: Path.account,
     children: Account,
   },
   {
-    exact: true,
+    caseSensitive: true,
     path: Path.staking,
     children: Staking,
   },
   {
-    exact: true,
+    caseSensitive: true,
     path: Path.toolbox,
     children: Toolbox,
   },
   {
-    exact: true,
+    caseSensitive: true,
     path: Path.portal,
     children: Portal,
   },
   {
-    exact: true,
+    caseSensitive: true,
     path: Path.migration,
     children: Migration,
   },
   {
-    exact: true,
+    caseSensitive: true,
     path: Path.feemarket,
     children: FeeMarket,
   },
