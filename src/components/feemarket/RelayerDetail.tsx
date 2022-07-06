@@ -6,7 +6,6 @@ import { useQuery } from '@apollo/client';
 import { format, compareAsc, formatDistanceStrict } from 'date-fns';
 import { BN, BN_ZERO } from '@polkadot/util';
 import { useTranslation } from 'react-i18next';
-import { uniqBy } from 'lodash';
 
 import * as echarts from 'echarts/core';
 import {
@@ -280,55 +279,78 @@ export const RelayerDetail = ({
     }
   }, [feeHistoryData?.relayerEntity]);
 
+  // eslint-disable-next-line complexity
   useEffect(() => {
     if (relayerOrdersData?.relayerEntity) {
-      const { assignedOrders, deliveredOrders, confirmedOrders } = relayerOrdersData.relayerEntity;
+      const { assignedOrders, deliveredOrders, confirmedOrders, slashs } = relayerOrdersData.relayerEntity;
 
-      const orders = uniqBy(
-        (assignedOrders?.nodes || []).concat(deliveredOrders?.nodes || []).concat(confirmedOrders?.nodes || []),
-        'id'
-      );
+      let ds =
+        slashs?.nodes.reduce((ds: RelayerData[], { amount, order: { id, finishTime } }) => {
+          const orderId = id.split('-')[1];
 
-      setDataSource(
-        orders
-          .map((order) => {
-            const role = new Set<RelayerRole>();
+          const idx = ds.findIndex((item) => item.orderId === orderId);
+          const order =
+            idx >= 0
+              ? ds[idx]
+              : {
+                  orderId,
+                  time: finishTime,
+                  reward: BN_ZERO,
+                  slash: BN_ZERO,
+                  relayerRole: [],
+                };
 
-            if (order.assignedRelayers.some((item) => item === relayerAddress)) {
+          const role = new Set<RelayerRole>(order.relayerRole);
+          role.add(RelayerRole.ASSIGNED);
+
+          order.slash = order.slash.add(new BN(amount));
+          order.relayerRole = Array.from(role);
+          ds.splice(idx, idx === -1 ? 0 : 1, order);
+          return ds;
+        }, []) || [];
+
+      ds = (assignedOrders?.nodes || [])
+        .concat(deliveredOrders?.nodes || [])
+        .concat(confirmedOrders?.nodes || [])
+        .reduce((ds: RelayerData[], { id, finishTime, rewards }) => {
+          const orderId = id.split('-')[1];
+
+          const idx = ds.findIndex((item) => item.orderId === orderId);
+          const order =
+            idx >= 0
+              ? ds[idx]
+              : {
+                  orderId,
+                  time: finishTime,
+                  reward: BN_ZERO,
+                  slash: BN_ZERO,
+                  relayerRole: [],
+                };
+          const role = new Set<RelayerRole>(order.relayerRole);
+
+          const reward = rewards.nodes.reduce((acc, cur) => {
+            if (cur.assignedRelayerId?.split('-')[1] === relayerAddress && cur.assignedAmount) {
               role.add(RelayerRole.ASSIGNED);
+              acc = acc.add(new BN(cur.assignedAmount));
             }
+            if (cur.deliveredRelayerId.split('-')[1] === relayerAddress) {
+              role.add(RelayerRole.DELIVERY);
+              acc = acc.add(new BN(cur.deliveredAmount));
+            }
+            if (cur.confirmedRelayerId.split('-')[1] === relayerAddress) {
+              role.add(RelayerRole.CONFIRMED);
+              acc = acc.add(new BN(cur.confirmedAmount));
+            }
+            return acc;
+          }, BN_ZERO);
 
-            const reward = order.rewards.nodes.reduce((acc, cur) => {
-              if (cur.assignedRelayerId?.split('-')[1] === relayerAddress && cur.assignedAmount) {
-                role.add(RelayerRole.ASSIGNED);
-                acc = acc.add(new BN(cur.assignedAmount));
-              }
-              if (cur.deliveredRelayerId.split('-')[1] === relayerAddress) {
-                role.add(RelayerRole.DELIVERY);
-                acc = acc.add(new BN(cur.deliveredAmount));
-              }
-              if (cur.confirmedRelayerId.split('-')[1] === relayerAddress) {
-                role.add(RelayerRole.CONFIRMED);
-                acc = acc.add(new BN(cur.confirmedAmount));
-              }
-              return acc;
-            }, BN_ZERO);
+          order.reward = order.reward.add(reward);
+          order.relayerRole = Array.from(role);
+          ds.splice(idx, idx === -1 ? 0 : 1, order);
+          return ds;
+        }, ds);
 
-            return {
-              orderId: order.id.split('-')[1],
-              relayerRole: Array.from(role),
-              time: order.finishTime,
-              reward,
-              slash: order.slashs.nodes.reduce((acc, cur) => {
-                if (cur.relayerId.split('-')[1] === relayerAddress) {
-                  acc = acc.add(new BN(cur.amount));
-                }
-                return acc;
-              }, BN_ZERO),
-            };
-          })
-          .sort((a, b) => Number(b.orderId) - Number(a.orderId))
-      );
+      setDataSource(ds.sort((a, b) => Number(b.orderId) - Number(a.orderId)));
     } else {
       setDataSource([]);
     }

@@ -67,16 +67,19 @@ interface RelayerOrderData {
       confirmedRelayerId: string;
     }[];
   };
-  slashs: {
-    nodes: {
-      amount: string;
-      relayerId: string;
-    }[];
-  };
 }
 
 export interface RelayerOrders {
   relayerEntity?: {
+    slashs?: {
+      nodes: {
+        amount: string;
+        order: {
+          id: string;
+          finishTime: string;
+        };
+      }[];
+    };
     assignedOrders?: {
       nodes: RelayerOrderData[];
     };
