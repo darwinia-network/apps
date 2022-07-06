@@ -5,6 +5,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import { useQuery } from '@apollo/client';
 import type { Moment } from 'moment';
+import moment from 'moment';
 import { useTranslation } from 'react-i18next';
 
 import * as echarts from 'echarts/core';
@@ -234,11 +235,22 @@ export const Orders = ({ destination }: { destination: CrossChainDestination }) 
     setDataSource(
       // eslint-disable-next-line complexity
       dataSourceRef.current.filter((item) => {
-        if (
-          duration &&
-          !(duration[0].isBefore(item.createTime) && (item.finishTime ? duration[1].isAfter(item.finishTime) : true))
-        ) {
-          return false;
+        if (duration) {
+          const dateFormat = 'YYYY-MM-DD';
+          const durationStart = duration[0].format(dateFormat);
+          const durationEnd = duration[1].format(dateFormat);
+
+          const createTime = moment(item.createTime.split('T')[0]);
+          const finishTime = item.finishTime ? moment(item.finishTime.split('T')[0]) : null;
+
+          if (
+            !(
+              createTime.isBetween(durationStart, durationEnd, undefined, '[]') ||
+              (finishTime && finishTime.isBetween(durationStart, durationEnd, undefined, '[]'))
+            )
+          ) {
+            return false;
+          }
         }
 
         if (block && !(item.createBlock === block || item.finishBlock === block)) {
@@ -429,7 +441,7 @@ export const Orders = ({ destination }: { destination: CrossChainDestination }) 
           </Form.Item>
           {filter.dimension === TimeDimension.DATE ? (
             <Form.Item name="duration" label={t('Date Range')}>
-              <DatePicker.RangePicker />
+              <DatePicker.RangePicker format="YYYY-MM-DD" />
             </Form.Item>
           ) : (
             <Form.Item name="block" label={t('Block')}>
