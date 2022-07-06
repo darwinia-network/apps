@@ -204,6 +204,7 @@ export const ORDER_DETAIL = gql`
       sender
       sourceTxHash
       confirmedSlotIndex
+      status
       createTime
       finishTime
       createBlock

@@ -249,9 +249,9 @@ export const Orders = ({ destination }: { destination: CrossChainDestination }) 
       key: 'status',
       align: 'center',
       render: (_, record) =>
-        record.confirmedSlotIndex === null ? (
+        record.status === SubqlOrderStatus.InProgress ? (
           <Badge status="processing" text={FilterStatus.IN_PROGRESS} />
-        ) : record.confirmedSlotIndex === -1 ? (
+        ) : record.status === SubqlOrderStatus.OutOfSlot ? (
           <Badge status="warning" text={FilterStatus.OUT_OF_SLOT} />
         ) : (
           <Badge status="success" text={FilterStatus.FINISHED} />

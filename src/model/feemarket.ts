@@ -184,6 +184,7 @@ export interface OrderDetailData {
     sender: string;
     sourceTxHash: string;
     confirmedSlotIndex?: number;
+    status: SubqlOrderStatus;
     createTime: string;
     finishTime?: string;
     createBlock: number;

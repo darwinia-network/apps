@@ -6,7 +6,14 @@ import { useTranslation, TFunction } from 'react-i18next';
 
 import { Path } from '../../config/routes';
 import { ORDER_DETAIL, LONG_LONG_DURATION } from '../../config';
-import { OrderDetailData, CrossChainDestination, SlotState, RelayerRole } from '../../model';
+import {
+  OrderDetailData,
+  CrossChainDestination,
+  SlotState,
+  RelayerRole,
+  SubqlOrderStatus,
+  OrderStatus,
+} from '../../model';
 import { useApi } from '../../hooks';
 import { SubscanLink } from '../widget/SubscanLink';
 import { fromWei, prettyNumber } from '../../utils';
@@ -66,12 +73,19 @@ export const OrderDetail = ({ orderid, destination }: { orderid: string; destina
               )}
             </Descriptions.Item>
             <Descriptions.Item label={t('State')}>
-              {data?.orderEntity?.confirmedSlotIndex === undefined ? (
-                <Badge status="processing" text={t('Cross-chain in progress')} />
-              ) : data.orderEntity.confirmedSlotIndex === -1 ? (
-                <Badge status="warning" text={t('Cross-chain out of slot')} />
+              {data?.orderEntity?.confirmedSlotIndex === undefined
+                ? t('Cross-chain in progress')
+                : data.orderEntity.confirmedSlotIndex === -1
+                ? t('Cross-chain out of slot')
+                : t('Cross-chain success')}
+            </Descriptions.Item>
+            <Descriptions.Item label={t('Status')}>
+              {data?.orderEntity?.status === SubqlOrderStatus.Finished ? (
+                <Badge status="success" text={t(OrderStatus.FINISHED)} />
+              ) : data?.orderEntity?.status === SubqlOrderStatus.OutOfSlot ? (
+                <Badge status="warning" text={t(OrderStatus.OUT_OF_SLOT)} />
               ) : (
-                <Badge status="success" text={t('Cross-chain success')} />
+                <Badge status="processing" text={t(OrderStatus.IN_PROGRESS)} />
               )}
             </Descriptions.Item>
             <Descriptions.Item label={t('Cross-chain fee')}>
