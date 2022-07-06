@@ -14,7 +14,7 @@ export const useStashAccount = (controllerAccount?: string | null) => {
       return from<Promise<Option<DarwiniaStakingStructsStakingLedger>>>(
         api.query.staking.ledger(controllerAccount)
       ).subscribe((ledger) => {
-        setStashAccount(ledger.isSome ? ledger.unwrap().stash.toString() : controllerAccount);
+        setStashAccount(ledger.isSome ? ledger.unwrap().stash.toString() : null);
       });
     } else {
       setStashAccount(null);
