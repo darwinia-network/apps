@@ -14,79 +14,83 @@ const getToken = (tokens: Token[], network: Network, target: DarwiniaAsset, defa
   return result || defaultToken;
 };
 
-export const useAssets = (account: string) => {
+export const useAssets = (account?: string | null) => {
   const { network, api, chain } = useApi();
   const [loading, setLoading] = useState(false);
-  const [assets, setAssets] = useState<Asset[]>([]);
-
-  const getAssets = useCallback(
-    (acc?: string) => {
-      if (!(acc || account) || chain.ss58Format !== network.ss58Prefix.toString()) {
-        return EMPTY.subscribe();
-      }
-
-      setLoading(true);
-
-      return forkJoin([
-        getDarwiniaBalances(api, acc ?? account),
-        api.query.system.account(account) as Promise<{ data: AccountData }>,
-      ]).subscribe({
-        next: ([
-          [ring, kton],
-          {
-            data: { free, freeKton },
-          },
-        ]) => {
-          setAssets([
-            {
-              max: ring,
-              asset: DarwiniaAsset.ring,
-              total: free,
-              token: getToken(chain.tokens, network.name, DarwiniaAsset.ring, network.tokens.ring),
-            },
-            {
-              max: kton,
-              asset: DarwiniaAsset.kton,
-              total: freeKton,
-              token: getToken(chain.tokens, network.name, DarwiniaAsset.kton, network.tokens.kton),
-            },
-          ]);
-          setLoading(false);
-        },
-        error: () => setLoading(false),
-      });
+  const [assets, setAssets] = useState<Asset[]>([
+    {
+      max: 0,
+      asset: DarwiniaAsset.ring,
+      total: BN_ZERO,
+      token: getToken(chain.tokens, network.name, DarwiniaAsset.ring, network.tokens.ring),
     },
-    [account, api, network, chain]
-  );
+    {
+      max: 0,
+      asset: DarwiniaAsset.kton,
+      total: BN_ZERO,
+      token: getToken(chain.tokens, network.name, DarwiniaAsset.kton, network.tokens.kton),
+    },
+  ]);
 
-  useEffect(() => {
-    if (account || chain.ss58Format !== network.ss58Prefix.toString()) {
-      return;
+  const getAssets = useCallback(() => {
+    if (!account || chain.ss58Format !== network.ss58Prefix.toString()) {
+      setAssets([
+        {
+          max: 0,
+          asset: DarwiniaAsset.ring,
+          total: BN_ZERO,
+          token: getToken(chain.tokens, network.name, DarwiniaAsset.ring, network.tokens.ring),
+        },
+        {
+          max: 0,
+          asset: DarwiniaAsset.kton,
+          total: BN_ZERO,
+          token: getToken(chain.tokens, network.name, DarwiniaAsset.kton, network.tokens.kton),
+        },
+      ]);
+      return EMPTY.subscribe();
     }
 
-    setAssets([
-      {
-        max: 0,
-        asset: DarwiniaAsset.ring,
-        total: BN_ZERO,
-        token: getToken(chain.tokens, network.name, DarwiniaAsset.ring, network.tokens.ring),
+    setLoading(true);
+
+    return forkJoin([
+      getDarwiniaBalances(api, account),
+      api.query.system.account(account) as Promise<{ data: AccountData }>,
+    ]).subscribe({
+      next: ([
+        [ring, kton],
+        {
+          data: { free, freeKton },
+        },
+      ]) => {
+        setAssets([
+          {
+            max: ring,
+            asset: DarwiniaAsset.ring,
+            total: free,
+            token: getToken(chain.tokens, network.name, DarwiniaAsset.ring, network.tokens.ring),
+          },
+          {
+            max: kton,
+            asset: DarwiniaAsset.kton,
+            total: freeKton,
+            token: getToken(chain.tokens, network.name, DarwiniaAsset.kton, network.tokens.kton),
+          },
+        ]);
+        setLoading(false);
       },
-      {
-        max: 0,
-        asset: DarwiniaAsset.kton,
-        total: BN_ZERO,
-        token: getToken(chain.tokens, network.name, DarwiniaAsset.kton, network.tokens.kton),
-      },
-    ]);
-  }, [network, account, chain]);
+      error: () => setLoading(false),
+    });
+  }, [account, api, network, chain]);
 
   useEffect(() => {
-    const sub$$ = getAssets(account);
+    const sub$$ = getAssets();
+
     return () => {
       sub$$.unsubscribe();
       setLoading(false);
     };
-  }, [account, getAssets]);
+  }, [getAssets]);
 
-  return { assets, loading, getAssets };
+  return { assets, loading, refresh: getAssets };
 };
