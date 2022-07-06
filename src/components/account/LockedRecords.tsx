@@ -7,9 +7,10 @@ import { useTranslation } from 'react-i18next';
 import BigNumber from 'bignumber.js';
 import type { ColumnsType } from 'antd/lib/table';
 
-import { useApi, useQueue, useAccount, useStaking } from '../../hooks';
+import { DarwiniaAsset } from 'src/model';
+import { useApi, useQueue, useStaking, useAssets } from '../../hooks';
 import { DATE_FORMAT, THIRTY_DAYS_IN_MILLISECOND } from '../../config';
-import { fromWei, prettyNumber, ringToKton, processTime } from '../../utils';
+import { fromWei, prettyNumber, ringToKton, processTime, toWei } from '../../utils';
 import type { DarwiniaStakingStructsTimeDepositItem, TsInMs } from '../../api-derive/types';
 
 enum LockStatus {
@@ -52,28 +53,25 @@ export const LockedRecords = ({
   loading: boolean;
 }) => {
   const { api, network } = useApi();
-  const { account } = useAccount();
   const { queueExtrinsic } = useQueue();
-  const { controllerAccount, updateStakingDerive } = useStaking();
+  const { controllerAccount, stashAccount, updateStakingDerive } = useStaking();
+  const { assets: stashAssets } = useAssets(stashAccount);
   const { t } = useTranslation();
   const [dataSource, setDataSource] = useState<DataSourceState[]>([]);
-  const [unlockEarlier, setUnlockEarlier] = useState<DataSourceState | null>();
 
-  const handleUnlockEarlier = useCallback(() => {
-    if (!unlockEarlier?.duration.expireTime) {
-      return;
-    }
-
-    const extrinsic = api.tx.staking.tryClaimDepositsWithPunish(unlockEarlier.duration.expireTime);
-    queueExtrinsic({
-      signAddress: account?.address,
-      extrinsic,
-      txSuccessCb: () => {
-        setUnlockEarlier(null);
-        updateStakingDerive();
-      },
-    });
-  }, [account, api, unlockEarlier, queueExtrinsic, updateStakingDerive]);
+  const handleUnlockEarlier = useCallback(
+    (record: DataSourceState) => {
+      const extrinsic = api.tx.staking.tryClaimDepositsWithPunish(record.duration.expireTime);
+      queueExtrinsic({
+        signAddress: controllerAccount,
+        extrinsic,
+        txSuccessCb: () => {
+          updateStakingDerive();
+        },
+      });
+    },
+    [api, controllerAccount, queueExtrinsic, updateStakingDerive]
+  );
 
   useEffect(() => {
     setDataSource(
@@ -165,7 +163,36 @@ export const LockedRecords = ({
           {value === LockStatus.LOCKING ? (
             <Button
               onClick={() => {
-                setUnlockEarlier(record);
+                const penalty = calcFine(record);
+                const isInsufficient = new BN(
+                  stashAssets.find((asset) => asset.asset === DarwiniaAsset.kton)?.max || '0'
+                ).lt(new BN(toWei({ value: penalty })));
+
+                Modal.confirm({
+                  title: t('Confirm to continue'),
+                  onOk: () => handleUnlockEarlier(record),
+                  content: (
+                    <>
+                      <p>
+                        {t(
+                          'Currently in lock-up period, you will be charged a penalty of 3 times the {{KTON}} reward. Are you sure to continue?',
+                          { KTON: network.tokens.kton.symbol }
+                        )}
+                      </p>
+                      <p className="mt-2 font-bold">
+                        {t('Total Fines')}: {penalty}
+                      </p>
+                      {isInsufficient ? (
+                        <span className="text-red-400 text-xs">
+                          {t('Insufficient {{kton}} balance in stash account', { kton: network.tokens.kton.symbol })}
+                        </span>
+                      ) : null}
+                    </>
+                  ),
+                  okButtonProps: {
+                    disabled: isInsufficient,
+                  },
+                });
               }}
               className="p-0 flex items-center justify-center w-28"
             >
@@ -194,35 +221,6 @@ export const LockedRecords = ({
   ];
 
   return (
-    <>
-      <Table
-        rowKey={'index'}
-        columns={columns}
-        dataSource={dataSource}
-        loading={loading}
-        className="whitespace-nowrap"
-      />
-
-      <Modal
-        title={t('Confirm to continue')}
-        visible={!!unlockEarlier}
-        onCancel={() => {
-          setUnlockEarlier(null);
-        }}
-        onOk={() => {
-          handleUnlockEarlier();
-        }}
-      >
-        <p>
-          {t(
-            'Currently in lock-up period, you will be charged a penalty of 3 times the {{KTON}} reward. Are you sure to continue?',
-            { KTON: network.tokens.kton.symbol }
-          )}
-        </p>
-        <p className="mt-2 font-bold">
-          {t('Total Fines')}: {unlockEarlier ? calcFine(unlockEarlier) : '-'}
-        </p>
-      </Modal>
-    </>
+    <Table rowKey={'index'} columns={columns} dataSource={dataSource} loading={loading} className="whitespace-nowrap" />
   );
 };

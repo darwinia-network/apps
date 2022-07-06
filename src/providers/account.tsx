@@ -20,7 +20,7 @@ export const AccountContext = createContext<AccountCtx>({} as AccountCtx);
 export const AccountProvider = ({ children }: React.PropsWithChildren<unknown>) => {
   const { accounts } = useWallet();
   const [account, setAccount] = useState<Account | null>();
-  const { assets, loading: assetsLoading, getAssets: refreshAssets } = useAssets(account?.displayAddress || '');
+  const { assets, loading: assetsLoading, refresh: refreshAssets } = useAssets(account?.displayAddress);
 
   const selectAccount = useCallback(
     (address: string) => {
