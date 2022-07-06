@@ -1,4 +1,4 @@
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Tabs, Empty } from 'antd';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -10,6 +10,7 @@ import { Orders } from '../components/feemarket/Orders';
 import { OrderDetail } from '../components/feemarket/OrderDetail';
 import { useApi, useFeeMarket } from '../hooks';
 import { FeeMarketTab, SearchParamsKey } from '../model';
+import { Path } from '../config/routes';
 import { GraphqlProvider } from '../providers';
 import { CustomTab } from '../components/widget/CustomTab';
 
@@ -18,6 +19,7 @@ export function FeeMarket() {
   const { network } = useApi();
   const { supportedDestinations, destination } = useFeeMarket();
   const { search } = useLocation();
+  const navigate = useNavigate();
   const { t } = useTranslation();
 
   const searchParams = new URLSearchParams(search);
@@ -33,7 +35,10 @@ export function FeeMarket() {
     <GraphqlProvider>
       <Tabs
         activeKey={activeKey}
-        onChange={(key) => setActiveKey(key as FeeMarketTab)}
+        onChange={(key) => {
+          navigate(Path.feemarket);
+          setActiveKey(key as FeeMarketTab);
+        }}
         className={`lg:px-8 px-4 w-full mx-auto dark:shadow-none dark:border-transparent pb-5 page-account-tabs page-account-tabs-${network.name}`}
       >
         <Tabs.TabPane
