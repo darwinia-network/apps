@@ -22,6 +22,37 @@ export enum SegmentedType {
   L30D,
 }
 
+export enum FeeMarketTab {
+  OVERVIEW = 'overview',
+  RELAYERS = 'relayers',
+  OREDERS = 'oreders',
+}
+
+export enum RelayerRole {
+  ASSIGNED = 'Assigned Relayer',
+  DELIVERY = 'Delivery Relayer',
+  CONFIRMED = 'Confirmed Relayer',
+}
+
+export enum SlotState {
+  SLOT_1 = 'Slot 1',
+  SLOT_2 = 'Slot 2',
+  SLOT_3 = 'Slot 3',
+  OUT_OF_SLOT = 'Out of Slot',
+}
+
+export enum OrderStatus {
+  FINISHED = 'Finished',
+  IN_PROGRESS = 'In Progress',
+  OUT_OF_SLOT = 'Out of Slot',
+}
+
+export enum SubqlOrderStatus {
+  Finished = 'Finished',
+  InProgress = 'InProgress',
+  OutOfSlot = 'OutOfSlot',
+}
+
 interface RelayerOrderData {
   id: string;
   finishTime: string;
@@ -140,6 +171,7 @@ export interface OrdersTotalOrderData {
       createTime: string;
       finishTime?: string;
       sender: string;
+      status: SubqlOrderStatus;
       confirmedSlotIndex: number | null;
     }[];
   };
@@ -178,29 +210,4 @@ export interface OrderDetailData {
       }[];
     };
   };
-}
-
-export enum FeeMarketTab {
-  OVERVIEW = 'overview',
-  RELAYERS = 'relayers',
-  OREDERS = 'oreders',
-}
-
-export enum RelayerRole {
-  ASSIGNED = 'Assigned Relayer',
-  DELIVERY = 'Delivery Relayer',
-  CONFIRMED = 'Confirmed Relayer',
-}
-
-export enum SlotState {
-  SLOT_1 = 'Slot 1',
-  SLOT_2 = 'Slot 2',
-  SLOT_3 = 'Slot 3',
-  OUT_OF_SLOT = 'Out of Slot',
-}
-
-export enum OrderStatus {
-  FINISHED = 'Finished',
-  IN_PROGRESS = 'In Progress',
-  OUT_OF_SLOT = 'Out of Slot',
 }

@@ -189,6 +189,7 @@ export const ORDERS_TOTAL_ORDERS = gql`
         finishBlock
         createTime
         finishTime
+        status
         confirmedSlotIndex
       }
     }

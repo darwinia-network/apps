@@ -25,6 +25,7 @@ import {
   SlotState,
   OrderStatus,
   RelayerRole,
+  SubqlOrderStatus,
 } from '../../model';
 import { IdentAccountName } from '../widget/account/IdentAccountName';
 import { SubscanLink } from '../widget/SubscanLink';
@@ -41,6 +42,7 @@ type OrderData = {
   createBlock: number;
   finishBlock?: number | null;
   sender: string;
+  status: SubqlOrderStatus;
   createTime: string;
   finishTime?: string | null;
   confirmedSlotIndex: number | null;
@@ -65,8 +67,8 @@ enum FilterAll {
   ALL = 'All',
 }
 
-type FilterState = FilterAll | OrderStatus;
-const FilterState = { ...FilterAll, ...OrderStatus };
+type FilterStatus = FilterAll | OrderStatus;
+const FilterStatus = { ...FilterAll, ...OrderStatus };
 
 type FilterSlot = FilterAll | SlotState;
 const FilterSlot = { ...FilterAll, ...SlotState };
@@ -78,7 +80,7 @@ type BlockFilterInputState = {
 
 interface FilterData {
   dimension: TimeDimension;
-  state: FilterState;
+  status: FilterStatus;
   slot: FilterSlot;
   block?: BlockFilterInputState | null;
   duration?: [start: Moment, end: Moment] | null;
@@ -129,7 +131,7 @@ export const Orders = ({ destination }: { destination: CrossChainDestination }) 
   const [search, setSearch] = useState<SearchData>({ type: SearchType.ORDER_ID, value: '' });
   const [filter, setFilter] = useState<FilterData>({
     dimension: TimeDimension.DATE,
-    state: FilterState.ALL,
+    status: FilterStatus.ALL,
     slot: FilterSlot.ALL,
   });
   const { loading: statisticsLoading, data: statisticsData } = useQuery(ORDERS_STATISTICS, {
@@ -248,11 +250,11 @@ export const Orders = ({ destination }: { destination: CrossChainDestination }) 
       align: 'center',
       render: (_, record) =>
         record.confirmedSlotIndex === null ? (
-          <Badge status="processing" text={FilterState.IN_PROGRESS} />
+          <Badge status="processing" text={FilterStatus.IN_PROGRESS} />
         ) : record.confirmedSlotIndex === -1 ? (
-          <Badge status="warning" text={FilterState.OUT_OF_SLOT} />
+          <Badge status="warning" text={FilterStatus.OUT_OF_SLOT} />
         ) : (
-          <Badge status="success" text={FilterState.FINISHED} />
+          <Badge status="success" text={FilterStatus.FINISHED} />
         ),
     },
   ];
@@ -270,7 +272,7 @@ export const Orders = ({ destination }: { destination: CrossChainDestination }) 
   }, [search]);
 
   const handleFilter = useCallback((values: FilterData) => {
-    const { duration, block, state, slot } = values;
+    const { duration, block, status, slot } = values;
 
     setDataSource(
       // eslint-disable-next-line complexity
@@ -303,20 +305,20 @@ export const Orders = ({ destination }: { destination: CrossChainDestination }) 
           return false;
         }
 
-        switch (state) {
-          // case FilterState.ALL:
-          case FilterState.FINISHED:
-            if (!(item.confirmedSlotIndex !== null)) {
+        switch (status) {
+          // case FilterStatus.ALL:
+          case FilterStatus.FINISHED:
+            if (item.status !== SubqlOrderStatus.Finished) {
               return false;
             }
             break;
-          case FilterState.IN_PROGRESS:
-            if (!(item.confirmedSlotIndex === null)) {
+          case FilterStatus.IN_PROGRESS:
+            if (item.status !== SubqlOrderStatus.InProgress) {
               return false;
             }
             break;
-          case FilterState.OUT_OF_SLOT:
-            if (!(item.confirmedSlotIndex === -1)) {
+          case FilterStatus.OUT_OF_SLOT:
+            if (item.status !== SubqlOrderStatus.OutOfSlot) {
               return false;
             }
             break;
@@ -476,7 +478,7 @@ export const Orders = ({ destination }: { destination: CrossChainDestination }) 
               setFilter((prev) => ({ ...prev, dimension }));
             }
           }}
-          initialValues={{ dimension: filter.dimension, state: filter.state, slot: filter.slot }}
+          initialValues={{ dimension: filter.dimension, status: filter.status, slot: filter.slot }}
           onFinish={handleFilter}
         >
           <Form.Item name="dimension" label={t('Time Dimension')}>
@@ -494,17 +496,17 @@ export const Orders = ({ destination }: { destination: CrossChainDestination }) 
               <BlockFilterInput />
             </Form.Item>
           )}
-          <Form.Item name={`state`} label={t('State')}>
+          <Form.Item name={`status`} label={t('Status')}>
             <Select className="w-32">
-              <Select.Option value={FilterState.ALL}>{t(FilterState.ALL)}</Select.Option>
-              <Select.Option value={FilterState.FINISHED}>
-                <Badge status="success" text={t(FilterState.FINISHED)} />
+              <Select.Option value={FilterStatus.ALL}>{t(FilterStatus.ALL)}</Select.Option>
+              <Select.Option value={FilterStatus.FINISHED}>
+                <Badge status="success" text={t(FilterStatus.FINISHED)} />
               </Select.Option>
-              <Select.Option value={FilterState.IN_PROGRESS}>
-                <Badge status="processing" text={t(FilterState.IN_PROGRESS)} />
+              <Select.Option value={FilterStatus.IN_PROGRESS}>
+                <Badge status="processing" text={t(FilterStatus.IN_PROGRESS)} />
               </Select.Option>
-              <Select.Option value={FilterState.OUT_OF_SLOT}>
-                <Badge status="warning" text={t(FilterState.OUT_OF_SLOT)} />
+              <Select.Option value={FilterStatus.OUT_OF_SLOT}>
+                <Badge status="warning" text={t(FilterStatus.OUT_OF_SLOT)} />
               </Select.Option>
             </Select>
           </Form.Item>
