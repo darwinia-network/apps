@@ -230,14 +230,14 @@ export const RelayerDetail = ({
       const slashDaysCount =
         slashs.reduce((acc, { amount, slashTime }) => {
           const day = format(new Date(slashTime), DATE_FORMAT);
-          acc[day] = acc[day] ? acc[day].add(new BN(amount)) : BN_ZERO;
+          acc[day] = acc[day] ? acc[day].add(new BN(amount)) : new BN(amount);
           return acc;
         }, {} as Record<string, BN>) || {};
 
       const rewardDaysCount =
         rewards.reduce((acc, { rewardTime, rewardAmount }) => {
           const day = format(new Date(rewardTime), DATE_FORMAT);
-          acc[day] = acc[day] ? acc[day].add(new BN(rewardAmount)) : BN_ZERO;
+          acc[day] = acc[day] ? acc[day].add(new BN(rewardAmount)) : new BN(rewardAmount);
           return acc;
         }, {} as Record<string, BN>) || {};
 
