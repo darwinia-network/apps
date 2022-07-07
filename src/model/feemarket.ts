@@ -55,7 +55,7 @@ export enum SubqlOrderStatus {
 
 export enum FinishedStatus {
   FINISHED = 'Finished',
-  UNFINISHED = 'Unfinished',
+  IN_PROGRESS = 'In Progress',
 }
 
 interface RelayerOrderData {

@@ -314,7 +314,7 @@ export const Orders = ({ destination }: { destination: CrossChainDestination }) 
               return false;
             }
             break;
-          case FilterStatus.UNFINISHED:
+          case FilterStatus.IN_PROGRESS:
             if (item.status === SubqlOrderStatus.Finished) {
               return false;
             }
@@ -499,8 +499,8 @@ export const Orders = ({ destination }: { destination: CrossChainDestination }) 
               <Select.Option value={FilterStatus.FINISHED}>
                 <Badge status="success" text={t(FilterStatus.FINISHED)} />
               </Select.Option>
-              <Select.Option value={FilterStatus.UNFINISHED}>
-                <Badge status="processing" text={t(FilterStatus.UNFINISHED)} />
+              <Select.Option value={FilterStatus.IN_PROGRESS}>
+                <Badge status="processing" text={t(FilterStatus.IN_PROGRESS)} />
               </Select.Option>
             </Select>
           </Form.Item>
