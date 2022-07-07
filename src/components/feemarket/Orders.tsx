@@ -300,8 +300,8 @@ export const Orders = ({ destination }: { destination: CrossChainDestination }) 
         if (
           block &&
           !(
-            (block.start && block.start <= item.createBlock) ||
-            (block.end && item.finishBlock && item.finishBlock <= block.end)
+            (block.start ? block.start <= item.createBlock : true) &&
+            (block.end && item.finishBlock ? item.finishBlock <= block.end : true)
           )
         ) {
           return false;
