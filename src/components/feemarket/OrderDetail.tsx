@@ -72,13 +72,6 @@ export const OrderDetail = ({ orderid, destination }: { orderid: string; destina
                 '-'
               )}
             </Descriptions.Item>
-            <Descriptions.Item label={t('State')}>
-              {data?.orderEntity?.confirmedSlotIndex === undefined || data.orderEntity.confirmedSlotIndex === null
-                ? t('Cross-chain in progress')
-                : data.orderEntity.confirmedSlotIndex === -1
-                ? t('Cross-chain out of slot')
-                : t('Cross-chain success')}
-            </Descriptions.Item>
             <Descriptions.Item label={t('Status')}>
               {data?.orderEntity?.status === SubqlOrderStatus.Finished ? (
                 <Badge status="success" text={t(OrderStatus.FINISHED)} />
