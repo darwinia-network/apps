@@ -26,6 +26,7 @@ import {
   OrderStatus,
   RelayerRole,
   SubqlOrderStatus,
+  FinishedStatus,
 } from '../../model';
 import { IdentAccountName } from '../widget/account/IdentAccountName';
 import { SubscanLink } from '../widget/SubscanLink';
@@ -67,8 +68,8 @@ enum FilterAll {
   ALL = 'All',
 }
 
-type FilterStatus = FilterAll | OrderStatus;
-const FilterStatus = { ...FilterAll, ...OrderStatus };
+type FilterStatus = FilterAll | FinishedStatus;
+const FilterStatus = { ...FilterAll, ...FinishedStatus };
 
 type FilterSlot = FilterAll | SlotState;
 const FilterSlot = { ...FilterAll, ...SlotState };
@@ -250,11 +251,11 @@ export const Orders = ({ destination }: { destination: CrossChainDestination }) 
       align: 'center',
       render: (_, record) =>
         record.status === SubqlOrderStatus.InProgress ? (
-          <Badge status="processing" text={FilterStatus.IN_PROGRESS} />
+          <Badge status="processing" text={OrderStatus.IN_PROGRESS} />
         ) : record.status === SubqlOrderStatus.OutOfSlot ? (
-          <Badge status="warning" text={FilterStatus.OUT_OF_SLOT} />
+          <Badge status="warning" text={OrderStatus.OUT_OF_SLOT} />
         ) : (
-          <Badge status="success" text={FilterStatus.FINISHED} />
+          <Badge status="success" text={OrderStatus.FINISHED} />
         ),
     },
   ];
@@ -312,13 +313,8 @@ export const Orders = ({ destination }: { destination: CrossChainDestination }) 
               return false;
             }
             break;
-          case FilterStatus.IN_PROGRESS:
-            if (item.status !== SubqlOrderStatus.InProgress) {
-              return false;
-            }
-            break;
-          case FilterStatus.OUT_OF_SLOT:
-            if (item.status !== SubqlOrderStatus.OutOfSlot) {
+          case FilterStatus.UNFINISHED:
+            if (item.status === SubqlOrderStatus.Finished) {
               return false;
             }
             break;
@@ -343,7 +339,7 @@ export const Orders = ({ destination }: { destination: CrossChainDestination }) 
             }
             break;
           case FilterSlot.OUT_OF_SLOT:
-            if (!(item.confirmedSlotIndex === -1)) {
+            if (!(item.confirmedSlotIndex === -1 || item.status === SubqlOrderStatus.OutOfSlot)) {
               return false;
             }
             break;
@@ -496,17 +492,14 @@ export const Orders = ({ destination }: { destination: CrossChainDestination }) 
               <BlockFilterInput />
             </Form.Item>
           )}
-          <Form.Item name={`status`} label={t('Status')}>
+          <Form.Item name={`status`} label={t('Finished Status')}>
             <Select className="w-32">
               <Select.Option value={FilterStatus.ALL}>{t(FilterStatus.ALL)}</Select.Option>
               <Select.Option value={FilterStatus.FINISHED}>
                 <Badge status="success" text={t(FilterStatus.FINISHED)} />
               </Select.Option>
-              <Select.Option value={FilterStatus.IN_PROGRESS}>
-                <Badge status="processing" text={t(FilterStatus.IN_PROGRESS)} />
-              </Select.Option>
-              <Select.Option value={FilterStatus.OUT_OF_SLOT}>
-                <Badge status="warning" text={t(FilterStatus.OUT_OF_SLOT)} />
+              <Select.Option value={FilterStatus.UNFINISHED}>
+                <Badge status="processing" text={t(FilterStatus.UNFINISHED)} />
               </Select.Option>
             </Select>
           </Form.Item>

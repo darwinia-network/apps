@@ -53,6 +53,11 @@ export enum SubqlOrderStatus {
   OutOfSlot = 'OutOfSlot',
 }
 
+export enum FinishedStatus {
+  FINISHED = 'Finished',
+  UNFINISHED = 'Unfinished',
+}
+
 interface RelayerOrderData {
   id: string;
   finishTime: string;
