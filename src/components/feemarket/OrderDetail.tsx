@@ -102,19 +102,19 @@ export const OrderDetail = ({ orderid, destination }: { orderid: string; destina
                 '-'
               )}
             </Descriptions.Item>
-            <Descriptions.Item label={t('Start Time')}>
-              {data?.orderEntity?.createTime
-                ? `${formatDistance(new Date(data.orderEntity.createTime), new Date(), { addSuffix: true })} ( ${
-                    data.orderEntity.createTime
-                  } )`
-                : '-'}
-            </Descriptions.Item>
             <Descriptions.Item label={t('Confirm Block')}>
               {data?.orderEntity?.finishBlock ? (
                 <SubscanLink network={network.name} block={data.orderEntity.finishBlock.toString()} prefix="#" />
               ) : (
                 '-'
               )}
+            </Descriptions.Item>
+            <Descriptions.Item label={t('Start Time')}>
+              {data?.orderEntity?.createTime
+                ? `${formatDistance(new Date(data.orderEntity.createTime), new Date(), { addSuffix: true })} ( ${
+                    data.orderEntity.createTime
+                  } )`
+                : '-'}
             </Descriptions.Item>
             <Descriptions.Item label={t('Confirm Time')}>
               {data?.orderEntity?.finishTime
