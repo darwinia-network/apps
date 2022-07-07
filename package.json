@@ -62,9 +62,6 @@
     ]
   },
   "devDependencies": {
-    "@commitlint/cli": "^17.0.2",
-    "@commitlint/config-angular": "^12.1.4",
-    "@commitlint/config-conventional": "^17.0.2",
     "@darwinia/lints": "^1.0.1",
     "@open-wc/webpack-import-meta-loader": "^0.4.7",
     "@tailwindcss/postcss7-compat": "^2.0.4",
@@ -84,9 +81,7 @@
     "axios": "^0.23.0",
     "bytes32": "^0.0.3",
     "codelyzer": "^6.0.1",
-    "commitizen": "^4.2.4",
     "cross-env": "^7.0.3",
-    "cz-conventional-changelog": "^3.3.0",
     "eslint": "^7.27.0",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-import": "^2.23.4",
@@ -133,10 +128,5 @@
       "eslint --cache --fix"
     ],
     "*.{css,scss}": "stylelint --fix"
-  },
-  "config": {
-    "commitizen": {
-      "path": "./node_modules/cz-conventional-changelog"
-    }
   }
 }
