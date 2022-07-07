@@ -5,6 +5,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import { useQuery } from '@apollo/client';
 import type { Moment } from 'moment';
+import { format } from 'date-fns';
 import moment from 'moment';
 import { useTranslation } from 'react-i18next';
 
@@ -14,7 +15,7 @@ import { PieChart, PieSeriesOption } from 'echarts/charts';
 import { LabelLayout } from 'echarts/features';
 import { CanvasRenderer } from 'echarts/renderers';
 
-import { ORDERS_STATISTICS, ORDERS_TOTAL_ORDERS, LONG_LONG_DURATION } from '../../config';
+import { ORDERS_STATISTICS, ORDERS_TOTAL_ORDERS, LONG_LONG_DURATION, DATE_TIME_FORMATE } from '../../config';
 import { useApi } from '../../hooks';
 import {
   OrdersStatisticsData,
@@ -226,7 +227,7 @@ export const Orders = ({ destination }: { destination: CrossChainDestination }) 
       render: (value, record) => (
         <div className="flex flex-col justify-center">
           <SubscanLink network={network.name} block={value} prefix="#" />
-          <span>({record.createTime})</span>
+          <span>{format(new Date(record.createTime), DATE_TIME_FORMATE)}</span>
         </div>
       ),
     },
@@ -239,7 +240,7 @@ export const Orders = ({ destination }: { destination: CrossChainDestination }) 
         value ? (
           <div className="flex flex-col justify-center">
             <SubscanLink network={network.name} block={value} prefix="#" />
-            {record.finishTime ? <span>({record.finishTime})</span> : null}
+            {record.finishTime ? <span>{format(new Date(record.finishTime), DATE_TIME_FORMATE)}</span> : null}
           </div>
         ) : (
           '-'

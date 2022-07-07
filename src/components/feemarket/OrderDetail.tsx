@@ -1,11 +1,11 @@
 import { Card, Descriptions, Badge, Divider, Breadcrumb, Spin } from 'antd';
 import { NavLink } from 'react-router-dom';
 import { useQuery } from '@apollo/client';
-import { formatDistance } from 'date-fns';
+import { formatDistance, format } from 'date-fns';
 import { useTranslation, TFunction } from 'react-i18next';
 
 import { Path } from '../../config/routes';
-import { ORDER_DETAIL, LONG_LONG_DURATION } from '../../config';
+import { ORDER_DETAIL, LONG_LONG_DURATION, DATE_TIME_FORMATE } from '../../config';
 import {
   OrderDetailData,
   CrossChainDestination,
@@ -111,16 +111,18 @@ export const OrderDetail = ({ orderid, destination }: { orderid: string; destina
             </Descriptions.Item>
             <Descriptions.Item label={t('Start Time')}>
               {data?.orderEntity?.createTime
-                ? `${formatDistance(new Date(data.orderEntity.createTime), new Date(), { addSuffix: true })} ( ${
-                    data.orderEntity.createTime
-                  } )`
+                ? `${formatDistance(new Date(data.orderEntity.createTime), new Date(), { addSuffix: true })} ( ${format(
+                    new Date(data.orderEntity.createTime),
+                    DATE_TIME_FORMATE
+                  )} )`
                 : '-'}
             </Descriptions.Item>
             <Descriptions.Item label={t('Confirm Time')}>
               {data?.orderEntity?.finishTime
-                ? `${formatDistance(new Date(data.orderEntity.finishTime), new Date(), { addSuffix: true })} ( ${
-                    data.orderEntity.finishTime
-                  } )`
+                ? `${formatDistance(new Date(data.orderEntity.finishTime), new Date(), { addSuffix: true })} ( ${format(
+                    new Date(data.orderEntity.finishTime),
+                    DATE_TIME_FORMATE
+                  )} )`
                 : '-'}
             </Descriptions.Item>
           </Descriptions>
