@@ -195,7 +195,7 @@ export const OrderDetail = ({ orderid, destination }: { orderid: string; destina
                   <Descriptions.Item label={t(RelayerRole.ASSIGNED)} key={node.relayerId}>
                     <AccountName account={node.relayerId.split('-')[1]} />
                     <span>
-                      &nbsp;{`| ${fromWei({ value: node.amount }, prettyNumber)} ${network.tokens.ring.symbol}`}
+                      &nbsp;{`| -${fromWei({ value: node.amount }, prettyNumber)} ${network.tokens.ring.symbol}`}
                     </span>
                   </Descriptions.Item>
                 ))}
