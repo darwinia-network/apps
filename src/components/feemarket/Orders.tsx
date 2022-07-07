@@ -372,10 +372,12 @@ export const Orders = ({ destination }: { destination: CrossChainDestination }) 
       tooltip: {
         trigger: 'item',
       },
+      color: ['#91cc75', '#5470c6', '#fac858'],
       legend: {
         orient: 'vertical',
         top: 'center',
-        right: '0',
+        left: '40%',
+        show: true,
         itemWidth: 10,
         itemHeight: 10,
         borderRadius: [0, 0, 0, 0],
@@ -389,13 +391,20 @@ export const Orders = ({ destination }: { destination: CrossChainDestination }) 
           label: {
             show: false,
           },
+          center: ['20%', '50%'],
           data: [
             {
-              value: statisticsData?.feeMarketEntity?.totalInProgress || 0,
-              name: t(OrderStatus.IN_PROGRESS) as string,
+              value: statisticsData?.feeMarketEntity?.totalFinished || 0,
+              name: t(OrderStatus.FINISHED) as string,
             },
-            { value: statisticsData?.feeMarketEntity?.totalFinished || 0, name: t(OrderStatus.FINISHED) as string },
-            { value: statisticsData?.feeMarketEntity?.totalOutOfSlot || 0, name: t(OrderStatus.OUT_OF_SLOT) as string },
+            {
+              value: statisticsData?.feeMarketEntity?.totalInProgress || 0,
+              name: `${t(OrderStatus.IN_PROGRESS)} (${t('In Slot')})`,
+            },
+            {
+              value: statisticsData?.feeMarketEntity?.totalOutOfSlot || 0,
+              name: `${t(OrderStatus.IN_PROGRESS)} (${t(OrderStatus.OUT_OF_SLOT)})`,
+            },
           ],
         },
       ],
