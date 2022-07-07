@@ -81,14 +81,15 @@ export const OrderDetail = ({ orderid, destination }: { orderid: string; destina
                 <Badge status="processing" text={t(OrderStatus.IN_PROGRESS)} />
               )}
             </Descriptions.Item>
-            <Descriptions.Item label={t('Cross-chain fee')}>
+            <Descriptions.Item label={t('Cross-chain Fee')}>
               {data?.orderEntity?.fee
                 ? `${fromWei({ value: data.orderEntity.fee }, prettyNumber)} ${network.tokens.ring.symbol}`
                 : '-'}
             </Descriptions.Item>
-            <Descriptions.Item label={t('Priority slot')}>
+            <Descriptions.Item label={t('Priority Slot')}>
               {getPrioritySlot(t, data?.orderEntity?.confirmedSlotIndex)}
             </Descriptions.Item>
+            <Descriptions.Item label={t('Out of Slot Block')}>{data?.orderEntity?.outOfSlot || '-'}</Descriptions.Item>
           </Descriptions>
 
           <Divider className="my-2" />

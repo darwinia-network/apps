@@ -193,6 +193,7 @@ export interface OrderDetailData {
     sourceTxHash: string;
     confirmedSlotIndex?: number;
     status: SubqlOrderStatus;
+    outOfSlot: number;
     createTime: string;
     finishTime?: string;
     createBlock: number;

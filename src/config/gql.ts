@@ -196,6 +196,7 @@ export const ORDER_DETAIL = gql`
       sourceTxHash
       confirmedSlotIndex
       status
+      outOfSlot
       createTime
       finishTime
       createBlock
