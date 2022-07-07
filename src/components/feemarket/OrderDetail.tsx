@@ -73,7 +73,7 @@ export const OrderDetail = ({ orderid, destination }: { orderid: string; destina
               )}
             </Descriptions.Item>
             <Descriptions.Item label={t('State')}>
-              {data?.orderEntity?.confirmedSlotIndex === undefined
+              {data?.orderEntity?.confirmedSlotIndex === undefined || data.orderEntity.confirmedSlotIndex === null
                 ? t('Cross-chain in progress')
                 : data.orderEntity.confirmedSlotIndex === -1
                 ? t('Cross-chain out of slot')
