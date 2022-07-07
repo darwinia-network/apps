@@ -269,6 +269,7 @@
   "Status": "当前状态",
   "Finished": "完成",
   "In Progress": "进行中",
+  "In Slot": "未超时",
   "Out of Slot": "超时",
   "Time Dimension": "时间维度",
   "Date Range": "时间范围",

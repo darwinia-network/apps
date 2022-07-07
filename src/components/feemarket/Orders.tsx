@@ -432,7 +432,7 @@ export const Orders = ({ destination }: { destination: CrossChainDestination }) 
               <Spin size="small" spinning={statisticsLoading}>
                 <div className="flex flex-col items-center">
                   <ClockCircleOutlined className="text-xl" />
-                  <span>{t(OrderStatus.IN_PROGRESS)}</span>
+                  <span>{`${t(OrderStatus.IN_PROGRESS)} (${t('In Slot')})`}</span>
                 </div>
               </Spin>
             }
@@ -444,7 +444,7 @@ export const Orders = ({ destination }: { destination: CrossChainDestination }) 
               <Spin size="small" spinning={statisticsLoading}>
                 <div className="flex flex-col items-center">
                   <ExclamationCircleOutlined className="text-xl" />
-                  <span>{t(OrderStatus.OUT_OF_SLOT)}</span>
+                  <span>{`${t(OrderStatus.IN_PROGRESS)} (${t(OrderStatus.OUT_OF_SLOT)})`}</span>
                 </div>
               </Spin>
             }
