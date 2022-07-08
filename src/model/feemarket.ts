@@ -58,20 +58,22 @@ export enum FinishedStatus {
   IN_PROGRESS = 'In Progress',
 }
 
+export interface RelayerOrderRewards {
+  nodes: {
+    assignedAmount?: string | null;
+    deliveredAmount: string;
+    confirmedAmount: string;
+    assignedRelayerId?: string | null;
+    deliveredRelayerId: string;
+    confirmedRelayerId: string;
+  }[];
+}
+
 interface RelayerOrderData {
   id: string;
   finishTime: string;
   assignedRelayers: string[];
-  rewards: {
-    nodes: {
-      assignedAmount?: string | null;
-      deliveredAmount: string;
-      confirmedAmount: string;
-      assignedRelayerId?: string | null;
-      deliveredRelayerId: string;
-      confirmedRelayerId: string;
-    }[];
-  };
+  rewards: RelayerOrderRewards;
 }
 
 export interface RelayerOrders {

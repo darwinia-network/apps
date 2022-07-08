@@ -35,6 +35,7 @@ import {
   CrossChainDestination,
   RelayerRewardsAndSlashs,
   RelayerFeeHistory,
+  RelayerOrderRewards,
 } from '../../model';
 import { Path } from '../../config/routes';
 import { AccountName } from '../widget/account/AccountName';
@@ -70,7 +71,7 @@ type EChartsOption = echarts.ComposeOption<
   | LineSeriesOption
 >;
 
-type RelayerData = {
+type DataSourceState = {
   orderId: string;
   time: string;
   reward: BN;
@@ -92,7 +93,7 @@ export const RelayerDetail = ({
   const [feeSegmented, setFeeSegmented] = useState(SegmentedType.ALL);
   const [rewardSlashSegmented, setRewardSlashSegmented] = useState(SegmentedType.ALL);
 
-  const [dataSource, setDataSource] = useState<RelayerData[]>([]);
+  const [dataSource, setDataSource] = useState<DataSourceState[]>([]);
   const [feeHistoryState, setFeeHistoryState] = useState<ChartState>({ dates: [], data: [] });
   const [rewardsAndSlashsState, setRewardsAndSlashsState] = useState<{
     dates: string[];
@@ -133,7 +134,7 @@ export const RelayerDetail = ({
     data: RelayerOrders | null;
   };
 
-  const columns: ColumnsType<RelayerData> = [
+  const columns: ColumnsType<DataSourceState> = [
     {
       title: t('Order ID'),
       key: 'orderId',
@@ -284,50 +285,33 @@ export const RelayerDetail = ({
     if (relayerOrdersData?.relayerEntity) {
       const { assignedOrders, deliveredOrders, confirmedOrders, slashs } = relayerOrdersData.relayerEntity;
 
-      let ds =
-        slashs?.nodes.reduce((ds: RelayerData[], { amount, order: { id, finishTime } }) => {
-          const orderId = id.split('-')[1];
+      const updateRelayerOrders = (
+        source: DataSourceState[],
+        id: string,
+        finishTime: string,
+        slashAmount?: string,
+        rewards?: RelayerOrderRewards
+      ) => {
+        const orderId = id.split('-')[1];
 
-          const idx = ds.findIndex((item) => item.orderId === orderId);
-          const order =
-            idx >= 0
-              ? ds[idx]
-              : {
-                  orderId,
-                  time: finishTime,
-                  reward: BN_ZERO,
-                  slash: BN_ZERO,
-                  relayerRole: [],
-                };
+        const idx = source.findIndex((item) => item.orderId === orderId);
+        const order =
+          idx >= 0
+            ? source[idx]
+            : {
+                orderId,
+                time: finishTime,
+                reward: BN_ZERO,
+                slash: BN_ZERO,
+                relayerRole: [],
+              };
 
-          const role = new Set<RelayerRole>(order.relayerRole);
+        const role = new Set<RelayerRole>(order.relayerRole);
+
+        if (slashAmount) {
           role.add(RelayerRole.ASSIGNED);
-
-          order.slash = order.slash.add(new BN(amount));
-          order.relayerRole = Array.from(role);
-          ds.splice(idx, idx === -1 ? 0 : 1, order);
-          return ds;
-        }, []) || [];
-
-      ds = (assignedOrders?.nodes || [])
-        .concat(deliveredOrders?.nodes || [])
-        .concat(confirmedOrders?.nodes || [])
-        .reduce((ds: RelayerData[], { id, finishTime, rewards }) => {
-          const orderId = id.split('-')[1];
-
-          const idx = ds.findIndex((item) => item.orderId === orderId);
-          const order =
-            idx >= 0
-              ? ds[idx]
-              : {
-                  orderId,
-                  time: finishTime,
-                  reward: BN_ZERO,
-                  slash: BN_ZERO,
-                  relayerRole: [],
-                };
-          const role = new Set<RelayerRole>(order.relayerRole);
-
+          order.slash = order.slash.add(new BN(slashAmount));
+        } else if (rewards) {
           const reward = rewards.nodes.reduce((acc, cur) => {
             if (cur.assignedRelayerId?.split('-')[1] === relayerAddress && cur.assignedAmount) {
               role.add(RelayerRole.ASSIGNED);
@@ -345,12 +329,27 @@ export const RelayerDetail = ({
           }, BN_ZERO);
 
           order.reward = order.reward.add(reward);
-          order.relayerRole = Array.from(role);
-          ds.splice(idx, idx === -1 ? 0 : 1, order);
-          return ds;
-        }, ds);
+        }
 
-      setDataSource(ds.sort((a, b) => Number(b.orderId) - Number(a.orderId)));
+        order.relayerRole = Array.from(role);
+        source.splice(idx, idx === -1 ? 0 : 1, order);
+
+        return source;
+      };
+
+      const relayerSlashOrders =
+        slashs?.nodes.reduce((slashOrders: DataSourceState[], { amount, order: { id, finishTime } }) => {
+          return updateRelayerOrders(slashOrders, id, finishTime, amount, undefined);
+        }, []) || [];
+
+      const relayerOrders = (assignedOrders?.nodes || [])
+        .concat(deliveredOrders?.nodes || [])
+        .concat(confirmedOrders?.nodes || [])
+        .reduce((slashAndRewardOrders: DataSourceState[], { id, finishTime, rewards }) => {
+          return updateRelayerOrders(slashAndRewardOrders, id, finishTime, undefined, rewards);
+        }, relayerSlashOrders);
+
+      setDataSource(relayerOrders.sort((a, b) => Number(b.orderId) - Number(a.orderId)));
     } else {
       setDataSource([]);
     }
