@@ -97,6 +97,7 @@
   "Mapping": "Mapping",
   "Max": "最大",
   "Max, {{eras}} eras": "最大，{{eras}} eras",
+  "Max, {{max}} nominees": "最多可选择 {{max}} 个被提名人",
   "Metamask account": "Metamask 账户",
   "No fixed term Set a lock period will get additional {{symbol}} rewards": "无固定期限（设定一个锁定期将获得额外的 {{symbol}} 奖励）",
   "Nominate": "提名",

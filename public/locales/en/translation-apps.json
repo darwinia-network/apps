@@ -96,6 +96,7 @@
   "Mapping": "Mapping",
   "Max": "Max",
   "Max, {{eras}} eras": "Max, {{eras}} eras",
+  "Max, {{max}} nominees": "Max, {{max}} nominees",
   "Metamask account": "Metamask account",
   "No fixed term Set a lock period will get additional {{symbol}} rewards": "No fixed term (Set a lock period will get additional {{symbol}} rewards)",
   "Nominate": "Nominate",
