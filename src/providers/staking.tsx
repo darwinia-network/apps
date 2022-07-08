@@ -1,5 +1,6 @@
 import { DeriveStakingOverview } from '@polkadot/api-derive/staking/types';
 import { ElectionStatus } from '@polkadot/types/interfaces';
+import type { u32 } from '@polkadot/types';
 import { PalletStakingValidatorPrefs } from '@polkadot/types/lookup';
 import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react';
 import { combineLatest, from, tap, EMPTY } from 'rxjs';
@@ -21,6 +22,7 @@ export interface StakingCtx {
   stakingOverview: DeriveStakingOverview | null;
   stashAccount: string | null;
   stashAccounts: string[];
+  maxNominations: number;
   updateStakingDerive: () => void;
   updateValidators: () => void;
   refreshControllerAndStashAccount: () => void;
@@ -45,6 +47,8 @@ export const StakingProvider = ({ children }: React.PropsWithChildren<unknown>) 
   const [isInElection, setIsInElection] = useState<boolean>(false);
 
   const isSupportedStaking = useMemo(() => !!api.tx.staking, [api]);
+
+  const maxNominations = useMemo(() => (api.consts.staking?.maxNominations as u32)?.toNumber() || 0, [api]);
 
   const availableValidators = useMemo(() => {
     if (stakingOverview && stashAccounts) {
@@ -183,6 +187,7 @@ export const StakingProvider = ({ children }: React.PropsWithChildren<unknown>) 
         stakingOverview,
         stashAccount,
         stashAccounts,
+        maxNominations,
         updateStakingDerive,
         updateValidators,
         refreshControllerAndStashAccount,
