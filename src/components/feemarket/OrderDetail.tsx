@@ -73,9 +73,9 @@ export const OrderDetail = ({ orderid, destination }: { orderid: string; destina
               )}
             </Descriptions.Item>
             <Descriptions.Item label={t('Status')}>
-              {data?.orderEntity?.status === SubqlOrderStatus.Finished ? (
+              {data?.orderEntity?.status === SubqlOrderStatus.FINISHED ? (
                 <Badge status="success" text={t(OrderStatus.FINISHED)} />
-              ) : data?.orderEntity?.status === SubqlOrderStatus.OutOfSlot ? (
+              ) : data?.orderEntity?.status === SubqlOrderStatus.OUT_OF_SLOT ? (
                 <Badge status="warning" text={t(OrderStatus.OUT_OF_SLOT)} />
               ) : (
                 <Badge status="processing" text={t(OrderStatus.IN_PROGRESS)} />

@@ -251,9 +251,9 @@ export const Orders = ({ destination }: { destination: CrossChainDestination }) 
       key: 'status',
       align: 'center',
       render: (_, record) =>
-        record.status === SubqlOrderStatus.InProgress ? (
+        record.status === SubqlOrderStatus.IN_PROGRESS ? (
           <Badge status="processing" text={OrderStatus.IN_PROGRESS} />
-        ) : record.status === SubqlOrderStatus.OutOfSlot ? (
+        ) : record.status === SubqlOrderStatus.OUT_OF_SLOT ? (
           <Badge status="warning" text={OrderStatus.OUT_OF_SLOT} />
         ) : (
           <Badge status="success" text={OrderStatus.FINISHED} />
@@ -310,12 +310,12 @@ export const Orders = ({ destination }: { destination: CrossChainDestination }) 
         switch (status) {
           // case FilterStatus.ALL:
           case FilterStatus.FINISHED:
-            if (item.status !== SubqlOrderStatus.Finished) {
+            if (item.status !== SubqlOrderStatus.FINISHED) {
               return false;
             }
             break;
           case FilterStatus.IN_PROGRESS:
-            if (item.status === SubqlOrderStatus.Finished) {
+            if (item.status === SubqlOrderStatus.FINISHED) {
               return false;
             }
             break;
@@ -340,7 +340,7 @@ export const Orders = ({ destination }: { destination: CrossChainDestination }) 
             }
             break;
           case FilterSlot.OUT_OF_SLOT:
-            if (!(item.confirmedSlotIndex === -1 || item.status === SubqlOrderStatus.OutOfSlot)) {
+            if (!(item.confirmedSlotIndex === -1 || item.status === SubqlOrderStatus.OUT_OF_SLOT)) {
               return false;
             }
             break;

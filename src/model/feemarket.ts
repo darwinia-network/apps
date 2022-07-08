@@ -48,9 +48,9 @@ export enum OrderStatus {
 }
 
 export enum SubqlOrderStatus {
-  Finished = 'Finished',
-  InProgress = 'InProgress',
-  OutOfSlot = 'OutOfSlot',
+  FINISHED = 'Finished',
+  IN_PROGRESS = 'InProgress',
+  OUT_OF_SLOT = 'OutOfSlot',
 }
 
 export enum FinishedStatus {
