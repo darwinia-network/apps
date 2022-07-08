@@ -34,8 +34,7 @@ interface WithdrawFormValues {
   amount: string;
 }
 
-// TODO: https://github.com/darwinia-network/darwinia-common/pull/1298
-const DVM_DISPATCH_ADDRESS = '0x0000000000000000000000000000000000000019';
+const DVM_DISPATCH_ADDRESS = '0x0000000000000000000000000000000000000401';
 
 const capitalLetters = (str: string) => {
   // eslint-disable-next-line no-magic-numbers
