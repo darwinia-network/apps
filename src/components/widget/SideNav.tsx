@@ -8,7 +8,7 @@ import { THEME } from '../../config';
 import { Path, routes } from '../../config/routes';
 import { useApi, useBestNumber } from '../../hooks';
 import { getNetworkByName, NETWORK_CONFIGURATIONS } from '../../utils';
-import { AccountIcon, DarwiniaIcon, StakingIcon, ToolboxIcon, UsersIcon, ViewBrowserIcon } from '../icons';
+import { AccountIcon, DarwiniaIcon, StakingIcon, ToolboxIcon, UsersIcon, ViewBrowserIcon, ChartIcon } from '../icons';
 import { IconProps } from '../icons/icon-factory';
 import { BestNumber } from './BestNumber';
 import { SubscanLink } from './SubscanLink';
@@ -39,7 +39,7 @@ const navigators: Nav[] = [
   { label: 'Toolbox', path: Path.toolbox, Icon: ToolboxIcon },
   { label: 'Darwinia Portal', path: Path.portal, Icon: DarwiniaIcon },
   { label: 'Account Migration', path: Path.migration, Icon: UsersIcon, className: 'migration' },
-  { label: 'Fee Market', path: Path.feemarket, Icon: UsersIcon },
+  { label: 'Fee Market', path: Path.feemarket, Icon: ChartIcon },
 ];
 
 export const getActiveNav = (path: string) => {

@@ -21,3 +21,4 @@ export * from './github';
 export * from './twitter';
 export * from './txSend';
 export * from './view-browser';
+export * from './chart';
