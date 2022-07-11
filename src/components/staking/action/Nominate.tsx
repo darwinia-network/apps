@@ -46,6 +46,7 @@ export function Nominate({
     stakingOverview,
     controllerAccount,
     availableValidators,
+    maxNominations,
     updateValidators,
     updateStakingDerive,
   } = useStaking();
@@ -142,9 +143,16 @@ export function Nominate({
               {t('Filter available candidates based on name, address or short account index.')}
             </span>
           }
-          rules={[{ required: true }]}
+          rules={[
+            { required: true },
+            {
+              validator: (_, nominations: string[]) =>
+                nominations.length > maxNominations ? Promise.reject() : Promise.resolve(),
+              message: t('Max, {{max}} nominees', { max: maxNominations }),
+            },
+          ]}
         >
-          <Select
+          <Select<string>
             mode="multiple"
             allowClear
             placeholder={t('Please select from list')}

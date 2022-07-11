@@ -1,7 +1,7 @@
 import { SettingFilled } from '@ant-design/icons';
 import { u8aConcat, u8aToHex } from '@polkadot/util';
 import { Button, Dropdown, Menu } from 'antd';
-import { useMemo, useCallback, useEffect, useState, PropsWithChildren } from 'react';
+import { useMemo, useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { from, EMPTY } from 'rxjs';
 import type { DeriveStakingAccount } from '../../../api-derive/types';
@@ -23,12 +23,6 @@ interface ActionsProps {
   disabled?: boolean;
   eraSelectionIndex: number;
 }
-
-const ActionDropdownItem = ({ itemKey, children }: PropsWithChildren<{ itemKey: string }>) => (
-  <Menu.Item key={itemKey} className="p-0 my-1">
-    {children}
-  </Menu.Item>
-);
 
 // eslint-disable-next-line complexity
 export function Actions({ eraSelectionIndex, disabled }: ActionsProps) {
@@ -139,60 +133,41 @@ export function Actions({ eraSelectionIndex, disabled }: ActionsProps) {
         disabled={disabled}
         overlay={
           <Menu>
-            <ActionDropdownItem itemKey="claimRewards">
-              <ClaimRewards className="w-full text-left" size="large" eraSelectionIndex={eraSelectionIndex} />
-            </ActionDropdownItem>
-
-            <ActionDropdownItem itemKey="bondMore">
-              <BondMore className="w-full text-left" size="large" />
-            </ActionDropdownItem>
-
-            <ActionDropdownItem itemKey="unbond">
-              <Unbond className="w-full text-left" size="large" />
-            </ActionDropdownItem>
-
-            <ActionDropdownItem itemKey="deposit">
-              <Deposit className="w-full text-left" size="large" />
-            </ActionDropdownItem>
-
-            <ActionDropdownItem itemKey="rebond">
-              <Rebond className="w-full text-left" size="large" />
-            </ActionDropdownItem>
-
-            <ActionDropdownItem itemKey="withdrawUnbonded">
+            {[
+              <ClaimRewards
+                className="w-full text-left"
+                size="large"
+                eraSelectionIndex={eraSelectionIndex}
+                key="claim rewards"
+              />,
+              <BondMore className="w-full text-left" size="large" key="bond more" />,
+              <Unbond className="w-full text-left" size="large" key="unbond" />,
+              <Deposit className="w-full text-left" size="large" key="deposit" />,
+              <Rebond className="w-full text-left" size="large" key="rebond" />,
               <Button
                 type="text"
                 disabled={!isOwnController || !stakingAccount?.redeemable?.gtn(0)}
                 onClick={withdrawFunds}
                 className="w-full text-left"
                 size="large"
+                key="withdraw unbonded"
               >
                 {t('Withdraw unbonded funds')}
-              </Button>
-            </ActionDropdownItem>
-
-            <ActionDropdownItem itemKey="controller">
-              <SetController className="w-full text-left" size="large" />
-            </ActionDropdownItem>
-
-            <ActionDropdownItem itemKey="payee">
-              <SetPayee className="w-full text-left" size="large" />
-            </ActionDropdownItem>
-
-            {isValidating && (
-              <ActionDropdownItem itemKey="validator">
-                <SetValidator className="w-full text-left" size="large" />
-              </ActionDropdownItem>
-            )}
-
-            {isNominating ? (
-              <ActionDropdownItem itemKey="nominees">
-                <Nominate className="w-full text-left" size="large" label="Set nominees" />
-              </ActionDropdownItem>
-            ) : (
-              <ActionDropdownItem itemKey="session">
-                <SetSession className="w-full text-left" size="large" label="Set session key" />
-              </ActionDropdownItem>
+              </Button>,
+              <SetController className="w-full text-left" size="large" key="set controller" />,
+              <SetPayee className="w-full text-left" size="large" key="set payee" />,
+              isValidating ? <SetValidator className="w-full text-left" size="large" key="set validator" /> : null,
+              isNominating ? (
+                <Nominate className="w-full text-left" size="large" label="Set nominees" key="nominate" />
+              ) : (
+                <SetSession className="w-full text-left" size="large" label="Set session key" key="set session" />
+              ),
+            ].map((component, index) =>
+              component ? (
+                <Menu.Item key={index} className="p-0 my-1">
+                  {component}
+                </Menu.Item>
+              ) : null
             )}
           </Menu>
         }
