@@ -3,7 +3,7 @@ import { NavLink, Link } from 'react-router-dom';
 import { ColumnsType } from 'antd/lib/table';
 import { useRef, useEffect, useState } from 'react';
 import { useQuery } from '@apollo/client';
-import { format, compareAsc, formatDistanceStrict } from 'date-fns';
+import { format, formatDistanceStrict } from 'date-fns';
 import { BN, BN_ZERO } from '@polkadot/util';
 import { useTranslation } from 'react-i18next';
 
@@ -33,7 +33,9 @@ import {
   RelayerRole,
   FeeMarketTab,
   CrossChainDestination,
-  RelayerRewardsAndSlashs,
+  RelayerRewardsAndSlashsVariables,
+  RelayerRewardsAndSlashsData,
+  RewardsAndSlashsState,
   RelayerFeeHistory,
   RelayerOrderRewards,
 } from '../../model';
@@ -46,8 +48,8 @@ import {
   RELAYER_REWARDS_AND_SLASHS,
   RELAYER_FEE_HISTORY,
 } from '../../config';
-import { useApi } from '../../hooks';
-import { fromWei, prettyNumber, getSegmentedDateByType } from '../../utils';
+import { useApi, usePollIntervalQuery } from '../../hooks';
+import { fromWei, prettyNumber, getSegmentedDateByType, transformRewardsAndSlashs } from '../../utils';
 
 echarts.use([
   TitleComponent,
@@ -95,24 +97,21 @@ export const RelayerDetail = ({
 
   const [dataSource, setDataSource] = useState<DataSourceState[]>([]);
   const [feeHistoryState, setFeeHistoryState] = useState<ChartState>({ dates: [], data: [] });
-  const [rewardsAndSlashsState, setRewardsAndSlashsState] = useState<{
-    dates: string[];
-    slash: string[];
-    reward: string[];
-  }>({
-    dates: [],
-    slash: [],
-    reward: [],
-  });
 
-  const { data: rewardsAndSlashsData, loading: rewardsAndSlashsLoading } = useQuery(RELAYER_REWARDS_AND_SLASHS, {
-    variables: {
-      relayer: `${destination}-${relayerAddress}`,
-      lastTime: getSegmentedDateByType(rewardSlashSegmented),
+  const { loading: rewardsAndSlashsLoading, transformedData: rewardsAndSlashsState } = usePollIntervalQuery<
+    RelayerRewardsAndSlashsData,
+    RelayerRewardsAndSlashsVariables,
+    RewardsAndSlashsState
+  >(
+    RELAYER_REWARDS_AND_SLASHS,
+    {
+      variables: {
+        relayer: `${destination}-${relayerAddress}`,
+        time: getSegmentedDateByType(rewardSlashSegmented),
+      },
     },
-    pollInterval: LONG_LONG_DURATION,
-    notifyOnNetworkStatusChange: true,
-  }) as { data: RelayerRewardsAndSlashs | null; loading: boolean };
+    transformRewardsAndSlashs
+  );
 
   const { data: feeHistoryData, loading: feeHistoryLoading } = useQuery(RELAYER_FEE_HISTORY, {
     variables: {
@@ -201,71 +200,6 @@ export const RelayerDetail = ({
       render: (value) => formatDistanceStrict(new Date(value), new Date(), { addSuffix: true }),
     },
   ];
-
-  // eslint-disable-next-line complexity
-  useEffect(() => {
-    if (rewardsAndSlashsData?.relayerEntity) {
-      const {
-        slashs: slashsOrigin,
-        assignedRewards,
-        deliveredRewards,
-        confirmedRewards,
-      } = rewardsAndSlashsData.relayerEntity;
-
-      const slashs = slashsOrigin?.nodes || [];
-      const rewards = (assignedRewards?.nodes || [])
-        .map((node) => ({ rewardTime: node.rewardTime, rewardAmount: node.assignedAmount }))
-        .concat(
-          (deliveredRewards?.nodes || []).map((node) => ({
-            rewardTime: node.rewardTime,
-            rewardAmount: node.deliveredAmount,
-          }))
-        )
-        .concat(
-          (confirmedRewards?.nodes || []).map((node) => ({
-            rewardTime: node.rewardTime,
-            rewardAmount: node.confirmedAmount,
-          }))
-        );
-
-      const slashDaysCount =
-        slashs.reduce((acc, { amount, slashTime }) => {
-          const day = format(new Date(slashTime), DATE_FORMAT);
-          acc[day] = acc[day] ? acc[day].add(new BN(amount)) : new BN(amount);
-          return acc;
-        }, {} as Record<string, BN>) || {};
-
-      const rewardDaysCount =
-        rewards.reduce((acc, { rewardTime, rewardAmount }) => {
-          const day = format(new Date(rewardTime), DATE_FORMAT);
-          acc[day] = acc[day] ? acc[day].add(new BN(rewardAmount)) : new BN(rewardAmount);
-          return acc;
-        }, {} as Record<string, BN>) || {};
-
-      const rewardAndSlashDates = Array.from(
-        Object.keys(slashDaysCount)
-          .concat(Object.keys(rewardDaysCount))
-          .reduce((acc, cur) => {
-            acc.add(cur);
-            return acc;
-          }, new Set<string>())
-      ).sort((a, b) => compareAsc(new Date(a), new Date(b)));
-
-      setRewardsAndSlashsState({
-        dates: rewardAndSlashDates,
-        ...(rewardAndSlashDates.reduce(
-          ({ slash, reward }, day) => {
-            reward.push(rewardDaysCount[day] ? fromWei({ value: rewardDaysCount[day] }, prettyNumber) : '0');
-            slash.push(slashDaysCount[day] ? fromWei({ value: slashDaysCount[day] }, prettyNumber) : '0');
-            return { reward, slash };
-          },
-          { reward: [], slash: [] } as { reward: string[]; slash: string[] }
-        ) || { reward: [], slash: [] }),
-      });
-    } else {
-      setRewardsAndSlashsState({ dates: [], slash: [], reward: [] });
-    }
-  }, [rewardsAndSlashsData?.relayerEntity]);
 
   useEffect(() => {
     if (feeHistoryData?.relayerEntity) {
@@ -381,7 +315,7 @@ export const RelayerDetail = ({
       xAxis: [
         {
           type: 'category',
-          data: rewardsAndSlashsState.dates,
+          data: rewardsAndSlashsState?.dates,
           axisPointer: {
             type: 'shadow',
           },
@@ -406,7 +340,7 @@ export const RelayerDetail = ({
               return `${value} ${network.tokens.ring.symbol}`;
             },
           },
-          data: rewardsAndSlashsState.slash,
+          data: rewardsAndSlashsState?.slashs,
         },
         {
           name: 'Reward',
@@ -416,7 +350,7 @@ export const RelayerDetail = ({
               return `${value} ${network.tokens.ring.symbol}`;
             },
           },
-          data: rewardsAndSlashsState.reward,
+          data: rewardsAndSlashsState?.rewards,
         },
       ],
     };

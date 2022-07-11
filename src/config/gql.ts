@@ -47,30 +47,30 @@ export const RELAYER_TOTAL_ORDERS_SLASHS_REWARDS = gql`
 `;
 
 export const RELAYER_REWARDS_AND_SLASHS = gql`
-  query RelayerRewardsAndSlashs($relayer: String!, $lastTime: Datetime!) {
+  query relayerRewardsAndSlashs($relayer: String!, $time: Datetime!) {
     relayerEntity(id: $relayer) {
-      slashs(filter: { slashTime: { greaterThan: $lastTime } }, orderBy: SLASH_TIME_ASC) {
-        nodes {
-          amount
-          slashTime
-        }
-      }
-      assignedRewards(filter: { rewardTime: { greaterThan: $lastTime } }) {
+      assignedRewards(filter: { rewardTime: { greaterThan: $time } }) {
         nodes {
           rewardTime
           assignedAmount
         }
       }
-      deliveredRewards(filter: { rewardTime: { greaterThan: $lastTime } }) {
+      deliveredRewards(filter: { rewardTime: { greaterThan: $time } }) {
         nodes {
           rewardTime
           deliveredAmount
         }
       }
-      confirmedRewards(filter: { rewardTime: { greaterThan: $lastTime } }) {
+      confirmedRewards(filter: { rewardTime: { greaterThan: $time } }) {
         nodes {
           rewardTime
           confirmedAmount
+        }
+      }
+      slashs(filter: { slashTime: { greaterThan: $time } }) {
+        nodes {
+          amount
+          slashTime
         }
       }
     }

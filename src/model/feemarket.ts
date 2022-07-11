@@ -99,34 +99,45 @@ export interface RelayerOrders {
   };
 }
 
-export interface RelayerRewardsAndSlashs {
+export interface RelayerRewardsAndSlashsVariables {
+  relayer: string;
+  time: string;
+}
+
+export interface RelayerRewardsAndSlashsData {
   relayerEntity?: {
     slashs?: {
       nodes: {
         amount: string;
         slashTime: string;
       }[];
-    };
+    } | null;
     assignedRewards?: {
       nodes: {
         rewardTime: string;
         assignedAmount: string;
       }[];
-    };
+    } | null;
     deliveredRewards?: {
       nodes: {
         rewardTime: string;
         deliveredAmount: string;
       }[];
-    };
+    } | null;
     confirmedRewards?: {
       nodes: {
         rewardTime: string;
         confirmedAmount: string;
       }[];
-    };
-  };
+    } | null;
+  } | null;
 }
+
+export type RewardsAndSlashsState = {
+  dates: string[];
+  rewards: string[];
+  slashs: string[];
+};
 
 export interface RelayerFeeHistory {
   relayerEntity?: {
