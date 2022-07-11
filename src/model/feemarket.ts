@@ -22,30 +22,71 @@ export enum SegmentedType {
   L30D,
 }
 
+export enum FeeMarketTab {
+  OVERVIEW = 'overview',
+  RELAYERS = 'relayers',
+  OREDERS = 'oreders',
+}
+
+export enum RelayerRole {
+  ASSIGNED = 'Assigned Relayer',
+  DELIVERY = 'Delivery Relayer',
+  CONFIRMED = 'Confirmed Relayer',
+}
+
+export enum SlotState {
+  SLOT_1 = 'Slot 1',
+  SLOT_2 = 'Slot 2',
+  SLOT_3 = 'Slot 3',
+  OUT_OF_SLOT = 'Out of Slot',
+}
+
+export enum OrderStatus {
+  FINISHED = 'Finished',
+  IN_PROGRESS = 'In Progress',
+  OUT_OF_SLOT = 'Out of Slot',
+}
+
+export enum SubqlOrderStatus {
+  FINISHED = 'Finished',
+  IN_PROGRESS = 'InProgress',
+  OUT_OF_SLOT = 'OutOfSlot',
+}
+
+export enum FinishedStatus {
+  FINISHED = 'Finished',
+  IN_PROGRESS = 'In Progress',
+}
+
+export interface RelayerOrderRewards {
+  nodes: {
+    assignedAmount?: string | null;
+    deliveredAmount: string;
+    confirmedAmount: string;
+    assignedRelayerId?: string | null;
+    deliveredRelayerId: string;
+    confirmedRelayerId: string;
+  }[];
+}
+
 interface RelayerOrderData {
   id: string;
   finishTime: string;
   assignedRelayers: string[];
-  rewards: {
-    nodes: {
-      assignedAmount?: string | null;
-      deliveredAmount: string;
-      confirmedAmount: string;
-      assignedRelayerId?: string | null;
-      deliveredRelayerId: string;
-      confirmedRelayerId: string;
-    }[];
-  };
-  slashs: {
-    nodes: {
-      amount: string;
-      relayerId: string;
-    }[];
-  };
+  rewards: RelayerOrderRewards;
 }
 
 export interface RelayerOrders {
   relayerEntity?: {
+    slashs?: {
+      nodes: {
+        amount: string;
+        order: {
+          id: string;
+          finishTime: string;
+        };
+      }[];
+    };
     assignedOrders?: {
       nodes: RelayerOrderData[];
     };
@@ -140,6 +181,7 @@ export interface OrdersTotalOrderData {
       createTime: string;
       finishTime?: string;
       sender: string;
+      status: SubqlOrderStatus;
       confirmedSlotIndex: number | null;
     }[];
   };
@@ -152,6 +194,8 @@ export interface OrderDetailData {
     sender: string;
     sourceTxHash: string;
     confirmedSlotIndex?: number;
+    status: SubqlOrderStatus;
+    outOfSlot: number;
     createTime: string;
     finishTime?: string;
     createBlock: number;
@@ -178,29 +222,4 @@ export interface OrderDetailData {
       }[];
     };
   };
-}
-
-export enum FeeMarketTab {
-  OVERVIEW = 'overview',
-  RELAYERS = 'relayers',
-  OREDERS = 'oreders',
-}
-
-export enum RelayerRole {
-  ASSIGNED = 'Assigned Relayer',
-  DELIVERY = 'Delivery Relayer',
-  CONFIRMED = 'Confirmed Relayer',
-}
-
-export enum SlotState {
-  SLOT_1 = 'Slot 1',
-  SLOT_2 = 'Slot 2',
-  SLOT_3 = 'Slot 3',
-  OUT_OF_SLOT = 'Out of Slot',
-}
-
-export enum OrderStatus {
-  FINISHED = 'Finished',
-  IN_PROGRESS = 'In Progress',
-  OUT_OF_SLOT = 'Out of Slot',
 }

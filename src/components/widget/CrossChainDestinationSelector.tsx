@@ -1,5 +1,5 @@
 import { Select } from 'antd';
-import { useRouteMatch } from 'react-router-dom';
+import { useMatch } from 'react-router-dom';
 import { Path } from '../../config/routes';
 import { CrossChainDestination } from '../../model';
 
@@ -20,13 +20,12 @@ export const CrossChainDestinationSelector = ({
   destinations: CrossChainDestination[];
   onSelect: (destination: CrossChainDestination) => void;
 }) => {
-  const matchPath = useRouteMatch({
+  const matchPath = useMatch({
     path: Path.feemarket,
-    exact: true,
   });
   const options = destinations.map((item) => ({ label: labels[item], value: item }));
 
-  return matchPath && destinations.length ? (
+  return !!matchPath && destinations.length ? (
     <Select options={options} onSelect={onSelect} defaultValue={destinations[0]} style={{ minWidth: '10rem' }} />
   ) : null;
 };

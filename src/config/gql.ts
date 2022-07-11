@@ -93,6 +93,15 @@ export const RELAYER_FEE_HISTORY = gql`
 export const RELAYER_ORDERS = gql`
   query RelayerOrders($relayer: String!) {
     relayerEntity(id: $relayer) {
+      slashs {
+        nodes {
+          amount
+          order {
+            id
+            finishTime
+          }
+        }
+      }
       assignedOrders {
         nodes {
           id
@@ -106,12 +115,6 @@ export const RELAYER_ORDERS = gql`
               assignedRelayerId
               deliveredRelayerId
               confirmedRelayerId
-            }
-          }
-          slashs {
-            nodes {
-              amount
-              relayerId
             }
           }
         }
@@ -131,12 +134,6 @@ export const RELAYER_ORDERS = gql`
               confirmedRelayerId
             }
           }
-          slashs {
-            nodes {
-              amount
-              relayerId
-            }
-          }
         }
       }
       confirmedOrders {
@@ -152,12 +149,6 @@ export const RELAYER_ORDERS = gql`
               assignedRelayerId
               deliveredRelayerId
               confirmedRelayerId
-            }
-          }
-          slashs {
-            nodes {
-              amount
-              relayerId
             }
           }
         }
@@ -189,6 +180,7 @@ export const ORDERS_TOTAL_ORDERS = gql`
         finishBlock
         createTime
         finishTime
+        status
         confirmedSlotIndex
       }
     }
@@ -203,6 +195,8 @@ export const ORDER_DETAIL = gql`
       sender
       sourceTxHash
       confirmedSlotIndex
+      status
+      outOfSlot
       createTime
       finishTime
       createBlock

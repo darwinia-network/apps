@@ -12,3 +12,4 @@ export * from './wallet';
 export * from './bestNumber';
 export * from './blockTime';
 export * from './feemarket';
+export * from './pollIntervalQuery';

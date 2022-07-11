@@ -5,6 +5,8 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import { useQuery } from '@apollo/client';
 import type { Moment } from 'moment';
+import { format } from 'date-fns';
+import moment from 'moment';
 import { useTranslation } from 'react-i18next';
 
 import * as echarts from 'echarts/core';
@@ -13,7 +15,7 @@ import { PieChart, PieSeriesOption } from 'echarts/charts';
 import { LabelLayout } from 'echarts/features';
 import { CanvasRenderer } from 'echarts/renderers';
 
-import { ORDERS_STATISTICS, ORDERS_TOTAL_ORDERS, LONG_LONG_DURATION } from '../../config';
+import { ORDERS_STATISTICS, ORDERS_TOTAL_ORDERS, LONG_LONG_DURATION, DATE_TIME_FORMATE } from '../../config';
 import { useApi } from '../../hooks';
 import {
   OrdersStatisticsData,
@@ -24,6 +26,8 @@ import {
   SlotState,
   OrderStatus,
   RelayerRole,
+  SubqlOrderStatus,
+  FinishedStatus,
 } from '../../model';
 import { IdentAccountName } from '../widget/account/IdentAccountName';
 import { SubscanLink } from '../widget/SubscanLink';
@@ -40,6 +44,7 @@ type OrderData = {
   createBlock: number;
   finishBlock?: number | null;
   sender: string;
+  status: SubqlOrderStatus;
   createTime: string;
   finishTime?: string | null;
   confirmedSlotIndex: number | null;
@@ -64,19 +69,59 @@ enum FilterAll {
   ALL = 'All',
 }
 
-type FilterState = FilterAll | OrderStatus;
-const FilterState = { ...FilterAll, ...OrderStatus };
+type FilterStatus = FilterAll | FinishedStatus;
+const FilterStatus = { ...FilterAll, ...FinishedStatus };
 
 type FilterSlot = FilterAll | SlotState;
 const FilterSlot = { ...FilterAll, ...SlotState };
 
+type BlockFilterInputState = {
+  start?: number | null;
+  end?: number | null;
+};
+
 interface FilterData {
   dimension: TimeDimension;
-  state: FilterState;
+  status: FilterStatus;
   slot: FilterSlot;
-  block?: number | null;
+  block?: BlockFilterInputState | null;
   duration?: [start: Moment, end: Moment] | null;
 }
+
+const BlockFilterInput = ({
+  value,
+  onChange = (_) => undefined,
+}: {
+  value?: BlockFilterInputState;
+  onChange?: (value: BlockFilterInputState) => void;
+}) => {
+  const { t } = useTranslation();
+
+  return (
+    <div className="flex justify-between items-center space-x-2">
+      <InputNumber
+        min={1}
+        step={1}
+        placeholder={t('Start block')}
+        onChange={(v) => {
+          onChange({ start: v, end: value?.end });
+        }}
+      />
+      <span>-</span>
+      <InputNumber
+        min={1}
+        step={1}
+        placeholder={t('End block')}
+        onChange={(v) => {
+          onChange({
+            start: value?.start,
+            end: v,
+          });
+        }}
+      />
+    </div>
+  );
+};
 
 // eslint-disable-next-line complexity
 export const Orders = ({ destination }: { destination: CrossChainDestination }) => {
@@ -88,7 +133,7 @@ export const Orders = ({ destination }: { destination: CrossChainDestination }) 
   const [search, setSearch] = useState<SearchData>({ type: SearchType.ORDER_ID, value: '' });
   const [filter, setFilter] = useState<FilterData>({
     dimension: TimeDimension.DATE,
-    state: FilterState.ALL,
+    status: FilterStatus.ALL,
     slot: FilterSlot.ALL,
   });
   const { loading: statisticsLoading, data: statisticsData } = useQuery(ORDERS_STATISTICS, {
@@ -182,7 +227,7 @@ export const Orders = ({ destination }: { destination: CrossChainDestination }) 
       render: (value, record) => (
         <div className="flex flex-col justify-center">
           <SubscanLink network={network.name} block={value} prefix="#" />
-          <span>({record.createTime})</span>
+          <span>{format(new Date(record.createTime), DATE_TIME_FORMATE)}</span>
         </div>
       ),
     },
@@ -195,7 +240,7 @@ export const Orders = ({ destination }: { destination: CrossChainDestination }) 
         value ? (
           <div className="flex flex-col justify-center">
             <SubscanLink network={network.name} block={value} prefix="#" />
-            {record.finishTime ? <span>({record.finishTime})</span> : null}
+            {record.finishTime ? <span>{format(new Date(record.finishTime), DATE_TIME_FORMATE)}</span> : null}
           </div>
         ) : (
           '-'
@@ -206,12 +251,12 @@ export const Orders = ({ destination }: { destination: CrossChainDestination }) 
       key: 'status',
       align: 'center',
       render: (_, record) =>
-        record.confirmedSlotIndex === null ? (
-          <Badge status="processing" text={FilterState.IN_PROGRESS} />
-        ) : record.confirmedSlotIndex === -1 ? (
-          <Badge status="warning" text={FilterState.OUT_OF_SLOT} />
+        record.status === SubqlOrderStatus.IN_PROGRESS ? (
+          <Badge status="processing" text={OrderStatus.IN_PROGRESS} />
+        ) : record.status === SubqlOrderStatus.OUT_OF_SLOT ? (
+          <Badge status="warning" text={OrderStatus.OUT_OF_SLOT} />
         ) : (
-          <Badge status="success" text={FilterState.FINISHED} />
+          <Badge status="success" text={OrderStatus.FINISHED} />
         ),
     },
   ];
@@ -229,36 +274,48 @@ export const Orders = ({ destination }: { destination: CrossChainDestination }) 
   }, [search]);
 
   const handleFilter = useCallback((values: FilterData) => {
-    const { duration, block, state, slot } = values;
+    const { duration, block, status, slot } = values;
 
     setDataSource(
       // eslint-disable-next-line complexity
       dataSourceRef.current.filter((item) => {
+        if (duration) {
+          const dateFormat = 'YYYY-MM-DD';
+          const durationStart = duration[0].format(dateFormat);
+          const durationEnd = duration[1].format(dateFormat);
+
+          const createTime = moment(item.createTime.split('T')[0]);
+          const finishTime = item.finishTime ? moment(item.finishTime.split('T')[0]) : null;
+
+          if (
+            !(
+              createTime.isBetween(durationStart, durationEnd, undefined, '[]') ||
+              (finishTime && finishTime.isBetween(durationStart, durationEnd, undefined, '[]'))
+            )
+          ) {
+            return false;
+          }
+        }
+
         if (
-          duration &&
-          !(duration[0].isBefore(item.createTime) && (item.finishTime ? duration[1].isAfter(item.finishTime) : true))
+          block &&
+          !(
+            (block.start ? block.start <= item.createBlock : true) &&
+            (block.end && item.finishBlock ? item.finishBlock <= block.end : true)
+          )
         ) {
           return false;
         }
 
-        if (block && !(item.createBlock === block || item.finishBlock === block)) {
-          return false;
-        }
-
-        switch (state) {
-          // case FilterState.ALL:
-          case FilterState.FINISHED:
-            if (!(item.confirmedSlotIndex !== null)) {
+        switch (status) {
+          // case FilterStatus.ALL:
+          case FilterStatus.FINISHED:
+            if (item.status !== SubqlOrderStatus.FINISHED) {
               return false;
             }
             break;
-          case FilterState.IN_PROGRESS:
-            if (!(item.confirmedSlotIndex === null)) {
-              return false;
-            }
-            break;
-          case FilterState.OUT_OF_SLOT:
-            if (!(item.confirmedSlotIndex === -1)) {
+          case FilterStatus.IN_PROGRESS:
+            if (item.status === SubqlOrderStatus.FINISHED) {
               return false;
             }
             break;
@@ -283,7 +340,7 @@ export const Orders = ({ destination }: { destination: CrossChainDestination }) 
             }
             break;
           case FilterSlot.OUT_OF_SLOT:
-            if (!(item.confirmedSlotIndex === -1)) {
+            if (!(item.confirmedSlotIndex === -1 || item.status === SubqlOrderStatus.OUT_OF_SLOT)) {
               return false;
             }
             break;
@@ -315,10 +372,12 @@ export const Orders = ({ destination }: { destination: CrossChainDestination }) 
       tooltip: {
         trigger: 'item',
       },
+      color: ['#91cc75', '#5470c6', '#fac858'],
       legend: {
         orient: 'vertical',
         top: 'center',
-        right: '0',
+        left: '40%',
+        show: true,
         itemWidth: 10,
         itemHeight: 10,
         borderRadius: [0, 0, 0, 0],
@@ -332,13 +391,20 @@ export const Orders = ({ destination }: { destination: CrossChainDestination }) 
           label: {
             show: false,
           },
+          center: ['20%', '50%'],
           data: [
-            { value: statisticsData?.feeMarketEntity?.totalFinished || 0, name: t(OrderStatus.FINISHED) as string },
+            {
+              value: statisticsData?.feeMarketEntity?.totalFinished || 0,
+              name: t(OrderStatus.FINISHED) as string,
+            },
             {
               value: statisticsData?.feeMarketEntity?.totalInProgress || 0,
-              name: t(OrderStatus.IN_PROGRESS) as string,
+              name: `${t(OrderStatus.IN_PROGRESS)} (${t('In Slot')})`,
             },
-            { value: statisticsData?.feeMarketEntity?.totalOutOfSlot || 0, name: t(OrderStatus.OUT_OF_SLOT) as string },
+            {
+              value: statisticsData?.feeMarketEntity?.totalOutOfSlot || 0,
+              name: `${t(OrderStatus.IN_PROGRESS)} (${t(OrderStatus.OUT_OF_SLOT)})`,
+            },
           ],
         },
       ],
@@ -372,7 +438,7 @@ export const Orders = ({ destination }: { destination: CrossChainDestination }) 
               <Spin size="small" spinning={statisticsLoading}>
                 <div className="flex flex-col items-center">
                   <ClockCircleOutlined className="text-xl" />
-                  <span>{t(OrderStatus.IN_PROGRESS)}</span>
+                  <span>{`${t(OrderStatus.IN_PROGRESS)} (${t('In Slot')})`}</span>
                 </div>
               </Spin>
             }
@@ -384,7 +450,7 @@ export const Orders = ({ destination }: { destination: CrossChainDestination }) 
               <Spin size="small" spinning={statisticsLoading}>
                 <div className="flex flex-col items-center">
                   <ExclamationCircleOutlined className="text-xl" />
-                  <span>{t(OrderStatus.OUT_OF_SLOT)}</span>
+                  <span>{`${t(OrderStatus.IN_PROGRESS)} (${t(OrderStatus.OUT_OF_SLOT)})`}</span>
                 </div>
               </Spin>
             }
@@ -418,7 +484,7 @@ export const Orders = ({ destination }: { destination: CrossChainDestination }) 
               setFilter((prev) => ({ ...prev, dimension }));
             }
           }}
-          initialValues={{ dimension: filter.dimension, state: filter.state, slot: filter.slot }}
+          initialValues={{ dimension: filter.dimension, status: filter.status, slot: filter.slot }}
           onFinish={handleFilter}
         >
           <Form.Item name="dimension" label={t('Time Dimension')}>
@@ -429,24 +495,21 @@ export const Orders = ({ destination }: { destination: CrossChainDestination }) 
           </Form.Item>
           {filter.dimension === TimeDimension.DATE ? (
             <Form.Item name="duration" label={t('Date Range')}>
-              <DatePicker.RangePicker />
+              <DatePicker.RangePicker format="YYYY-MM-DD" />
             </Form.Item>
           ) : (
             <Form.Item name="block" label={t('Block')}>
-              <InputNumber min={1} step={1} />
+              <BlockFilterInput />
             </Form.Item>
           )}
-          <Form.Item name={`state`} label={t('State')}>
+          <Form.Item name={`status`} label={t('Finished Status')}>
             <Select className="w-32">
-              <Select.Option value={FilterState.ALL}>{t(FilterState.ALL)}</Select.Option>
-              <Select.Option value={FilterState.FINISHED}>
-                <Badge status="success" text={t(FilterState.FINISHED)} />
+              <Select.Option value={FilterStatus.ALL}>{t(FilterStatus.ALL)}</Select.Option>
+              <Select.Option value={FilterStatus.FINISHED}>
+                <Badge status="success" text={t(FilterStatus.FINISHED)} />
               </Select.Option>
-              <Select.Option value={FilterState.IN_PROGRESS}>
-                <Badge status="processing" text={t(FilterState.IN_PROGRESS)} />
-              </Select.Option>
-              <Select.Option value={FilterState.OUT_OF_SLOT}>
-                <Badge status="warning" text={t(FilterState.OUT_OF_SLOT)} />
+              <Select.Option value={FilterStatus.IN_PROGRESS}>
+                <Badge status="processing" text={t(FilterStatus.IN_PROGRESS)} />
               </Select.Option>
             </Select>
           </Form.Item>

@@ -1,16 +1,38 @@
 import { Card, Descriptions, Badge, Divider, Breadcrumb, Spin } from 'antd';
 import { NavLink } from 'react-router-dom';
 import { useQuery } from '@apollo/client';
-import { formatDistance } from 'date-fns';
+import { formatDistance, format } from 'date-fns';
 import { useTranslation } from 'react-i18next';
 
 import { Path } from '../../config/routes';
-import { ORDER_DETAIL, LONG_LONG_DURATION } from '../../config';
-import { OrderDetailData, CrossChainDestination, SlotState, RelayerRole } from '../../model';
+import { ORDER_DETAIL, LONG_LONG_DURATION, DATE_TIME_FORMATE } from '../../config';
+import {
+  OrderDetailData,
+  CrossChainDestination,
+  SlotState,
+  RelayerRole,
+  SubqlOrderStatus,
+  OrderStatus,
+} from '../../model';
 import { useApi } from '../../hooks';
 import { SubscanLink } from '../widget/SubscanLink';
 import { fromWei, prettyNumber } from '../../utils';
 import { AccountName } from '../widget/account/AccountName';
+
+const getPrioritySlot = (confirmedSlotIndex?: number | null): string => {
+  switch (confirmedSlotIndex) {
+    case -1:
+      return SlotState.OUT_OF_SLOT;
+    case 0:
+      return SlotState.SLOT_1;
+    case 1:
+      return SlotState.SLOT_2;
+    case 2: // eslint-disable-line no-magic-numbers
+      return SlotState.SLOT_3;
+    default:
+      return '-';
+  }
+};
 
 // eslint-disable-next-line complexity
 export const OrderDetail = ({ orderid, destination }: { orderid: string; destination: CrossChainDestination }) => {
@@ -50,27 +72,24 @@ export const OrderDetail = ({ orderid, destination }: { orderid: string; destina
                 '-'
               )}
             </Descriptions.Item>
-            <Descriptions.Item label={t('State')}>
-              {data?.orderEntity?.confirmedSlotIndex === undefined ? (
-                <Badge status="processing" text={t('Cross-chain in progress')} />
-              ) : data.orderEntity.confirmedSlotIndex === -1 ? (
-                <Badge status="warning" text={t('Cross-chain out of slot')} />
+            <Descriptions.Item label={t('Status')}>
+              {data?.orderEntity?.status === SubqlOrderStatus.FINISHED ? (
+                <Badge status="success" text={t(OrderStatus.FINISHED)} />
+              ) : data?.orderEntity?.status === SubqlOrderStatus.OUT_OF_SLOT ? (
+                <Badge status="warning" text={t(OrderStatus.OUT_OF_SLOT)} />
               ) : (
-                <Badge status="success" text={t('Cross-chain success')} />
+                <Badge status="processing" text={t(OrderStatus.IN_PROGRESS)} />
               )}
             </Descriptions.Item>
-            <Descriptions.Item label={t('Cross-chain fee')}>
+            <Descriptions.Item label={t('Cross-chain Fee')}>
               {data?.orderEntity?.fee
                 ? `${fromWei({ value: data.orderEntity.fee }, prettyNumber)} ${network.tokens.ring.symbol}`
                 : '-'}
             </Descriptions.Item>
-            <Descriptions.Item label={t('Priority slot')}>
-              {data?.orderEntity?.confirmedSlotIndex === undefined
-                ? '-'
-                : data.orderEntity.confirmedSlotIndex === -1
-                ? t(SlotState.OUT_OF_SLOT)
-                : `#${data.orderEntity.confirmedSlotIndex + 1}`}
+            <Descriptions.Item label={t('Priority Slot')}>
+              {t(getPrioritySlot(data?.orderEntity?.confirmedSlotIndex))}
             </Descriptions.Item>
+            <Descriptions.Item label={t('Out of Slot Block')}>{data?.orderEntity?.outOfSlot || '-'}</Descriptions.Item>
           </Descriptions>
 
           <Divider className="my-2" />
@@ -83,13 +102,6 @@ export const OrderDetail = ({ orderid, destination }: { orderid: string; destina
                 '-'
               )}
             </Descriptions.Item>
-            <Descriptions.Item label={t('Start Time')}>
-              {data?.orderEntity?.createTime
-                ? `${formatDistance(new Date(data.orderEntity.createTime), new Date(), { addSuffix: true })} ( ${
-                    data.orderEntity.createTime
-                  } )`
-                : '-'}
-            </Descriptions.Item>
             <Descriptions.Item label={t('Confirm Block')}>
               {data?.orderEntity?.finishBlock ? (
                 <SubscanLink network={network.name} block={data.orderEntity.finishBlock.toString()} prefix="#" />
@@ -97,11 +109,20 @@ export const OrderDetail = ({ orderid, destination }: { orderid: string; destina
                 '-'
               )}
             </Descriptions.Item>
+            <Descriptions.Item label={t('Start Time')}>
+              {data?.orderEntity?.createTime
+                ? `${formatDistance(new Date(data.orderEntity.createTime), new Date(), { addSuffix: true })} ( ${format(
+                    new Date(data.orderEntity.createTime),
+                    DATE_TIME_FORMATE
+                  )} )`
+                : '-'}
+            </Descriptions.Item>
             <Descriptions.Item label={t('Confirm Time')}>
               {data?.orderEntity?.finishTime
-                ? `${formatDistance(new Date(data.orderEntity.finishTime), new Date(), { addSuffix: true })} ( ${
-                    data.orderEntity.finishTime
-                  } )`
+                ? `${formatDistance(new Date(data.orderEntity.finishTime), new Date(), { addSuffix: true })} ( ${format(
+                    new Date(data.orderEntity.finishTime),
+                    DATE_TIME_FORMATE
+                  )} )`
                 : '-'}
             </Descriptions.Item>
           </Descriptions>
@@ -174,7 +195,7 @@ export const OrderDetail = ({ orderid, destination }: { orderid: string; destina
                   <Descriptions.Item label={t(RelayerRole.ASSIGNED)} key={node.relayerId}>
                     <AccountName account={node.relayerId.split('-')[1]} />
                     <span>
-                      &nbsp;{`| ${fromWei({ value: node.amount }, prettyNumber)} ${network.tokens.ring.symbol}`}
+                      &nbsp;{`| -${fromWei({ value: node.amount }, prettyNumber)} ${network.tokens.ring.symbol}`}
                     </span>
                   </Descriptions.Item>
                 ))}

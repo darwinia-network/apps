@@ -2,7 +2,6 @@ import { Alert, Card, Tabs, Tooltip } from 'antd';
 import { CloseOutlined } from '@ant-design/icons';
 import { useMemo, PropsWithChildren } from 'react';
 import { useTranslation } from 'react-i18next';
-import { withRouter } from 'react-router-dom';
 import { useApi } from '../hooks';
 import { readStorage, updateStorage } from '../utils';
 
@@ -29,7 +28,7 @@ const PortalCard = ({
   </Card>
 );
 
-function Page() {
+export function Portal() {
   const { t } = useTranslation();
   const { network } = useApi();
   const hidePortalWarning = !!readStorage().hidePortalWarning;
@@ -174,5 +173,3 @@ function Page() {
     </div>
   );
 }
-
-export const Portal = withRouter(Page);
