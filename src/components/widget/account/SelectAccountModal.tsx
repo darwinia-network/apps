@@ -12,7 +12,8 @@ import { AccountName } from './AccountName';
 
 type Props = {
   visible: boolean;
-  defaultValue: string;
+  value?: string;
+  defaultValue?: string;
   title?: React.ReactNode;
   footer?: React.ReactNode;
   onSelect: (address: string) => void;
@@ -57,7 +58,15 @@ const AccountWithIdentify = ({ value }: { value: Account }) => {
   );
 };
 
-export const SelectAccountModal: React.FC<Props> = ({ visible, defaultValue, title, footer, onSelect, onCancel }) => {
+export const SelectAccountModal: React.FC<Props> = ({
+  visible,
+  value,
+  defaultValue,
+  title,
+  footer,
+  onSelect,
+  onCancel,
+}) => {
   const { network } = useApi();
   const { accounts } = useWallet();
   const { t } = useTranslation();
@@ -86,11 +95,16 @@ export const SelectAccountModal: React.FC<Props> = ({ visible, defaultValue, tit
       footer={footer}
     >
       {accounts?.length ? (
-        <Radio.Group className="w-full" defaultValue={defaultValue} onChange={(event) => onSelect(event.target.value)}>
+        <Radio.Group
+          className="w-full"
+          defaultValue={defaultValue}
+          value={value}
+          onChange={(event) => onSelect(event.target.value)}
+        >
           {accounts.map((item) => (
             <Radio.Button
-              value={item.address}
-              key={item.address}
+              value={item.displayAddress}
+              key={item.displayAddress}
               className={`radio-list network-radio-button-${network.name}`}
             >
               <AccountWithIdentify value={item} />
