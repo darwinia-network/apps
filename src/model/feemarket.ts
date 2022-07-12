@@ -54,7 +54,7 @@ export enum SubqlOrderStatus {
   OUT_OF_SLOT = 'OutOfSlot',
 }
 
-export enum FinishedStatus {
+export enum FinishedOrNot {
   FINISHED = 'Finished',
   IN_PROGRESS = 'In Progress',
 }
@@ -165,6 +165,60 @@ export type RelayerOrdersState = {
   relayerRoles: RelayerRole[];
 };
 
+interface OrderDetailBase {
+  id: string;
+  fee: string;
+  sender: string;
+  sourceTxHash: string;
+  slotTime: number; // number of blocks
+  outOfSlot: number; // block number
+  confirmedSlotIndex?: number | null; // -1: out of slot / 0: #1 / 1: #2 / 2: #3
+  status: SubqlOrderStatus;
+  createLaneId: string;
+  createTime: string;
+  finishTime?: string | null;
+  createBlock: number;
+  finishBlock?: number | null;
+}
+
+interface OrderDetailSlash {
+  amount: string;
+  relayerId: string;
+  delayTime: number; // number of blocks
+  slashBlock: number;
+  slashExtrinsic: number;
+}
+
+interface OrderDetailReward {
+  rewardBlock: number;
+  rewardExtrinsic: number;
+  assignedRelayerId?: string | null;
+  deliveredRelayerId: string;
+  confirmedRelayerId: string;
+  assignedAmount?: string | null;
+  deliveredAmount: string;
+  confirmedAmount: string;
+  treasuryAmount?: string | null;
+}
+
+export interface OrderDetailData {
+  orderEntity?:
+    | (OrderDetailBase & {
+        slashs?: {
+          nodes: OrderDetailSlash[];
+        } | null;
+        rewards?: {
+          nodes: OrderDetailReward[];
+        } | null;
+      })
+    | null;
+}
+
+export interface OrderDetailState extends OrderDetailBase {
+  slashs: OrderDetailSlash[];
+  rewards: OrderDetailReward[];
+}
+
 export interface InProgressOrdersAssignedRelayers {
   orderEntities?: {
     nodes: {
@@ -210,42 +264,5 @@ export interface OrdersTotalOrderData {
       status: SubqlOrderStatus;
       confirmedSlotIndex: number | null;
     }[];
-  };
-}
-
-export interface OrderDetailData {
-  orderEntity?: {
-    id: string;
-    fee: string;
-    sender: string;
-    sourceTxHash: string;
-    confirmedSlotIndex?: number;
-    status: SubqlOrderStatus;
-    outOfSlot: number;
-    createTime: string;
-    finishTime?: string;
-    createBlock: number;
-    finishBlock?: number;
-    createLaneId: string;
-    slashs: {
-      nodes: {
-        confirmTime: number;
-        sentTime: number;
-        delayTime: number;
-        amount: string;
-        relayerId: string;
-      }[];
-    };
-    rewards: {
-      nodes: {
-        assignedRelayerId?: string;
-        deliveredRelayerId: string;
-        confirmedRelayerId: string;
-        assignedAmount?: string;
-        deliveredAmount: string;
-        confirmedAmount: string;
-        treasuryAmount?: string;
-      }[];
-    };
   };
 }

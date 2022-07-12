@@ -27,7 +27,7 @@ import {
   OrderStatus,
   RelayerRole,
   SubqlOrderStatus,
-  FinishedStatus,
+  FinishedOrNot,
 } from '../../model';
 import { IdentAccountName } from '../widget/account/IdentAccountName';
 import { SubscanLink } from '../widget/SubscanLink';
@@ -69,8 +69,8 @@ enum FilterAll {
   ALL = 'All',
 }
 
-type FilterStatus = FilterAll | FinishedStatus;
-const FilterStatus = { ...FilterAll, ...FinishedStatus };
+type FilterStatus = FilterAll | FinishedOrNot;
+const FilterStatus = { ...FilterAll, ...FinishedOrNot };
 
 type FilterSlot = FilterAll | SlotState;
 const FilterSlot = { ...FilterAll, ...SlotState };

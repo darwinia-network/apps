@@ -170,31 +170,34 @@ export const ORDERS_TOTAL_ORDERS = gql`
 `;
 
 export const ORDER_DETAIL = gql`
-  query OrderDetail($orderid: String!) {
-    orderEntity(id: $orderid) {
+  query orderDetail($orderId: String!) {
+    orderEntity(id: $orderId) {
       id
       fee
       sender
       sourceTxHash
+      slotTime
+      outOfSlot
       confirmedSlotIndex
       status
-      outOfSlot
+      createLaneId
       createTime
       finishTime
       createBlock
       finishBlock
-      createLaneId
       slashs(orderBy: SLASH_TIME_ASC) {
         nodes {
-          confirmTime
-          sentTime
-          delayTime
           amount
           relayerId
+          delayTime
+          slashBlock
+          slashExtrinsic
         }
       }
       rewards(orderBy: REWARD_TIME_ASC) {
         nodes {
+          rewardBlock
+          rewardExtrinsic
           assignedRelayerId
           deliveredRelayerId
           confirmedRelayerId

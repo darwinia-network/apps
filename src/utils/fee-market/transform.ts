@@ -11,6 +11,8 @@ import {
   FeeHistoryState,
   RelayerOrdersData,
   RelayerOrdersState,
+  OrderDetailData,
+  OrderDetailState,
 } from '../../model';
 
 const reduceDatesAndAmount = (previous: Record<string, BN>, time: string, amount: string) => {
@@ -177,4 +179,14 @@ export const transformRelayerOrders = (data: RelayerOrdersData): RelayerOrdersSt
   }
 
   return [];
+};
+
+export const transformOrderDetail = (data: OrderDetailData): OrderDetailState | undefined => {
+  if (data.orderEntity) {
+    const { slashs, rewards } = data.orderEntity;
+
+    return { ...data.orderEntity, slashs: slashs?.nodes || [], rewards: rewards?.nodes || [] };
+  }
+
+  return undefined;
 };
