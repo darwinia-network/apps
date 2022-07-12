@@ -104,7 +104,6 @@ export const ConnectWallet = () => {
       </Modal>
       <SelectAccountModal
         visible={visibleSelectAccount}
-        defaultValue=""
         onCancel={() => setVisibleSelectAccount(false)}
         onSelect={(acc) => {
           selectAccount(acc);

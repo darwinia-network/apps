@@ -32,10 +32,10 @@ export function AccountSelector({ onSuccess = () => undefined }: { onSuccess?: (
       ) : null}
       <SelectAccountModal
         visible={visible}
-        defaultValue={account?.address || ''}
+        value={account?.displayAddress}
         onCancel={() => setVisible(false)}
         onSelect={(acc) => {
-          if (acc !== account?.address) {
+          if (acc !== account?.displayAddress) {
             selectAccount(acc);
           }
           setVisible(false);
