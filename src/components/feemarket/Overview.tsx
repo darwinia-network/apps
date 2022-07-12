@@ -140,6 +140,7 @@ export const Overview = ({ destination }: { destination: CrossChainDestination }
                 .div(collateralPerOrder.muln(relayersInprogressOrders[relayer.id.toString()]))
                 .lt(BN_ONE)
             ) {
+              // https://github.com/darwinia-network/apps/issues/165
               inactive++;
             }
           });
