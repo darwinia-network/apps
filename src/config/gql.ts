@@ -37,7 +37,7 @@ export const TOTAL_ORDERS_AND_FEE_HISTORY = gql`
 `;
 
 export const RELAYER_TOTAL_ORDERS_SLASHS_REWARDS = gql`
-  query RelayerTotalOrdersSlashsRewards($relayer: String!) {
+  query relayerTotalOrdersSlashsRewards($relayer: String!) {
     relayerEntity(id: $relayer) {
       totalOrders
       totalSlashs
