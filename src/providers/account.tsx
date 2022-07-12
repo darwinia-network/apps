@@ -24,7 +24,7 @@ export const AccountProvider = ({ children }: React.PropsWithChildren<unknown>) 
 
   const selectAccount = useCallback(
     (address: string) => {
-      setAccount(accounts.find((acc) => acc.address === address));
+      setAccount(accounts.find((acc) => acc.address === address || acc.displayAddress === address));
     },
     [accounts]
   );
