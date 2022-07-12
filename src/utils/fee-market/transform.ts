@@ -1,13 +1,16 @@
 import { format, compareAsc } from 'date-fns';
-import { BN } from '@polkadot/util';
+import { BN, BN_ZERO } from '@polkadot/util';
 
 import { DATE_FORMAT } from '../../config';
 import { prettyNumber, fromWei } from '..';
 import {
+  RelayerRole,
   RelayerRewardsAndSlashsData,
   RewardsAndSlashsState,
   RelayerFeeHistoryData,
   FeeHistoryState,
+  RelayerOrdersData,
+  RelayerOrdersState,
 } from '../../model';
 
 const reduceDatesAndAmount = (previous: Record<string, BN>, time: string, amount: string) => {
@@ -86,4 +89,92 @@ export const transformFeeHistory = (data: RelayerFeeHistoryData): FeeHistoryStat
       { dates: [], values: [] } as FeeHistoryState
     ) || { dates: [], values: [] }),
   };
+};
+
+const updateOrders = (
+  previous: RelayerOrdersState[],
+  id: string,
+  createTime: string,
+  slashAmount?: string,
+  rewards?: {
+    nodes: {
+      assignedAmount?: string;
+      deliveredAmount?: string;
+      confirmedAmount?: string;
+    }[];
+  } | null
+) => {
+  const orderId = id.split('-')[1];
+
+  const idx = previous.findIndex((item) => item.orderId === orderId);
+  const order =
+    idx >= 0
+      ? previous[idx]
+      : {
+          orderId,
+          createTime,
+          reward: BN_ZERO,
+          slash: BN_ZERO,
+          relayerRoles: [],
+        };
+
+  const roles = new Set<RelayerRole>(order.relayerRoles);
+
+  if (slashAmount) {
+    roles.add(RelayerRole.ASSIGNED);
+    order.slash = order.slash.add(new BN(slashAmount));
+  }
+
+  rewards?.nodes.forEach(({ assignedAmount, deliveredAmount, confirmedAmount }) => {
+    if (assignedAmount) {
+      roles.add(RelayerRole.ASSIGNED);
+      order.reward = order.reward.add(new BN(assignedAmount));
+    }
+
+    if (deliveredAmount) {
+      roles.add(RelayerRole.DELIVERY);
+      order.reward = order.reward.add(new BN(deliveredAmount));
+    }
+
+    if (confirmedAmount) {
+      roles.add(RelayerRole.CONFIRMED);
+      order.reward = order.reward.add(new BN(confirmedAmount));
+    }
+  });
+
+  order.relayerRoles = Array.from(roles);
+  previous.splice(idx, idx === -1 ? 0 : 1, order);
+
+  return previous;
+};
+
+// eslint-disable-next-line complexity
+export const transformRelayerOrders = (data: RelayerOrdersData): RelayerOrdersState[] => {
+  if (data.relayerEntity) {
+    const { assignedOrders, deliveredOrders, confirmedOrders, slashs } = data.relayerEntity;
+
+    let orders =
+      slashs?.nodes.reduce((acc, { amount, order: { id, createTime } }) => {
+        return updateOrders(acc, id, createTime, amount, undefined);
+      }, [] as RelayerOrdersState[]) || [];
+
+    orders =
+      assignedOrders?.nodes.reduce((acc, { id, createTime, rewards }) => {
+        return updateOrders(acc, id, createTime, undefined, rewards);
+      }, orders) || orders;
+
+    orders =
+      deliveredOrders?.nodes.reduce((acc, { id, createTime, rewards }) => {
+        return updateOrders(acc, id, createTime, undefined, rewards);
+      }, orders) || orders;
+
+    orders =
+      confirmedOrders?.nodes.reduce((acc, { id, createTime, rewards }) => {
+        return updateOrders(acc, id, createTime, undefined, rewards);
+      }, orders) || orders;
+
+    return orders.sort((a, b) => Number(b.orderId) - Number(a.orderId));
+  }
+
+  return [];
 };

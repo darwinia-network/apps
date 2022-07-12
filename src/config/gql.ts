@@ -91,30 +91,15 @@ export const RELAYER_FEE_HISTORY = gql`
 `;
 
 export const RELAYER_ORDERS = gql`
-  query RelayerOrders($relayer: String!) {
+  query relayerOrders($relayer: String!) {
     relayerEntity(id: $relayer) {
-      slashs {
-        nodes {
-          amount
-          order {
-            id
-            finishTime
-          }
-        }
-      }
       assignedOrders {
         nodes {
           id
-          finishTime
-          assignedRelayers
-          rewards {
+          createTime
+          rewards(filter: { assignedRelayerId: { equalTo: $relayer } }) {
             nodes {
               assignedAmount
-              deliveredAmount
-              confirmedAmount
-              assignedRelayerId
-              deliveredRelayerId
-              confirmedRelayerId
             }
           }
         }
@@ -122,16 +107,10 @@ export const RELAYER_ORDERS = gql`
       deliveredOrders {
         nodes {
           id
-          finishTime
-          assignedRelayers
-          rewards {
+          createTime
+          rewards(filter: { deliveredRelayerId: { equalTo: $relayer } }) {
             nodes {
-              assignedAmount
               deliveredAmount
-              confirmedAmount
-              assignedRelayerId
-              deliveredRelayerId
-              confirmedRelayerId
             }
           }
         }
@@ -139,17 +118,20 @@ export const RELAYER_ORDERS = gql`
       confirmedOrders {
         nodes {
           id
-          finishTime
-          assignedRelayers
-          rewards {
+          createTime
+          rewards(filter: { confirmedRelayerId: { equalTo: $relayer } }) {
             nodes {
-              assignedAmount
-              deliveredAmount
               confirmedAmount
-              assignedRelayerId
-              deliveredRelayerId
-              confirmedRelayerId
             }
+          }
+        }
+      }
+      slashs {
+        nodes {
+          amount
+          order {
+            id
+            createTime
           }
         }
       }

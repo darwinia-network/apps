@@ -1,5 +1,6 @@
-import { AccountId, Balance } from '@polkadot/types/interfaces';
-import { Struct } from '@polkadot/types-codec';
+import type { AccountId, Balance } from '@polkadot/types/interfaces';
+import type { Struct } from '@polkadot/types-codec';
+import type { BN } from '@polkadot/util';
 
 export type CrossChainDestination =
   | 'Crab'
@@ -58,47 +59,6 @@ export enum FinishedStatus {
   IN_PROGRESS = 'In Progress',
 }
 
-export interface RelayerOrderRewards {
-  nodes: {
-    assignedAmount?: string | null;
-    deliveredAmount: string;
-    confirmedAmount: string;
-    assignedRelayerId?: string | null;
-    deliveredRelayerId: string;
-    confirmedRelayerId: string;
-  }[];
-}
-
-interface RelayerOrderData {
-  id: string;
-  finishTime: string;
-  assignedRelayers: string[];
-  rewards: RelayerOrderRewards;
-}
-
-export interface RelayerOrders {
-  relayerEntity?: {
-    slashs?: {
-      nodes: {
-        amount: string;
-        order: {
-          id: string;
-          finishTime: string;
-        };
-      }[];
-    };
-    assignedOrders?: {
-      nodes: RelayerOrderData[];
-    };
-    deliveredOrders?: {
-      nodes: RelayerOrderData[];
-    };
-    confirmedOrders?: {
-      nodes: RelayerOrderData[];
-    };
-  };
-}
-
 export interface RelayerRewardsAndSlashsData {
   relayerEntity?: {
     slashs?: {
@@ -148,6 +108,61 @@ export interface RelayerFeeHistoryData {
 export type FeeHistoryState = {
   dates: string[];
   values: string[];
+};
+
+export interface RelayerOrdersData {
+  relayerEntity?: {
+    assignedOrders?: {
+      nodes: {
+        id: string;
+        createTime: string;
+        rewards?: {
+          nodes: {
+            assignedAmount: string;
+          }[];
+        } | null;
+      }[];
+    } | null;
+    deliveredOrders?: {
+      nodes: {
+        id: string;
+        createTime: string;
+        rewards?: {
+          nodes: {
+            deliveredAmount: string;
+          }[];
+        } | null;
+      }[];
+    } | null;
+    confirmedOrders?: {
+      nodes: {
+        id: string;
+        createTime: string;
+        rewards?: {
+          nodes: {
+            confirmedAmount: string;
+          }[];
+        } | null;
+      }[];
+    } | null;
+    slashs?: {
+      nodes: {
+        amount: string;
+        order: {
+          id: string;
+          createTime: string;
+        };
+      }[];
+    } | null;
+  } | null;
+}
+
+export type RelayerOrdersState = {
+  orderId: string;
+  createTime: string;
+  reward: BN;
+  slash: BN;
+  relayerRoles: RelayerRole[];
 };
 
 export interface InProgressOrdersAssignedRelayers {

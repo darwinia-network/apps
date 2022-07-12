@@ -2,9 +2,8 @@ import { Card, Breadcrumb, Table, Spin } from 'antd';
 import { NavLink, Link } from 'react-router-dom';
 import { ColumnsType } from 'antd/lib/table';
 import { useRef, useEffect, useState } from 'react';
-import { useQuery } from '@apollo/client';
 import { formatDistanceStrict } from 'date-fns';
-import { BN, BN_ZERO } from '@polkadot/util';
+import type { BN } from '@polkadot/util';
 import { useTranslation } from 'react-i18next';
 
 import * as echarts from 'echarts/core';
@@ -27,7 +26,6 @@ import { CanvasRenderer } from 'echarts/renderers';
 import { Segmented } from '../widget/fee-market';
 import {
   SegmentedType,
-  RelayerOrders,
   SearchParamsKey,
   RelayerRole,
   FeeMarketTab,
@@ -36,11 +34,12 @@ import {
   RewardsAndSlashsState,
   RelayerFeeHistoryData,
   FeeHistoryState,
-  RelayerOrderRewards,
+  RelayerOrdersData,
+  RelayerOrdersState,
 } from '../../model';
 import { Path } from '../../config/routes';
 import { AccountName } from '../widget/account/AccountName';
-import { RELAYER_ORDERS, LONG_LONG_DURATION, RELAYER_REWARDS_AND_SLASHS, RELAYER_FEE_HISTORY } from '../../config';
+import { RELAYER_ORDERS, RELAYER_REWARDS_AND_SLASHS, RELAYER_FEE_HISTORY } from '../../config';
 import { useApi, usePollIntervalQuery } from '../../hooks';
 import {
   fromWei,
@@ -48,6 +47,7 @@ import {
   getSegmentedDateByType,
   transformRewardsAndSlashs,
   transformFeeHistory,
+  transformRelayerOrders,
 } from '../../utils';
 
 echarts.use([
@@ -72,14 +72,6 @@ type EChartsOption = echarts.ComposeOption<
   | LineSeriesOption
 >;
 
-type DataSourceState = {
-  orderId: string;
-  time: string;
-  reward: BN;
-  slash: BN;
-  relayerRole: RelayerRole[];
-};
-
 export const RelayerDetail = ({
   relayer: relayerAddress,
   destination,
@@ -93,8 +85,6 @@ export const RelayerDetail = ({
   const feeHistoryRef = useRef<HTMLDivElement>(null);
   const [feeSegmented, setFeeSegmented] = useState(SegmentedType.ALL);
   const [rewardSlashSegmented, setRewardSlashSegmented] = useState(SegmentedType.ALL);
-
-  const [dataSource, setDataSource] = useState<DataSourceState[]>([]);
 
   const { loading: rewardsAndSlashsLoading, transformedData: rewardsAndSlashsState } = usePollIntervalQuery<
     RelayerRewardsAndSlashsData,
@@ -126,18 +116,21 @@ export const RelayerDetail = ({
     transformFeeHistory
   );
 
-  const { loading: relayerOrdersLoading, data: relayerOrdersData } = useQuery(RELAYER_ORDERS, {
-    variables: {
-      relayer: `${destination}-${relayerAddress}`,
+  const { loading: relayerOrdersLoading, transformedData: relayerOrdersState } = usePollIntervalQuery<
+    RelayerOrdersData,
+    { relayer: string },
+    RelayerOrdersState[]
+  >(
+    RELAYER_ORDERS,
+    {
+      variables: {
+        relayer: `${destination}-${relayerAddress}`,
+      },
     },
-    pollInterval: LONG_LONG_DURATION,
-    notifyOnNetworkStatusChange: true,
-  }) as {
-    loading: boolean;
-    data: RelayerOrders | null;
-  };
+    transformRelayerOrders
+  );
 
-  const columns: ColumnsType<DataSourceState> = [
+  const columns: ColumnsType<RelayerOrdersState> = [
     {
       title: t('Order ID'),
       key: 'orderId',
@@ -156,9 +149,9 @@ export const RelayerDetail = ({
       },
     },
     {
-      title: t('Relayer Role'),
-      key: 'relayerRole',
-      dataIndex: 'relayerRole',
+      title: t('Relayer Roles'),
+      key: 'relayerRoles',
+      dataIndex: 'relayerRoles',
       align: 'center',
       render: (value: RelayerRole[]) => (
         <div className="flex flex-col justify-center">
@@ -198,87 +191,12 @@ export const RelayerDetail = ({
     },
     {
       title: t('Time'),
-      key: 'time',
-      dataIndex: 'time',
+      key: 'createTime',
+      dataIndex: 'createTime',
       align: 'center',
       render: (value) => formatDistanceStrict(new Date(value), new Date(), { addSuffix: true }),
     },
   ];
-
-  // eslint-disable-next-line complexity
-  useEffect(() => {
-    if (relayerOrdersData?.relayerEntity) {
-      const { assignedOrders, deliveredOrders, confirmedOrders, slashs } = relayerOrdersData.relayerEntity;
-
-      const updateRelayerOrders = (
-        source: DataSourceState[],
-        id: string,
-        finishTime: string,
-        slashAmount?: string,
-        rewards?: RelayerOrderRewards
-      ) => {
-        const orderId = id.split('-')[1];
-
-        const idx = source.findIndex((item) => item.orderId === orderId);
-        const order =
-          idx >= 0
-            ? source[idx]
-            : {
-                orderId,
-                time: finishTime,
-                reward: BN_ZERO,
-                slash: BN_ZERO,
-                relayerRole: [],
-              };
-
-        const role = new Set<RelayerRole>(order.relayerRole);
-
-        if (slashAmount) {
-          role.add(RelayerRole.ASSIGNED);
-          order.slash = order.slash.add(new BN(slashAmount));
-        } else if (rewards) {
-          const reward = rewards.nodes.reduce((acc, cur) => {
-            if (cur.assignedRelayerId?.split('-')[1] === relayerAddress && cur.assignedAmount) {
-              role.add(RelayerRole.ASSIGNED);
-              acc = acc.add(new BN(cur.assignedAmount));
-            }
-            if (cur.deliveredRelayerId.split('-')[1] === relayerAddress) {
-              role.add(RelayerRole.DELIVERY);
-              acc = acc.add(new BN(cur.deliveredAmount));
-            }
-            if (cur.confirmedRelayerId.split('-')[1] === relayerAddress) {
-              role.add(RelayerRole.CONFIRMED);
-              acc = acc.add(new BN(cur.confirmedAmount));
-            }
-            return acc;
-          }, BN_ZERO);
-
-          order.reward = order.reward.add(reward);
-        }
-
-        order.relayerRole = Array.from(role);
-        source.splice(idx, idx === -1 ? 0 : 1, order);
-
-        return source;
-      };
-
-      const relayerSlashOrders =
-        slashs?.nodes.reduce((slashOrders: DataSourceState[], { amount, order: { id, finishTime } }) => {
-          return updateRelayerOrders(slashOrders, id, finishTime, amount, undefined);
-        }, []) || [];
-
-      const relayerOrders = (assignedOrders?.nodes || [])
-        .concat(deliveredOrders?.nodes || [])
-        .concat(confirmedOrders?.nodes || [])
-        .reduce((slashAndRewardOrders: DataSourceState[], { id, finishTime, rewards }) => {
-          return updateRelayerOrders(slashAndRewardOrders, id, finishTime, undefined, rewards);
-        }, relayerSlashOrders);
-
-      setDataSource(relayerOrders.sort((a, b) => Number(b.orderId) - Number(a.orderId)));
-    } else {
-      setDataSource([]);
-    }
-  }, [relayerOrdersData, relayerAddress]);
 
   useEffect(() => {
     if (!rewardsSlashsRef.current) {
@@ -415,7 +333,7 @@ export const RelayerDetail = ({
         </div>
       </Card>
       <Card className="mt-4">
-        <Table columns={columns} dataSource={dataSource} rowKey="orderId" loading={relayerOrdersLoading} />
+        <Table columns={columns} dataSource={relayerOrdersState} rowKey="orderId" loading={relayerOrdersLoading} />
       </Card>
     </>
   );
