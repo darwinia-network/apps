@@ -91,7 +91,7 @@ export const Overview = ({ destination }: { destination: CrossChainDestination }
       .subscribe((res) => {
         if (res.isSome) {
           const last = res.unwrap().pop();
-          setCurrentFee({ loading: false, value: last?.fee || undefined });
+          setCurrentFee({ loading: false, value: last?.fee });
         } else {
           setCurrentFee({ loading: false, value: undefined });
         }
