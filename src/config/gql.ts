@@ -78,9 +78,9 @@ export const RELAYER_REWARDS_AND_SLASHS = gql`
 `;
 
 export const RELAYER_FEE_HISTORY = gql`
-  query RelayerFeeHistory($relayer: String!, $lastTime: Datetime!) {
+  query relayerFeeHistory($relayer: String!, $time: Datetime!) {
     relayerEntity(id: $relayer) {
-      feeHistory(filter: { newfeeTime: { greaterThan: $lastTime } }, orderBy: NEWFEE_TIME_ASC) {
+      feeHistory(filter: { newfeeTime: { greaterThan: $time } }, orderBy: NEWFEE_TIME_ASC) {
         nodes {
           fee
           newfeeTime

@@ -99,11 +99,6 @@ export interface RelayerOrders {
   };
 }
 
-export interface RelayerRewardsAndSlashsVariables {
-  relayer: string;
-  time: string;
-}
-
 export interface RelayerRewardsAndSlashsData {
   relayerEntity?: {
     slashs?: {
@@ -139,16 +134,21 @@ export type RewardsAndSlashsState = {
   slashs: string[];
 };
 
-export interface RelayerFeeHistory {
+export interface RelayerFeeHistoryData {
   relayerEntity?: {
     feeHistory?: {
       nodes: {
         fee: string;
         newfeeTime: string;
       }[];
-    };
-  };
+    } | null;
+  } | null;
 }
+
+export type FeeHistoryState = {
+  dates: string[];
+  values: string[];
+};
 
 export interface InProgressOrdersAssignedRelayers {
   orderEntities?: {

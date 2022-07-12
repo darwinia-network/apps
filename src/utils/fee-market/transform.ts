@@ -3,7 +3,12 @@ import { BN } from '@polkadot/util';
 
 import { DATE_FORMAT } from '../../config';
 import { prettyNumber, fromWei } from '..';
-import { RelayerRewardsAndSlashsData, RewardsAndSlashsState } from '../../model';
+import {
+  RelayerRewardsAndSlashsData,
+  RewardsAndSlashsState,
+  RelayerFeeHistoryData,
+  FeeHistoryState,
+} from '../../model';
 
 const reduceDatesAndAmount = (previous: Record<string, BN>, time: string, amount: string) => {
   const day = format(new Date(time), DATE_FORMAT);
@@ -62,4 +67,23 @@ export const transformRewardsAndSlashs = (data: RelayerRewardsAndSlashsData): Re
   }
 
   return { dates: [], rewards: [], slashs: [] };
+};
+
+export const transformFeeHistory = (data: RelayerFeeHistoryData): FeeHistoryState => {
+  const history = data.relayerEntity?.feeHistory?.nodes || [];
+
+  const datesValues =
+    history.reduce((acc, { fee, newfeeTime }) => {
+      acc[format(new Date(newfeeTime), DATE_FORMAT)] = fromWei({ value: fee }, prettyNumber);
+      return acc;
+    }, {} as Record<string, string>) || {};
+
+  return {
+    ...(Object.keys(datesValues).reduce(
+      ({ dates, values }, date) => {
+        return { dates: dates.concat([date]), values: values.concat([datesValues[date]]) };
+      },
+      { dates: [], values: [] } as FeeHistoryState
+    ) || { dates: [], values: [] }),
+  };
 };

@@ -3,7 +3,7 @@ import { NavLink, Link } from 'react-router-dom';
 import { ColumnsType } from 'antd/lib/table';
 import { useRef, useEffect, useState } from 'react';
 import { useQuery } from '@apollo/client';
-import { format, formatDistanceStrict } from 'date-fns';
+import { formatDistanceStrict } from 'date-fns';
 import { BN, BN_ZERO } from '@polkadot/util';
 import { useTranslation } from 'react-i18next';
 
@@ -28,28 +28,27 @@ import { Segmented } from '../widget/fee-market';
 import {
   SegmentedType,
   RelayerOrders,
-  ChartState,
   SearchParamsKey,
   RelayerRole,
   FeeMarketTab,
   CrossChainDestination,
-  RelayerRewardsAndSlashsVariables,
   RelayerRewardsAndSlashsData,
   RewardsAndSlashsState,
-  RelayerFeeHistory,
+  RelayerFeeHistoryData,
+  FeeHistoryState,
   RelayerOrderRewards,
 } from '../../model';
 import { Path } from '../../config/routes';
 import { AccountName } from '../widget/account/AccountName';
-import {
-  RELAYER_ORDERS,
-  LONG_LONG_DURATION,
-  DATE_FORMAT,
-  RELAYER_REWARDS_AND_SLASHS,
-  RELAYER_FEE_HISTORY,
-} from '../../config';
+import { RELAYER_ORDERS, LONG_LONG_DURATION, RELAYER_REWARDS_AND_SLASHS, RELAYER_FEE_HISTORY } from '../../config';
 import { useApi, usePollIntervalQuery } from '../../hooks';
-import { fromWei, prettyNumber, getSegmentedDateByType, transformRewardsAndSlashs } from '../../utils';
+import {
+  fromWei,
+  prettyNumber,
+  getSegmentedDateByType,
+  transformRewardsAndSlashs,
+  transformFeeHistory,
+} from '../../utils';
 
 echarts.use([
   TitleComponent,
@@ -96,11 +95,10 @@ export const RelayerDetail = ({
   const [rewardSlashSegmented, setRewardSlashSegmented] = useState(SegmentedType.ALL);
 
   const [dataSource, setDataSource] = useState<DataSourceState[]>([]);
-  const [feeHistoryState, setFeeHistoryState] = useState<ChartState>({ dates: [], data: [] });
 
   const { loading: rewardsAndSlashsLoading, transformedData: rewardsAndSlashsState } = usePollIntervalQuery<
     RelayerRewardsAndSlashsData,
-    RelayerRewardsAndSlashsVariables,
+    { relayer: string; time: string },
     RewardsAndSlashsState
   >(
     RELAYER_REWARDS_AND_SLASHS,
@@ -113,14 +111,20 @@ export const RelayerDetail = ({
     transformRewardsAndSlashs
   );
 
-  const { data: feeHistoryData, loading: feeHistoryLoading } = useQuery(RELAYER_FEE_HISTORY, {
-    variables: {
-      relayer: `${destination}-${relayerAddress}`,
-      lastTime: getSegmentedDateByType(feeSegmented),
+  const { loading: feeHistoryLoading, transformedData: feeHistoryState } = usePollIntervalQuery<
+    RelayerFeeHistoryData,
+    { relayer: string; time: string },
+    FeeHistoryState
+  >(
+    RELAYER_FEE_HISTORY,
+    {
+      variables: {
+        relayer: `${destination}-${relayerAddress}`,
+        time: getSegmentedDateByType(feeSegmented),
+      },
     },
-    pollInterval: LONG_LONG_DURATION,
-    notifyOnNetworkStatusChange: true,
-  }) as { data: RelayerFeeHistory | null; loading: boolean };
+    transformFeeHistory
+  );
 
   const { loading: relayerOrdersLoading, data: relayerOrdersData } = useQuery(RELAYER_ORDERS, {
     variables: {
@@ -200,19 +204,6 @@ export const RelayerDetail = ({
       render: (value) => formatDistanceStrict(new Date(value), new Date(), { addSuffix: true }),
     },
   ];
-
-  useEffect(() => {
-    if (feeHistoryData?.relayerEntity) {
-      const fees = feeHistoryData.relayerEntity.feeHistory?.nodes || [];
-
-      setFeeHistoryState({
-        dates: fees.map((fee) => format(new Date(fee.newfeeTime), DATE_FORMAT)),
-        data: fees.map((fee) => fromWei({ value: fee.fee }, prettyNumber)),
-      });
-    } else {
-      setFeeHistoryState({ dates: [], data: [] });
-    }
-  }, [feeHistoryData?.relayerEntity]);
 
   // eslint-disable-next-line complexity
   useEffect(() => {
@@ -373,14 +364,14 @@ export const RelayerDetail = ({
       },
       xAxis: {
         type: 'category',
-        data: feeHistoryState.dates,
+        data: feeHistoryState?.dates,
       },
       yAxis: {
         type: 'value',
       },
       series: [
         {
-          data: feeHistoryState.data,
+          data: feeHistoryState?.values,
           type: 'line',
         },
       ],
