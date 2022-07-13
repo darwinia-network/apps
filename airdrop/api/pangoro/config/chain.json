@@ -1,0 +1,7 @@
+{
+  "pangoro_smart": {
+    "endpoint": "wss://pangoro-rpc.darwinia.network",
+    "address": "2sy7imEZs1Y9GgYrR5Vqkb8EZTmpv2BKr5QNRzB9gkzdAEU2",
+    "seed": "{{ pangoro_seed }}"
+  }
+}

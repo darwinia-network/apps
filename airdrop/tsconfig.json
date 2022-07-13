@@ -1,0 +1,34 @@
+{
+    "compilerOptions": {
+        "target": "esnext",
+        "module": "commonjs",
+        "moduleResolution": "node",
+        "allowSyntheticDefaultImports": true,
+        "outDir": "./dist",
+        "baseUrl": ".",
+        "skipLibCheck": true,
+        "resolveJsonModule": true,
+        "esModuleInterop": true,
+        "strict": true,
+        "declaration": true,
+        "jsx": "preserve",
+        "noImplicitAny": true,
+        "noUnusedLocals": true,
+        "noImplicitReturns": true,
+        "paths": {
+            "@polkadot/api-augment": [
+                "./node_modules/@darwinia/api-augment/pangoro/index.d.ts"
+            ],
+            "@polkadot/types-augment": [
+                "./node_modules/@darwinia/types/interfaces/augment-types.d.ts"
+            ],
+            "@poladot/types/lookup": [
+                "./node_modules/@darwinia/types-augment/lookup/pangoro/index.d.ts"
+            ]
+        },
+    },
+    "exclude": [
+        "dist/**/*",
+        "node_modules"
+    ]
+}

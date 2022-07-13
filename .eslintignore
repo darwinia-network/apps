@@ -8,6 +8,6 @@ coverage
 *.config.js
 
 cypress/
-
+airdrop/
 **/__tests__/
 **/plugins/**/*.js

@@ -27,6 +27,7 @@
     { "source": "/staking", "destination": "/index.html" },
     { "source": "/toolbox", "destination": "/index.html" },
     { "source": "/portal", "destination": "/index.html" },
-    { "source": "/migration", "destination": "/index.html" }
+    { "source": "/migration", "destination": "/index.html" },
+    { "source": "/connect/(.*)", "destination": "/api/grant"}
   ]
 }
