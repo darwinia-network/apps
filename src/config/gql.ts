@@ -1,19 +1,17 @@
 import { gql } from '@apollo/client';
 
-export const QUERY_FEEMARKET_RECORD = gql`
-  query QueryFeeMarket($destination: String!) {
+export const OVERVIEW_STATISTICS = gql`
+  query overviewStatistics($destination: String!) {
     feeMarketEntity(id: $destination) {
       averageSpeed
       totalRewards
       totalOrders
-      totalFinished
-      totalInProgress
     }
   }
 `;
 
-export const IN_PROGRESS_ORDERS_ASSIGNED_RELAYERS = gql`
-  query QueryInProgressOrders($destination: String!) {
+export const IN_PROGRESS_ORDERS_RELAYERS = gql`
+  query inProgressOrdersRelayers($destination: String!) {
     orderEntities(filter: { and: [{ id: { startsWith: $destination } }, { phase: { equalTo: Created } }] }) {
       nodes {
         assignedRelayers
@@ -22,10 +20,10 @@ export const IN_PROGRESS_ORDERS_ASSIGNED_RELAYERS = gql`
   }
 `;
 
-export const TOTAL_ORDERS_AND_FEE_HISTORY = gql`
-  query QueryOverviewOrders($destination: String!, $date: Datetime!) {
+export const FEE_MARKET_FEE_AND_ORDER_HISTORY = gql`
+  query feeMarketFeeHistory($destination: String!, $time: Datetime!) {
     orderEntities(
-      filter: { and: [{ id: { startsWith: $destination } }, { createTime: { greaterThan: $date } }] }
+      filter: { and: [{ id: { startsWith: $destination } }, { createTime: { greaterThan: $time } }] }
       orderBy: CREATE_TIME_ASC
     ) {
       nodes {

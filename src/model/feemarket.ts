@@ -219,27 +219,41 @@ export interface OrderDetailState extends OrderDetailBase {
   rewards: OrderDetailReward[];
 }
 
-export interface InProgressOrdersAssignedRelayers {
+export interface InProgressOrdersRelayersData {
   orderEntities?: {
     nodes: {
       assignedRelayers: string[];
     }[];
-  };
+  } | null;
 }
 
-export interface TotalOrdersAndFeeHistory {
+export interface OverviewStatisticsData {
+  feeMarketEntity?: {
+    averageSpeed?: number | null;
+    totalRewards?: string | null;
+    totalOrders: number;
+  } | null;
+}
+
+export interface OverviewStatisticsState {
+  averageSpeed: number;
+  totalRewards: string;
+  totalOrders: number;
+}
+
+export interface FeeMarketFeeAndOderHistoryData {
   orderEntities?: {
     nodes: {
       fee: string;
       createTime: string;
     }[];
-  };
+  } | null;
 }
 
-export type ChartState = {
+export interface FeeMarketFeeAndOrderHistortState {
   dates: string[];
-  data: string[];
-};
+  values: string[];
+}
 
 export interface OrdersStatisticsData {
   feeMarketEntity?: {

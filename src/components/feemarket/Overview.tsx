@@ -2,10 +2,8 @@ import { Card, Spin } from 'antd';
 import { useTranslation } from 'react-i18next';
 import { useEffect, useState, createRef } from 'react';
 import type { Option, Vec, u128 } from '@polkadot/types';
-import { BN_ONE } from '@polkadot/util';
 import { Balance, AccountId32 } from '@polkadot/types/interfaces';
 import { timer, switchMap, from, forkJoin, tap, EMPTY } from 'rxjs';
-import { useQuery } from '@apollo/client';
 import { formatDistanceStrict } from 'date-fns';
 
 import * as echarts from 'echarts/core';
@@ -18,19 +16,29 @@ import { UniversalTransition } from 'echarts/features';
 import { Statistics } from '../widget/Statistics';
 import {
   LONG_LONG_DURATION,
-  QUERY_FEEMARKET_RECORD,
-  IN_PROGRESS_ORDERS_ASSIGNED_RELAYERS,
-  TOTAL_ORDERS_AND_FEE_HISTORY,
+  OVERVIEW_STATISTICS,
+  IN_PROGRESS_ORDERS_RELAYERS,
+  FEE_MARKET_FEE_AND_ORDER_HISTORY,
 } from '../../config';
-import { useApi } from '../../hooks';
-import { getFeeMarketModule, prettyNumber, fromWei, getSegmentedDateByType } from '../../utils';
+import { useApi, usePollIntervalQuery } from '../../hooks';
+import {
+  getFeeMarketModule,
+  prettyNumber,
+  fromWei,
+  getSegmentedDateByType,
+  transformOverviewStatistics,
+  transformFeeMarketFeeHistort,
+  transformFeeMarketOrderHistort,
+} from '../../utils';
 import {
   PalletFeeMarketRelayer,
   SegmentedType,
-  ChartState,
   CrossChainDestination,
-  InProgressOrdersAssignedRelayers,
-  TotalOrdersAndFeeHistory,
+  InProgressOrdersRelayersData,
+  OverviewStatisticsData,
+  OverviewStatisticsState,
+  FeeMarketFeeAndOderHistoryData,
+  FeeMarketFeeAndOrderHistortState,
 } from '../../model';
 import { PrettyAmount } from '../../components/widget/PrettyAmount';
 import { Segmented } from '../widget/fee-market';
@@ -51,8 +59,6 @@ export const Overview = ({ destination }: { destination: CrossChainDestination }
   const [feeSgmentedType, setFeeSegmentedType] = useState(SegmentedType.ALL);
   const [orderSegmentedType, setOrderSegmentedType] = useState(SegmentedType.ALL);
 
-  const [feeHistory, setFeeHistory] = useState<ChartState>({ dates: [], data: [] });
-  const [totalOrders, setTotalOrders] = useState<ChartState>({ dates: [], data: [] });
   const [currentFee, setCurrentFee] = useState<{ value?: Balance; loading: boolean }>({ loading: true });
   const [totalRelayers, setTotalRelayers] = useState<{ total: number; inactive: number; loading: boolean }>({
     total: 0,
@@ -60,25 +66,48 @@ export const Overview = ({ destination }: { destination: CrossChainDestination }
     loading: true,
   });
 
-  const { loading: feemarketLoading, data: feeMarketData } = useQuery(QUERY_FEEMARKET_RECORD, {
+  const { loading: feemarketLoading, transformedData: overviewStatisticsState } = usePollIntervalQuery<
+    OverviewStatisticsData,
+    { destination: string },
+    OverviewStatisticsState
+  >(
+    OVERVIEW_STATISTICS,
+    {
+      variables: { destination },
+    },
+    transformOverviewStatistics
+  );
+
+  const { data: relayersUnfinishedOrdersData } = usePollIntervalQuery<
+    InProgressOrdersRelayersData,
+    { destination: string }
+  >(IN_PROGRESS_ORDERS_RELAYERS, {
     variables: { destination },
-    pollInterval: LONG_LONG_DURATION,
-    notifyOnNetworkStatusChange: true,
   });
-  const { data: inProgressOrders } = useQuery(IN_PROGRESS_ORDERS_ASSIGNED_RELAYERS, {
-    variables: { destination },
-    pollInterval: LONG_LONG_DURATION,
-  }) as {
-    data: InProgressOrdersAssignedRelayers | null;
-  };
-  const { data: feeHistoryData, loading: feeHistoryLoading } = useQuery(TOTAL_ORDERS_AND_FEE_HISTORY, {
-    variables: { destination, date: getSegmentedDateByType(feeSgmentedType) },
-    pollInterval: LONG_LONG_DURATION,
-  }) as { data: TotalOrdersAndFeeHistory | null; loading: boolean };
-  const { data: totalOrdersData, loading: totalOrdersLoading } = useQuery(TOTAL_ORDERS_AND_FEE_HISTORY, {
-    variables: { destination, date: getSegmentedDateByType(orderSegmentedType) },
-    pollInterval: LONG_LONG_DURATION,
-  }) as { data: TotalOrdersAndFeeHistory | null; loading: boolean };
+
+  const { loading: feeHistoryLoading, transformedData: feeHistoryState } = usePollIntervalQuery<
+    FeeMarketFeeAndOderHistoryData,
+    { destination: string; time: string },
+    FeeMarketFeeAndOrderHistortState
+  >(
+    FEE_MARKET_FEE_AND_ORDER_HISTORY,
+    {
+      variables: { destination, time: getSegmentedDateByType(feeSgmentedType) },
+    },
+    transformFeeMarketFeeHistort
+  );
+
+  const { loading: orderHistoryLoading, transformedData: orderHistoryState } = usePollIntervalQuery<
+    FeeMarketFeeAndOderHistoryData,
+    { destination: string; time: string },
+    FeeMarketFeeAndOrderHistortState
+  >(
+    FEE_MARKET_FEE_AND_ORDER_HISTORY,
+    {
+      variables: { destination, time: getSegmentedDateByType(orderSegmentedType) },
+    },
+    transformFeeMarketOrderHistort
+  );
 
   useEffect(() => {
     const sub$$ = timer(0, LONG_LONG_DURATION)
@@ -90,8 +119,8 @@ export const Overview = ({ destination }: { destination: CrossChainDestination }
       )
       .subscribe((res) => {
         if (res.isSome) {
-          const last = res.unwrap().pop();
-          setCurrentFee({ loading: false, value: last?.fee });
+          const lastOne = res.unwrap().pop();
+          setCurrentFee({ loading: false, value: lastOne?.fee });
         } else {
           setCurrentFee({ loading: false, value: undefined });
         }
@@ -103,20 +132,20 @@ export const Overview = ({ destination }: { destination: CrossChainDestination }
   useEffect(() => {
     setTotalRelayers((prev) => ({ ...prev, loading: true }));
 
-    const relayersInprogressOrders =
-      inProgressOrders?.orderEntities?.nodes.reduce((acc, cur) => {
-        cur.assignedRelayers.forEach((r) => {
-          acc[r] = acc[r] ? acc[r] + 1 : 1;
+    const relayersUnfinishedOrders =
+      relayersUnfinishedOrdersData?.orderEntities?.nodes.reduce((relayersUnfinishedOrders, order) => {
+        order.assignedRelayers.forEach((relayer) => {
+          relayersUnfinishedOrders[relayer] = (relayersUnfinishedOrders[relayer] || 0) + 1;
         });
 
-        return acc;
+        return relayersUnfinishedOrders;
       }, {} as Record<string, number>) || {};
 
     const sub$$ = from(api.query[getFeeMarketModule(destination)].relayers<Vec<AccountId32>>())
       .pipe(
         tap((total) => setTotalRelayers((prev) => ({ ...prev, total: total.length }))),
         switchMap((total) => {
-          const relayers = Object.keys(relayersInprogressOrders).filter((relayer) =>
+          const relayers = Object.keys(relayersUnfinishedOrders).filter((relayer) =>
             total.map((account) => account.toString()).includes(relayer)
           );
 
@@ -135,11 +164,7 @@ export const Overview = ({ destination }: { destination: CrossChainDestination }
           const collateralPerOrder = api.consts[getFeeMarketModule(destination)].collateralPerOrder as u128;
 
           res.forEach((relayer) => {
-            if (
-              relayer.collateral
-                .div(collateralPerOrder.muln(relayersInprogressOrders[relayer.id.toString()]))
-                .lt(BN_ONE)
-            ) {
+            if (collateralPerOrder.muln(relayersUnfinishedOrders[relayer.id.toString()] + 1).gt(relayer.collateral)) {
               // https://github.com/darwinia-network/apps/issues/165
               inactive++;
             }
@@ -152,42 +177,7 @@ export const Overview = ({ destination }: { destination: CrossChainDestination }
       });
 
     return () => sub$$.unsubscribe();
-  }, [inProgressOrders, api, destination]);
-
-  useEffect(() => {
-    const { dates, data } = feeHistoryData?.orderEntities?.nodes.reduce(
-      ({ dates, data }, { fee, createTime }) => {
-        dates.push(createTime.split('.')[0].replace(/-/g, '/'));
-        data.push(fromWei({ value: fee }, prettyNumber));
-
-        return { dates, data };
-      },
-      { dates: [], data: [] } as ChartState
-    ) || { dates: [], data: [] };
-
-    setFeeHistory({ dates, data });
-  }, [feeHistoryData?.orderEntities?.nodes]);
-
-  useEffect(() => {
-    const daysCount =
-      totalOrdersData?.orderEntities?.nodes.reduce((acc, { createTime }) => {
-        const day = createTime.split('T')[0];
-        acc[day] = acc[day] ? acc[day] + 1 : 1;
-        return acc;
-      }, {} as Record<string, number>) || {};
-
-    const { dates, data } = Object.keys(daysCount).reduce(
-      ({ dates, data }, day) => {
-        dates.push(day.replace(/-/g, '/'));
-        data.push(daysCount[day].toString());
-
-        return { dates, data };
-      },
-      { dates: [], data: [] } as ChartState
-    ) || { dates: [], data: [] };
-
-    setTotalOrders({ dates, data });
-  }, [totalOrdersData?.orderEntities?.nodes]);
+  }, [relayersUnfinishedOrdersData, api, destination]);
 
   useEffect(() => {
     if (!totalOrdersRef.current || totalOrdersRef.current.clientHeight === 0) {
@@ -201,14 +191,14 @@ export const Overview = ({ destination }: { destination: CrossChainDestination }
       },
       xAxis: {
         type: 'category',
-        data: totalOrders.dates,
+        data: orderHistoryState?.dates,
       },
       yAxis: {
         type: 'value',
       },
       series: [
         {
-          data: totalOrders.data,
+          data: orderHistoryState?.values,
           type: 'bar',
         },
       ],
@@ -218,7 +208,7 @@ export const Overview = ({ destination }: { destination: CrossChainDestination }
     instance.setOption(option);
 
     return () => instance.dispose();
-  }, [totalOrders, totalOrdersRef]);
+  }, [orderHistoryState, totalOrdersRef]);
 
   useEffect(() => {
     if (!feeHistoryRef.current || feeHistoryRef.current.clientHeight === 0) {
@@ -232,14 +222,14 @@ export const Overview = ({ destination }: { destination: CrossChainDestination }
       },
       xAxis: {
         type: 'category',
-        data: feeHistory.dates,
+        data: feeHistoryState?.dates,
       },
       yAxis: {
         type: 'value',
       },
       series: [
         {
-          data: feeHistory.data,
+          data: feeHistoryState?.values,
           type: 'line',
           smooth: true,
         },
@@ -250,7 +240,7 @@ export const Overview = ({ destination }: { destination: CrossChainDestination }
     instance.setOption(option);
 
     return () => instance.dispose();
-  }, [feeHistory, feeHistoryRef]);
+  }, [feeHistoryState, feeHistoryRef]);
 
   return (
     <>
@@ -273,7 +263,7 @@ export const Overview = ({ destination }: { destination: CrossChainDestination }
                 <span>
                   {formatDistanceStrict(
                     new Date(),
-                    new Date(Date.now() + (feeMarketData?.feeMarketEntity?.averageSpeed || 0))
+                    new Date(Date.now() + (overviewStatisticsState?.averageSpeed || 0))
                   )}
                 </span>
               </Spin>
@@ -294,7 +284,7 @@ export const Overview = ({ destination }: { destination: CrossChainDestination }
             title={t('Total Rewards')}
             value={
               <Spin size="small" spinning={feemarketLoading}>
-                <PrettyAmount amount={fromWei({ value: feeMarketData?.feeMarketEntity?.totalRewards }, prettyNumber)} />
+                <PrettyAmount amount={fromWei({ value: overviewStatisticsState?.totalRewards }, prettyNumber)} />
                 <span> {network.tokens.ring.symbol}</span>
               </Spin>
             }
@@ -304,7 +294,7 @@ export const Overview = ({ destination }: { destination: CrossChainDestination }
             title={t('Total Orders')}
             value={
               <Spin size="small" spinning={feemarketLoading}>
-                <span>{feeMarketData?.feeMarketEntity?.totalOrders || 0}</span>
+                <span>{overviewStatisticsState?.totalOrders || 0}</span>
               </Spin>
             }
           />
@@ -316,7 +306,7 @@ export const Overview = ({ destination }: { destination: CrossChainDestination }
             <h3 className="font-medium text-base text-black opacity-80">{t('Total Orders')}</h3>
             <Segmented onSelect={setOrderSegmentedType} value={orderSegmentedType} />
           </div>
-          <Spin spinning={totalOrdersLoading}>
+          <Spin spinning={orderHistoryLoading}>
             <div ref={totalOrdersRef} className="h-96 w-11/12" />
           </Spin>
         </Card>
