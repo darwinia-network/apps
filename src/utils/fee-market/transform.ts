@@ -97,19 +97,7 @@ export const transformFeeHistory = (data: RelayerFeeHistoryData): FeeHistoryStat
   };
 };
 
-const updateOrders = (
-  previous: RelayerOrdersState[],
-  id: string,
-  createTime: string,
-  slashAmount?: string,
-  rewards?: {
-    nodes: {
-      assignedAmount?: string;
-      deliveredAmount?: string;
-      confirmedAmount?: string;
-    }[];
-  } | null
-) => {
+const updateOrders = (previous: RelayerOrdersState[], id: string, createTime: string) => {
   const orderId = id.split('-')[1];
 
   const idx = previous.findIndex((item) => item.orderId === orderId);
@@ -126,32 +114,46 @@ const updateOrders = (
 
   const roles = new Set<RelayerRole>(order.relayerRoles);
 
-  if (slashAmount) {
-    roles.add(RelayerRole.ASSIGNED);
-    order.slash = order.slash.add(new BN(slashAmount));
-  }
-
-  rewards?.nodes.forEach(({ assignedAmount, deliveredAmount, confirmedAmount }) => {
-    if (assignedAmount) {
+  return (
+    slashOrRewards:
+      | string
+      | {
+          nodes: {
+            assignedAmount?: string;
+            deliveredAmount?: string;
+            confirmedAmount?: string;
+          }[];
+        }
+      | null
+      | undefined
+  ) => {
+    if (typeof slashOrRewards === 'string') {
       roles.add(RelayerRole.ASSIGNED);
-      order.reward = order.reward.add(new BN(assignedAmount));
+      order.slash = order.slash.add(new BN(slashOrRewards));
+    } else {
+      slashOrRewards?.nodes.forEach(({ assignedAmount, deliveredAmount, confirmedAmount }) => {
+        if (assignedAmount) {
+          roles.add(RelayerRole.ASSIGNED);
+          order.reward = order.reward.add(new BN(assignedAmount));
+        }
+
+        if (deliveredAmount) {
+          roles.add(RelayerRole.DELIVERY);
+          order.reward = order.reward.add(new BN(deliveredAmount));
+        }
+
+        if (confirmedAmount) {
+          roles.add(RelayerRole.CONFIRMED);
+          order.reward = order.reward.add(new BN(confirmedAmount));
+        }
+      });
     }
 
-    if (deliveredAmount) {
-      roles.add(RelayerRole.DELIVERY);
-      order.reward = order.reward.add(new BN(deliveredAmount));
-    }
+    order.relayerRoles = Array.from(roles);
+    previous.splice(idx, idx === -1 ? 0 : 1, order);
 
-    if (confirmedAmount) {
-      roles.add(RelayerRole.CONFIRMED);
-      order.reward = order.reward.add(new BN(confirmedAmount));
-    }
-  });
-
-  order.relayerRoles = Array.from(roles);
-  previous.splice(idx, idx === -1 ? 0 : 1, order);
-
-  return previous;
+    return previous;
+  };
 };
 
 // eslint-disable-next-line complexity
@@ -161,22 +163,22 @@ export const transformRelayerOrders = (data: RelayerOrdersData): RelayerOrdersSt
 
     let orders =
       slashs?.nodes.reduce((acc, { amount, order: { id, createTime } }) => {
-        return updateOrders(acc, id, createTime, amount, undefined);
+        return updateOrders(acc, id, createTime)(amount);
       }, [] as RelayerOrdersState[]) || [];
 
     orders =
       assignedOrders?.nodes.reduce((acc, { id, createTime, rewards }) => {
-        return updateOrders(acc, id, createTime, undefined, rewards);
+        return updateOrders(acc, id, createTime)(rewards);
       }, orders) || orders;
 
     orders =
       deliveredOrders?.nodes.reduce((acc, { id, createTime, rewards }) => {
-        return updateOrders(acc, id, createTime, undefined, rewards);
+        return updateOrders(acc, id, createTime)(rewards);
       }, orders) || orders;
 
     orders =
       confirmedOrders?.nodes.reduce((acc, { id, createTime, rewards }) => {
-        return updateOrders(acc, id, createTime, undefined, rewards);
+        return updateOrders(acc, id, createTime)(rewards);
       }, orders) || orders;
 
     return orders.sort((a, b) => Number(b.orderId) - Number(a.orderId));
