@@ -138,7 +138,7 @@ export const RELAYER_ORDERS = gql`
 `;
 
 export const ORDERS_STATISTICS = gql`
-  query OrdersStatistics($destination: String!) {
+  query ordersStatistics($destination: String!) {
     feeMarketEntity(id: $destination) {
       totalFinished
       totalInProgress
@@ -147,8 +147,8 @@ export const ORDERS_STATISTICS = gql`
   }
 `;
 
-export const ORDERS_TOTAL_ORDERS = gql`
-  query OrdersTotalOrders($destination: String!) {
+export const FEE_MARKET_ORDERS = gql`
+  query feeMarketOrders($destination: String!) {
     orderEntities(filter: { id: { startsWith: $destination } }, orderBy: CREATE_TIME_DESC) {
       nodes {
         id

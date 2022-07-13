@@ -260,10 +260,10 @@ export interface OrdersStatisticsData {
     totalFinished?: number;
     totalInProgress?: number;
     totalOutOfSlot?: number;
-  };
+  } | null;
 }
 
-export interface OrdersTotalOrderData {
+export interface FeeMarketOrders {
   orderEntities?: {
     nodes: {
       id: string;
@@ -278,5 +278,5 @@ export interface OrdersTotalOrderData {
       status: SubqlOrderStatus;
       confirmedSlotIndex: number | null;
     }[];
-  };
+  } | null;
 }
