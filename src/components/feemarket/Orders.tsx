@@ -3,7 +3,6 @@ import { ColumnsType } from 'antd/lib/table';
 import { CheckCircleOutlined, ClockCircleOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { NavLink } from 'react-router-dom';
-import { useQuery } from '@apollo/client';
 import type { Moment } from 'moment';
 import { format } from 'date-fns';
 import moment from 'moment';
@@ -15,11 +14,11 @@ import { PieChart, PieSeriesOption } from 'echarts/charts';
 import { LabelLayout } from 'echarts/features';
 import { CanvasRenderer } from 'echarts/renderers';
 
-import { ORDERS_STATISTICS, ORDERS_TOTAL_ORDERS, LONG_LONG_DURATION, DATE_TIME_FORMATE } from '../../config';
-import { useApi } from '../../hooks';
+import { ORDERS_STATISTICS, FEE_MARKET_ORDERS, DATE_TIME_FORMATE } from '../../config';
+import { useApi, usePollIntervalQuery } from '../../hooks';
 import {
   OrdersStatisticsData,
-  OrdersTotalOrderData,
+  FeeMarketOrders,
   CrossChainDestination,
   SearchParamsKey,
   FeeMarketTab,
@@ -27,7 +26,7 @@ import {
   OrderStatus,
   RelayerRole,
   SubqlOrderStatus,
-  FinishedStatus,
+  FinishedOrNot,
 } from '../../model';
 import { IdentAccountName } from '../widget/account/IdentAccountName';
 import { SubscanLink } from '../widget/SubscanLink';
@@ -69,8 +68,8 @@ enum FilterAll {
   ALL = 'All',
 }
 
-type FilterStatus = FilterAll | FinishedStatus;
-const FilterStatus = { ...FilterAll, ...FinishedStatus };
+type FilterStatus = FilterAll | FinishedOrNot;
+const FilterStatus = { ...FilterAll, ...FinishedOrNot };
 
 type FilterSlot = FilterAll | SlotState;
 const FilterSlot = { ...FilterAll, ...SlotState };
@@ -136,22 +135,18 @@ export const Orders = ({ destination }: { destination: CrossChainDestination }) 
     status: FilterStatus.ALL,
     slot: FilterSlot.ALL,
   });
-  const { loading: statisticsLoading, data: statisticsData } = useQuery(ORDERS_STATISTICS, {
+  const { loading: statisticsLoading, data: statisticsData } = usePollIntervalQuery<
+    OrdersStatisticsData,
+    { destination: string }
+  >(ORDERS_STATISTICS, {
     variables: { destination },
-    pollInterval: LONG_LONG_DURATION,
-    notifyOnNetworkStatusChange: true,
-  }) as {
-    loading: boolean;
-    data: OrdersStatisticsData | null;
-  };
-  const { loading: totalOrdersLoading, data: totalOrdersData } = useQuery(ORDERS_TOTAL_ORDERS, {
+  });
+  const { loading: totalOrdersLoading, data: totalOrdersData } = usePollIntervalQuery<
+    FeeMarketOrders,
+    { destination: string }
+  >(FEE_MARKET_ORDERS, {
     variables: { destination },
-    pollInterval: LONG_LONG_DURATION,
-    notifyOnNetworkStatusChange: true,
-  }) as {
-    loading: boolean;
-    data: OrdersTotalOrderData | null;
-  };
+  });
 
   const columns: ColumnsType<OrderData> = [
     {

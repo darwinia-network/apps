@@ -1,22 +1,22 @@
 import { Card, Descriptions, Badge, Divider, Breadcrumb, Spin } from 'antd';
 import { NavLink } from 'react-router-dom';
-import { useQuery } from '@apollo/client';
 import { formatDistance, format } from 'date-fns';
 import { useTranslation } from 'react-i18next';
 
 import { Path } from '../../config/routes';
-import { ORDER_DETAIL, LONG_LONG_DURATION, DATE_TIME_FORMATE } from '../../config';
+import { ORDER_DETAIL, DATE_TIME_FORMATE } from '../../config';
 import {
-  OrderDetailData,
   CrossChainDestination,
   SlotState,
   RelayerRole,
   SubqlOrderStatus,
   OrderStatus,
+  OrderDetailData,
+  OrderDetailState,
 } from '../../model';
-import { useApi } from '../../hooks';
+import { useApi, usePollIntervalQuery } from '../../hooks';
 import { SubscanLink } from '../widget/SubscanLink';
-import { fromWei, prettyNumber } from '../../utils';
+import { fromWei, prettyNumber, transformOrderDetail } from '../../utils';
 import { AccountName } from '../widget/account/AccountName';
 
 const getPrioritySlot = (confirmedSlotIndex?: number | null): string => {
@@ -38,11 +38,18 @@ const getPrioritySlot = (confirmedSlotIndex?: number | null): string => {
 export const OrderDetail = ({ orderid, destination }: { orderid: string; destination: CrossChainDestination }) => {
   const { network } = useApi();
   const { t } = useTranslation();
-  const { loading, data } = useQuery(ORDER_DETAIL, {
-    variables: { orderid: `${destination}-${orderid}` },
-    pollInterval: LONG_LONG_DURATION,
-    notifyOnNetworkStatusChange: true,
-  }) as { loading: boolean; data: OrderDetailData | null };
+
+  const { loading: orderDetailLoading, transformedData: orderDetailState } = usePollIntervalQuery<
+    OrderDetailData,
+    { orderId: string },
+    OrderDetailState | undefined
+  >(
+    ORDER_DETAIL,
+    {
+      variables: { orderId: `${destination}-${orderid}` },
+    },
+    transformOrderDetail
+  );
 
   return (
     <>
@@ -54,115 +61,124 @@ export const OrderDetail = ({ orderid, destination }: { orderid: string; destina
       </Breadcrumb>
 
       <Card className="mt-1">
-        <Spin spinning={loading}>
+        <Spin spinning={orderDetailLoading}>
           <Descriptions column={1}>
-            <Descriptions.Item label={t('Nonce')}>{orderid || '-'}</Descriptions.Item>
-            <Descriptions.Item label={t('Lane ID')}>{data?.orderEntity?.createLaneId || '-'}</Descriptions.Item>
+            <Descriptions.Item label={t('Nonce')}>{orderid}</Descriptions.Item>
+            <Descriptions.Item label={t('Lane ID')}>{orderDetailState?.createLaneId || '-'}</Descriptions.Item>
             <Descriptions.Item label={t('Source TxID')}>
-              {data?.orderEntity?.sourceTxHash ? (
-                <SubscanLink network={network.name} txHash={data.orderEntity.sourceTxHash} />
+              {orderDetailState?.sourceTxHash ? (
+                <SubscanLink network={network.name} txHash={orderDetailState.sourceTxHash} />
               ) : (
                 '-'
               )}
             </Descriptions.Item>
             <Descriptions.Item label={t('Sender')}>
-              {data?.orderEntity?.sender ? (
-                <SubscanLink copyable address={data.orderEntity.sender} network={network.name} />
+              {orderDetailState?.sender ? (
+                <SubscanLink copyable address={orderDetailState.sender} network={network.name} />
               ) : (
                 '-'
               )}
             </Descriptions.Item>
             <Descriptions.Item label={t('Status')}>
-              {data?.orderEntity?.status === SubqlOrderStatus.FINISHED ? (
+              {orderDetailState?.status === SubqlOrderStatus.FINISHED ? (
                 <Badge status="success" text={t(OrderStatus.FINISHED)} />
-              ) : data?.orderEntity?.status === SubqlOrderStatus.OUT_OF_SLOT ? (
+              ) : orderDetailState?.status === SubqlOrderStatus.OUT_OF_SLOT ? (
                 <Badge status="warning" text={t(OrderStatus.OUT_OF_SLOT)} />
               ) : (
                 <Badge status="processing" text={t(OrderStatus.IN_PROGRESS)} />
               )}
             </Descriptions.Item>
             <Descriptions.Item label={t('Cross-chain Fee')}>
-              {data?.orderEntity?.fee
-                ? `${fromWei({ value: data.orderEntity.fee }, prettyNumber)} ${network.tokens.ring.symbol}`
+              {orderDetailState?.fee
+                ? `${fromWei({ value: orderDetailState.fee }, prettyNumber)} ${network.tokens.ring.symbol}`
                 : '-'}
             </Descriptions.Item>
             <Descriptions.Item label={t('Priority Slot')}>
-              {t(getPrioritySlot(data?.orderEntity?.confirmedSlotIndex))}
+              {t(getPrioritySlot(orderDetailState?.confirmedSlotIndex))}&nbsp;({orderDetailState?.slotTime})
             </Descriptions.Item>
-            <Descriptions.Item label={t('Out of Slot Block')}>{data?.orderEntity?.outOfSlot || '-'}</Descriptions.Item>
+            <Descriptions.Item label={t('Out of Slot Block')}>{orderDetailState?.outOfSlot || '-'}</Descriptions.Item>
           </Descriptions>
 
           <Divider className="my-2" />
 
           <Descriptions column={1}>
             <Descriptions.Item label={t('Start Block')}>
-              {data?.orderEntity?.createBlock ? (
-                <SubscanLink network={network.name} block={data.orderEntity.createBlock.toString()} prefix="#" />
+              {orderDetailState?.createBlock ? (
+                <SubscanLink network={network.name} block={orderDetailState.createBlock.toString()} prefix="#" />
               ) : (
                 '-'
               )}
             </Descriptions.Item>
             <Descriptions.Item label={t('Confirm Block')}>
-              {data?.orderEntity?.finishBlock ? (
-                <SubscanLink network={network.name} block={data.orderEntity.finishBlock.toString()} prefix="#" />
+              {orderDetailState?.finishBlock ? (
+                <SubscanLink network={network.name} block={orderDetailState.finishBlock.toString()} prefix="#" />
               ) : (
                 '-'
               )}
             </Descriptions.Item>
             <Descriptions.Item label={t('Start Time')}>
-              {data?.orderEntity?.createTime
-                ? `${formatDistance(new Date(data.orderEntity.createTime), new Date(), { addSuffix: true })} ( ${format(
-                    new Date(data.orderEntity.createTime),
+              {orderDetailState?.createTime
+                ? `${formatDistance(new Date(orderDetailState.createTime), new Date(), { addSuffix: true })} ( ${format(
+                    new Date(orderDetailState.createTime),
                     DATE_TIME_FORMATE
                   )} )`
                 : '-'}
             </Descriptions.Item>
             <Descriptions.Item label={t('Confirm Time')}>
-              {data?.orderEntity?.finishTime
-                ? `${formatDistance(new Date(data.orderEntity.finishTime), new Date(), { addSuffix: true })} ( ${format(
-                    new Date(data.orderEntity.finishTime),
+              {orderDetailState?.finishTime
+                ? `${formatDistance(new Date(orderDetailState.finishTime), new Date(), { addSuffix: true })} ( ${format(
+                    new Date(orderDetailState.finishTime),
                     DATE_TIME_FORMATE
                   )} )`
                 : '-'}
             </Descriptions.Item>
           </Descriptions>
 
-          {data?.orderEntity?.rewards.nodes.length ? (
+          {orderDetailState?.rewards.length ? (
             <>
               <Divider className="my-2" />
-              <Descriptions column={1} title={t('Rewards:')}>
-                {data.orderEntity.rewards.nodes[0].assignedRelayerId && (
+              <Descriptions column={1}>
+                <Descriptions.Item label={t('Extrinsic')}>
+                  <SubscanLink
+                    network={network.name}
+                    extrinsic={{
+                      height: orderDetailState.rewards[0].rewardBlock,
+                      index: orderDetailState.rewards[0].rewardExtrinsic,
+                    }}
+                  />
+                </Descriptions.Item>
+                {orderDetailState.rewards[0].assignedRelayerId && (
                   <Descriptions.Item label={t(RelayerRole.ASSIGNED)}>
-                    <AccountName account={data.orderEntity.rewards.nodes[0].assignedRelayerId.split('-')[1]} />
+                    <AccountName account={orderDetailState.rewards[0].assignedRelayerId.split('-')[1]} />
                     <span>
                       &nbsp;
-                      {`| ${fromWei({ value: data.orderEntity.rewards.nodes[0].assignedAmount }, prettyNumber)} ${
+                      {`| ${fromWei({ value: orderDetailState.rewards[0].assignedAmount }, prettyNumber)} ${
                         network.tokens.ring.symbol
                       }`}
                     </span>
                   </Descriptions.Item>
                 )}
                 <Descriptions.Item label={t(RelayerRole.DELIVERY)}>
-                  <AccountName account={data.orderEntity.rewards.nodes[0].deliveredRelayerId.split('-')[1]} />
+                  <AccountName account={orderDetailState.rewards[0].deliveredRelayerId.split('-')[1]} />
                   <span>
                     &nbsp;
-                    {`| ${fromWei({ value: data.orderEntity.rewards.nodes[0].deliveredAmount }, prettyNumber)} ${
+                    {`| ${fromWei({ value: orderDetailState.rewards[0].deliveredAmount }, prettyNumber)} ${
                       network.tokens.ring.symbol
                     }`}
                   </span>
                 </Descriptions.Item>
                 <Descriptions.Item label={t(RelayerRole.CONFIRMED)}>
-                  <AccountName account={data.orderEntity.rewards.nodes[0].confirmedRelayerId.split('-')[1]} />
+                  <AccountName account={orderDetailState.rewards[0].confirmedRelayerId.split('-')[1]} />
                   <span>
                     &nbsp;
-                    {`| ${fromWei({ value: data.orderEntity.rewards.nodes[0].confirmedAmount }, prettyNumber)} ${
+                    {`| ${fromWei({ value: orderDetailState.rewards[0].confirmedAmount }, prettyNumber)} ${
                       network.tokens.ring.symbol
                     }`}
                   </span>
                 </Descriptions.Item>
-                {data.orderEntity.rewards.nodes[0].treasuryAmount && (
+                {orderDetailState.rewards[0].treasuryAmount && (
                   <Descriptions.Item label={t('To Treaury')}>{`${fromWei(
-                    { value: data.orderEntity.rewards.nodes[0].treasuryAmount },
+                    { value: orderDetailState.rewards[0].treasuryAmount },
                     prettyNumber
                   )} ${network.tokens.ring.symbol}`}</Descriptions.Item>
                 )}
@@ -170,32 +186,25 @@ export const OrderDetail = ({ orderid, destination }: { orderid: string; destina
             </>
           ) : null}
 
-          {data?.orderEntity?.slashs.nodes.length ? (
+          {orderDetailState?.slashs.length ? (
             <>
               <Divider className="my-2" />
-              <Descriptions column={1} title={t('Slashs:')}>
-                <Descriptions.Item label={t('Sent Block')}>
+              <Descriptions column={1}>
+                <Descriptions.Item label={t('Delay Blocks')}>{orderDetailState.slashs[0].delayTime}</Descriptions.Item>
+                <Descriptions.Item label={t('Extrinsic')}>
                   <SubscanLink
                     network={network.name}
-                    block={data.orderEntity.slashs.nodes[0].sentTime.toString()}
-                    prefix="#"
+                    extrinsic={{
+                      height: orderDetailState.slashs[0].slashBlock,
+                      index: orderDetailState.slashs[0].slashExtrinsic,
+                    }}
                   />
                 </Descriptions.Item>
-                <Descriptions.Item label={t('Confirm Block')}>
-                  <SubscanLink
-                    network={network.name}
-                    block={data.orderEntity.slashs.nodes[0].confirmTime.toString()}
-                    prefix="#"
-                  />
-                </Descriptions.Item>
-                <Descriptions.Item label={t('Delay Blocks')}>
-                  {data.orderEntity.slashs.nodes[0].delayTime}
-                </Descriptions.Item>
-                {data?.orderEntity?.slashs.nodes.map((node) => (
-                  <Descriptions.Item label={t(RelayerRole.ASSIGNED)} key={node.relayerId}>
-                    <AccountName account={node.relayerId.split('-')[1]} />
+                {orderDetailState.slashs.map((slash) => (
+                  <Descriptions.Item label={t(RelayerRole.ASSIGNED)} key={slash.relayerId}>
+                    <AccountName account={slash.relayerId.split('-')[1]} />
                     <span>
-                      &nbsp;{`| -${fromWei({ value: node.amount }, prettyNumber)} ${network.tokens.ring.symbol}`}
+                      &nbsp;{`| -${fromWei({ value: slash.amount }, prettyNumber)} ${network.tokens.ring.symbol}`}
                     </span>
                   </Descriptions.Item>
                 ))}

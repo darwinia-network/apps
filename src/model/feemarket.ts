@@ -1,5 +1,6 @@
-import { AccountId, Balance } from '@polkadot/types/interfaces';
-import { Struct } from '@polkadot/types-codec';
+import type { AccountId, Balance } from '@polkadot/types/interfaces';
+import type { Struct } from '@polkadot/types-codec';
+import type { BN } from '@polkadot/util';
 
 export type CrossChainDestination =
   | 'Crab'
@@ -53,123 +54,216 @@ export enum SubqlOrderStatus {
   OUT_OF_SLOT = 'OutOfSlot',
 }
 
-export enum FinishedStatus {
+export enum FinishedOrNot {
   FINISHED = 'Finished',
   IN_PROGRESS = 'In Progress',
 }
 
-export interface RelayerOrderRewards {
-  nodes: {
-    assignedAmount?: string | null;
-    deliveredAmount: string;
-    confirmedAmount: string;
-    assignedRelayerId?: string | null;
-    deliveredRelayerId: string;
-    confirmedRelayerId: string;
-  }[];
-}
-
-interface RelayerOrderData {
-  id: string;
-  finishTime: string;
-  assignedRelayers: string[];
-  rewards: RelayerOrderRewards;
-}
-
-export interface RelayerOrders {
-  relayerEntity?: {
-    slashs?: {
-      nodes: {
-        amount: string;
-        order: {
-          id: string;
-          finishTime: string;
-        };
-      }[];
-    };
-    assignedOrders?: {
-      nodes: RelayerOrderData[];
-    };
-    deliveredOrders?: {
-      nodes: RelayerOrderData[];
-    };
-    confirmedOrders?: {
-      nodes: RelayerOrderData[];
-    };
-  };
-}
-
-export interface RelayerRewardsAndSlashs {
+export interface RelayerRewardsAndSlashsData {
   relayerEntity?: {
     slashs?: {
       nodes: {
         amount: string;
         slashTime: string;
       }[];
-    };
+    } | null;
     assignedRewards?: {
       nodes: {
         rewardTime: string;
         assignedAmount: string;
       }[];
-    };
+    } | null;
     deliveredRewards?: {
       nodes: {
         rewardTime: string;
         deliveredAmount: string;
       }[];
-    };
+    } | null;
     confirmedRewards?: {
       nodes: {
         rewardTime: string;
         confirmedAmount: string;
       }[];
-    };
-  };
+    } | null;
+  } | null;
 }
 
-export interface RelayerFeeHistory {
+export type RewardsAndSlashsState = {
+  dates: string[];
+  rewards: string[];
+  slashs: string[];
+};
+
+export interface RelayerFeeHistoryData {
   relayerEntity?: {
     feeHistory?: {
       nodes: {
         fee: string;
         newfeeTime: string;
       }[];
-    };
-  };
+    } | null;
+  } | null;
 }
 
-export interface InProgressOrdersAssignedRelayers {
+export type FeeHistoryState = {
+  dates: string[];
+  values: string[];
+};
+
+export interface RelayerOrdersData {
+  relayerEntity?: {
+    assignedOrders?: {
+      nodes: {
+        id: string;
+        createTime: string;
+        rewards?: {
+          nodes: {
+            assignedAmount: string;
+          }[];
+        } | null;
+      }[];
+    } | null;
+    deliveredOrders?: {
+      nodes: {
+        id: string;
+        createTime: string;
+        rewards?: {
+          nodes: {
+            deliveredAmount: string;
+          }[];
+        } | null;
+      }[];
+    } | null;
+    confirmedOrders?: {
+      nodes: {
+        id: string;
+        createTime: string;
+        rewards?: {
+          nodes: {
+            confirmedAmount: string;
+          }[];
+        } | null;
+      }[];
+    } | null;
+    slashs?: {
+      nodes: {
+        amount: string;
+        order: {
+          id: string;
+          createTime: string;
+        };
+      }[];
+    } | null;
+  } | null;
+}
+
+export type RelayerOrdersState = {
+  orderId: string;
+  createTime: string;
+  reward: BN;
+  slash: BN;
+  relayerRoles: RelayerRole[];
+};
+
+interface OrderDetailBase {
+  id: string;
+  fee: string;
+  sender: string;
+  sourceTxHash: string;
+  slotTime: number; // number of blocks
+  outOfSlot: number; // block number
+  confirmedSlotIndex?: number | null; // -1: out of slot / 0: #1 / 1: #2 / 2: #3
+  status: SubqlOrderStatus;
+  createLaneId: string;
+  createTime: string;
+  finishTime?: string | null;
+  createBlock: number;
+  finishBlock?: number | null;
+}
+
+interface OrderDetailSlash {
+  amount: string;
+  relayerId: string;
+  delayTime: number; // number of blocks
+  slashBlock: number;
+  slashExtrinsic: number;
+}
+
+interface OrderDetailReward {
+  rewardBlock: number;
+  rewardExtrinsic: number;
+  assignedRelayerId?: string | null;
+  deliveredRelayerId: string;
+  confirmedRelayerId: string;
+  assignedAmount?: string | null;
+  deliveredAmount: string;
+  confirmedAmount: string;
+  treasuryAmount?: string | null;
+}
+
+export interface OrderDetailData {
+  orderEntity?:
+    | (OrderDetailBase & {
+        slashs?: {
+          nodes: OrderDetailSlash[];
+        } | null;
+        rewards?: {
+          nodes: OrderDetailReward[];
+        } | null;
+      })
+    | null;
+}
+
+export interface OrderDetailState extends OrderDetailBase {
+  slashs: OrderDetailSlash[];
+  rewards: OrderDetailReward[];
+}
+
+export interface InProgressOrdersRelayersData {
   orderEntities?: {
     nodes: {
       assignedRelayers: string[];
     }[];
-  };
+  } | null;
 }
 
-export interface TotalOrdersAndFeeHistory {
+export interface OverviewStatisticsData {
+  feeMarketEntity?: {
+    averageSpeed?: number | null;
+    totalRewards?: string | null;
+    totalOrders: number;
+  } | null;
+}
+
+export interface OverviewStatisticsState {
+  averageSpeed: number;
+  totalRewards: string;
+  totalOrders: number;
+}
+
+export interface FeeMarketFeeAndOderHistoryData {
   orderEntities?: {
     nodes: {
       fee: string;
       createTime: string;
     }[];
-  };
+  } | null;
 }
 
-export type ChartState = {
+export interface FeeMarketFeeAndOrderHistortState {
   dates: string[];
-  data: string[];
-};
+  values: string[];
+}
 
 export interface OrdersStatisticsData {
   feeMarketEntity?: {
     totalFinished?: number;
     totalInProgress?: number;
     totalOutOfSlot?: number;
-  };
+  } | null;
 }
 
-export interface OrdersTotalOrderData {
+export interface FeeMarketOrders {
   orderEntities?: {
     nodes: {
       id: string;
@@ -184,42 +278,5 @@ export interface OrdersTotalOrderData {
       status: SubqlOrderStatus;
       confirmedSlotIndex: number | null;
     }[];
-  };
-}
-
-export interface OrderDetailData {
-  orderEntity?: {
-    id: string;
-    fee: string;
-    sender: string;
-    sourceTxHash: string;
-    confirmedSlotIndex?: number;
-    status: SubqlOrderStatus;
-    outOfSlot: number;
-    createTime: string;
-    finishTime?: string;
-    createBlock: number;
-    finishBlock?: number;
-    createLaneId: string;
-    slashs: {
-      nodes: {
-        confirmTime: number;
-        sentTime: number;
-        delayTime: number;
-        amount: string;
-        relayerId: string;
-      }[];
-    };
-    rewards: {
-      nodes: {
-        assignedRelayerId?: string;
-        deliveredRelayerId: string;
-        confirmedRelayerId: string;
-        assignedAmount?: string;
-        deliveredAmount: string;
-        confirmedAmount: string;
-        treasuryAmount?: string;
-      }[];
-    };
-  };
+  } | null;
 }

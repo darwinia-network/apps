@@ -1,19 +1,17 @@
 import { gql } from '@apollo/client';
 
-export const QUERY_FEEMARKET_RECORD = gql`
-  query QueryFeeMarket($destination: String!) {
+export const OVERVIEW_STATISTICS = gql`
+  query overviewStatistics($destination: String!) {
     feeMarketEntity(id: $destination) {
       averageSpeed
       totalRewards
       totalOrders
-      totalFinished
-      totalInProgress
     }
   }
 `;
 
-export const IN_PROGRESS_ORDERS_ASSIGNED_RELAYERS = gql`
-  query QueryInProgressOrders($destination: String!) {
+export const IN_PROGRESS_ORDERS_RELAYERS = gql`
+  query inProgressOrdersRelayers($destination: String!) {
     orderEntities(filter: { and: [{ id: { startsWith: $destination } }, { phase: { equalTo: Created } }] }) {
       nodes {
         assignedRelayers
@@ -22,10 +20,10 @@ export const IN_PROGRESS_ORDERS_ASSIGNED_RELAYERS = gql`
   }
 `;
 
-export const TOTAL_ORDERS_AND_FEE_HISTORY = gql`
-  query QueryOverviewOrders($destination: String!, $date: Datetime!) {
+export const FEE_MARKET_FEE_AND_ORDER_HISTORY = gql`
+  query feeMarketFeeHistory($destination: String!, $time: Datetime!) {
     orderEntities(
-      filter: { and: [{ id: { startsWith: $destination } }, { createTime: { greaterThan: $date } }] }
+      filter: { and: [{ id: { startsWith: $destination } }, { createTime: { greaterThan: $time } }] }
       orderBy: CREATE_TIME_ASC
     ) {
       nodes {
@@ -37,7 +35,7 @@ export const TOTAL_ORDERS_AND_FEE_HISTORY = gql`
 `;
 
 export const RELAYER_TOTAL_ORDERS_SLASHS_REWARDS = gql`
-  query RelayerTotalOrdersSlashsRewards($relayer: String!) {
+  query relayerTotalOrdersSlashsRewards($relayer: String!) {
     relayerEntity(id: $relayer) {
       totalOrders
       totalSlashs
@@ -47,30 +45,30 @@ export const RELAYER_TOTAL_ORDERS_SLASHS_REWARDS = gql`
 `;
 
 export const RELAYER_REWARDS_AND_SLASHS = gql`
-  query RelayerRewardsAndSlashs($relayer: String!, $lastTime: Datetime!) {
+  query relayerRewardsAndSlashs($relayer: String!, $time: Datetime!) {
     relayerEntity(id: $relayer) {
-      slashs(filter: { slashTime: { greaterThan: $lastTime } }, orderBy: SLASH_TIME_ASC) {
-        nodes {
-          amount
-          slashTime
-        }
-      }
-      assignedRewards(filter: { rewardTime: { greaterThan: $lastTime } }) {
+      assignedRewards(filter: { rewardTime: { greaterThan: $time } }) {
         nodes {
           rewardTime
           assignedAmount
         }
       }
-      deliveredRewards(filter: { rewardTime: { greaterThan: $lastTime } }) {
+      deliveredRewards(filter: { rewardTime: { greaterThan: $time } }) {
         nodes {
           rewardTime
           deliveredAmount
         }
       }
-      confirmedRewards(filter: { rewardTime: { greaterThan: $lastTime } }) {
+      confirmedRewards(filter: { rewardTime: { greaterThan: $time } }) {
         nodes {
           rewardTime
           confirmedAmount
+        }
+      }
+      slashs(filter: { slashTime: { greaterThan: $time } }) {
+        nodes {
+          amount
+          slashTime
         }
       }
     }
@@ -78,9 +76,9 @@ export const RELAYER_REWARDS_AND_SLASHS = gql`
 `;
 
 export const RELAYER_FEE_HISTORY = gql`
-  query RelayerFeeHistory($relayer: String!, $lastTime: Datetime!) {
+  query relayerFeeHistory($relayer: String!, $time: Datetime!) {
     relayerEntity(id: $relayer) {
-      feeHistory(filter: { newfeeTime: { greaterThan: $lastTime } }, orderBy: NEWFEE_TIME_ASC) {
+      feeHistory(filter: { newfeeTime: { greaterThan: $time } }, orderBy: NEWFEE_TIME_ASC) {
         nodes {
           fee
           newfeeTime
@@ -91,30 +89,15 @@ export const RELAYER_FEE_HISTORY = gql`
 `;
 
 export const RELAYER_ORDERS = gql`
-  query RelayerOrders($relayer: String!) {
+  query relayerOrders($relayer: String!) {
     relayerEntity(id: $relayer) {
-      slashs {
-        nodes {
-          amount
-          order {
-            id
-            finishTime
-          }
-        }
-      }
       assignedOrders {
         nodes {
           id
-          finishTime
-          assignedRelayers
-          rewards {
+          createTime
+          rewards(filter: { assignedRelayerId: { equalTo: $relayer } }) {
             nodes {
               assignedAmount
-              deliveredAmount
-              confirmedAmount
-              assignedRelayerId
-              deliveredRelayerId
-              confirmedRelayerId
             }
           }
         }
@@ -122,16 +105,10 @@ export const RELAYER_ORDERS = gql`
       deliveredOrders {
         nodes {
           id
-          finishTime
-          assignedRelayers
-          rewards {
+          createTime
+          rewards(filter: { deliveredRelayerId: { equalTo: $relayer } }) {
             nodes {
-              assignedAmount
               deliveredAmount
-              confirmedAmount
-              assignedRelayerId
-              deliveredRelayerId
-              confirmedRelayerId
             }
           }
         }
@@ -139,17 +116,20 @@ export const RELAYER_ORDERS = gql`
       confirmedOrders {
         nodes {
           id
-          finishTime
-          assignedRelayers
-          rewards {
+          createTime
+          rewards(filter: { confirmedRelayerId: { equalTo: $relayer } }) {
             nodes {
-              assignedAmount
-              deliveredAmount
               confirmedAmount
-              assignedRelayerId
-              deliveredRelayerId
-              confirmedRelayerId
             }
+          }
+        }
+      }
+      slashs {
+        nodes {
+          amount
+          order {
+            id
+            createTime
           }
         }
       }
@@ -158,7 +138,7 @@ export const RELAYER_ORDERS = gql`
 `;
 
 export const ORDERS_STATISTICS = gql`
-  query OrdersStatistics($destination: String!) {
+  query ordersStatistics($destination: String!) {
     feeMarketEntity(id: $destination) {
       totalFinished
       totalInProgress
@@ -167,8 +147,8 @@ export const ORDERS_STATISTICS = gql`
   }
 `;
 
-export const ORDERS_TOTAL_ORDERS = gql`
-  query OrdersTotalOrders($destination: String!) {
+export const FEE_MARKET_ORDERS = gql`
+  query feeMarketOrders($destination: String!) {
     orderEntities(filter: { id: { startsWith: $destination } }, orderBy: CREATE_TIME_DESC) {
       nodes {
         id
@@ -188,31 +168,34 @@ export const ORDERS_TOTAL_ORDERS = gql`
 `;
 
 export const ORDER_DETAIL = gql`
-  query OrderDetail($orderid: String!) {
-    orderEntity(id: $orderid) {
+  query orderDetail($orderId: String!) {
+    orderEntity(id: $orderId) {
       id
       fee
       sender
       sourceTxHash
+      slotTime
+      outOfSlot
       confirmedSlotIndex
       status
-      outOfSlot
+      createLaneId
       createTime
       finishTime
       createBlock
       finishBlock
-      createLaneId
       slashs(orderBy: SLASH_TIME_ASC) {
         nodes {
-          confirmTime
-          sentTime
-          delayTime
           amount
           relayerId
+          delayTime
+          slashBlock
+          slashExtrinsic
         }
       }
       rewards(orderBy: REWARD_TIME_ASC) {
         nodes {
+          rewardBlock
+          rewardExtrinsic
           assignedRelayerId
           deliveredRelayerId
           confirmedRelayerId

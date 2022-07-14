@@ -47,7 +47,7 @@ export function SubscanLink({
 
     return (
       <Link href={`https://${network}.subscan.io/extrinsic/${height}-${index}`} target="_blank" {...other}>
-        {children}
+        {children || `${height}-${index}`}
       </Link>
     );
   }
