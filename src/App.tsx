@@ -25,8 +25,15 @@ const { Sider, Content } = Layout;
 function Logo({ withText, className = '' }: { className?: string; withText?: boolean }) {
   return (
     <div className={`w-full flex gap-2 items-center ${className}`}>
-      <img src={`/image/darwinia.svg`} className="w-8 lg:w-11" />
-      {withText && <h1 className="bg-darwinia text-transparent bg-clip-text text-sm lg:text-lg">Apps</h1>}
+      <img src={`/image/apps.svg`} className="w-8 lg:w-11" />
+      {withText && (
+        <h1
+          className="text-transparent bg-clip-text text-sm lg:text-lg"
+          style={{ background: 'linear-gradient(-45deg, #fe3876 0%, #7c30dd 71%, #3a30dd 100%)' }}
+        >
+          Apps
+        </h1>
+      )}
     </div>
   );
 }

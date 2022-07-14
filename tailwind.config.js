@@ -14,16 +14,14 @@ module.exports = {
           '100%': { transform: 'scale(0)' },
         },
       },
-      backgroundImage: (_) => ({
-        darwinia: 'linear-gradient(-45deg, #fe3876 0%, #7c30dd 71%, #3a30dd 100%)',
-      }),
       backgroundColor: (_) => ({
         antDark: '#151e33',
-        crab: '#EC3783',
-        'crab-parachain': '#EC3783',
-        pangolin: '#5745DE',
-        'pangolin-parachain': '#5745DE',
-        pangoro: '#5745DE',
+        crab: '#512DBC',
+        'crab-parachain': '#512DBC',
+        darwinia: '#FF0083',
+        pangolin: '#4B30DD',
+        'pangolin-parachain': '#4B30DD',
+        pangoro: '#4B30DD',
       }),
       borderRadius: {
         xl: '20px',
@@ -36,22 +34,22 @@ module.exports = {
       },
       colors: (_) => ({
         crab: {
-          main: '#EC3783',
+          main: '#512DBC',
         },
         'crab-parachain': {
-          main: '#EC3783',
+          main: '#512DBC',
         },
         darwinia: {
-          main: '#3a30dd',
+          main: '#FF0083',
         },
         pangolin: {
-          main: '#5745DE',
+          main: '#4B30DD',
         },
         'pangolin-parachain': {
-          main: '#5745DE',
+          main: '#4B30DD',
         },
         pangoro: {
-          main: '#5745DE',
+          main: '#4B30DD',
         },
       }),
     },

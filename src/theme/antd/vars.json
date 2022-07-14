@@ -1,6 +1,6 @@
 {
   "@border-radius-base": "10px",
-  "@btn-default-bg": "linear-gradient(#ffffff, #ffffff) padding-box,\n  linear-gradient(to right, #5745de, #ec3783) border-box",
+  "@btn-default-bg": "#ffffff",
   "@btn-default-border": "2px solid transparent",
   "@btn-primary-bg": "@project-main-bg",
   "@card-radius": "@border-radius-base * 2",
@@ -8,9 +8,8 @@
   "@modal-footer-padding-vertical": "24px",
   "@primary-color": "@project-primary",
   "@processing-color": "@primary-color",
-  "@project-accent": "#ec3783",
-  "@project-main-bg": "linear-gradient(-45deg, #fe3876 0%, #7c30dd 71%, #3a30dd 100%)",
-  "@project-primary": "#5745de",
+  "@project-main-bg": "#512DBC",
+  "@project-primary": "#512DBC",
   "@secondary-color": "@primary-color",
   "@select-item-selected-bg": "@background-color-base",
   "@select-item-selected-option-color": "@primary-color"

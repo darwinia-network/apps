@@ -4,26 +4,19 @@
 
 @import '~@fontsource/ibm-plex-sans/index.css';
 
-$accent: #ec3783;
-$primary: #5745de;
-
-$bg-darwinia: linear-gradient(-45deg, #fe3876 0%, #7c30dd 71%, #3a30dd 100%);
-
 $radius-base: 10px;
 
 body {
   font-family: 'IBM Plex Sans', sans-serif;
 }
 
-@mixin main-border {
-  border: 2px solid transparent;
-  border-radius: $radius-base;
-  background: linear-gradient(#ffffff, #ffffff) padding-box, linear-gradient(to right, $primary, $accent) border-box;
-}
-
 // reset select
 .ant-select-selector {
   border-right: none;
+}
+
+.ant-select-selection-item .collapsed {
+  left: 6px !important;
 }
 
 .darwinia-light-select,
@@ -54,31 +47,16 @@ body {
   }
 }
 
-.darwinia-light-select .ant-select-selection-item .collapsed,
-.darwinia-dark-select .ant-select-selection-item .collapsed {
-  left: 6px;
-}
-
 .darwinia-light-select .ant-select-selector,
 .darwinia-dark-select .ant-select-selector {
-  background-origin: border-box;
-  background-clip: content-box, border-box;
-  border-color: transparent !important;
-}
-
-.darwinia-light-select .ant-select-selector {
-  background-image: linear-gradient(#ffffff, #ffffff), linear-gradient(-45deg, #fe3876 0%, #7c30dd 71%, #3a30dd 100%);
-}
-
-.darwinia-dark-select .ant-select-selector {
-  background-image: linear-gradient(#000000, #000000), linear-gradient(-45deg, #fe3876 0%, #7c30dd 71%, #3a30dd 100%);
+  border-color: #ff0083 !important;
 }
 
 .crab-light-select .ant-select-selector,
 .crab-parachain-light-select .ant-select-selector,
 .crab-dark-select .ant-select-selector,
 .crab-parachain-dark-select .ant-select-selector {
-  border-color: #ec3783 !important;
+  border-color: #512dbc !important;
 }
 
 .pangolin-light-select .ant-select-selector,
@@ -87,7 +65,7 @@ body {
 .pangolin-dark-select .ant-select-selector,
 .pangolin-parachain-dark-select .ant-select-selector,
 .pangoro-dark-select .ant-select-selector {
-  border-color: #5745de !important;
+  border-color: #4b30dd !important;
 }
 
 .radio-list {
@@ -221,46 +199,45 @@ body {
 .page-account-tabs-crab,
 .page-account-tabs-crab-parachain {
   > .ant-tabs-nav::before {
-    background: #ec3783;
+    background: #512dbc;
   }
 }
 
 .page-account-tabs-darwinia {
   > .ant-tabs-nav::before {
-    background: linear-gradient(315.52deg, #ff0050 0.88%, #7000ff 71.7%, #0027ff 100%);
+    background: #ff0083;
   }
 }
 
 .page-account-tabs-pangolin,
 .page-account-tabs-pangolin-parachain {
   > .ant-tabs-nav::before {
-    background: #5745de;
+    background: #4b30dd;
   }
 }
 
 .page-account-tabs-pangoro {
   > .ant-tabs-nav::before {
-    background: #5745de;
+    background: #4b30dd;
   }
 }
 
 .network-radio-button-crab:hover,
 .network-radio-button-crab-parachain:hover {
-  border-color: #ec3783 !important;
+  border-color: #512dbc !important;
 }
 
 .network-radio-button-darwinia:hover {
-  border-color: transparent !important;
-  background: linear-gradient(#ffffff, #ffffff) padding-box, linear-gradient(to right, #5745de, #ec3783) border-box !important;
+  border-color: #ff0083 !important;
 }
 
 .network-radio-button-pangolin:hover,
 .network-radio-button-pangolin-parachain:hover {
-  border-color: #5745de !important;
+  border-color: #4b30dd !important;
 }
 
 .network-radio-button-pangoro:hover {
-  border-color: #5745de !important;
+  border-color: #4b30dd !important;
 }
 
 .staking-earnings-time {
@@ -280,21 +257,21 @@ body {
 .staking-earnings-time-btn-checked-crab,
 .staking-earnings-time-btn-checked-crab-parachain {
   border-radius: 10px !important;
-  background: #ec3783 !important;
+  background: #512dbc !important;
 }
 
 .staking-earnings-time-btn-checked-darwinia {
   border-radius: 10px !important;
-  background: linear-gradient(-45deg, #fe3876 0%, #7c30dd 71%, #3a30dd 100%) !important;
+  background: #ff0083 !important;
 }
 
 .staking-earnings-time-btn-checked-pangolin,
 .staking-earnings-time-btn-checked-pangolin-parachain {
   border-radius: 10px !important;
-  background: #5745de !important;
+  background: #4b30dd !important;
 }
 
 .staking-earnings-time-btn-checked-pangoro {
   border-radius: 10px !important;
-  background: #5745de !important;
+  background: #4b30dd !important;
 }

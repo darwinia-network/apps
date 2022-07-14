@@ -14,11 +14,7 @@ const MyRadio = ({ checked }: { checked?: boolean }) => {
   return (
     <span className={`w-5 h-5 rounded-full border relative border-${network.name}-main`}>
       {checked && (
-        <span
-          className={`absolute top-0 bottom-0 left-0 right-0 m-auto w-3 h-3 rounded-full bg-${
-            network.name === 'darwinia' ? network.name + '-main' : network.name
-          }`}
-        />
+        <span className={`absolute top-0 bottom-0 left-0 right-0 m-auto w-3 h-3 rounded-full bg-${network.name}`} />
       )}
     </span>
   );
