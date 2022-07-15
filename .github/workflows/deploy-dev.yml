@@ -17,6 +17,17 @@ jobs:
           persist-credentials: false
           ssh-key: "${{ secrets.ITERING_ACTIONS_DEPLOY_KEY }}"
 
+      - name: Install dependencies
+        run: yarn install
+
+      - name: Build
+        run: yarn build:dev
+
+      - name: Prepare Project Config
+        run: |
+          mv vercel.json build/
+          mv faucet/* build/
+
       - uses: ./.github/actions/smart-vercel
         name: Deploy to Vercel
         id: smart-vercel
@@ -25,7 +36,7 @@ jobs:
           vercel_group: itering
           preview_output: true
           project_name: apps
-          script_build: yarn build:dev
+          script_run: false
           enable_cache: true
           enable_notify_comment: true
           enable_notify_slack: true
