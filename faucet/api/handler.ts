@@ -44,7 +44,11 @@ export async function handler(req: VercelRequest, res: VercelResponse, config: C
       const now = +new Date();
       const lastClaimTime = +ipRecord;
 
-      if (now - lastClaimTime <= config.throttleHours * HOUR_TO_MILLISECONDS) {
+      // TODO: debug
+      void HOUR_TO_MILLISECONDS;
+      // eslint-disable-next-line
+      if (now - lastClaimTime <= 1000 * 60) {
+        // if (now - lastClaimTime <= config.throttleHours * HOUR_TO_MILLISECONDS) {
         return responseEnd<ThrottleData>(res, 429, {
           code: ResponseCode.FAILED_THROTTLE,
           message: `You can get it every ${config.throttleHours} hours`,
