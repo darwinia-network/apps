@@ -14,6 +14,7 @@ const HOUR_TO_MILLISECONDS = 60 * 60 * 1000;
 // eslint-disable-next-line complexity
 export async function handler(req: VercelRequest, res: VercelResponse, config: Config) {
   res.setHeader('content-type', 'application/json');
+  res.setHeader('Access-Control-Allow-Origin', '*'); // TODO:
 
   try {
     const { client, error } = redis();
