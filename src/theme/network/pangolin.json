@@ -1,15 +1,15 @@
 {
   "@btn-border-radius-base": "@project-radius-base",
-  "@btn-default-bg": "#fff",
+  "@btn-default-bg": "#ffffff",
   "@btn-default-border": "@project-main-bg",
   "@btn-primary-bg": "@project-main-bg",
   "@card-radius": "@project-radius-base",
-  "@layout-header-background": "#fff",
-  "@project-main-bg": "#5745de",
+  "@layout-header-background": "#4B30DD",
+  "@project-main-bg": "#4B30DD",
   "@project-radius-base": "12px",
-  "@project-primary": "#5745de",
-  "@tabs-ink-bar-color": "#5745de",
-  "@project-item-hover-bg": "rgba(87,69,222,0.1)",
-  "@menu-item-active-bg": "rgba(87,69,222,0.2)",
-  "@select-item-active-bg": "rgba(87,69,222,0.1)"
+  "@project-primary": "#4B30DD",
+  "@tabs-ink-bar-color": "#4B30DD",
+  "@project-item-hover-bg": "rgba(75,48,221,0.1)",
+  "@menu-item-active-bg": "rgba(75,48,221,0.2)",
+  "@select-item-active-bg": "rgba(75,48,221,0.1)"
 }

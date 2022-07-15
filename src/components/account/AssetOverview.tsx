@@ -29,7 +29,7 @@ export function AssetOverview({ asset, loading, refresh }: AssetOverviewProps) {
   const [transferrable, setTransferrable] = useState<BN | null>(null);
 
   const tokenIconSrc = useMemo(
-    () => `/image/token-${(asset.token?.symbol || 'RING').toLowerCase()}.svg`,
+    () => `/image/token/token-${(asset.token?.symbol || 'RING').toLowerCase()}.svg`,
     [asset.token?.symbol]
   );
 

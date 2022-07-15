@@ -2,9 +2,7 @@ import { PolkadotChainConfig } from '../../model';
 
 export const pangolinParachainConfig: PolkadotChainConfig = {
   facade: {
-    logo: '/image/pangolin.png',
-    logoMinor: '/image/pangolin.svg',
-    logoWithText: '/image/pangolin-logo.svg',
+    logo: '/image/network/pangolin.svg',
   },
   category: 'parachain',
   name: 'pangolin-parachain',

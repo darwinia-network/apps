@@ -24,9 +24,7 @@ export const crabConfig: DVMChainConfig = {
     rpcUrls: ['https://crab-rpc.darwinia.network/'],
   },
   facade: {
-    logo: '/image/crab.png',
-    logoMinor: '/image/crab.svg',
-    logoWithText: '/image/crab-logo.svg',
+    logo: '/image/network/crab.svg',
   },
   category: 'live',
   name: 'crab',

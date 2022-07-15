@@ -2,9 +2,7 @@ import { PolkadotChainConfig } from '../../model';
 
 export const darwiniaConfig: PolkadotChainConfig = {
   facade: {
-    logo: '/image/darwinia.png',
-    logoMinor: '/image/darwinia.svg',
-    logoWithText: '/image/darwinia-logo.svg',
+    logo: '/image/network/darwinia.svg',
   },
   category: 'live',
   name: 'darwinia',
