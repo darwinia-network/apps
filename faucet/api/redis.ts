@@ -1,6 +1,6 @@
 import Redis from 'ioredis';
 
-let _redis: Redis;
+let _redis: Redis | null = null;
 
 export function redis(): { client: Redis | null; error: Error | null } {
   if (_redis) {
