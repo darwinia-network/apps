@@ -8,9 +8,10 @@ export function redis(): { client: Redis | null; error: Error | null } {
   }
 
   try {
-    _redis = new Redis(process.env.REDIS_CONNECT_URL);
+    _redis = new Redis(process.env.REDIS_CONNECT_URL || '');
     return { client: _redis, error: null };
-  } catch (error) {
+  } catch (err) {
+    const error = err as Error;
     console.error('Failed connect redis: ' + error.message);
     return { client: null, error };
   }

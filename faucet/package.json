@@ -11,16 +11,11 @@
     "deploy": "vercel --prod"
   },
   "devDependencies": {
-    "@darwinia/types": "2.7.2",
-    "@ethereumjs/tx": "^3.4.0",
-    "@octokit/rest": "^18.12.0",
     "@polkadot/api": "7.11.1",
     "@types/qs": "^6.9.7",
     "@vercel/node": "^1.12.1",
-    "grant": "^5.4.19",
-    "ioredis": "^4.28.3",
+    "ioredis": "^5.2.0",
     "qs": "^6.10.3",
-    "vercel": "^23.1.2",
-    "web3": "^1.6.1"
+    "vercel": "^23.1.2"
   }
 }
