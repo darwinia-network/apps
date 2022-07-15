@@ -70,11 +70,7 @@ export const isValidAddressPolkadotAddress = (address?: string) => {
   }
 };
 
-export const responseEnd = <ResponseData = null>(
-  res: VercelResponse,
-  statusCode: number,
-  body: ResponseBody<ResponseData>
-) => {
-  res.statusCode = statusCode;
+export const responseEnd = <ResponseData = null>(res: VercelResponse, body: ResponseBody<ResponseData>) => {
+  res.statusCode = 200;
   return res.end(JSON.stringify(body, null, 2)); // eslint-disable-line no-magic-numbers
 };

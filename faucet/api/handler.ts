@@ -18,7 +18,7 @@ export async function handler(req: VercelRequest, res: VercelResponse, config: C
   try {
     const { client, error } = redis();
     if (!client || error) {
-      return responseEnd<null>(res, 501, {
+      return responseEnd<null>(res, {
         code: ResponseCode.FAILED_OTHER,
         message: error?.message || 'Failed to connect redis',
         data: null,
@@ -27,7 +27,7 @@ export async function handler(req: VercelRequest, res: VercelResponse, config: C
 
     const ip = req.headers['x-forwarded-for']?.toString();
     if (!ip) {
-      return responseEnd<null>(res, 403, {
+      return responseEnd<null>(res, {
         code: ResponseCode.FAILED_OTHER,
         message: 'Failed to get ip address',
         data: null,
@@ -45,7 +45,7 @@ export async function handler(req: VercelRequest, res: VercelResponse, config: C
       const lastClaimTime = +ipRecord;
 
       if (now - lastClaimTime <= config.throttleHours * HOUR_TO_MILLISECONDS) {
-        return responseEnd<ThrottleData>(res, 429, {
+        return responseEnd<ThrottleData>(res, {
           code: ResponseCode.FAILED_THROTTLE,
           message: `You can get it every ${config.throttleHours} hours`,
           data: { lastClaimTime },
@@ -55,7 +55,7 @@ export async function handler(req: VercelRequest, res: VercelResponse, config: C
 
     const address = qs.parse(req.body).address as string;
     if (!isValidAddressPolkadotAddress(address)) {
-      return responseEnd<null>(res, 403, {
+      return responseEnd<null>(res, {
         code: ResponseCode.FAILED_PARAMS,
         message: 'Invalid address parameter',
         data: null,
@@ -63,23 +63,23 @@ export async function handler(req: VercelRequest, res: VercelResponse, config: C
     }
 
     if (!config.seed) {
-      return responseEnd<null>(res, 501, {
+      return responseEnd<null>(res, {
         code: ResponseCode.FAILED_OTHER,
         message: 'Failed to get faucet pool',
         data: null,
       });
     }
 
-    const { body, error: transferError } = await transfer(api, config.seed, address, new BN(config.transferMount));
+    const { body } = await transfer(api, config.seed, address, new BN(config.transferMount));
     if (body.code === ResponseCode.SUCCESS) {
       await client.set(ipKey, +new Date());
     }
 
-    return responseEnd(res, transferError ? 403 : 200, body);
+    return responseEnd(res, body);
   } catch (err) {
     const error = err as Error;
 
-    return responseEnd<null>(res, 501, {
+    return responseEnd<null>(res, {
       code: ResponseCode.FAILED_OTHER,
       message: error.message,
       data: null,
