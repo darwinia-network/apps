@@ -10,6 +10,7 @@ import { FormModal } from '../widget/FormModal';
 import { PrettyAmount } from '../widget/PrettyAmount';
 import { BalanceControl } from '../widget/form-control/BalanceControl';
 import { AddressItem } from '../widget/form-control/AddressItem';
+import { Faucet } from './Faucet';
 
 interface TransferFormValues {
   from: string;
@@ -27,6 +28,8 @@ export function AssetOverview({ asset, loading, refresh }: AssetOverviewProps) {
   const [recipient, setRecipient] = useState<string>(accounts[0]?.displayAddress);
   const [isVisible, setIsVisible] = useState(false);
   const [transferrable, setTransferrable] = useState<BN | null>(null);
+
+  const supportFaucet = useMemo(() => network.name === 'pangolin' || network.name === 'pangoro', [network.name]);
 
   const tokenIconSrc = useMemo(
     () => `/image/token/token-${(asset.token?.symbol || 'RING').toLowerCase()}.svg`,
@@ -63,16 +66,21 @@ export function AssetOverview({ asset, loading, refresh }: AssetOverviewProps) {
   return (
     <>
       <Card className="p-4 shadow-xxl">
-        <div className="flex gap-4 items-center">
-          <img src={tokenIconSrc} className="w-12" />
-          <div>
-            <h1 className="uppercase text-lg font-medium text-black dark:text-white">{asset.token?.symbol}</h1>
-            <Spin spinning={loading} size="small">
-              <PrettyAmount
-                amount={fromWei({ value: asset.total, unit: getUnit(Number(asset.token.decimal)) }, prettyNumber)}
-              />
-            </Spin>
+        <div className="flex justify-between items-end">
+          <div className="flex gap-4 items-center">
+            <img src={tokenIconSrc} className="w-12" />
+            <div>
+              <h1 className="uppercase text-lg font-medium text-black dark:text-white">{asset.token?.symbol}</h1>
+              <Spin spinning={loading} size="small">
+                <PrettyAmount
+                  amount={fromWei({ value: asset.total, unit: getUnit(Number(asset.token.decimal)) }, prettyNumber)}
+                />
+              </Spin>
+            </div>
           </div>
+          {supportFaucet && account ? (
+            <Faucet address={account.displayAddress} network={network.name} symbol={network.tokens.ring.symbol} />
+          ) : null}
         </div>
 
         <hr className={`my-6 opacity-20 h-0.5 bg-${network.name}`} />
