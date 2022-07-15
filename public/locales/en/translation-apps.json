@@ -299,5 +299,6 @@
   "Insufficient {{kton}} balance in stash account": "Insufficient {{kton}} balance in stash account",
   "Parachain now does not support staking": "Parachain now does not support staking",
   "Start block": "Start block",
-  "End block": "End block"
+  "End block": "End block",
+  "Faucet": "Faucet"
 }
