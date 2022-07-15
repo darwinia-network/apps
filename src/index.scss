@@ -163,10 +163,8 @@ body {
 
   .introjs-button {
     width: 100%;
-    background-clip: content-box, border-box;
-    background-image: linear-gradient(#ffffff, #ffffff), linear-gradient(315deg, #ff0050, #7000ff, #0027ff);
-    background-origin: border-box;
-    border: 1px solid transparent;
+    background: transparent;
+    border: 1px solid #ff0083;
     padding: 0;
     border-radius: 10px;
     line-height: 2rem;
@@ -175,6 +173,10 @@ body {
     font-weight: normal;
     font-size: 14px;
     color: rgba(0, 0, 0, 0.65);
+
+    &:hover {
+      opacity: 0.8;
+    }
   }
 
   .introjs-prevbutton {
