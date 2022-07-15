@@ -3,8 +3,6 @@ import { Network } from './network';
 
 export interface Facade {
   logo: string;
-  logoMinor: string;
-  logoWithText: string;
 }
 
 /* ----------------------------------------Network Theme config-------------------------------------------------- */

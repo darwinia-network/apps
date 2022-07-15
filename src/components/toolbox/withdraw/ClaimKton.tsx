@@ -32,7 +32,7 @@ export const ClaimKton = ({
   const { kton: dvmKton } = (network as DVMChainConfig).dvm;
 
   const tokenIconSrc = useMemo(
-    () => `/image/token-${(assetKton?.token.symbol || 'KTON').toLowerCase()}.svg`,
+    () => `/image/token/token-${(assetKton?.token.symbol || 'KTON').toLowerCase()}.svg`,
     [assetKton]
   );
 
