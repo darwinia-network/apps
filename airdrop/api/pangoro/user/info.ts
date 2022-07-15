@@ -1,6 +1,8 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { Octokit } from '@octokit/rest';
 
+const ident = 2;
+
 export default async function (req: VercelRequest, res: VercelResponse) {
   const user = await queryGithubAccountInfo(req);
   res.statusCode = 200;
@@ -10,7 +12,7 @@ export default async function (req: VercelRequest, res: VercelResponse) {
     message: user ? 'Ok' : 'Can not get user info, Please login',
     data: user,
   };
-  res.end(JSON.stringify(body, null, 2));
+  res.end(JSON.stringify(body, null, ident));
 }
 
 async function queryGithubAccountInfo(req: VercelRequest): Promise<UserInfo | null> {
@@ -36,10 +38,10 @@ async function queryGithubAccountInfo(req: VercelRequest): Promise<UserInfo | nu
 }
 
 interface UserInfo {
-  id: Number;
-  type: String;
-  avatar: String;
-  name: String;
+  id: number;
+  type: string;
+  avatar: string;
+  name: string;
   created_at: Date;
   updated_at: Date;
 }

@@ -2,6 +2,8 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { Octokit } from '@octokit/rest';
 
 const Redis = require('ioredis');
+const ident = 2;
+const gapSeconds = 43200000;
 
 export default async function (req: VercelRequest, res: VercelResponse) {
   res.setHeader('content-type', 'application/json');
@@ -22,7 +24,8 @@ export default async function (req: VercelRequest, res: VercelResponse) {
       err: 1,
       message: 'Authorization failed. please try login again',
     };
-    res.end(JSON.stringify(body, null, 2));
+
+    res.end(JSON.stringify(body, null, ident));
     return;
   }
 
@@ -38,7 +41,7 @@ export default async function (req: VercelRequest, res: VercelResponse) {
         state: '',
       },
     };
-    res.end(JSON.stringify(body, null, 2));
+    res.end(JSON.stringify(body, null, ident));
     return;
   }
 
@@ -49,7 +52,7 @@ export default async function (req: VercelRequest, res: VercelResponse) {
       err: 1,
       message: `Sorry, we can't find your ip address`,
     };
-    res.end(JSON.stringify(body, null, 2));
+    res.end(JSON.stringify(body, null, ident));
     return;
   }
 
@@ -57,10 +60,10 @@ export default async function (req: VercelRequest, res: VercelResponse) {
   const cacheKeyIp = `${chainName}-${user.id}-${ip}`;
 
   const recordTime = await client.get(cacheKeyIp);
-  if (recordTime != null) {
+  if (recordTime !== null) {
     const lastClaimTime = +recordTime;
     const now = +new Date();
-    if (now - lastClaimTime <= 1000 * 60 * 60 * 12) {
+    if (now - lastClaimTime <= gapSeconds) {
       res.statusCode = 429;
       const body = {
         err: 1,
@@ -70,7 +73,7 @@ export default async function (req: VercelRequest, res: VercelResponse) {
           time: lastClaimTime,
         },
       };
-      res.end(JSON.stringify(body, null, 2));
+      res.end(JSON.stringify(body, null, ident));
       return;
     }
   }
@@ -79,13 +82,15 @@ export default async function (req: VercelRequest, res: VercelResponse) {
   const body = {
     err: 0,
   };
-  res.end(JSON.stringify(body, null, 2));
+  res.end(JSON.stringify(body, null, ident));
 }
 
-let _redis: any;
+let _redis: unknown;
 
 function redis() {
-  if (_redis) return _redis;
+  if (_redis) {
+    return _redis;
+  }
   const config = require('../config/redis.json');
   config.url = process.env.REDIS_CONNECT_URL;
   _redis = new Redis(config.url);

@@ -3,7 +3,7 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 function getConfig() {
   const config = {
     defaults: {
-      origin: 'https://docs.darwinia.network',
+      origin: 'https://apps.darwinia.network',
       transport: 'querystring',
       state: true,
     },

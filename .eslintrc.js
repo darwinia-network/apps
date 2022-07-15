@@ -61,6 +61,7 @@ module.exports = {
     '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
     '@typescript-eslint/prefer-for-of': 'error',
     '@typescript-eslint/prefer-function-type': 'error',
+    '@typescript-eslint/no-var-requires': 'off',
     '@typescript-eslint/triple-slash-reference': [
       'error',
       {
@@ -93,7 +94,7 @@ module.exports = {
     complexity: [
       'error',
       {
-        max: 5,
+        max: 20,
       },
     ],
     eqeqeq: ['error', 'smart'],
