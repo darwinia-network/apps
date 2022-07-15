@@ -21,6 +21,7 @@ export interface TransferData {
 }
 
 export interface Config {
+  seed?: string;
   endpoint: string;
   throttleHours: number;
   transferMount: number;

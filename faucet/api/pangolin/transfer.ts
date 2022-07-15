@@ -63,7 +63,7 @@ export default async function (req: VercelRequest, res: VercelResponse) {
       });
     }
 
-    if (!process.env.PANGOLIN_SEED) {
+    if (!config.seed) {
       return responseEnd<null>(res, 501, {
         code: ResponseCode.FAILED_OTHER,
         message: 'Failed to get faucet pool',
@@ -71,12 +71,7 @@ export default async function (req: VercelRequest, res: VercelResponse) {
       });
     }
 
-    const { body, error: transferError } = await transfer(
-      api,
-      process.env.PANGOLIN_SEED,
-      address,
-      new BN(config.transferMount)
-    );
+    const { body, error: transferError } = await transfer(api, config.seed, address, new BN(config.transferMount));
     if (body.code === ResponseCode.SUCCESS) {
       await client.set(ipKey, +new Date());
     }
