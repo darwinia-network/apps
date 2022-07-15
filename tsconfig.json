@@ -6,6 +6,6 @@
   "include": [
     "src",
     "src/global.d.ts",
-    "airdrop"
+    "faucet"
   ]
 }

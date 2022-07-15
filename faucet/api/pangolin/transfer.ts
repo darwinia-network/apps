@@ -3,10 +3,10 @@ import { BN } from '@polkadot/util';
 import * as qs from 'qs';
 import is from 'is_js';
 
-import { redis } from '../redis';
-import { transfer } from '../../utils';
-import { endpoint, seed } from '../config/chain.json';
-import { ResponseBody, ResponseCode, ThrottleData } from '../../types';
+import { transfer } from '../utils';
+import { ResponseBody, ResponseCode, ThrottleData } from '../types';
+import { redis } from './redis';
+import { endpoint, seed } from './config/chain.json';
 
 // eslint-disable-next-line no-magic-numbers
 const THROTTLE_TIME = 1000 * 60 * 60 * 12; // 12 hours
