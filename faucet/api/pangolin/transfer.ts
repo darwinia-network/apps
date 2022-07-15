@@ -6,7 +6,7 @@ import qs from 'qs';
 
 import { transfer, isValidAddressPolkadotAddress, responseEnd } from '../utils';
 import { ResponseCode, ThrottleData } from '../types';
-import { redis } from './redis';
+import { redis } from '../redis';
 import { config } from './config';
 
 /* eslint-disable no-magic-numbers */
