@@ -1,5 +1,0 @@
-{
-  "endpoint": "wss://pangolin-rpc.darwinia.network",
-  "address": "5HEWG76dewxhvqxsgpbgVsjQPdFQtNHdbyBGcd1iNN5rweFD",
-  "seed": "{{ pangolin_seed }}"
-}

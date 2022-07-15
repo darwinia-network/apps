@@ -1,25 +1,26 @@
-import { BN } from '@polkadot/util';
+import { BN, hexToU8a, isHex } from '@polkadot/util';
+import type { u16 } from '@polkadot/types';
 import type { RuntimeVersion, AccountInfo } from '@polkadot/types/interfaces';
-import { ApiPromise, WsProvider } from '@polkadot/api';
-import { Keyring } from '@polkadot/keyring';
+import { ApiPromise } from '@polkadot/api';
+import { Keyring, decodeAddress, encodeAddress } from '@polkadot/keyring';
+import type { VercelResponse } from '@vercel/node';
 
 import { ResponseBody, ResponseCode, TransferData } from './types';
 
 export const transfer = async (
-  endpoint: string,
+  api: ApiPromise,
   seed: string,
   address: string,
   amount: BN
 ): Promise<{ body: ResponseBody<TransferData | null>; error: Error | null }> => {
+  const { specName } = api.consts.system.version as RuntimeVersion;
+
   try {
-    const keyring = new Keyring({ type: 'sr25519' });
+    const ss58Prefix = api.consts.system.ss58Prefix as u16;
+    const keyring = new Keyring({ type: 'sr25519', ss58Format: ss58Prefix.toNumber() });
     const faucetAccount = keyring.addFromUri(seed);
 
-    const provider = new WsProvider(endpoint);
-    const api = await ApiPromise.create({ provider });
-
-    const { specName } = api.consts.system.version as RuntimeVersion;
-    console.log(`[${specName}] transfer ${amount.toString()} to ${address} from ${faucetAccount.address}`);
+    console.log(`[${specName.toString()}] transfer ${amount.toString()} to ${address} from ${faucetAccount.address}`);
 
     const {
       data: { free },
@@ -44,8 +45,9 @@ export const transfer = async (
       },
       error: null,
     };
-  } catch (error) {
-    console.error(`[${endpoint}] Failed to transfer to ${address}: ${error.message}`);
+  } catch (err) {
+    const error = err as Error;
+    console.error(`[${specName.toString()}] Failed to transfer to ${address}: ${error.message}`);
 
     return {
       body: {
@@ -56,4 +58,23 @@ export const transfer = async (
       error,
     };
   }
+};
+
+export const isValidAddressPolkadotAddress = (address?: string) => {
+  try {
+    encodeAddress(isHex(address) ? hexToU8a(address) : decodeAddress(address));
+
+    return true;
+  } catch (error) {
+    return false;
+  }
+};
+
+export const responseEnd = <ResponseData = null>(
+  res: VercelResponse,
+  statusCode: number,
+  body: ResponseBody<ResponseData>
+) => {
+  res.statusCode = statusCode;
+  return res.end(JSON.stringify(body, null, 2)); // eslint-disable-line no-magic-numbers
 };
