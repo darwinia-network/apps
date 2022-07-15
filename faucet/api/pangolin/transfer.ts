@@ -10,6 +10,7 @@ import { redis } from '../redis';
 import { config } from './config';
 
 /* eslint-disable no-magic-numbers */
+const HOUR_TO_MILLISECONDS = 60 * 60 * 1000;
 
 // eslint-disable-next-line complexity
 export default async function (req: VercelRequest, res: VercelResponse) {
@@ -44,10 +45,10 @@ export default async function (req: VercelRequest, res: VercelResponse) {
       const now = +new Date();
       const lastClaimTime = +ipRecord;
 
-      if (now - lastClaimTime <= config.throttleTime) {
+      if (now - lastClaimTime <= config.throttleHours * HOUR_TO_MILLISECONDS) {
         return responseEnd<ThrottleData>(res, 429, {
           code: ResponseCode.FAILED_THROTTLE,
-          message: config.throttleMsg,
+          message: `You can get it every ${config.throttleHours} hours`,
           data: { lastClaimTime },
         });
       }

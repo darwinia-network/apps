@@ -19,3 +19,9 @@ export interface ThrottleData {
 export interface TransferData {
   txHash: string;
 }
+
+export interface Config {
+  endpoint: string;
+  throttleHours: number;
+  transferMount: number;
+}
