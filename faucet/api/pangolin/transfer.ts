@@ -17,10 +17,10 @@ export default async function (req: VercelRequest, res: VercelResponse) {
 
   try {
     const { client, error } = redis();
-    if (!client && error) {
+    if (!client || error) {
       return responseEnd<null>(res, 501, {
         code: ResponseCode.FAILED_OTHER,
-        message: error.message,
+        message: error?.message || 'Failed to connect redis',
         data: null,
       });
     }
