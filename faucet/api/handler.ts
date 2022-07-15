@@ -4,16 +4,15 @@ import type { RuntimeVersion } from '@polkadot/types/interfaces';
 import { ApiPromise, WsProvider } from '@polkadot/api';
 import qs from 'qs';
 
-import { transfer, isValidAddressPolkadotAddress, responseEnd } from '../utils';
-import { ResponseCode, ThrottleData } from '../types';
-import { redis } from '../redis';
-import { config } from './config';
+import { transfer, isValidAddressPolkadotAddress, responseEnd } from './utils';
+import { ResponseCode, ThrottleData, Config } from './types';
+import { redis } from './redis';
 
 /* eslint-disable no-magic-numbers */
 const HOUR_TO_MILLISECONDS = 60 * 60 * 1000;
 
 // eslint-disable-next-line complexity
-export default async function (req: VercelRequest, res: VercelResponse) {
+export async function handler(req: VercelRequest, res: VercelResponse, config: Config) {
   res.setHeader('content-type', 'application/json');
 
   try {
