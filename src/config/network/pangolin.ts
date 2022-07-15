@@ -24,7 +24,7 @@ export const pangolinConfig: DVMChainConfig = {
     rpcUrls: ['https://pangolin-rpc.darwinia.network/'],
   },
   facade: {
-    logo: '/image/pangolin.svg',
+    logo: '/image/network/pangolin.svg',
   },
   category: 'test',
   name: 'pangolin',

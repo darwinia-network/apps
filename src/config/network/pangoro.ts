@@ -19,7 +19,7 @@ export const pangoroConfig: DVMChainConfig = {
     rpcUrls: ['https://pangoro-rpc.darwinia.network/'],
   },
   facade: {
-    logo: '/image/pangoro.svg',
+    logo: '/image/network/pangoro.svg',
   },
   category: 'test',
   name: 'pangoro',

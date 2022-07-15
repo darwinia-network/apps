@@ -2,7 +2,7 @@ import { PolkadotChainConfig } from '../../model';
 
 export const crabParachainConfig: PolkadotChainConfig = {
   facade: {
-    logo: '/image/crab.svg',
+    logo: '/image/network/crab.svg',
   },
   category: 'parachain',
   name: 'crab-parachain',
