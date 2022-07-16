@@ -10,8 +10,6 @@ import { useAccount } from '../../hooks';
 import { SubscanLink } from '../widget/SubscanLink';
 import { Network, FaucetResponse, FaucetResponseCode, FaucetThrottleData, FaucetTransferData } from '../../model';
 
-const THROTTLE_HOURS = 12; // eslint-disable-line no-magic-numbers
-
 const Section = ({ label, children, className }: PropsWithChildren<{ label: string; className?: string }>) => (
   <div className={className}>
     <Typography.Paragraph className="font-semibold">{label}</Typography.Paragraph>
@@ -28,13 +26,19 @@ const Confirm = ({ loading, onClick = () => undefined }: { loading: boolean; onC
   );
 };
 
-const ThrottleLimit = ({ lastTime, onFinish }: { lastTime: number; onFinish: () => void }) => {
+const ThrottleLimit = ({
+  throttleData: { throttleHours, lastTime },
+  onFinish,
+}: {
+  throttleData: FaucetThrottleData;
+  onFinish: () => void;
+}) => {
   const { t } = useTranslation();
   const [timeLeft, setTimeLeft] = useState({ hrs: 0, mins: 0, secs: 0 });
 
   useEffect(() => {
     const sub$$ = timer(0, millisecondsInSecond).subscribe(() => {
-      const milliSecs = THROTTLE_HOURS * millisecondsInHour + lastTime - Date.now();
+      const milliSecs = throttleHours * millisecondsInHour + lastTime - Date.now();
 
       if (milliSecs > 0) {
         const { hours: hrs, minutes: mins, seconds: secs } = formatTimeLeft(milliSecs);
@@ -75,7 +79,7 @@ export const Faucet = ({ network, address, symbol }: { network: Network; address
   const [visible, setVisible] = useState(false);
 
   const [message, setMessage] = useState('');
-  const [lastTime, setLastTime] = useState(0);
+  const [throttle, setThrottle] = useState<FaucetThrottleData>({ lastTime: 0, throttleHours: 0 });
   const [status, setStatus] = useState<FaucetResponseCode | null>(null);
 
   const handleOpenFaucet = useCallback(() => {
@@ -91,8 +95,13 @@ export const Faucet = ({ network, address, symbol }: { network: Network; address
         });
 
         refreshAssets();
+      } else if (code === FaucetResponseCode.FAILED_EXTRINSIC) {
+        notification.warning({
+          message,
+          description: <SubscanLink network={network} txHash={(data as FaucetTransferData).txHash} />,
+        });
       } else if (code === FaucetResponseCode.FAILED_THROTTLE) {
-        setLastTime((data as FaucetThrottleData).lastClaimTime);
+        setThrottle(data as FaucetThrottleData);
       }
 
       setMessage(message);
@@ -116,7 +125,7 @@ export const Faucet = ({ network, address, symbol }: { network: Network; address
             {!status || status === FaucetResponseCode.SUCCESS ? (
               <Confirm onClick={handleOpenFaucet} loading={busy} />
             ) : status === FaucetResponseCode.FAILED_THROTTLE ? (
-              <ThrottleLimit lastTime={lastTime} onFinish={() => setStatus(null)} />
+              <ThrottleLimit throttleData={throttle} onFinish={() => setStatus(null)} />
             ) : status === FaucetResponseCode.FAILED_INSUFFICIENT ? (
               <Insufficient />
             ) : (

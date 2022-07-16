@@ -3,6 +3,7 @@ export enum FaucetResponseCode {
   FAILED_THROTTLE,
   FAILED_PARAMS,
   FAILED_INSUFFICIENT, // faucet pool is insufficient balance
+  FAILED_EXTRINSIC,
   FAILED_OTHER,
 }
 
@@ -13,7 +14,8 @@ export interface FaucetResponse<T = null> {
 }
 
 export interface FaucetThrottleData {
-  lastClaimTime: number; // timestamp
+  lastTime: number; // timestamp
+  throttleHours: number;
 }
 
 export interface FaucetTransferData {
