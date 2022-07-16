@@ -3,6 +3,7 @@ export enum ResponseCode {
   FAILED_THROTTLE,
   FAILED_PARAMS,
   FAILED_INSUFFICIENT, // faucet pool is insufficient balance
+  FAILED_EXTRINSIC,
   FAILED_OTHER,
 }
 
@@ -13,7 +14,7 @@ export interface ResponseBody<T = null> {
 }
 
 export interface ThrottleData {
-  lastClaimTime: number; // timestamp
+  lastTime: number; // milliseconds
 }
 
 export interface TransferData {

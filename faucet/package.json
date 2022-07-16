@@ -4,7 +4,9 @@
   "description": "Apps faucet project",
   "private": true,
   "author": "Darwinia <hello@darwinia.network>",
-  "dependencies": {},
+  "dependencies": {
+    "date-fns": "^2.28.0"
+  },
   "scripts": {
     "vercel": "vercel",
     "start": "vercel dev",
