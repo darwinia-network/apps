@@ -49,7 +49,7 @@ const ThrottleLimit = ({
     });
 
     return () => sub$$.unsubscribe();
-  }, [lastTime, onFinish]);
+  }, [lastTime, throttleHours, onFinish]);
 
   return (
     <>
