@@ -95,18 +95,19 @@ export const Faucet = ({ network, address, symbol }: { network: Network; address
         });
 
         refreshAssets();
+        setVisible(false);
       } else if (code === FaucetResponseCode.FAILED_EXTRINSIC) {
         notification.warning({
           message,
           description: <SubscanLink network={network} txHash={(data as FaucetTransferData).txHash} />,
         });
+        setVisible(false);
       } else if (code === FaucetResponseCode.FAILED_THROTTLE) {
         setThrottle(data as FaucetThrottleData);
       }
 
       setMessage(message);
       setStatus(code);
-      setVisible(false);
       setBusy(false);
     });
   }, [network, address, t, refreshAssets]);
