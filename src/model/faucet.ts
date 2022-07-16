@@ -14,7 +14,7 @@ export interface FaucetResponse<T = null> {
 }
 
 export interface FaucetThrottleData {
-  lastTime: number; // timestamp
+  lastTime: number; // milliseconds
   throttleHours: number;
 }
 
