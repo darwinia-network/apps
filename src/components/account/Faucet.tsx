@@ -112,6 +112,10 @@ export const Faucet = ({ network, address, symbol }: { network: Network; address
     });
   }, [network, address, t, refreshAssets]);
 
+  useEffect(() => {
+    setStatus(null); // reset status
+  }, [network, address, symbol]);
+
   return (
     <>
       <Button onClick={() => setVisible(true)} type="text" loading={busy}>
