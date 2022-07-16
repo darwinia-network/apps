@@ -43,12 +43,13 @@ export async function handler(req: VercelRequest, res: VercelResponse, config: C
     const ipRecord = await client.get(ipKey);
     if (ipRecord) {
       const lastTime = Number(ipRecord);
+      const { throttleHours } = config;
 
-      if (Date.now() - lastTime <= config.throttleHours * millisecondsInHour) {
+      if (Date.now() - lastTime <= throttleHours * millisecondsInHour) {
         return responseEnd<ThrottleData>(res, {
           code: ResponseCode.FAILED_THROTTLE,
           message: `You can get it every ${config.throttleHours} hours`,
-          data: { lastTime },
+          data: { lastTime, throttleHours },
         });
       }
     }

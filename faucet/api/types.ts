@@ -15,6 +15,7 @@ export interface ResponseBody<T = null> {
 
 export interface ThrottleData {
   lastTime: number; // milliseconds
+  throttleHours: number;
 }
 
 export interface TransferData {
