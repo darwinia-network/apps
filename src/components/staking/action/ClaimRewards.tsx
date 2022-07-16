@@ -88,7 +88,7 @@ export function ClaimRewards({
       </Tooltip>
       <SelectAccountModal
         visible={isVisible}
-        value={account?.displayAddress}
+        value={signer}
         onCancel={() => setIsVisible(false)}
         onSelect={(acc) => {
           setSigner(acc);
