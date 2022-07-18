@@ -1,4 +1,4 @@
-import { Button, Typography, Modal, Space, notification } from 'antd';
+import { Button, Typography, Modal, Space, Spin, notification } from 'antd';
 import { useCallback, useState, PropsWithChildren, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { capitalize } from 'lodash';
@@ -72,6 +72,7 @@ const Insufficient = () => {
   );
 };
 
+// eslint-disable-next-line complexity
 export const Faucet = ({ network, address, symbol }: { network: Network; address: string; symbol: string }) => {
   const { refreshAssets } = useAccount();
   const { t } = useTranslation();
@@ -140,38 +141,47 @@ export const Faucet = ({ network, address, symbol }: { network: Network; address
         title={t('Faucet')}
         visible={visible}
         footer={
-          <div className="flex flex-col items-center">
-            {!status || status === FaucetResponseCode.SUCCESS ? (
-              <Confirm onClick={handleOpenFaucet} loading={busy} />
-            ) : status === FaucetResponseCode.FAILED_THROTTLE ? (
-              <ThrottleLimit throttleData={throttle} onFinish={() => setStatus(null)} />
-            ) : status === FaucetResponseCode.FAILED_INSUFFICIENT ? (
-              <Insufficient />
-            ) : (
-              <Typography.Text className="text-red-500">{message}</Typography.Text>
-            )}
-          </div>
+          busy ? null : (
+            <div className="flex flex-col items-center">
+              {!status || status === FaucetResponseCode.SUCCESS ? (
+                <Confirm onClick={handleOpenFaucet} loading={busy} />
+              ) : status === FaucetResponseCode.FAILED_THROTTLE ? (
+                <ThrottleLimit throttleData={throttle} onFinish={() => setStatus(null)} />
+              ) : status === FaucetResponseCode.FAILED_INSUFFICIENT ? (
+                <Insufficient />
+              ) : (
+                <Typography.Text className="text-red-500">{message}</Typography.Text>
+              )}
+            </div>
+          )
         }
         width={420}
         onCancel={() => setVisible(false)}
       >
-        <Space direction="vertical">
-          <Section label={t('You will receive')}>
-            <div className="py-6 flex justify-center items-center bg-gray-100 rounded-xl">
-              <Typography.Text className="text-xl" style={{ textShadow: '0 0.2rem #D9D9D9' }}>
-                100 {symbol}
-              </Typography.Text>
-            </div>
-          </Section>
-          <Section label={t('What is faucet')} className="mt-6">
-            <Typography.Paragraph>
-              {t(
-                'This faucet sends {{symbol}} (TestToken) on {{network}} Chain to your account. You can request 100 {{symbol}} from faucet every 12h.',
-                { network: capitalize(network), symbol }
-              )}
-            </Typography.Paragraph>
-          </Section>
-        </Space>
+        {busy ? (
+          <div className="py-8 flex flex-col justify-center items-center">
+            <Spin size="large" />
+            <Typography.Paragraph className="mt-4">{t('Transaction is being processed')}</Typography.Paragraph>
+          </div>
+        ) : (
+          <Space direction="vertical">
+            <Section label={t('You will receive')}>
+              <div className="py-6 flex justify-center items-center bg-gray-100 rounded-xl">
+                <Typography.Text className="text-xl" style={{ textShadow: '0 0.2rem #D9D9D9' }}>
+                  100 {symbol}
+                </Typography.Text>
+              </div>
+            </Section>
+            <Section label={t('What is faucet')} className="mt-6">
+              <Typography.Paragraph>
+                {t(
+                  'This faucet sends {{symbol}} (TestToken) on {{network}} Chain to your account. You can request 100 {{symbol}} from faucet every 12h.',
+                  { network: capitalize(network), symbol }
+                )}
+              </Typography.Paragraph>
+            </Section>
+          </Space>
+        )}
       </Modal>
     </>
   );
