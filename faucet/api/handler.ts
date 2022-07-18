@@ -25,11 +25,11 @@ export async function handler(req: VercelRequest, res: VercelResponse, config: C
       });
     }
 
-    const ip = req.headers['x-forwarded-for']?.toString();
-    if (!ip) {
+    const transferTo = qs.parse(req.body).address as string;
+    if (!isValidAddressPolkadotAddress(transferTo)) {
       return responseEnd<null>(res, {
-        code: ResponseCode.FAILED_OTHER,
-        message: 'Failed to get ip address',
+        code: ResponseCode.FAILED_PARAMS,
+        message: 'Invalid address parameter',
         data: null,
       });
     }
@@ -38,11 +38,11 @@ export async function handler(req: VercelRequest, res: VercelResponse, config: C
     const api = await ApiPromise.create({ provider });
 
     const { specName } = api.consts.system.version as RuntimeVersion;
-    const ipKey = `${specName.toString().toLowerCase()}-${ip}`;
+    const throttleKey = `${specName.toString().toLowerCase()}-${transferTo}`;
 
-    const ipRecord = await client.get(ipKey);
-    if (ipRecord) {
-      const lastTime = Number(ipRecord);
+    const throttleRecord = await client.get(throttleKey);
+    if (throttleRecord) {
+      const lastTime = Number(throttleRecord);
       const { throttleHours } = config;
 
       if (Date.now() - lastTime <= throttleHours * millisecondsInHour) {
@@ -52,15 +52,6 @@ export async function handler(req: VercelRequest, res: VercelResponse, config: C
           data: { lastTime, throttleHours },
         });
       }
-    }
-
-    const transferTo = qs.parse(req.body).address as string;
-    if (!isValidAddressPolkadotAddress(transferTo)) {
-      return responseEnd<null>(res, {
-        code: ResponseCode.FAILED_PARAMS,
-        message: 'Invalid address parameter',
-        data: null,
-      });
     }
 
     if (!config.seed) {
@@ -106,7 +97,7 @@ export async function handler(req: VercelRequest, res: VercelResponse, config: C
                 data: { txHash },
               });
             } else if (method === 'ExtrinsicSuccess') {
-              client.set(ipKey, Date.now());
+              client.set(throttleKey, Date.now());
               return responseEnd<TransferData>(res, {
                 code: ResponseCode.SUCCESS,
                 message: 'Success',
