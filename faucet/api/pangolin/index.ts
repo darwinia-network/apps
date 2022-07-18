@@ -4,5 +4,5 @@ import { handler } from '../handler';
 import { config } from './config';
 
 export default async function (req: VercelRequest, res: VercelResponse) {
-  return handler(req, res, { ...config, seed: process.env.PANGOLIN_SEED });
+  return await handler(req, res, { ...config, seed: process.env.PANGOLIN_SEED });
 }
