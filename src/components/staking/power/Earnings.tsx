@@ -42,14 +42,14 @@ export function Earnings({ updateEraIndex }: PowerDetailProps) {
       .pipe(
         takeWhile(() => isMounted),
         switchMapTo(
-          rxPost<{ sum: string }>({
+          rxPost<{ data: { sum: string } }>({
             url: `https://${network.name}.webapi.subscan.io/api/scan/staking_history`,
             params: { page: 0, row: 10, address: stashAccount },
           })
         )
       )
       .subscribe((res) => {
-        setClaimed(fromWei({ value: res.sum }, prettyNumber));
+        setClaimed(fromWei({ value: res.data.sum }, prettyNumber));
       });
 
     return () => sub$$.unsubscribe();

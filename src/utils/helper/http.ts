@@ -2,12 +2,12 @@ import { isNull, isUndefined } from 'lodash';
 import { map, Observable } from 'rxjs';
 import { ajax } from 'rxjs/ajax';
 
-export interface RecordsQueryRequest {
+export interface HttpRequest {
   url: string;
   params: Record<string, string | number | boolean | undefined | null>;
 }
 
-export function rxGet<T>({ url, params }: RecordsQueryRequest): Observable<T | null> {
+export function rxGet<T>({ url, params }: HttpRequest): Observable<T> {
   const queryStr = Object.entries(params || {})
     .filter(([_, value]) => !isNull(value) && !isUndefined(value))
     .reduce((acc, cur) => {
@@ -19,15 +19,13 @@ export function rxGet<T>({ url, params }: RecordsQueryRequest): Observable<T | n
   return ajax({
     url: url + (queryStr ? `?${queryStr}` : ''),
     method: 'GET',
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  }).pipe(map((res) => (res.response as any).data || null));
+  }).pipe(map((res) => res.response as T));
 }
 
-export function rxPost<T>({ url, params }: RecordsQueryRequest): Observable<T> {
+export function rxPost<T>({ url, params }: HttpRequest): Observable<T> {
   return ajax({
     url,
     method: 'POST',
     body: params,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  }).pipe(map((res) => (res.response as any).data as T));
+  }).pipe(map((res) => res.response as T));
 }

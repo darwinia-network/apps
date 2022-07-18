@@ -1,6 +1,13 @@
 import { BN } from '@polkadot/util';
 import { EMPTY } from 'rxjs';
-import { addDays, fromUnixTime, getUnixTime } from 'date-fns';
+import {
+  addDays,
+  fromUnixTime,
+  getUnixTime,
+  millisecondsInHour,
+  millisecondsInMinute,
+  millisecondsInSecond,
+} from 'date-fns';
 
 // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any
 export function empty(...args: any[]) {
@@ -115,3 +122,14 @@ export const processTime = (start: number, expire: number): number => {
 
   return end <= now ? 100 : 100 - ((end - now) / (end - getUnixTime(start))) * 100;
 };
+
+/* eslint-disable no-magic-numbers */
+export const formatTimeLeft = (milliseconds: number) => {
+  const days = Math.floor(milliseconds / (millisecondsInHour * 24));
+  const hours = Math.floor((milliseconds % (millisecondsInHour * 24)) / millisecondsInHour);
+  const minutes = Math.floor((milliseconds % millisecondsInHour) / millisecondsInMinute);
+  const seconds = Math.floor((milliseconds % millisecondsInMinute) / millisecondsInSecond);
+
+  return { days, hours, minutes, seconds };
+};
+/* eslint-enable no-magic-numbers */
