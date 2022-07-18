@@ -87,28 +87,38 @@ export const Faucet = ({ network, address, symbol }: { network: Network; address
     rxPost<FaucetResponse<unknown>>({
       url: `/api/${network}`,
       params: { address },
-    }).subscribe(({ code, message, data }) => {
-      if (code === FaucetResponseCode.SUCCESS) {
-        notification.success({
-          message: t('Faucet success'),
-          description: <SubscanLink network={network} txHash={(data as FaucetTransferData).txHash} />,
-        });
+    }).subscribe({
+      next: ({ code, message, data }) => {
+        if (code === FaucetResponseCode.SUCCESS) {
+          notification.success({
+            message: t('Faucet success'),
+            description: <SubscanLink network={network} txHash={(data as FaucetTransferData).txHash} />,
+          });
 
-        refreshAssets();
-        setVisible(false);
-      } else if (code === FaucetResponseCode.FAILED_EXTRINSIC) {
-        notification.warning({
-          message,
-          description: <SubscanLink network={network} txHash={(data as FaucetTransferData).txHash} />,
-        });
-        setVisible(false);
-      } else if (code === FaucetResponseCode.FAILED_THROTTLE) {
-        setThrottle(data as FaucetThrottleData);
-      }
+          refreshAssets();
+          setVisible(false);
+        } else if (code === FaucetResponseCode.FAILED_EXTRINSIC) {
+          notification.warning({
+            message,
+            description: <SubscanLink network={network} txHash={(data as FaucetTransferData).txHash} />,
+          });
+          setVisible(false);
+        } else if (code === FaucetResponseCode.FAILED_THROTTLE) {
+          setThrottle(data as FaucetThrottleData);
+        }
 
-      setMessage(message);
-      setStatus(code);
-      setBusy(false);
+        setMessage(message);
+        setStatus(code);
+        setBusy(false);
+      },
+      error: (err) => {
+        const error = err as Error;
+        notification.error({
+          message: t('Faucet error'),
+          description: error.message,
+        });
+        setBusy(false);
+      },
     });
   }, [network, address, t, refreshAssets]);
 
