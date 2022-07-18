@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { BN } from '@polkadot/util';
-import { Keyring } from '@polkadot/keyring';
+import { Keyring, encodeAddress } from '@polkadot/keyring';
 import type { u16 } from '@polkadot/types';
 import type { RuntimeVersion, AccountInfo } from '@polkadot/types/interfaces';
 import { ApiPromise, WsProvider } from '@polkadot/api';
@@ -25,8 +25,10 @@ export async function handler(req: VercelRequest, res: VercelResponse, config: C
       });
     }
 
+    const checkAddress = req.query.address as string;
     const transferTo = qs.parse(req.body).address as string;
-    if (!isValidAddressPolkadotAddress(transferTo)) {
+
+    if (!isValidAddressPolkadotAddress(checkAddress || transferTo)) {
       return responseEnd<null>(res, {
         code: ResponseCode.FAILED_PARAMS,
         message: 'Invalid address parameter',
@@ -37,8 +39,11 @@ export async function handler(req: VercelRequest, res: VercelResponse, config: C
     const provider = new WsProvider(config.endpoint);
     const api = await ApiPromise.create({ provider });
 
+    const ss58Prefix = api.consts.system.ss58Prefix as u16;
+    const address = encodeAddress(checkAddress || transferTo, ss58Prefix.toNumber());
+
     const { specName } = api.consts.system.version as RuntimeVersion;
-    const throttleKey = `${specName.toString().toLowerCase()}-${transferTo}`;
+    const throttleKey = `${specName.toString().toLowerCase()}-${address}`;
 
     const throttleRecord = await client.get(throttleKey);
     if (throttleRecord) {
@@ -62,9 +67,7 @@ export async function handler(req: VercelRequest, res: VercelResponse, config: C
       });
     }
 
-    const ss58Prefix = api.consts.system.ss58Prefix as u16;
     const keyring = new Keyring({ type: 'sr25519', ss58Format: ss58Prefix.toNumber() });
-
     const faucetAccount = keyring.addFromUri(config.seed);
     const transferMount = new BN(config.transferMount);
 
@@ -75,6 +78,14 @@ export async function handler(req: VercelRequest, res: VercelResponse, config: C
       return responseEnd<null>(res, {
         code: ResponseCode.FAILED_INSUFFICIENT,
         message: 'Faucet pool is insufficient',
+        data: null,
+      });
+    }
+
+    if (!transferTo) {
+      return responseEnd<null>(res, {
+        code: ResponseCode.SUCCESS,
+        message: 'Success',
         data: null,
       });
     }
