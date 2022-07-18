@@ -129,7 +129,7 @@ export const Faucet = ({ network, address, symbol }: { network: Network; address
 
   useEffect(() => {
     setStatus(null); // reset status
-  }, [network, symbol]);
+  }, [network, symbol, address]);
 
   return (
     <>
