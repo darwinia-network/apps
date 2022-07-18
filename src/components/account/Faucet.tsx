@@ -5,7 +5,7 @@ import { capitalize } from 'lodash';
 import { timer } from 'rxjs';
 import { millisecondsInHour, millisecondsInSecond } from 'date-fns';
 
-import { rxPost, formatTimeLeft } from '../../utils';
+import { rxGet, rxPost, formatTimeLeft } from '../../utils';
 import { useAccount } from '../../hooks';
 import { SubscanLink } from '../widget/SubscanLink';
 import { Network, FaucetResponse, FaucetResponseCode, FaucetThrottleData, FaucetTransferData } from '../../model';
@@ -77,6 +77,7 @@ export const Faucet = ({ network, address, symbol }: { network: Network; address
   const { refreshAssets } = useAccount();
   const { t } = useTranslation();
   const [busy, setBusy] = useState(false);
+  const [loading, setLoaing] = useState(false);
   const [visible, setVisible] = useState(false);
 
   const [message, setMessage] = useState('');
@@ -128,6 +129,35 @@ export const Faucet = ({ network, address, symbol }: { network: Network; address
   }, [network, address, t, refreshAssets]);
 
   useEffect(() => {
+    setLoaing(true);
+    const sub$$ = rxGet<FaucetResponse<unknown>>({
+      url: `/api/${network}`,
+      params: { address },
+    }).subscribe({
+      next: ({ code, message, data }) => {
+        if (code === FaucetResponseCode.FAILED_THROTTLE) {
+          setThrottle(data as FaucetThrottleData);
+        }
+        setMessage(message);
+        setStatus(code);
+        setLoaing(false);
+      },
+      error: (err) => {
+        const error = err as Error;
+        notification.error({
+          message: error.message,
+        });
+        setLoaing(false);
+      },
+    });
+
+    return () => {
+      sub$$.unsubscribe();
+      setLoaing(false);
+    };
+  }, [network, address]);
+
+  useEffect(() => {
     setStatus(null); // reset status
   }, [network, symbol, address]);
 
@@ -144,7 +174,7 @@ export const Faucet = ({ network, address, symbol }: { network: Network; address
           busy ? null : (
             <div className="flex flex-col items-center">
               {!status || status === FaucetResponseCode.SUCCESS ? (
-                <Confirm onClick={handleOpenFaucet} loading={busy} />
+                <Confirm onClick={handleOpenFaucet} loading={loading || busy} />
               ) : status === FaucetResponseCode.FAILED_THROTTLE ? (
                 <ThrottleLimit throttleData={throttle} onFinish={() => setStatus(null)} />
               ) : status === FaucetResponseCode.FAILED_INSUFFICIENT ? (
