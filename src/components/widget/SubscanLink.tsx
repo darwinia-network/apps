@@ -28,6 +28,7 @@ export function SubscanLink({
   txHash,
   query,
   prefix,
+  className,
   ...other
 }: SubscanLinkProps) {
   if (address) {
@@ -36,6 +37,7 @@ export function SubscanLink({
         href={`https://${network}.subscan.io/account/${address}${query ? '?' + query : ''}`}
         target="_blank"
         copyable={copyable}
+        className={className}
       >
         {children || address}
       </Link>
@@ -46,7 +48,12 @@ export function SubscanLink({
     const { height, index } = extrinsic;
 
     return (
-      <Link href={`https://${network}.subscan.io/extrinsic/${height}-${index}`} target="_blank" {...other}>
+      <Link
+        href={`https://${network}.subscan.io/extrinsic/${height}-${index}`}
+        target="_blank"
+        className={className}
+        {...other}
+      >
         {children || `${height}-${index}`}
       </Link>
     );
@@ -54,7 +61,7 @@ export function SubscanLink({
 
   if (txHash) {
     return (
-      <Link href={`https://${network}.subscan.io/extrinsic/${txHash}`} target="_blank" {...other}>
+      <Link href={`https://${network}.subscan.io/extrinsic/${txHash}`} target="_blank" className={className} {...other}>
         {children || txHash}
       </Link>
     );
@@ -62,7 +69,7 @@ export function SubscanLink({
 
   if (block) {
     return (
-      <Link href={`https://${network}.subscan.io/block/${block}`} target="_blank" {...other}>
+      <Link href={`https://${network}.subscan.io/block/${block}`} target="_blank" className={className} {...other}>
         {prefix}
         {children || block}
       </Link>

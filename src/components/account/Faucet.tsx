@@ -92,7 +92,9 @@ export const Faucet = ({ network, address, symbol }: { network: Network; address
         if (code === FaucetResponseCode.SUCCESS) {
           notification.success({
             message: t('Faucet success'),
-            description: <SubscanLink network={network} txHash={(data as FaucetTransferData).txHash} />,
+            description: (
+              <SubscanLink network={network} txHash={(data as FaucetTransferData).txHash} className="underline" />
+            ),
           });
 
           refreshAssets();
@@ -100,7 +102,9 @@ export const Faucet = ({ network, address, symbol }: { network: Network; address
         } else if (code === FaucetResponseCode.FAILED_EXTRINSIC) {
           notification.warning({
             message,
-            description: <SubscanLink network={network} txHash={(data as FaucetTransferData).txHash} />,
+            description: (
+              <SubscanLink network={network} txHash={(data as FaucetTransferData).txHash} className="underline" />
+            ),
           });
           setVisible(false);
         } else if (code === FaucetResponseCode.FAILED_THROTTLE) {
