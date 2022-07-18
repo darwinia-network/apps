@@ -91,15 +91,15 @@ export const Faucet = ({ network, address, symbol }: { network: Network; address
       params: { address },
     }).subscribe({
       next: ({ code, message, data }) => {
-        if (code === FaucetResponseCode.SUCCESS) {
+        if (code === FaucetResponseCode.SUCCESS_TRANSFER) {
+          const { txHash, lastTime, throttleHours } = data as FaucetTransferData & FaucetThrottleData;
           notification.success({
             message: t('Faucet success'),
-            description: (
-              <SubscanLink network={network} txHash={(data as FaucetTransferData).txHash} className="underline" />
-            ),
+            description: <SubscanLink network={network} txHash={txHash} className="underline" />,
           });
 
           refreshAssets();
+          setThrottle({ lastTime, throttleHours });
           setVisible(false);
         } else if (code === FaucetResponseCode.FAILED_EXTRINSIC) {
           notification.warning({
@@ -173,9 +173,9 @@ export const Faucet = ({ network, address, symbol }: { network: Network; address
         footer={
           busy ? null : (
             <div className="flex flex-col items-center">
-              {!status || status === FaucetResponseCode.SUCCESS ? (
+              {!status || status === FaucetResponseCode.SUCCESS_PRECHECK ? (
                 <Confirm onClick={handleOpenFaucet} loading={loading || busy} />
-              ) : status === FaucetResponseCode.FAILED_THROTTLE ? (
+              ) : status === FaucetResponseCode.FAILED_THROTTLE || status === FaucetResponseCode.SUCCESS_TRANSFER ? (
                 <ThrottleLimit throttleData={throttle} onFinish={() => setStatus(null)} />
               ) : status === FaucetResponseCode.FAILED_INSUFFICIENT ? (
                 <Insufficient />

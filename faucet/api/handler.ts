@@ -84,7 +84,7 @@ export async function handler(req: VercelRequest, res: VercelResponse, config: C
 
     if (!transferTo) {
       return responseEnd<null>(res, {
-        code: ResponseCode.SUCCESS,
+        code: ResponseCode.SUCCESS_PRECHECK,
         message: 'Success',
         data: null,
       });
@@ -108,11 +108,14 @@ export async function handler(req: VercelRequest, res: VercelResponse, config: C
                 data: { txHash },
               });
             } else if (method === 'ExtrinsicSuccess') {
-              client.set(throttleKey, Date.now());
-              return responseEnd<TransferData>(res, {
-                code: ResponseCode.SUCCESS,
+              const lastTime = Date.now();
+              const { throttleHours } = config;
+
+              client.set(throttleKey, lastTime);
+              return responseEnd<TransferData & ThrottleData>(res, {
+                code: ResponseCode.SUCCESS_TRANSFER,
                 message: 'Success',
-                data: { txHash },
+                data: { txHash, lastTime, throttleHours },
               });
             }
           });
