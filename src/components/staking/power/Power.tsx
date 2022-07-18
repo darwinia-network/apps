@@ -3,7 +3,7 @@ import { Card, Col, Row, Tooltip } from 'antd';
 import { BN } from '@polkadot/util';
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useAccount, usePower, useStaking } from '../../../hooks';
+import { useAccount, usePower, useStaking, useApi } from '../../../hooks';
 import { assetToPower, prettyNumber } from '../../../utils';
 import { IdentAccountAddress } from '../../widget/account/IdentAccountAddress';
 import { AssetOverview } from '../AssetOverview';
@@ -12,6 +12,7 @@ import { Earnings } from './Earnings';
 import { Nominating } from './Nominating';
 
 export function Power() {
+  const { network } = useApi();
   const { t } = useTranslation();
   const [eraSelectionIndex, setEraSelectionIndex] = useState(0);
   const { account, assets, assetsLoading, refreshAssets } = useAccount();
@@ -49,12 +50,7 @@ export function Power() {
       {/* eslint-disable-next-line no-magic-numbers */}
       <Row gutter={[32, 32]} className="mt-8">
         <Col lg={8} span={24}>
-          <div
-            className="relative rounded-xl bg-white shadow-xxl h-full"
-            style={{
-              background: 'linear-gradient(-45deg, #fe3876 0%, #7c30dd 71%, #3a30dd 100%)',
-            }}
-          >
+          <div className={`relative rounded-xl shadow-xxl h-full bg-${network.name}`}>
             <div className="flex justify-between items-center p-6">
               <div className="text-white font-bold pl-4">
                 <h2 className="text-white text-lg font-bold mb-4">{t('Power')}</h2>
