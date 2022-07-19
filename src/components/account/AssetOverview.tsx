@@ -5,9 +5,9 @@ import { useTranslation } from 'react-i18next';
 import { from, Subscription } from 'rxjs';
 import { useApi, useWallet, useAccount } from '../../hooks';
 import { AssetOverviewProps, DarwiniaAsset } from '../../model';
-import { fromWei, getUnit, insufficientBalanceRule, isRing, prettyNumber, toWei, isValidAddress } from '../../utils';
+import { fromWei, getUnit, insufficientBalanceRule, isRing, toWei, isValidAddress } from '../../utils';
 import { FormModal } from '../widget/FormModal';
-import { PrettyAmount } from '../widget/PrettyAmount';
+import { TooltipBalance } from '../widget/TooltipBalance';
 import { BalanceControl } from '../widget/form-control/BalanceControl';
 import { AddressItem } from '../widget/form-control/AddressItem';
 import { Faucet } from './Faucet';
@@ -72,9 +72,7 @@ export function AssetOverview({ asset, loading, refresh }: AssetOverviewProps) {
             <div>
               <h1 className="uppercase text-lg font-medium text-black dark:text-white">{asset.token?.symbol}</h1>
               <Spin spinning={loading} size="small">
-                <PrettyAmount
-                  amount={fromWei({ value: asset.total, unit: getUnit(Number(asset.token.decimal)) }, prettyNumber)}
-                />
+                <TooltipBalance value={asset.total} precision={Number(asset.token.decimal)} />
               </Spin>
             </div>
           </div>
@@ -89,10 +87,7 @@ export function AssetOverview({ asset, loading, refresh }: AssetOverviewProps) {
           <div className="inline-flex items-center">
             <span className="opacity-60 font-normal text-base">{t('Available')}:</span>
             <Spin spinning={loading} size="small">
-              <PrettyAmount
-                amount={fromWei({ value: asset.max, unit: getUnit(Number(asset.token.decimal)) }, prettyNumber)}
-                integerClassName="ml-2"
-              />
+              <TooltipBalance value={asset.max} precision={Number(asset.token.decimal)} className="ml-2" />
             </Spin>
           </div>
 

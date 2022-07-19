@@ -2,18 +2,20 @@ import { QuestionCircleFilled } from '@ant-design/icons';
 import { Skeleton, Tooltip, Spin } from 'antd';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
+import type { BN } from '@polkadot/util';
+import type { Balance } from '@polkadot/types/interfaces';
 import { useStaking } from '../../hooks';
 import { AssetOverviewProps } from '../../model';
-import { fromWei, isRing, prettyNumber, getLedger } from '../../utils';
-import { PrettyAmount } from '../widget/PrettyAmount';
+import { isRing, getLedger } from '../../utils';
+import { TooltipBalance } from '../widget/TooltipBalance';
 
-function Description({ title, value }: { title: string; value: string }) {
+function Description({ title, value }: { title: string; value: Balance | BN | string | number | null | undefined }) {
   return (
     <div className="inline-flex dark:text-gray-700">
       <span className="opacity-60" style={{ minWidth: '100px' }}>
         {title}
       </span>
-      <PrettyAmount amount={value} integerClassName="ml-4 text-sm font-semibold" decimalClassName="text-sm" />
+      <TooltipBalance value={value} integerClassName="ml-4 text-sm font-semibold" decimalClassName="text-sm" />
     </div>
   );
 }
@@ -44,14 +46,12 @@ export function AssetOverview({ asset, loading }: AssetOverviewProps) {
         </div>
 
         <Spin className="flex flex-col col-span-2 justify-between" spinning={loading}>
-          <Description title={t('Available')} value={fromWei({ value: asset.max }, prettyNumber)} />
-          <Description title={t('Bonded')} value={fromWei({ value: ledger.bonded }, prettyNumber)} />
-          <Description title={t('Unbonded')} value={fromWei({ value: ledger.unbonded }, prettyNumber)} />
-          {isRing(asset.asset) && (
-            <Description title={t('Locked')} value={fromWei({ value: ledger.locked }, prettyNumber)} />
-          )}
-          <Description title={t('Unbonding')} value={fromWei({ value: ledger.unbonding }, prettyNumber)} />
-          <Description title={t('Total')} value={fromWei({ value: asset.total }, prettyNumber)} />
+          <Description title={t('Available')} value={asset.max} />
+          <Description title={t('Bonded')} value={ledger.bonded} />
+          <Description title={t('Unbonded')} value={ledger.unbonded} />
+          {isRing(asset.asset) && <Description title={t('Locked')} value={ledger.locked} />}
+          <Description title={t('Unbonding')} value={ledger.unbonding} />
+          <Description title={t('Total')} value={asset.total} />
         </Spin>
       </div>
       <Tooltip

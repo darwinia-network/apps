@@ -23,8 +23,6 @@ import {
 import { useApi, usePollIntervalQuery } from '../../hooks';
 import {
   getFeeMarketModule,
-  prettyNumber,
-  fromWei,
   getSegmentedDateByType,
   transformOverviewStatistics,
   transformFeeMarketFeeHistort,
@@ -40,7 +38,7 @@ import {
   FeeMarketFeeAndOderHistoryData,
   FeeMarketFeeAndOrderHistortState,
 } from '../../model';
-import { PrettyAmount } from '../../components/widget/PrettyAmount';
+import { TooltipBalance } from '../../components/widget/TooltipBalance';
 import { Segmented } from '../widget/fee-market';
 
 echarts.use([GridComponent, TooltipComponent, BarChart, LineChart, SVGRenderer, UniversalTransition]);
@@ -274,7 +272,7 @@ export const Overview = ({ destination }: { destination: CrossChainDestination }
             title={t('Current Message Fee')}
             value={
               <Spin size="small" spinning={currentFee.loading}>
-                <PrettyAmount amount={fromWei({ value: currentFee.value }, prettyNumber)} />
+                <TooltipBalance value={currentFee.value} precision={Number(network.tokens.ring.decimal)} />
                 <span> {network.tokens.ring.symbol}</span>
               </Spin>
             }
@@ -284,7 +282,10 @@ export const Overview = ({ destination }: { destination: CrossChainDestination }
             title={t('Total Rewards')}
             value={
               <Spin size="small" spinning={feemarketLoading}>
-                <PrettyAmount amount={fromWei({ value: overviewStatisticsState?.totalRewards }, prettyNumber)} />
+                <TooltipBalance
+                  value={overviewStatisticsState?.totalRewards}
+                  precision={Number(network.tokens.ring.decimal)}
+                />
                 <span> {network.tokens.ring.symbol}</span>
               </Spin>
             }
