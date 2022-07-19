@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { BN } from '@polkadot/util';
-import { Keyring } from '@polkadot/keyring';
+import { Keyring, encodeAddress } from '@polkadot/keyring';
 import type { u16 } from '@polkadot/types';
 import type { RuntimeVersion, AccountInfo } from '@polkadot/types/interfaces';
 import { ApiPromise, WsProvider } from '@polkadot/api';
@@ -25,11 +25,13 @@ export async function handler(req: VercelRequest, res: VercelResponse, config: C
       });
     }
 
-    const ip = req.headers['x-forwarded-for']?.toString();
-    if (!ip) {
+    const checkAddress = req.query.address as string;
+    const transferTo = qs.parse(req.body).address as string;
+
+    if (!isValidAddressPolkadotAddress(checkAddress || transferTo)) {
       return responseEnd<null>(res, {
-        code: ResponseCode.FAILED_OTHER,
-        message: 'Failed to get ip address',
+        code: ResponseCode.FAILED_PARAMS,
+        message: 'Invalid address parameter',
         data: null,
       });
     }
@@ -37,12 +39,15 @@ export async function handler(req: VercelRequest, res: VercelResponse, config: C
     const provider = new WsProvider(config.endpoint);
     const api = await ApiPromise.create({ provider });
 
-    const { specName } = api.consts.system.version as RuntimeVersion;
-    const ipKey = `${specName.toString().toLowerCase()}-${ip}`;
+    const ss58Prefix = api.consts.system.ss58Prefix as u16;
+    const address = encodeAddress(checkAddress || transferTo, ss58Prefix.toNumber());
 
-    const ipRecord = await client.get(ipKey);
-    if (ipRecord) {
-      const lastTime = Number(ipRecord);
+    const { specName } = api.consts.system.version as RuntimeVersion;
+    const throttleKey = `${specName.toString().toLowerCase()}-${address}`;
+
+    const throttleRecord = await client.get(throttleKey);
+    if (throttleRecord) {
+      const lastTime = Number(throttleRecord);
       const { throttleHours } = config;
 
       if (Date.now() - lastTime <= throttleHours * millisecondsInHour) {
@@ -54,15 +59,6 @@ export async function handler(req: VercelRequest, res: VercelResponse, config: C
       }
     }
 
-    const transferTo = qs.parse(req.body).address as string;
-    if (!isValidAddressPolkadotAddress(transferTo)) {
-      return responseEnd<null>(res, {
-        code: ResponseCode.FAILED_PARAMS,
-        message: 'Invalid address parameter',
-        data: null,
-      });
-    }
-
     if (!config.seed) {
       return responseEnd<null>(res, {
         code: ResponseCode.FAILED_OTHER,
@@ -71,9 +67,7 @@ export async function handler(req: VercelRequest, res: VercelResponse, config: C
       });
     }
 
-    const ss58Prefix = api.consts.system.ss58Prefix as u16;
     const keyring = new Keyring({ type: 'sr25519', ss58Format: ss58Prefix.toNumber() });
-
     const faucetAccount = keyring.addFromUri(config.seed);
     const transferMount = new BN(config.transferMount);
 
@@ -84,6 +78,14 @@ export async function handler(req: VercelRequest, res: VercelResponse, config: C
       return responseEnd<null>(res, {
         code: ResponseCode.FAILED_INSUFFICIENT,
         message: 'Faucet pool is insufficient',
+        data: null,
+      });
+    }
+
+    if (!transferTo) {
+      return responseEnd<null>(res, {
+        code: ResponseCode.SUCCESS_PRECHECK,
+        message: 'Success',
         data: null,
       });
     }
@@ -106,11 +108,14 @@ export async function handler(req: VercelRequest, res: VercelResponse, config: C
                 data: { txHash },
               });
             } else if (method === 'ExtrinsicSuccess') {
-              client.set(ipKey, Date.now());
-              return responseEnd<TransferData>(res, {
-                code: ResponseCode.SUCCESS,
+              const lastTime = Date.now();
+              const { throttleHours } = config;
+
+              client.set(throttleKey, lastTime);
+              return responseEnd<TransferData & ThrottleData>(res, {
+                code: ResponseCode.SUCCESS_TRANSFER,
                 message: 'Success',
-                data: { txHash },
+                data: { txHash, lastTime, throttleHours },
               });
             }
           });

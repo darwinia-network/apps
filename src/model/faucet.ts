@@ -1,5 +1,6 @@
 export enum FaucetResponseCode {
-  SUCCESS = 1000, // eslint-disable-line no-magic-numbers
+  SUCCESS_TRANSFER = 1000, // eslint-disable-line no-magic-numbers
+  SUCCESS_PRECHECK,
   FAILED_THROTTLE,
   FAILED_PARAMS,
   FAILED_INSUFFICIENT, // faucet pool is insufficient balance

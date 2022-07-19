@@ -1,11 +1,11 @@
-import { Button, Typography, Modal, Space, notification } from 'antd';
+import { Button, Typography, Modal, Space, Spin, notification } from 'antd';
 import { useCallback, useState, PropsWithChildren, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { capitalize } from 'lodash';
 import { timer } from 'rxjs';
 import { millisecondsInHour, millisecondsInSecond } from 'date-fns';
 
-import { rxPost, formatTimeLeft } from '../../utils';
+import { rxGet, rxPost, formatTimeLeft } from '../../utils';
 import { useAccount } from '../../hooks';
 import { SubscanLink } from '../widget/SubscanLink';
 import { Network, FaucetResponse, FaucetResponseCode, FaucetThrottleData, FaucetTransferData } from '../../model';
@@ -72,10 +72,12 @@ const Insufficient = () => {
   );
 };
 
+// eslint-disable-next-line complexity
 export const Faucet = ({ network, address, symbol }: { network: Network; address: string; symbol: string }) => {
   const { refreshAssets } = useAccount();
   const { t } = useTranslation();
   const [busy, setBusy] = useState(false);
+  const [loading, setLoaing] = useState(false);
   const [visible, setVisible] = useState(false);
 
   const [message, setMessage] = useState('');
@@ -87,34 +89,77 @@ export const Faucet = ({ network, address, symbol }: { network: Network; address
     rxPost<FaucetResponse<unknown>>({
       url: `/api/${network}`,
       params: { address },
-    }).subscribe(({ code, message, data }) => {
-      if (code === FaucetResponseCode.SUCCESS) {
-        notification.success({
-          message: t('Faucet success'),
-          description: <SubscanLink network={network} txHash={(data as FaucetTransferData).txHash} />,
-        });
+    }).subscribe({
+      next: ({ code, message, data }) => {
+        if (code === FaucetResponseCode.SUCCESS_TRANSFER) {
+          const { txHash, lastTime, throttleHours } = data as FaucetTransferData & FaucetThrottleData;
+          notification.success({
+            message: t('Faucet success'),
+            description: <SubscanLink network={network} txHash={txHash} className="underline" />,
+          });
 
-        refreshAssets();
-        setVisible(false);
-      } else if (code === FaucetResponseCode.FAILED_EXTRINSIC) {
-        notification.warning({
-          message,
-          description: <SubscanLink network={network} txHash={(data as FaucetTransferData).txHash} />,
-        });
-        setVisible(false);
-      } else if (code === FaucetResponseCode.FAILED_THROTTLE) {
-        setThrottle(data as FaucetThrottleData);
-      }
+          refreshAssets();
+          setThrottle({ lastTime, throttleHours });
+          setVisible(false);
+        } else if (code === FaucetResponseCode.FAILED_EXTRINSIC) {
+          notification.warning({
+            message,
+            description: (
+              <SubscanLink network={network} txHash={(data as FaucetTransferData).txHash} className="underline" />
+            ),
+          });
+          setVisible(false);
+        } else if (code === FaucetResponseCode.FAILED_THROTTLE) {
+          setThrottle(data as FaucetThrottleData);
+        }
 
-      setMessage(message);
-      setStatus(code);
-      setBusy(false);
+        setMessage(message);
+        setStatus(code);
+        setBusy(false);
+      },
+      error: (err) => {
+        const error = err as Error;
+        notification.error({
+          message: t('Faucet error'),
+          description: error.message,
+        });
+        setBusy(false);
+      },
     });
   }, [network, address, t, refreshAssets]);
 
   useEffect(() => {
+    setLoaing(true);
+    const sub$$ = rxGet<FaucetResponse<unknown>>({
+      url: `/api/${network}`,
+      params: { address },
+    }).subscribe({
+      next: ({ code, message, data }) => {
+        if (code === FaucetResponseCode.FAILED_THROTTLE) {
+          setThrottle(data as FaucetThrottleData);
+        }
+        setMessage(message);
+        setStatus(code);
+        setLoaing(false);
+      },
+      error: (err) => {
+        const error = err as Error;
+        notification.error({
+          message: error.message,
+        });
+        setLoaing(false);
+      },
+    });
+
+    return () => {
+      sub$$.unsubscribe();
+      setLoaing(false);
+    };
+  }, [network, address]);
+
+  useEffect(() => {
     setStatus(null); // reset status
-  }, [network, symbol]);
+  }, [network, symbol, address]);
 
   return (
     <>
@@ -126,38 +171,47 @@ export const Faucet = ({ network, address, symbol }: { network: Network; address
         title={t('Faucet')}
         visible={visible}
         footer={
-          <div className="flex flex-col items-center">
-            {!status || status === FaucetResponseCode.SUCCESS ? (
-              <Confirm onClick={handleOpenFaucet} loading={busy} />
-            ) : status === FaucetResponseCode.FAILED_THROTTLE ? (
-              <ThrottleLimit throttleData={throttle} onFinish={() => setStatus(null)} />
-            ) : status === FaucetResponseCode.FAILED_INSUFFICIENT ? (
-              <Insufficient />
-            ) : (
-              <Typography.Text className="text-red-500">{message}</Typography.Text>
-            )}
-          </div>
+          busy ? null : (
+            <div className="flex flex-col items-center">
+              {!status || status === FaucetResponseCode.SUCCESS_PRECHECK ? (
+                <Confirm onClick={handleOpenFaucet} loading={loading || busy} />
+              ) : status === FaucetResponseCode.FAILED_THROTTLE || status === FaucetResponseCode.SUCCESS_TRANSFER ? (
+                <ThrottleLimit throttleData={throttle} onFinish={() => setStatus(null)} />
+              ) : status === FaucetResponseCode.FAILED_INSUFFICIENT ? (
+                <Insufficient />
+              ) : (
+                <Typography.Text className="text-red-500">{message}</Typography.Text>
+              )}
+            </div>
+          )
         }
         width={420}
         onCancel={() => setVisible(false)}
       >
-        <Space direction="vertical">
-          <Section label={t('You will receive')}>
-            <div className="py-6 flex justify-center items-center bg-gray-100 rounded-xl">
-              <Typography.Text className="text-xl" style={{ textShadow: '0 0.2rem #D9D9D9' }}>
-                100 {symbol}
-              </Typography.Text>
-            </div>
-          </Section>
-          <Section label={t('What is faucet')} className="mt-6">
-            <Typography.Paragraph>
-              {t(
-                'This faucet sends {{symbol}} (TestToken) on {{network}} Chain to your account. You can request 100 {{symbol}} from faucet every 12h.',
-                { network: capitalize(network), symbol }
-              )}
-            </Typography.Paragraph>
-          </Section>
-        </Space>
+        {busy ? (
+          <div className="py-8 flex flex-col justify-center items-center">
+            <Spin size="large" />
+            <Typography.Paragraph className="mt-4">{t('Transaction is being processed')}</Typography.Paragraph>
+          </div>
+        ) : (
+          <Space direction="vertical">
+            <Section label={t('You will receive')}>
+              <div className="py-6 flex justify-center items-center bg-gray-100 rounded-xl">
+                <Typography.Text className="text-xl" style={{ textShadow: '0 0.2rem #D9D9D9' }}>
+                  100 {symbol}
+                </Typography.Text>
+              </div>
+            </Section>
+            <Section label={t('What is faucet')} className="mt-6">
+              <Typography.Paragraph>
+                {t(
+                  'This faucet sends {{symbol}} (TestToken) on {{network}} Chain to your account. You can request 100 {{symbol}} from faucet every 12h.',
+                  { network: capitalize(network), symbol }
+                )}
+              </Typography.Paragraph>
+            </Section>
+          </Space>
+        )}
       </Modal>
     </>
   );

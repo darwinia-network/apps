@@ -29,7 +29,10 @@ export function AssetOverview({ asset, loading, refresh }: AssetOverviewProps) {
   const [isVisible, setIsVisible] = useState(false);
   const [transferrable, setTransferrable] = useState<BN | null>(null);
 
-  const supportFaucet = useMemo(() => network.name === 'pangolin' || network.name === 'pangoro', [network.name]);
+  const supportFaucet = useMemo(
+    () => asset.asset === DarwiniaAsset.ring && (network.name === 'pangolin' || network.name === 'pangoro'),
+    [asset.asset, network.name]
+  );
 
   const tokenIconSrc = useMemo(
     () => `/image/token/token-${(asset.token?.symbol || 'RING').toLowerCase()}.svg`,
