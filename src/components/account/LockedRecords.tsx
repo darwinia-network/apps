@@ -7,7 +7,7 @@ import { useTranslation } from 'react-i18next';
 import type { ColumnsType } from 'antd/lib/table';
 
 import { DarwiniaAsset } from 'src/model';
-import { useApi, useQueue, useStaking, useAssets } from '../../hooks';
+import { useApi, useQueue, useStaking, useAssets, useAccount } from '../../hooks';
 import { DATE_FORMAT, THIRTY_DAYS_IN_MILLISECOND } from '../../config';
 import { fromWei, prettyNumber, computeKtonReward, processTime } from '../../utils';
 import type { DarwiniaStakingStructsTimeDepositItem, TsInMs } from '../../api-derive/types';
@@ -50,6 +50,7 @@ export const LockedRecords = ({
   loading: boolean;
 }) => {
   const { api, network } = useApi();
+  const { refreshAssets } = useAccount();
   const { queueExtrinsic } = useQueue();
   const { controllerAccount, stashAccount, updateStakingDerive } = useStaking();
   const { assets: stashAssets } = useAssets(stashAccount);
@@ -63,11 +64,12 @@ export const LockedRecords = ({
         signAddress: controllerAccount,
         extrinsic,
         txSuccessCb: () => {
+          refreshAssets();
           updateStakingDerive();
         },
       });
     },
-    [api, controllerAccount, queueExtrinsic, updateStakingDerive]
+    [api, controllerAccount, queueExtrinsic, refreshAssets, updateStakingDerive]
   );
 
   useEffect(() => {
