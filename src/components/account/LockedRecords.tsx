@@ -1,16 +1,15 @@
 import { Table, Progress, Button, Modal } from 'antd';
 import { format } from 'date-fns';
 import { useState, useCallback, useEffect } from 'react';
-import { BN } from '@polkadot/util';
+import { BN, bnToBn } from '@polkadot/util';
 import type { Balance } from '@polkadot/types/interfaces';
 import { useTranslation } from 'react-i18next';
-import BigNumber from 'bignumber.js';
 import type { ColumnsType } from 'antd/lib/table';
 
 import { DarwiniaAsset } from 'src/model';
-import { useApi, useQueue, useStaking, useAssets } from '../../hooks';
+import { useApi, useQueue, useStaking, useAssets, useAccount } from '../../hooks';
 import { DATE_FORMAT, THIRTY_DAYS_IN_MILLISECOND } from '../../config';
-import { fromWei, prettyNumber, ringToKton, processTime, toWei } from '../../utils';
+import { fromWei, prettyNumber, computeKtonReward, processTime } from '../../utils';
 import type { DarwiniaStakingStructsTimeDepositItem, TsInMs } from '../../api-derive/types';
 
 enum LockStatus {
@@ -21,7 +20,7 @@ enum LockStatus {
 interface DataSourceState {
   index: number;
   value: Balance;
-  reward: string;
+  reward: BN;
   duration: {
     startTime: TsInMs;
     expireTime: TsInMs;
@@ -29,20 +28,18 @@ interface DataSourceState {
   status: LockStatus;
 }
 
-const calcFine = (record: DataSourceState): string => {
+// https://github.com/darwinia-network/darwinia-common/blob/main/frame/staking/src/lib.rs#L1548-L1553
+const computeKtonPenalty = (record: DataSourceState): BN => {
   const {
     value,
     duration: { startTime, expireTime },
   } = record;
 
-  const month = expireTime.sub(startTime.toBn()).div(new BN(THIRTY_DAYS_IN_MILLISECOND)).toNumber();
+  const planMonths = expireTime.sub(startTime.toBn()).div(bnToBn(THIRTY_DAYS_IN_MILLISECOND)).toNumber();
+  const passMonths = bnToBn(Date.now()).sub(startTime).div(bnToBn(THIRTY_DAYS_IN_MILLISECOND)).toNumber();
 
-  const rewardOrigin = new BigNumber(ringToKton(value.toString(), month));
-  const rewardMonth = Math.floor((new Date().getTime() - startTime.toNumber()) / THIRTY_DAYS_IN_MILLISECOND);
-  const rewardActual = new BigNumber(ringToKton(value.toString(), rewardMonth));
-  const times = 3;
-
-  return fromWei({ value: rewardOrigin.minus(rewardActual).multipliedBy(times).toString() });
+  // eslint-disable-next-line no-magic-numbers
+  return computeKtonReward(value, planMonths).sub(computeKtonReward(value, passMonths)).muln(3);
 };
 
 export const LockedRecords = ({
@@ -53,6 +50,7 @@ export const LockedRecords = ({
   loading: boolean;
 }) => {
   const { api, network } = useApi();
+  const { refreshAssets } = useAccount();
   const { queueExtrinsic } = useQueue();
   const { controllerAccount, stashAccount, updateStakingDerive } = useStaking();
   const { assets: stashAssets } = useAssets(stashAccount);
@@ -66,11 +64,12 @@ export const LockedRecords = ({
         signAddress: controllerAccount,
         extrinsic,
         txSuccessCb: () => {
+          refreshAssets();
           updateStakingDerive();
         },
       });
     },
-    [api, controllerAccount, queueExtrinsic, updateStakingDerive]
+    [api, controllerAccount, queueExtrinsic, refreshAssets, updateStakingDerive]
   );
 
   useEffect(() => {
@@ -78,7 +77,7 @@ export const LockedRecords = ({
       locks.map((lock, index) => {
         const { value, startTime, expireTime } = lock;
 
-        const month = expireTime
+        const months = expireTime
           .unwrap()
           .sub(startTime.unwrap().toBn())
           // eslint-disable-next-line no-magic-numbers
@@ -88,7 +87,7 @@ export const LockedRecords = ({
         return {
           index,
           value: value.unwrap(),
-          reward: ringToKton(value.unwrap().toString(), month),
+          reward: computeKtonReward(value.unwrap(), months),
           duration: {
             startTime: lock.startTime.unwrap(),
             expireTime: lock.expireTime.unwrap(),
@@ -163,10 +162,10 @@ export const LockedRecords = ({
           {value === LockStatus.LOCKING ? (
             <Button
               onClick={() => {
-                const penalty = calcFine(record);
+                const penalty = computeKtonPenalty(record);
                 const isInsufficient = new BN(
                   stashAssets.find((asset) => asset.asset === DarwiniaAsset.kton)?.max || '0'
-                ).lt(new BN(toWei({ value: penalty })));
+                ).lt(penalty);
 
                 Modal.confirm({
                   title: t('Confirm to continue'),
@@ -180,7 +179,7 @@ export const LockedRecords = ({
                         )}
                       </p>
                       <p className="mt-2 font-bold">
-                        {t('Total Fines')}: {penalty}
+                        {t('Total Penalty')}: {fromWei({ value: penalty })}
                       </p>
                       {isInsufficient ? (
                         <span className="text-red-400 text-xs">

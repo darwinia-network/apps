@@ -1,4 +1,5 @@
-import BigNumber from 'bignumber.js';
+import { BN, bnToBn } from '@polkadot/util';
+import type { Balance } from '@polkadot/types/interfaces';
 import { Fund } from '../../model';
 import { getUnit, toWei } from '../helper';
 import { DeriveStakingAccount } from '../../api-derive/types';
@@ -12,17 +13,19 @@ export function fundParam(data: Fund) {
   };
 }
 
-export function ringToKton(value: string | number, month: number): string {
-  return (
-    new BigNumber(value)
-      // eslint-disable-next-line no-magic-numbers
-      .times(new BigNumber(67 / 66).pow(month).minus(1))
-      // eslint-disable-next-line no-magic-numbers
-      .div(new BigNumber(1970))
-      .integerValue()
-      .toString()
-  );
-}
+// https://github.com/darwinia-network/darwinia-common/blob/main/frame/staking/src/inflation.rs#L129
+/* eslint-disable no-magic-numbers */
+export const computeKtonReward = (amount: Balance | BN | string | number, months: number): BN => {
+  const value = bnToBn(amount);
+  const n = bnToBn(67).pow(bnToBn(months));
+  const d = bnToBn(66).pow(bnToBn(months));
+  const quot = n.div(d);
+  const rem = n.mod(d);
+  const precision = bnToBn(1000);
+
+  return precision.mul(quot.subn(1)).add(precision.mul(rem).div(d)).mul(value).div(bnToBn(1970000));
+};
+/* eslint-enable no-magic-numbers */
 
 export function getLedger(symbol: string, empty: boolean, derive: DeriveStakingAccount | null) {
   if (empty || !derive) {

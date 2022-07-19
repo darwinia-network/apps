@@ -6,8 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { useApi, useAssets, useWallet } from '../../../hooks';
 import { EllipsisMiddle } from '../EllipsisMiddle';
 import { Account } from '../../../model';
-import { PrettyAmount } from '../PrettyAmount';
-import { fromWei, prettyNumber, getUnit } from '../../../utils';
+import { TooltipBalance } from '../TooltipBalance';
 import { AccountName } from './AccountName';
 
 type Props = {
@@ -41,9 +40,7 @@ const AccountWithIdentify = ({ value }: { value: Account }) => {
               assets.map((item, index) => (
                 <React.Fragment key={item.token.symbol}>
                   {index > 0 && <span className="inline-flex justify-center w-3">|</span>}
-                  <PrettyAmount
-                    amount={fromWei({ value: item.total, unit: getUnit(Number(item.token.decimal)) }, prettyNumber)}
-                  />
+                  <TooltipBalance value={item.total} precision={Number(item.token.decimal)} />
                   <span>{item.token.symbol}</span>
                 </React.Fragment>
               ))
