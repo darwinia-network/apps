@@ -16,7 +16,7 @@ export const darwiniaConfig: DVMChainConfig = {
       decimals: 18,
       symbol: 'RING',
     },
-    rpcUrls: ['https://darwinia-rpc.darwinia.network/'],
+    rpcUrls: ['https://rpc.darwinia.network/'],
   },
   facade: {
     logo: '/image/network/darwinia.svg',
