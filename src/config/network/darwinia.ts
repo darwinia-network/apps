@@ -11,7 +11,7 @@ export const darwiniaConfig: DVMChainConfig = {
   ethereumChain: {
     blockExplorerUrls: ['https://darwinia.subscan.io/'],
     chainId: '46',
-    chainName: 'darwinia',
+    chainName: 'Darwinia Smart Chain',
     nativeCurrency: {
       decimals: 18,
       symbol: 'RING',
