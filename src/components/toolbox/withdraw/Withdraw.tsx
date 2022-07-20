@@ -216,7 +216,7 @@ export function Withdraw() {
           {activeAccount && (
             <div className="flex" style={{ width: '36rem' }}>
               <div className={`bg-${network.name} flex items-center space-x-1 p-1 my-px pr-10 rounded-l-lg`}>
-                <img alt="..." src={`/image/${network.name}-1.svg`} className="w-7 h-7" />
+                <img alt="..." src={`/image/network/${network.name}-dark.svg`} className="w-7 h-7" />
                 <div className="text-white capitalize">{network.name}</div>
                 <div className="text-white">Smart</div>
               </div>

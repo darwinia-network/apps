@@ -16,7 +16,7 @@ export const pangolinConfig: DVMChainConfig = {
   ethereumChain: {
     blockExplorerUrls: ['https://pangolin.subscan.io/'],
     chainId: '43',
-    chainName: 'pangolin',
+    chainName: 'Pangolin Smart Chain',
     nativeCurrency: {
       decimals: 18,
       symbol: 'PRING',

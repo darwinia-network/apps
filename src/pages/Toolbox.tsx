@@ -1,28 +1,28 @@
 import { Form, Input, Tabs, Typography } from 'antd';
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 import { useTranslation, Trans } from 'react-i18next';
 import web3 from 'web3';
 import { Withdraw } from '../components/toolbox/withdraw';
 import { Deposits } from '../components/toolbox/deposits/';
 import { Label } from '../components/widget/form-control/Label';
 import { useApi } from '../hooks';
+import { DVMChainConfig } from '../model';
 import { MetamaskProvider } from '../providers/metamask';
 import { convertToSS58, dvmAddressToAccountId } from '../utils';
 
 export function Toolbox() {
   const { t } = useTranslation();
-  const {
-    network: { ss58Prefix, name },
-  } = useApi();
+  const { network } = useApi();
   const [address, setAddress] = useState('');
-  const displayDvm = useMemo(() => name === 'crab' || name === 'pangolin' || name === 'pangoro', [name]);
+
+  const { ss58Prefix, name, dvm: supportDvm } = network as DVMChainConfig;
 
   return (
     <MetamaskProvider>
       <Tabs
         className={`lg:px-8 px-4 w-full mx-auto dark:shadow-none dark:border-transparent pb-5 page-account-tabs page-account-tabs-${name}`}
       >
-        {displayDvm && (
+        {supportDvm && (
           <Tabs.TabPane tab={t('DVM Address')} key="address">
             <Form layout="vertical" className="max-w-xl">
               <Form.Item
@@ -80,7 +80,7 @@ export function Toolbox() {
           </Tabs.TabPane>
         )}
 
-        {displayDvm && (
+        {supportDvm && (
           <Tabs.TabPane tab={t('DVM Withdraw')} key="withdraw">
             <Withdraw />
           </Tabs.TabPane>

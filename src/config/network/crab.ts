@@ -16,7 +16,7 @@ export const crabConfig: DVMChainConfig = {
   ethereumChain: {
     blockExplorerUrls: ['https://crab.subscan.io/'],
     chainId: '44',
-    chainName: 'crab',
+    chainName: 'Crab Smart Chain',
     nativeCurrency: {
       decimals: 18,
       symbol: 'CRAB',

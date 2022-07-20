@@ -11,7 +11,7 @@ export const pangoroConfig: DVMChainConfig = {
   ethereumChain: {
     blockExplorerUrls: ['https://pangoro.subscan.io/'],
     chainId: '45',
-    chainName: 'pangoro',
+    chainName: 'Pangoro Smart Chain',
     nativeCurrency: {
       decimals: 18,
       symbol: 'ORING',
