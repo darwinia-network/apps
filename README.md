@@ -1,7 +1,5 @@
 # Darwinia Apps
 
-[![Commitizen friendly](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg)](http://commitizen.github.io/cz-cli/)
-
 ## Local Dev
 
 1. `git clone https://github.com/darwinia-network/apps.git`
