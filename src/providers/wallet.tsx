@@ -104,7 +104,7 @@ export const WalletProvider = ({ children }: PropsWithChildren<unknown>) => {
 
     const sub$$ = walletToUse.accounts.subscribe((accs) => {
       const extension = accs
-        .filter((acc) => !acc.genesisHash || acc.genesisHash === apiGenesisHash)
+        .filter((acc) => (!acc.genesisHash || acc.genesisHash === apiGenesisHash) && isValidAddress(acc.address))
         .map((acc) => {
           const { address, genesisHash, name, type } = acc;
 
