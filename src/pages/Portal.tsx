@@ -92,14 +92,6 @@ export function Portal() {
         link: 'https://www.evolution.land/',
       },
       {
-        name: 'Smart App',
-        logo: '/image/portal/darwinia.png',
-        description: t(
-          'Projects in the Ethereum ecosystem can be easily migrated to the Darwinia network through Smart App.'
-        ),
-        link: 'https://smart.darwinia.network/',
-      },
-      {
         name: 'Subview',
         logo: '/image/portal/subview.png',
         description: t('A block explorer and analytics platform for Crab Smart Chain.'),
