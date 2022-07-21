@@ -33,9 +33,26 @@
   color: rgba(0, 0, 0, 0.85) !important;
 }
 
+.ant-modal-close:focus {
+  outline: none;
+}
+
 .ant-modal-close-x {
   color: #595959;
   font-weight: bold;
+  transition: transform 0.3s;
+
+  &:hover {
+    transform: scale(1.2);
+  }
+
+  &:active {
+    transform: scale(1);
+  }
+
+  &:focus-visible {
+    outline: none;
+  }
 }
 
 /* checkbox */
