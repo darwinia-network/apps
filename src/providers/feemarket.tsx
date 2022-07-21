@@ -4,8 +4,7 @@ import { CrossChainDestination, PolkadotTypeNetwork, SearchParamsKey } from '../
 import { useApi } from '../hooks';
 
 const networksDestinations: Record<PolkadotTypeNetwork, CrossChainDestination[]> = {
-  crab: [],
-  // crab: ['Darwinia', 'CrabParachain'],
+  crab: ['Darwinia', 'CrabParachain'],
   darwinia: [],
   pangolin: ['PangolinParachain', 'Pangoro'],
   pangoro: [],
