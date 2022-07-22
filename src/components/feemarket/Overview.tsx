@@ -307,7 +307,7 @@ export const Overview = ({ destination }: { destination: CrossChainDestination }
             <h3 className="font-medium text-base text-black opacity-80">{t('Total Orders')}</h3>
             <Segmented onSelect={setOrderSegmentedType} value={orderSegmentedType} />
           </div>
-          <Spin spinning={orderHistoryLoading} className="border border-blue-400">
+          <Spin spinning={orderHistoryLoading}>
             <div ref={totalOrdersRef} className="h-96 w-full" />
           </Spin>
         </Card>
