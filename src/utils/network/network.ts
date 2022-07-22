@@ -15,6 +15,16 @@ export const AIRPORT_NETWORKS: ChainConfig[] = NETWORK_CONFIGURATIONS.filter((it
   ['ethereum', 'crab', 'tron'].includes(item.name)
 ).map((item) => omit(item, 'dvm'));
 
+export const getNetworkByRpc = (rpc: string | null | undefined): ChainConfig | null => {
+  if (rpc) {
+    return NETWORK_CONFIGURATIONS.find((item) => item.provider.rpc === decodeURIComponent(rpc)) ?? null;
+  }
+
+  console.warn('🚀 Can not find target network config by rpc: ', rpc);
+
+  return null;
+};
+
 export function getNetworkByName(name: Network | null | undefined): ChainConfig | null {
   if (name) {
     return NETWORK_CONFIGURATIONS.find((item) => item.name === name) ?? null;

@@ -56,7 +56,7 @@ export const getActiveNav = (path: string) => {
 // eslint-disable-next-line complexity
 export function SideNav({ collapsed, theme, toggle, children }: PropsWithChildren<SideNavProps>) {
   const { t } = useTranslation();
-  const { network, setNetwork } = useApi();
+  const { network, connectNetwork } = useApi();
   const { bestNumber } = useBestNumber();
   const location = useLocation();
   const selectedNavMenu = useMemo<string[]>(() => {
@@ -114,7 +114,7 @@ export function SideNav({ collapsed, theme, toggle, children }: PropsWithChildre
           onSelect={(value: Network) => {
             const config = getNetworkByName(value)!;
 
-            setNetwork(config);
+            connectNetwork(config);
             toggleTheme(theme, value);
           }}
           className={`w-full ${network.name}-${theme}-select`}
