@@ -14,9 +14,11 @@ const labels: Record<CrossChainDestination, string> = {
 };
 
 export const CrossChainDestinationSelector = ({
+  defaultValue,
   destinations,
   onSelect,
 }: {
+  defaultValue?: CrossChainDestination | null;
   destinations: CrossChainDestination[];
   onSelect: (destination: CrossChainDestination) => void;
 }) => {
@@ -26,6 +28,11 @@ export const CrossChainDestinationSelector = ({
   const options = destinations.map((item) => ({ label: labels[item], value: item }));
 
   return !!matchPath && destinations.length ? (
-    <Select options={options} onSelect={onSelect} defaultValue={destinations[0]} style={{ minWidth: '10rem' }} />
+    <Select
+      options={options}
+      onSelect={onSelect}
+      defaultValue={defaultValue || destinations[0]}
+      style={{ minWidth: '10rem' }}
+    />
   ) : null;
 };
