@@ -39,9 +39,9 @@ export const FeeMarketProvider = ({ children }: PropsWithChildren<unknown>) => {
 
   const setDestination = useCallback(
     (d: CrossChainDestination) => {
-      const searchParamsReplace = new URLSearchParams(window.location.search);
-      searchParamsReplace.set(SearchParamsKey.DESTINATION, d);
-      navigate(`?${searchParamsReplace.toString()}`);
+      const searchParams = new URLSearchParams(window.location.search);
+      searchParams.set(SearchParamsKey.DESTINATION, d);
+      navigate(`?${searchParams.toString()}`);
 
       _setDestination(d);
     },

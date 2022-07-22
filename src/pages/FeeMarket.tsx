@@ -36,12 +36,12 @@ export function FeeMarket() {
       <Tabs
         activeKey={activeKey}
         onChange={(key) => {
-          const searchParamsReplace = new URLSearchParams();
-          searchParamsReplace.set(SearchParamsKey.RPC, encodeURIComponent(network.provider.rpc));
-          searchParamsReplace.set(SearchParamsKey.DESTINATION, destination);
-          searchParamsReplace.set(SearchParamsKey.TAB, key);
+          const searchParams = new URLSearchParams();
+          searchParams.set(SearchParamsKey.RPC, encodeURIComponent(network.provider.rpc));
+          searchParams.set(SearchParamsKey.DESTINATION, destination);
+          searchParams.set(SearchParamsKey.TAB, key);
 
-          navigate(`${Path.feemarket}?${searchParamsReplace.toString()}`);
+          navigate(`${Path.feemarket}?${searchParams.toString()}`);
           setActiveKey(key as FeeMarketTab);
         }}
         className={`lg:px-8 px-4 w-full mx-auto dark:shadow-none dark:border-transparent pb-5 page-account-tabs page-account-tabs-${network.name}`}
