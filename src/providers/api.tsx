@@ -156,7 +156,7 @@ export const ApiProvider = ({ children }: React.PropsWithChildren<unknown>) => {
     (config: ChainConfig) => {
       setNetwork(config);
 
-      const searchParams = new URLSearchParams(window.location.search);
+      const searchParams = new URLSearchParams();
       searchParams.set(SearchParamsKey.RPC, encodeURIComponent(config.provider.rpc));
       searchParams.delete('network');
       navigate(`${window.location.pathname}?${searchParams.toString()}`);
