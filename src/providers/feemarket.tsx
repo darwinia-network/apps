@@ -1,4 +1,4 @@
-import { createContext, PropsWithChildren, useEffect, useMemo, useState } from 'react';
+import { createContext, PropsWithChildren, useCallback, useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { CrossChainDestination, PolkadotTypeNetwork, SearchParamsKey } from '../model';
 import { useApi } from '../hooks';
@@ -33,18 +33,23 @@ export const FeeMarketProvider = ({ children }: PropsWithChildren<unknown>) => {
     () => networksDestinations[network.name as PolkadotTypeNetwork] || [],
     [network.name]
   );
-  const [destination, setDestination] = useState<CrossChainDestination>(
+  const [destination, _setDestination] = useState<CrossChainDestination>(
     supportedDestinations.find((item) => item === dest) ?? supportedDestinations[0]
   );
 
-  useEffect(() => {
-    const searchParamsReplace = new URLSearchParams(window.location.search);
-    searchParamsReplace.set(SearchParamsKey.DESTINATION, destination);
-    navigate(`?${searchParamsReplace.toString()}`);
-  }, [destination, navigate]);
+  const setDestination = useCallback(
+    (d: CrossChainDestination) => {
+      const searchParamsReplace = new URLSearchParams(window.location.search);
+      searchParamsReplace.set(SearchParamsKey.DESTINATION, d);
+      navigate(`?${searchParamsReplace.toString()}`);
+
+      _setDestination(d);
+    },
+    [navigate]
+  );
 
   useEffect(() => {
-    setDestination(supportedDestinations[0]);
+    _setDestination(supportedDestinations[0]);
   }, [supportedDestinations]);
 
   return (
