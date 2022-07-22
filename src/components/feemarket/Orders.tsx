@@ -157,9 +157,10 @@ export const Orders = ({ destination }: { destination: CrossChainDestination }) 
       align: 'center',
       render: (value) => {
         const searchParams = new URLSearchParams();
+        searchParams.set(SearchParamsKey.RPC, encodeURIComponent(network.provider.rpc));
+        searchParams.set(SearchParamsKey.DESTINATION, destination);
         searchParams.set(SearchParamsKey.TAB, FeeMarketTab.OREDERS);
         searchParams.set(SearchParamsKey.ORDER, value);
-        searchParams.set(SearchParamsKey.DESTINATION, destination);
         return <NavLink to={`?${searchParams.toString()}`}>{value}</NavLink>;
       },
     },
