@@ -37,9 +37,9 @@ export function FeeMarket() {
         activeKey={activeKey}
         onChange={(key) => {
           const searchParamsReplace = new URLSearchParams();
-          searchParamsReplace.set(SearchParamsKey.TAB, key);
-          searchParamsReplace.set(SearchParamsKey.DESTINATION, destination);
           searchParamsReplace.set(SearchParamsKey.RPC, encodeURIComponent(network.provider.rpc));
+          searchParamsReplace.set(SearchParamsKey.DESTINATION, destination);
+          searchParamsReplace.set(SearchParamsKey.TAB, key);
 
           navigate(`${Path.feemarket}?${searchParamsReplace.toString()}`);
           setActiveKey(key as FeeMarketTab);
