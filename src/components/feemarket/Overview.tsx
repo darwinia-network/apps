@@ -301,23 +301,23 @@ export const Overview = ({ destination }: { destination: CrossChainDestination }
           />
         </div>
       </Card>
-      <div className="flex items-center justify-between mt-8">
-        <Card className="shadow-xxl" style={{ width: '49.5%' }}>
+      <div className="flex items-center justify-between space-x-4 mt-8">
+        <Card className="shadow-xxl flex-1">
           <div className="flex items-center justify-between">
             <h3 className="font-medium text-base text-black opacity-80">{t('Total Orders')}</h3>
             <Segmented onSelect={setOrderSegmentedType} value={orderSegmentedType} />
           </div>
-          <Spin spinning={orderHistoryLoading}>
-            <div ref={totalOrdersRef} className="h-96 w-11/12" />
+          <Spin spinning={orderHistoryLoading} className="border border-blue-400">
+            <div ref={totalOrdersRef} className="h-96 w-full" />
           </Spin>
         </Card>
-        <Card className="shadow-xxl" style={{ width: '49.5%' }}>
+        <Card className="shadow-xxl flex-1">
           <div className="flex items-center justify-between">
             <h3 className="font-medium text-base text-black opacity-80">{t('Fee History')}</h3>
             <Segmented onSelect={setFeeSegmentedType} value={feeSgmentedType} />
           </div>
           <Spin spinning={feeHistoryLoading}>
-            <div ref={feeHistoryRef} className="h-96 w-11/12" />
+            <div ref={feeHistoryRef} className="h-96 w-full" />
           </Spin>
         </Card>
       </div>
