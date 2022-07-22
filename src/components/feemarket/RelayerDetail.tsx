@@ -138,9 +138,10 @@ export const RelayerDetail = ({
       align: 'center',
       render: (value) => {
         const searchParams = new URLSearchParams();
+        searchParams.set(SearchParamsKey.RPC, encodeURIComponent(network.provider.rpc));
+        searchParams.set(SearchParamsKey.DESTINATION, destination);
         searchParams.set(SearchParamsKey.TAB, FeeMarketTab.OREDERS);
         searchParams.set(SearchParamsKey.ORDER, value);
-        searchParams.set(SearchParamsKey.DESTINATION, destination || '');
         return (
           <Link to={`${Path.feemarket}?${searchParams.toString()}`} target="_blank">
             {value}
