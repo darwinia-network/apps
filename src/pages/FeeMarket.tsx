@@ -36,7 +36,12 @@ export function FeeMarket() {
       <Tabs
         activeKey={activeKey}
         onChange={(key) => {
-          navigate(Path.feemarket);
+          const searchParamsReplace = new URLSearchParams();
+          searchParamsReplace.set(SearchParamsKey.TAB, key);
+          searchParamsReplace.set(SearchParamsKey.DESTINATION, destination);
+          searchParamsReplace.set(SearchParamsKey.RPC, encodeURIComponent(network.provider.rpc));
+
+          navigate(`${Path.feemarket}?${searchParamsReplace.toString()}`);
           setActiveKey(key as FeeMarketTab);
         }}
         className={`lg:px-8 px-4 w-full mx-auto dark:shadow-none dark:border-transparent pb-5 page-account-tabs page-account-tabs-${network.name}`}

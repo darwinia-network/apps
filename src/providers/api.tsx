@@ -19,6 +19,7 @@ import {
   ConnectionStatus,
   PolkadotChainConfig,
   PolkadotConnection,
+  SearchParamsKey,
 } from '../model';
 import {
   convertToSS58,
@@ -49,7 +50,7 @@ const extractTokens = ({ tokenDecimals, tokenSymbol }: ChainProperties) =>
 
 const getInitNetwork = () => {
   const searchParams = new URLSearchParams(window.location.search);
-  const rpc = searchParams.get('rpc');
+  const rpc = searchParams.get(SearchParamsKey.RPC);
   const name = searchParams.get('network');
   return (getNetworkByRpc(rpc) ??
     getNetworkByName(name as Network) ??
@@ -156,7 +157,7 @@ export const ApiProvider = ({ children }: React.PropsWithChildren<unknown>) => {
       setNetwork(config);
 
       const searchParams = new URLSearchParams(window.location.search);
-      searchParams.set('rpc', encodeURIComponent(config.provider.rpc));
+      searchParams.set(SearchParamsKey.RPC, encodeURIComponent(config.provider.rpc));
       searchParams.delete('network');
       navigate(`${window.location.pathname}?${searchParams.toString()}`);
     },
