@@ -3,8 +3,8 @@
   "version": "2.1.6",
   "private": true,
   "scripts": {
-    "start": "cross-env CHOKIDAR_USEPOLLING=1 PORT=3006 craco start",
-    "start:dev": "cross-env PORT=3006 REACT_APP_HOST_TYPE=dev craco start",
+    "start": "cross-env BROWSER=none CHOKIDAR_USEPOLLING=1 PORT=3006 craco start",
+    "start:dev": "cross-env BROWSER=none PORT=3006 REACT_APP_HOST_TYPE=dev craco start",
     "build": "cross-env CI=false GENERATE_SOURCEMAP=false craco --max_old_space_size=4096 build",
     "build:dev": "cross-env CI=false REACT_APP_HOST_TYPE=dev craco --max_old_space_size=4096 build",
     "stylelint": "stylelint \"src/**/*.scss\" --config stylelint.config.js",
