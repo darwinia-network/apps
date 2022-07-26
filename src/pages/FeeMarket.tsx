@@ -10,7 +10,6 @@ import { Orders } from '../components/feemarket/Orders';
 import { OrderDetail } from '../components/feemarket/OrderDetail';
 import { useApi, useFeeMarket } from '../hooks';
 import { FeeMarketTab, SearchParamsKey } from '../model';
-import { Path } from '../config/routes';
 import { GraphqlProvider } from '../providers';
 import { CustomTab } from '../components/widget/CustomTab';
 
@@ -18,7 +17,7 @@ import { CustomTab } from '../components/widget/CustomTab';
 export function FeeMarket() {
   const { network } = useApi();
   const { supportedDestinations, destination } = useFeeMarket();
-  const { search } = useLocation();
+  const { search, pathname } = useLocation();
   const navigate = useNavigate();
   const { t } = useTranslation();
 
@@ -36,7 +35,12 @@ export function FeeMarket() {
       <Tabs
         activeKey={activeKey}
         onChange={(key) => {
-          navigate(Path.feemarket);
+          const searchParams = new URLSearchParams();
+          searchParams.set(SearchParamsKey.RPC, encodeURIComponent(network.provider.rpc));
+          searchParams.set(SearchParamsKey.DESTINATION, destination);
+          searchParams.set(SearchParamsKey.TAB, key);
+
+          navigate(`${pathname}?${searchParams.toString()}`);
           setActiveKey(key as FeeMarketTab);
         }}
         className={`lg:px-8 px-4 w-full mx-auto dark:shadow-none dark:border-transparent pb-5 page-account-tabs page-account-tabs-${network.name}`}

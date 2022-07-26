@@ -3,7 +3,7 @@ import { Menu, Select } from 'antd';
 import { PropsWithChildren, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useLocation } from 'react-router-dom';
-import { Network, PolkadotChainConfig } from '../..//model';
+import { Network, PolkadotChainConfig, SearchParamsKey } from '../..//model';
 import { THEME } from '../../config';
 import { Path, routes } from '../../config/routes';
 import { useApi, useBestNumber } from '../../hooks';
@@ -35,7 +35,7 @@ const NETWORKS_PARACHAIN = NETWORK_CONFIGURATIONS.filter((item) => item.category
 
 const navigators: Nav[] = [
   { label: 'Account', path: Path.account, Icon: AccountIcon },
-  { label: 'Staking', path: Path.staking + '?active=power', Icon: StakingIcon },
+  { label: 'Staking', path: Path.staking, Icon: StakingIcon },
   { label: 'Toolbox', path: Path.toolbox, Icon: ToolboxIcon },
   { label: 'Darwinia Portal', path: Path.portal, Icon: DarwiniaIcon },
   { label: 'Account Migration', path: Path.migration, Icon: UsersIcon, className: 'migration' },
@@ -56,7 +56,7 @@ export const getActiveNav = (path: string) => {
 // eslint-disable-next-line complexity
 export function SideNav({ collapsed, theme, toggle, children }: PropsWithChildren<SideNavProps>) {
   const { t } = useTranslation();
-  const { network, setNetwork } = useApi();
+  const { network, connectNetwork } = useApi();
   const { bestNumber } = useBestNumber();
   const location = useLocation();
   const selectedNavMenu = useMemo<string[]>(() => {
@@ -104,6 +104,9 @@ export function SideNav({ collapsed, theme, toggle, children }: PropsWithChildre
     );
   }, [collapsed, t]);
 
+  const searchParams = new URLSearchParams();
+  searchParams.set(SearchParamsKey.RPC, encodeURIComponent(network.provider.rpc));
+
   return (
     <div className="h-screen max-h-screen flex flex-col items-stretch relative">
       <div className="p-4">
@@ -114,7 +117,7 @@ export function SideNav({ collapsed, theme, toggle, children }: PropsWithChildre
           onSelect={(value: Network) => {
             const config = getNetworkByName(value)!;
 
-            setNetwork(config);
+            connectNetwork(config);
             toggleTheme(theme, value);
           }}
           className={`w-full ${network.name}-${theme}-select`}
@@ -133,7 +136,7 @@ export function SideNav({ collapsed, theme, toggle, children }: PropsWithChildre
         {navigators.map(({ Icon, path, label, className }) => (
           <Menu.Item icon={<Icon />} key={path} className={className}>
             <Link
-              to={path}
+              to={`${path}?${searchParams.toString()}`}
               className={`${collapsed ? 'text-white' : ''} ${
                 path === selectedNavMenu[0] ? 'font-semibold' : 'font-normal'
               }`}

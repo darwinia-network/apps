@@ -2,6 +2,7 @@ import { ApiPromise } from '@polkadot/api';
 import { Alert } from 'antd';
 import { createContext, useCallback, useEffect, useMemo, useReducer, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import { EMPTY, Subscription, from } from 'rxjs';
 import keyring from '@polkadot/ui-keyring';
 import type { u32 } from '@polkadot/types-codec';
@@ -18,8 +19,16 @@ import {
   ConnectionStatus,
   PolkadotChainConfig,
   PolkadotConnection,
+  SearchParamsKey,
 } from '../model';
-import { convertToSS58, getPolkadotConnection, readStorage, updateStorage, getNetworkByName } from '../utils';
+import {
+  convertToSS58,
+  getPolkadotConnection,
+  readStorage,
+  updateStorage,
+  getNetworkByRpc,
+  getNetworkByName,
+} from '../utils';
 
 interface StoreState {
   connection: Connection;
@@ -40,8 +49,13 @@ const extractTokens = ({ tokenDecimals, tokenSymbol }: ChainProperties) =>
     : [];
 
 const getInitNetwork = () => {
-  const name = new URL(window.location.href).searchParams.get('network');
-  return (getNetworkByName(name as Network) ?? readStorage().activeNetwork ?? crabConfig) as PolkadotChainConfig;
+  const searchParams = new URLSearchParams(window.location.search);
+  const rpc = searchParams.get(SearchParamsKey.RPC);
+  const name = searchParams.get('network');
+  return (getNetworkByRpc(rpc) ??
+    getNetworkByName(name as Network) ??
+    readStorage().activeNetwork ??
+    crabConfig) as PolkadotChainConfig;
 };
 
 const initialConnection: Connection = {
@@ -94,7 +108,6 @@ export type ApiCtx = StoreState & {
   chain: Chain;
   connectNetwork: (network: ChainConfig) => void;
   disconnect: () => void;
-  setNetwork: (network: ChainConfig) => void;
   setApi: (api: ApiPromise) => void;
 };
 
@@ -103,6 +116,7 @@ export const ApiContext = createContext<ApiCtx | null>(null);
 let subscription: Subscription = EMPTY.subscribe();
 
 export const ApiProvider = ({ children }: React.PropsWithChildren<unknown>) => {
+  const navigate = useNavigate();
   const { t } = useTranslation();
   const [state, dispatch] = useReducer(accountReducer, initialState, (initValue) => {
     updateStorage({ activeNetwork: initValue.network });
@@ -140,12 +154,14 @@ export const ApiProvider = ({ children }: React.PropsWithChildren<unknown>) => {
 
   const connectNetwork = useCallback(
     (config: ChainConfig) => {
-      subscription.unsubscribe();
-
       setNetwork(config);
-      subscription = getPolkadotConnection(config).subscribe(observer);
+
+      const searchParams = new URLSearchParams();
+      searchParams.set(SearchParamsKey.RPC, encodeURIComponent(config.provider.rpc));
+      searchParams.delete('network');
+      navigate(`${window.location.pathname}?${searchParams.toString()}`);
     },
-    [observer, setNetwork]
+    [navigate, setNetwork]
   );
 
   // eslint-disable-next-line complexity
@@ -167,7 +183,7 @@ export const ApiProvider = ({ children }: React.PropsWithChildren<unknown>) => {
       console.info('[Api provider] Cancel network subscription of network', state.network?.name);
       subscription.unsubscribe();
     };
-  }, [observer, setConnection, state.network]);
+  }, [observer, state.network, setConnection]);
 
   useEffect(() => {
     if (!api) {
@@ -211,7 +227,6 @@ export const ApiProvider = ({ children }: React.PropsWithChildren<unknown>) => {
         ...state,
         connectNetwork,
         disconnect,
-        setNetwork,
         setApi,
         api,
         chain,

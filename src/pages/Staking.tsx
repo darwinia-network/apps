@@ -1,12 +1,13 @@
 import { Tabs, Empty } from 'antd';
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { StakingOverview } from '../components/staking/overview/StakingOverview';
 import { Power } from '../components/staking/power/Power';
 import { Targets } from '../components/staking/targets/Targets';
 import { Waiting } from '../components/staking/waiting/Waiting';
 import { useApi, useStaking } from '../hooks';
+import { SearchParamsKey } from '../model';
 import { CustomTab } from '../components/widget/CustomTab';
 
 type TypeTabKeys = 'power' | 'overview' | 'targets' | 'waiting';
@@ -16,16 +17,20 @@ export function Staking() {
   const { network } = useApi();
   const { isSupportedStaking } = useStaking();
   const { search, pathname } = useLocation();
+  const navigate = useNavigate();
   const query = useMemo(() => new URLSearchParams(search), [search]);
-  const [activeKey, setActiveKey] = useState<TypeTabKeys>((query.get('active') as TypeTabKeys) || 'power');
+  const [activeKey, setActiveKey] = useState<TypeTabKeys>((query.get(SearchParamsKey.TAB) as TypeTabKeys) || 'power');
 
   return isSupportedStaking ? (
     <Tabs
       activeKey={activeKey}
-      onChange={(active) => {
-        const url = pathname + '?active=' + active;
-        history.pushState({ url }, '', url);
-        setActiveKey(active as TypeTabKeys);
+      onChange={(key) => {
+        const searchParams = new URLSearchParams();
+        searchParams.set(SearchParamsKey.RPC, encodeURIComponent(network.provider.rpc));
+        searchParams.set(SearchParamsKey.TAB, key);
+
+        navigate(`${pathname}?${searchParams.toString()}`);
+        setActiveKey(key as TypeTabKeys);
       }}
       className={`lg:px-8 px-4 w-full mx-auto dark:shadow-none dark:border-transparent pb-5 page-account-tabs page-account-tabs-${network.name}`}
     >

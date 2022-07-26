@@ -20,6 +20,7 @@ export interface IModalProps<T = unknown> {
 }
 
 export enum SearchParamsKey {
+  RPC = 'rpc',
   TAB = 'tab',
   ORDER = 'order',
   RELAYER = 'relayer',

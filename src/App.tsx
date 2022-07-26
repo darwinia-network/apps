@@ -117,7 +117,7 @@ function IntroGuide() {
 function App() {
   const { t } = useTranslation();
   const { network } = useApi();
-  const { supportedDestinations, setDestination } = useFeeMarket();
+  const { supportedDestinations, setDestination, destination } = useFeeMarket();
   const [theme] = useState<THEME>(readStorage().theme ?? THEME.LIGHT);
   const location = useLocation();
   const [collapsed, setCollapsed] = useState(false);
@@ -157,7 +157,11 @@ function App() {
                 >
                   {t(activeNav.length ? activeNav[0].label : '')}
                 </h2>
-                <CrossChainDestinationSelector destinations={supportedDestinations} onSelect={setDestination} />
+                <CrossChainDestinationSelector
+                  destinations={supportedDestinations}
+                  defaultValue={destination}
+                  onSelect={setDestination}
+                />
               </div>
             </div>
 
