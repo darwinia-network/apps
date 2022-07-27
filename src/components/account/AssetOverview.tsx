@@ -19,6 +19,7 @@ interface TransferFormValues {
   [key: string]: unknown;
 }
 
+// eslint-disable-next-line complexity
 export function AssetOverview({ asset, loading, refresh }: AssetOverviewProps) {
   const { network, api } = useApi();
   const { accounts } = useWallet();
@@ -142,7 +143,23 @@ export function AssetOverview({ asset, loading, refresh }: AssetOverviewProps) {
           disabled
         ></AddressItem>
 
-        <AddressItem name="to" label={'Receiver'} extra={null} />
+        <AddressItem
+          name="to"
+          label={'Receiver'}
+          extra={
+            <div className="inline-flex items-center ml-4 mt-2 text-xs space-x-1">
+              <span className="text-yellow-500">
+                {network.name === 'darwinia' || network.name === 'crab-parachain'
+                  ? t('do not transfer {{token}} to a Ledger account or an Exchange controlled address', {
+                      token: network.tokens.ring.symbol,
+                    })
+                  : t('do not transfer {{token}} to a Ledger account', {
+                      token: network.tokens.ring.symbol,
+                    })}
+              </span>
+            </div>
+          }
+        />
 
         <Form.Item
           name="amount"

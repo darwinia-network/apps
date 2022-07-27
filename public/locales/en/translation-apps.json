@@ -299,5 +299,7 @@
   "Parachain now does not support staking": "Parachain now does not support staking",
   "Start block": "Start block",
   "End block": "End block",
-  "Faucet": "Faucet"
+  "Faucet": "Faucet",
+  "do not transfer {{token}} to a Ledger account": "do not transfer {{token}} to a Ledger account",
+  "do not transfer {{token}} to a Ledger account or an Exchange controlled address": "do not transfer {{token}} to a Ledger account or an Exchange controlled address"
 }
