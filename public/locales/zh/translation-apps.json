@@ -262,7 +262,7 @@
   "Sum(slash)": "累计罚金",
   "Order ID": "订单号",
   "Nonce": "订单号",
-  "Start Block": "开始区块",
+  "Created block": "创建区块",
   "Start Time": "开始时间",
   "Confirm Block": "结束区块",
   "Confirm Time": "结束时间",

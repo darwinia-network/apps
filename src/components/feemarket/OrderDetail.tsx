@@ -103,7 +103,7 @@ export const OrderDetail = ({ orderid, destination }: { orderid: string; destina
           <Divider className="my-2" />
 
           <Descriptions column={1}>
-            <Descriptions.Item label={t('Start Block')}>
+            <Descriptions.Item label={t('Created block')}>
               {orderDetailState?.createBlock ? (
                 <SubscanLink network={network.name} block={orderDetailState.createBlock.toString()} prefix="#" />
               ) : (
