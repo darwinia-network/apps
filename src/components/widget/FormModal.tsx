@@ -1,6 +1,6 @@
 import { SubmittableExtrinsic } from '@polkadot/api/types';
 import { ISubmittableResult } from '@polkadot/types/types';
-import { isFunction, BN_HUNDRED, BN_ZERO } from '@polkadot/util';
+import { isFunction, BN_HUNDRED, BN_ZERO, BN } from '@polkadot/util';
 import { Button, Form } from 'antd';
 import { useForm } from 'antd/lib/form/Form';
 import Modal, { ModalProps } from 'antd/lib/modal';
@@ -22,6 +22,7 @@ interface ModalFormProps<Values extends Record<string, unknown>> {
   onSuccess?: TxCallback;
   onCancel: () => void;
   onValuesChange?: (changedValues?: Partial<Values>, allValues?: Values) => void;
+  onEstimatedFeeChange?: (estimatedFee: BN) => void;
 }
 
 export function FormModal<V extends Record<string, unknown>>({
@@ -38,6 +39,7 @@ export function FormModal<V extends Record<string, unknown>>({
   },
   onCancel,
   onValuesChange,
+  onEstimatedFeeChange = (_) => undefined,
 }: PropsWithChildren<ModalFormProps<V>>) {
   const [form] = useForm<V>();
   const { api, network } = useApi();
@@ -64,13 +66,17 @@ export function FormModal<V extends Record<string, unknown>>({
           .paymentInfo(account.address)
           .then(({ partialFee }) => {
             // eslint-disable-next-line no-magic-numbers
-            setEstimatedFee(partialFee.muln(110).div(BN_HUNDRED));
+            const adjFee = partialFee.muln(110).div(BN_HUNDRED);
+
+            setEstimatedFee(adjFee);
+            onEstimatedFeeChange(adjFee);
           });
       } catch (_) {
         setEstimatedFee(BN_ZERO);
+        onEstimatedFeeChange(BN_ZERO);
       }
     }
-  }, [api, account, form, extrinsic]);
+  }, [api, account, form, extrinsic, onEstimatedFeeChange]);
 
   return (
     <Modal
