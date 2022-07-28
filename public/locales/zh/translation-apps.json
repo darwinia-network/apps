@@ -296,7 +296,7 @@
   "Finished at slot": "时间槽位",
   "To Treaury": "国库",
   "Delay Blocks": "延迟区块数",
-  "Out of Slot Block": "超时区块",
+  "Out of slots block number": "超时所在区块",
   "Insufficient {{kton}} balance in stash account": "资金账户的 {{kton}} 余额不足",
   "Parachain now does not support staking": "平行链现在不支持质押",
   "Start block": "开始区块",

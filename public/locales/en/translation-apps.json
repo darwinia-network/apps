@@ -294,7 +294,7 @@
   "Finished at slot": "Finished at slot",
   "To Treaury": "To Treaury",
   "Delay Blocks": "Delay Blocks",
-  "Out of Slot Block": "Out of Slot Block",
+  "Out of slots block number": "Out of slots block number",
   "Insufficient {{kton}} balance in stash account": "Insufficient {{kton}} balance in stash account",
   "Parachain now does not support staking": "Parachain now does not support staking",
   "Start block": "Start block",

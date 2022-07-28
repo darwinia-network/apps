@@ -95,7 +95,9 @@ export const OrderDetail = ({ orderid, destination }: { orderid: string; destina
               {t(getPrioritySlot(orderDetailState?.confirmedSlotIndex))}&nbsp;(within {orderDetailState?.slotTime}{' '}
               blocks)
             </Descriptions.Item>
-            <Descriptions.Item label={t('Out of Slot Block')}>{orderDetailState?.outOfSlot || '-'}</Descriptions.Item>
+            <Descriptions.Item label={t('Out of slots block number')}>
+              {orderDetailState?.outOfSlot || '-'}
+            </Descriptions.Item>
           </Descriptions>
 
           <Divider className="my-2" />
