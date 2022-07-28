@@ -1,4 +1,5 @@
 import { Button, Card, Form, Spin } from 'antd';
+import { ExclamationCircleFilled } from '@ant-design/icons';
 import { BN_HUNDRED, BN, BN_ZERO, isFunction } from '@polkadot/util';
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -147,8 +148,9 @@ export function AssetOverview({ asset, loading, refresh }: AssetOverviewProps) {
           name="to"
           label={'Receiver'}
           extra={
-            <div className="inline-flex items-center ml-4 mt-2 text-xs space-x-1">
-              <span className="text-yellow-500">
+            <div className="inline-flex items-center ml-4 mt-2 space-x-1">
+              <ExclamationCircleFilled className="text-yellow-500" />
+              <span className="text-xs">
                 {network.name === 'darwinia' || network.name === 'crab-parachain'
                   ? t('do not transfer {{token}} to a Ledger account or an Exchange controlled address', {
                       token: network.tokens.ring.symbol,
