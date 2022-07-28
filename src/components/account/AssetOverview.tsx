@@ -130,7 +130,7 @@ export function AssetOverview({ asset, loading, refresh }: AssetOverviewProps) {
           label={'Sender'}
           extra={
             <span className="ml-4 mt-2 text-xs">
-              <span className="mr-2">{t('transferrable')}:</span>
+              <span className="mr-2">{t('Transferrable')}:</span>
               {transferrable === null ? (
                 <Spin size="small" />
               ) : (
