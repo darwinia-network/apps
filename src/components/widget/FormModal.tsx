@@ -63,6 +63,9 @@ export function FormModal<V extends Record<string, unknown>>({
       onCancel={onCancel}
       footer={
         <div className="flex flex-col space-y-2">
+          <span className="ml-1 text-left text-xs">
+            {t('estimated fees of {{amount}} {{token}}', { amount: '0.7021', token: 'RING' })}
+          </span>
           <Button
             className="w-full py-1"
             loading={busy}
