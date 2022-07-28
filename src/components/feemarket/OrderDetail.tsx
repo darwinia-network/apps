@@ -117,7 +117,7 @@ export const OrderDetail = ({ orderid, destination }: { orderid: string; destina
                 '-'
               )}
             </Descriptions.Item>
-            <Descriptions.Item label={t('Start Time')}>
+            <Descriptions.Item label={t('Created Time')}>
               {orderDetailState?.createTime
                 ? `${formatDistance(new Date(orderDetailState.createTime), new Date(), { addSuffix: true })} ( ${format(
                     new Date(orderDetailState.createTime),
@@ -125,7 +125,7 @@ export const OrderDetail = ({ orderid, destination }: { orderid: string; destina
                   )} )`
                 : '-'}
             </Descriptions.Item>
-            <Descriptions.Item label={t('Confirm Time')}>
+            <Descriptions.Item label={t('Confirmed Time')}>
               {orderDetailState?.finishTime
                 ? `${formatDistance(new Date(orderDetailState.finishTime), new Date(), { addSuffix: true })} ( ${format(
                     new Date(orderDetailState.finishTime),
