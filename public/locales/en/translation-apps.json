@@ -300,6 +300,6 @@
   "Start block": "Start block",
   "End block": "End block",
   "Faucet": "Faucet",
-  "do not transfer {{token}} to a Ledger account": "do not transfer {{token}} to a Ledger account",
-  "do not transfer {{token}} to a Ledger account or an Exchange controlled address": "do not transfer {{token}} to a Ledger account or an Exchange controlled address"
+  "Do not transfer {{token}} to a cold wallet address.": "Do not transfer {{token}} to a cold wallet address.",
+  "Do not transfer {{token}} to a cold wallet address or an exchange controlled address.": "Do not transfer {{token}} to a cold wallet address or an exchange controlled address."
 }

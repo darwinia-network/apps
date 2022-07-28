@@ -148,14 +148,14 @@ export function AssetOverview({ asset, loading, refresh }: AssetOverviewProps) {
           name="to"
           label={'Receiver'}
           extra={
-            <div className="inline-flex items-center ml-4 mt-2 space-x-1">
-              <ExclamationCircleFilled className="text-yellow-500" />
+            <div className="inline-flex items-center ml-1 mt-2 space-x-1">
+              <ExclamationCircleFilled className="text-yellow-400" />
               <span className="text-xs">
                 {network.name === 'darwinia' || network.name === 'crab-parachain'
-                  ? t('do not transfer {{token}} to a Ledger account or an Exchange controlled address', {
+                  ? t('Do not transfer {{token}} to a cold wallet address or an exchange controlled address.', {
                       token: network.tokens.ring.symbol,
                     })
-                  : t('do not transfer {{token}} to a Ledger account', {
+                  : t('Do not transfer {{token}} to a cold wallet address.', {
                       token: network.tokens.ring.symbol,
                     })}
               </span>
