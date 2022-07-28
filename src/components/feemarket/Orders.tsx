@@ -223,7 +223,7 @@ export const Orders = ({ destination }: { destination: CrossChainDestination }) 
       render: (value, record) => (
         <div className="flex flex-col justify-center">
           <SubscanLink network={network.name} block={value} prefix="#" />
-          <span>{format(new Date(record.createTime), DATE_TIME_FORMATE)}</span>
+          <span>{format(new Date(record.createTime), DATE_TIME_FORMATE)} (+UTC)</span>
         </div>
       ),
     },
@@ -236,7 +236,7 @@ export const Orders = ({ destination }: { destination: CrossChainDestination }) 
         value ? (
           <div className="flex flex-col justify-center">
             <SubscanLink network={network.name} block={value} prefix="#" />
-            {record.finishTime ? <span>{format(new Date(record.finishTime), DATE_TIME_FORMATE)}</span> : null}
+            {record.finishTime ? <span>{format(new Date(record.finishTime), DATE_TIME_FORMATE)} (+UTC)</span> : null}
           </div>
         ) : (
           '-'
