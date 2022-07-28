@@ -90,7 +90,7 @@ export function FormModal<V extends Record<string, unknown>>({
         <div className="flex flex-col space-y-2">
           {estimatedFee.gtn(0) && (
             <span className="ml-1 text-left text-xs">
-              {t('estimated fees of {{amount}} {{token}}', {
+              {t('Estimated fees of {{amount}} {{token}}', {
                 amount: fromWei({ value: estimatedFee }),
                 token: network.tokens.ring.symbol,
               })}

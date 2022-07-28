@@ -300,5 +300,5 @@
   "Start block": "Start block",
   "End block": "End block",
   "Faucet": "Faucet",
-  "estimated fees of {{amount}} {{token}}": "estimated fees of {{amount}} {{token}}"
+  "Estimated fees of {{amount}} {{token}}": "Estimated fees of {{amount}} {{token}}"
 }
