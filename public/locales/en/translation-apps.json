@@ -200,7 +200,7 @@
   "points": "points",
   "total issuance({{symbol}})": "total issuance({{symbol}})",
   "total staked(Power)": "total staked(Power)",
-  "Transferrable": "Transferrable",
+  "Transferable": "Transferable",
   "twitter": "twitter",
   "unbond tokens for staking, unbonded tokens become available after 14 days": "unbond tokens for staking, unbonded tokens become available after 14 days",
   "validators": "validators",

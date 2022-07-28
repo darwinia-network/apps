@@ -29,7 +29,7 @@ export function AssetOverview({ asset, loading, refresh }: AssetOverviewProps) {
   const { t } = useTranslation();
   const [recipient, setRecipient] = useState<string>(accounts[0]?.displayAddress);
   const [isVisible, setIsVisible] = useState(false);
-  const [transferrable, setTransferrable] = useState<BN | null>(null);
+  const [transferable, setTransferable] = useState<BN | null>(null);
 
   const supportFaucet = useMemo(
     () => asset.asset === DarwiniaAsset.ring && (network.name === 'pangolin' || network.name === 'pangoro'),
@@ -52,13 +52,13 @@ export function AssetOverview({ asset, loading, refresh }: AssetOverviewProps) {
           const adjFee = partialFee.muln(110).div(BN_HUNDRED);
           const max = new BN(asset.max as string).sub(adjFee);
 
-          setTransferrable(max.gt(api.consts.balances?.existentialDeposit) ? max : BN_ZERO);
+          setTransferable(max.gt(api.consts.balances?.existentialDeposit) ? max : BN_ZERO);
         });
       } else {
-        setTransferrable(new BN(asset.max as string));
+        setTransferable(new BN(asset.max as string));
       }
     } else {
-      setTransferrable(null);
+      setTransferable(null);
     }
 
     return () => {
@@ -130,12 +130,12 @@ export function AssetOverview({ asset, loading, refresh }: AssetOverviewProps) {
           label={'Sender'}
           extra={
             <span className="ml-4 mt-2 text-xs">
-              <span className="mr-2">{t('Transferrable')}:</span>
-              {transferrable === null ? (
+              <span className="mr-2">{t('Transferable')}:</span>
+              {transferable === null ? (
                 <Spin size="small" />
               ) : (
                 <span>
-                  {fromWei({ value: transferrable, unit: getUnit(Number(asset.token?.decimal)) || 'gwei' })}{' '}
+                  {fromWei({ value: transferable, unit: getUnit(Number(asset.token?.decimal)) || 'gwei' })}{' '}
                   {asset.token?.symbol}
                 </span>
               )}
@@ -168,7 +168,7 @@ export function AssetOverview({ asset, loading, refresh }: AssetOverviewProps) {
         <Form.Item
           name="amount"
           label={t('Amount')}
-          rules={[{ required: true }, insufficientBalanceRule({ t, compared: transferrable, token: asset.token })]}
+          rules={[{ required: true }, insufficientBalanceRule({ t, compared: transferable, token: asset.token })]}
         >
           <BalanceControl compact size="large" className="flex-1">
             <div
