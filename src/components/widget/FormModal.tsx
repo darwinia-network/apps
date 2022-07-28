@@ -1,5 +1,6 @@
 import { SubmittableExtrinsic } from '@polkadot/api/types';
 import { ISubmittableResult } from '@polkadot/types/types';
+import { isFunction, BN_HUNDRED, BN_ZERO } from '@polkadot/util';
 import { Button, Form } from 'antd';
 import { useForm } from 'antd/lib/form/Form';
 import Modal, { ModalProps } from 'antd/lib/modal';
@@ -8,7 +9,8 @@ import { catchError, from, tap, NEVER } from 'rxjs';
 import { useTranslation } from 'react-i18next';
 import { validateMessages } from '../../config';
 import i18n from '../../config/i18n';
-import { useAccount, useQueue } from '../../hooks';
+import { fromWei } from '../../utils';
+import { useAccount, useQueue, useApi } from '../../hooks';
 import { TxFailedCallback, TxCallback, WithNull } from '../../model';
 
 interface ModalFormProps<Values extends Record<string, unknown>> {
@@ -38,11 +40,13 @@ export function FormModal<V extends Record<string, unknown>>({
   onValuesChange,
 }: PropsWithChildren<ModalFormProps<V>>) {
   const [form] = useForm<V>();
+  const { api, network } = useApi();
   const { account } = useAccount();
   const { queueExtrinsic } = useQueue();
   const { visible, ...others } = modalProps;
   const { t } = useTranslation();
   const [busy, setBusy] = useState(false);
+  const [estimatedFee, setEstimatedFee] = useState(BN_ZERO);
 
   const signAddress = useMemo(() => signer ?? account?.displayAddress, [signer, account]);
 
@@ -52,6 +56,21 @@ export function FormModal<V extends Record<string, unknown>>({
       form.resetFields();
     }
   }, [form, visible]);
+
+  useEffect(() => {
+    if (account && isFunction(api.rpc.payment?.queryInfo)) {
+      try {
+        extrinsic(form.getFieldsValue())
+          .paymentInfo(account.address)
+          .then(({ partialFee }) => {
+            // eslint-disable-next-line no-magic-numbers
+            setEstimatedFee(partialFee.muln(110).div(BN_HUNDRED));
+          });
+      } catch (_) {
+        setEstimatedFee(BN_ZERO);
+      }
+    }
+  }, [api, account, form, extrinsic]);
 
   return (
     <Modal
@@ -63,9 +82,14 @@ export function FormModal<V extends Record<string, unknown>>({
       onCancel={onCancel}
       footer={
         <div className="flex flex-col space-y-2">
-          <span className="ml-1 text-left text-xs">
-            {t('estimated fees of {{amount}} {{token}}', { amount: '0.7021', token: 'RING' })}
-          </span>
+          {estimatedFee.gtn(0) && (
+            <span className="ml-1 text-left text-xs">
+              {t('estimated fees of {{amount}} {{token}}', {
+                amount: fromWei({ value: estimatedFee }),
+                token: network.tokens.ring.symbol,
+              })}
+            </span>
+          )}
           <Button
             className="w-full py-1"
             loading={busy}
