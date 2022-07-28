@@ -291,7 +291,7 @@
   "Source TxID": "Source TxID",
   "Sender": "Sender",
   "Cross-chain Fee": "Cross-chain Fee",
-  "Priority Slot": "Priority Slot",
+  "Finished at slot": "Finished at slot",
   "To Treaury": "To Treaury",
   "Delay Blocks": "Delay Blocks",
   "Out of Slot Block": "Out of Slot Block",

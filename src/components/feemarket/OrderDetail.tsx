@@ -24,11 +24,9 @@ const getPrioritySlot = (confirmedSlotIndex?: number | null): string => {
     case -1:
       return SlotState.OUT_OF_SLOT;
     case 0:
-      return SlotState.SLOT_1;
     case 1:
-      return SlotState.SLOT_2;
     case 2: // eslint-disable-line no-magic-numbers
-      return SlotState.SLOT_3;
+      return `${confirmedSlotIndex + 1}`;
     default:
       return '-';
   }
@@ -93,8 +91,9 @@ export const OrderDetail = ({ orderid, destination }: { orderid: string; destina
                 ? `${fromWei({ value: orderDetailState.fee }, prettyNumber)} ${network.tokens.ring.symbol}`
                 : '-'}
             </Descriptions.Item>
-            <Descriptions.Item label={t('Priority Slot')}>
-              {t(getPrioritySlot(orderDetailState?.confirmedSlotIndex))}&nbsp;({orderDetailState?.slotTime})
+            <Descriptions.Item label={t('Finished at slot')}>
+              {t(getPrioritySlot(orderDetailState?.confirmedSlotIndex))}&nbsp;(within {orderDetailState?.slotTime}{' '}
+              blocks)
             </Descriptions.Item>
             <Descriptions.Item label={t('Out of Slot Block')}>{orderDetailState?.outOfSlot || '-'}</Descriptions.Item>
           </Descriptions>

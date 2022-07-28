@@ -293,7 +293,7 @@
   "Source TxID": "原链交易哈希",
   "Sender": "发送者",
   "Cross-chain Fee": "跨链费用",
-  "Priority Slot": "时间槽位",
+  "Finished at slot": "时间槽位",
   "To Treaury": "国库",
   "Delay Blocks": "延迟区块数",
   "Out of Slot Block": "超时区块",
