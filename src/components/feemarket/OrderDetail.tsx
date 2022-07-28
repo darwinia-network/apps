@@ -91,11 +91,11 @@ export const OrderDetail = ({ orderid, destination }: { orderid: string; destina
                 ? `${fromWei({ value: orderDetailState.fee }, prettyNumber)} ${network.tokens.ring.symbol}`
                 : '-'}
             </Descriptions.Item>
-            <Descriptions.Item label={t('Finished at slot')}>
+            <Descriptions.Item label={t('Finished at Slot')}>
               {t(getPrioritySlot(orderDetailState?.confirmedSlotIndex))}&nbsp;(within {orderDetailState?.slotTime}{' '}
               blocks)
             </Descriptions.Item>
-            <Descriptions.Item label={t('Out of slots block number')}>
+            <Descriptions.Item label={t('Out of Slots Block Number')}>
               {orderDetailState?.outOfSlot || '-'}
             </Descriptions.Item>
           </Descriptions>
@@ -103,14 +103,14 @@ export const OrderDetail = ({ orderid, destination }: { orderid: string; destina
           <Divider className="my-2" />
 
           <Descriptions column={1}>
-            <Descriptions.Item label={t('Created block')}>
+            <Descriptions.Item label={t('Created Block')}>
               {orderDetailState?.createBlock ? (
                 <SubscanLink network={network.name} block={orderDetailState.createBlock.toString()} prefix="#" />
               ) : (
                 '-'
               )}
             </Descriptions.Item>
-            <Descriptions.Item label={t('Confirm Block')}>
+            <Descriptions.Item label={t('Confirmed Block')}>
               {orderDetailState?.finishBlock ? (
                 <SubscanLink network={network.name} block={orderDetailState.finishBlock.toString()} prefix="#" />
               ) : (
@@ -139,7 +139,7 @@ export const OrderDetail = ({ orderid, destination }: { orderid: string; destina
             <>
               <Divider className="my-2" />
               <Descriptions column={1}>
-                <Descriptions.Item label={t('Extrinsic')}>
+                <Descriptions.Item label={t('Reward Extrinsic')}>
                   <SubscanLink
                     network={network.name}
                     extrinsic={{
@@ -178,7 +178,7 @@ export const OrderDetail = ({ orderid, destination }: { orderid: string; destina
                   </span>
                 </Descriptions.Item>
                 {orderDetailState.rewards[0].treasuryAmount && (
-                  <Descriptions.Item label={t('To Treaury')}>{`${fromWei(
+                  <Descriptions.Item label={t('Treaury')}>{`${fromWei(
                     { value: orderDetailState.rewards[0].treasuryAmount },
                     prettyNumber
                   )} ${network.tokens.ring.symbol}`}</Descriptions.Item>
@@ -192,7 +192,7 @@ export const OrderDetail = ({ orderid, destination }: { orderid: string; destina
               <Divider className="my-2" />
               <Descriptions column={1}>
                 <Descriptions.Item label={t('Delay Blocks')}>{orderDetailState.slashs[0].delayTime}</Descriptions.Item>
-                <Descriptions.Item label={t('Extrinsic')}>
+                <Descriptions.Item label={t('Slash Extrinsic')}>
                   <SubscanLink
                     network={network.name}
                     extrinsic={{

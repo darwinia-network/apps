@@ -216,7 +216,7 @@ export const Orders = ({ destination }: { destination: CrossChainDestination }) 
         ),
     },
     {
-      title: t('Created block'),
+      title: t('Created Block'),
       key: 'createBlock',
       dataIndex: 'createBlock',
       align: 'center',
@@ -228,7 +228,7 @@ export const Orders = ({ destination }: { destination: CrossChainDestination }) 
       ),
     },
     {
-      title: t('Confirm Block'),
+      title: t('Confirmed Block'),
       key: 'finishBlock',
       dataIndex: 'finishBlock',
       align: 'center',
