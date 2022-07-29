@@ -1,4 +1,5 @@
 import { Button, Card, Form, Spin } from 'antd';
+import { ExclamationCircleFilled } from '@ant-design/icons';
 import { BN, BN_ZERO } from '@polkadot/util';
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -18,6 +19,7 @@ interface TransferFormValues {
   [key: string]: unknown;
 }
 
+// eslint-disable-next-line complexity
 export function AssetOverview({ asset, loading, refresh }: AssetOverviewProps) {
   const { network, api } = useApi();
   const { accounts } = useWallet();
@@ -26,7 +28,7 @@ export function AssetOverview({ asset, loading, refresh }: AssetOverviewProps) {
   const { t } = useTranslation();
   const [recipient, setRecipient] = useState<string>(accounts[0]?.displayAddress);
   const [isVisible, setIsVisible] = useState(false);
-  const [transferrable, setTransferrable] = useState<BN | null>(null);
+  const [transferable, setTransferable] = useState<BN | null>(null);
 
   const supportFaucet = useMemo(
     () => asset.asset === DarwiniaAsset.ring && (network.name === 'pangolin' || network.name === 'pangoro'),
@@ -86,12 +88,12 @@ export function AssetOverview({ asset, loading, refresh }: AssetOverviewProps) {
         }}
         onEstimatedFeeChange={(estimatedFee) => {
           if (estimatedFee.isZero()) {
-            setTransferrable(null);
+            setTransferable(null);
           } else if (asset.asset === DarwiniaAsset.ring) {
             const max = new BN(asset.max as string).sub(estimatedFee);
-            setTransferrable(max.gt(api.consts.balances?.existentialDeposit) ? max : BN_ZERO);
+            setTransferable(max.gt(api.consts.balances?.existentialDeposit) ? max : BN_ZERO);
           } else {
-            setTransferrable(new BN(asset.max as string));
+            setTransferable(new BN(asset.max as string));
           }
         }}
         initialValues={{ from: account?.displayAddress, to: recipient }}
@@ -110,12 +112,12 @@ export function AssetOverview({ asset, loading, refresh }: AssetOverviewProps) {
           label={'Sender'}
           extra={
             <span className="ml-4 mt-2 text-xs">
-              <span className="mr-2">{t('transferrable')}:</span>
-              {transferrable === null ? (
+              <span className="mr-2">{t('Transferable')}:</span>
+              {transferable === null ? (
                 <Spin size="small" />
               ) : (
                 <span>
-                  {fromWei({ value: transferrable, unit: getUnit(Number(asset.token?.decimal)) || 'gwei' })}{' '}
+                  {fromWei({ value: transferable, unit: getUnit(Number(asset.token?.decimal)) || 'gwei' })}{' '}
                   {asset.token?.symbol}
                 </span>
               )}
@@ -124,12 +126,26 @@ export function AssetOverview({ asset, loading, refresh }: AssetOverviewProps) {
           disabled
         ></AddressItem>
 
-        <AddressItem name="to" label={'Receiver'} extra={null} />
+        <AddressItem
+          name="to"
+          label={'Receiver'}
+          extra={
+            <div className="inline-flex items-center ml-1 mt-2 space-x-1">
+              <ExclamationCircleFilled className="text-yellow-400" />
+              <span className="text-xs">
+                {network.name === 'darwinia' ||
+                (network.name === 'crab-parachain' && asset.asset === DarwiniaAsset.ring)
+                  ? t('Do not fill in any cold wallet address or exchange controlled address.')
+                  : t('Do not fill in any cold wallet address.')}
+              </span>
+            </div>
+          }
+        />
 
         <Form.Item
           name="amount"
           label={t('Amount')}
-          rules={[{ required: true }, insufficientBalanceRule({ t, compared: transferrable, token: asset.token })]}
+          rules={[{ required: true }, insufficientBalanceRule({ t, compared: transferable, token: asset.token })]}
         >
           <BalanceControl compact size="large" className="flex-1">
             <div

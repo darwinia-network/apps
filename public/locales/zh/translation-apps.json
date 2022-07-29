@@ -201,7 +201,7 @@
   "points": "点数",
   "total issuance({{symbol}})": "总发行（{{symbol}}）",
   "total staked(Power)": "总质押（Power）",
-  "transferrable": "可转账",
+  "Transferable": "可转账",
   "twitter": "推特",
   "unbond tokens for staking, unbonded tokens become available after 14 days": "将冻结的资金状态变更为解冻中，14天后转为可用",
   "validators": "验证人",
@@ -302,5 +302,7 @@
   "Start block": "开始区块",
   "End block": "结束区块",
   "Faucet": "水龙头",
+  "Do not fill in any cold wallet address.": "请不要在此处填写冷钱包账户。",
+  "Do not fill in any cold wallet address or exchange controlled address.": "请不要在此处填写冷钱包账户或交易所控制的账户地址。",
   "Estimated fees of {{amount}} {{token}}": "预估手续费为 {{amount}} {{token}}"
 }
