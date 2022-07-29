@@ -88,12 +88,12 @@ export function AssetOverview({ asset, loading, refresh }: AssetOverviewProps) {
         }}
         onEstimatedFeeChange={(estimatedFee) => {
           if (estimatedFee.isZero()) {
-            setTransferrable(null);
+            setTransferable(null);
           } else if (asset.asset === DarwiniaAsset.ring) {
             const max = new BN(asset.max as string).sub(estimatedFee);
-            setTransferrable(max.gt(api.consts.balances?.existentialDeposit) ? max : BN_ZERO);
+            setTransferable(max.gt(api.consts.balances?.existentialDeposit) ? max : BN_ZERO);
           } else {
-            setTransferrable(new BN(asset.max as string));
+            setTransferable(new BN(asset.max as string));
           }
         }}
         initialValues={{ from: account?.displayAddress, to: recipient }}
@@ -133,7 +133,8 @@ export function AssetOverview({ asset, loading, refresh }: AssetOverviewProps) {
             <div className="inline-flex items-center ml-1 mt-2 space-x-1">
               <ExclamationCircleFilled className="text-yellow-400" />
               <span className="text-xs">
-                {network.name === 'darwinia' || network.name === 'crab-parachain'
+                {network.name === 'darwinia' ||
+                (network.name === 'crab-parachain' && asset.asset === DarwiniaAsset.ring)
                   ? t('Do not fill in any cold wallet address or exchange controlled address.')
                   : t('Do not fill in any cold wallet address.')}
               </span>
