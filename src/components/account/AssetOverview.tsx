@@ -152,12 +152,8 @@ export function AssetOverview({ asset, loading, refresh }: AssetOverviewProps) {
               <ExclamationCircleFilled className="text-yellow-400" />
               <span className="text-xs">
                 {network.name === 'darwinia' || network.name === 'crab-parachain'
-                  ? t('Do not transfer {{token}} to a cold wallet address or an exchange controlled address.', {
-                      token: network.tokens.ring.symbol,
-                    })
-                  : t('Do not transfer {{token}} to a cold wallet address.', {
-                      token: network.tokens.ring.symbol,
-                    })}
+                  ? t('Do not fill in any cold wallet address or exchange controlled address.')
+                  : t('Do not fill in any cold wallet address.')}
               </span>
             </div>
           }
