@@ -303,5 +303,6 @@
   "End block": "结束区块",
   "Faucet": "水龙头",
   "Do not fill in any cold wallet address.": "请不要在此处填写冷钱包账户。",
-  "Do not fill in any cold wallet address or exchange controlled address.": "请不要在此处填写冷钱包账户或交易所控制的账户地址。"
+  "Do not fill in any cold wallet address or exchange controlled address.": "请不要在此处填写冷钱包账户或交易所控制的账户地址。",
+  "Estimated fees of {{amount}} {{token}}": "预估手续费为 {{amount}} {{token}}"
 }
