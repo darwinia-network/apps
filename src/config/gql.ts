@@ -10,16 +10,6 @@ export const OVERVIEW_STATISTICS = gql`
   }
 `;
 
-export const IN_PROGRESS_ORDERS_RELAYERS = gql`
-  query inProgressOrdersRelayers($destination: String!) {
-    orderEntities(filter: { and: [{ id: { startsWith: $destination } }, { phase: { equalTo: Created } }] }) {
-      nodes {
-        assignedRelayers
-      }
-    }
-  }
-`;
-
 export const FEE_MARKET_FEE_AND_ORDER_HISTORY = gql`
   query feeMarketFeeHistory($destination: String!, $time: Datetime!) {
     orderEntities(

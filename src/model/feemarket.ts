@@ -219,14 +219,6 @@ export interface OrderDetailState extends OrderDetailBase {
   rewards: OrderDetailReward[];
 }
 
-export interface InProgressOrdersRelayersData {
-  orderEntities?: {
-    nodes: {
-      assignedRelayers: string[];
-    }[];
-  } | null;
-}
-
 export interface OverviewStatisticsData {
   feeMarketEntity?: {
     averageSpeed?: number | null;
