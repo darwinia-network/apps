@@ -299,5 +299,6 @@
   "Parachain now does not support staking": "Parachain now does not support staking",
   "Start block": "Start block",
   "End block": "End block",
-  "Faucet": "Faucet"
+  "Faucet": "Faucet",
+  "Estimated fees of {{amount}} {{token}}": "Estimated fees of {{amount}} {{token}}"
 }

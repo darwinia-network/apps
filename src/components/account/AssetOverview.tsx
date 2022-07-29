@@ -1,11 +1,10 @@
 import { Button, Card, Form, Spin } from 'antd';
-import { BN_HUNDRED, BN, BN_ZERO, isFunction } from '@polkadot/util';
-import { useEffect, useMemo, useState } from 'react';
+import { BN, BN_ZERO } from '@polkadot/util';
+import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { from, Subscription } from 'rxjs';
 import { useApi, useWallet, useAccount } from '../../hooks';
 import { AssetOverviewProps, DarwiniaAsset } from '../../model';
-import { fromWei, getUnit, insufficientBalanceRule, isRing, toWei, isValidAddress } from '../../utils';
+import { fromWei, getUnit, insufficientBalanceRule, isRing, toWei } from '../../utils';
 import { FormModal } from '../widget/FormModal';
 import { TooltipBalance } from '../widget/TooltipBalance';
 import { BalanceControl } from '../widget/form-control/BalanceControl';
@@ -38,33 +37,6 @@ export function AssetOverview({ asset, loading, refresh }: AssetOverviewProps) {
     () => `/image/token/token-${(asset.token?.symbol || 'RING').toLowerCase()}.svg`,
     [asset.token?.symbol]
   );
-
-  useEffect(() => {
-    let sub$$: Subscription;
-
-    if (account && isValidAddress(recipient) && isFunction(api.rpc.payment?.queryInfo)) {
-      if (asset.asset === DarwiniaAsset.ring) {
-        sub$$ = from(api.tx.balances?.transfer(recipient, asset.max).paymentInfo(account.address)).subscribe((res) => {
-          const { partialFee } = res as unknown as { partialFee: BN };
-          // eslint-disable-next-line no-magic-numbers
-          const adjFee = partialFee.muln(110).div(BN_HUNDRED);
-          const max = new BN(asset.max as string).sub(adjFee);
-
-          setTransferrable(max.gt(api.consts.balances?.existentialDeposit) ? max : BN_ZERO);
-        });
-      } else {
-        setTransferrable(new BN(asset.max as string));
-      }
-    } else {
-      setTransferrable(null);
-    }
-
-    return () => {
-      if (sub$$) {
-        sub$$.unsubscribe();
-      }
-    };
-  }, [api, asset, account, recipient]);
 
   return (
     <>
@@ -110,6 +82,16 @@ export function AssetOverview({ asset, loading, refresh }: AssetOverviewProps) {
         onValuesChange={(value) => {
           if (value?.to !== undefined) {
             setRecipient(value.to);
+          }
+        }}
+        onEstimatedFeeChange={(estimatedFee) => {
+          if (estimatedFee.isZero()) {
+            setTransferrable(null);
+          } else if (asset.asset === DarwiniaAsset.ring) {
+            const max = new BN(asset.max as string).sub(estimatedFee);
+            setTransferrable(max.gt(api.consts.balances?.existentialDeposit) ? max : BN_ZERO);
+          } else {
+            setTransferrable(new BN(asset.max as string));
           }
         }}
         initialValues={{ from: account?.displayAddress, to: recipient }}
