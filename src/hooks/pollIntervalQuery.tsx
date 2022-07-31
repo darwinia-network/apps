@@ -13,16 +13,16 @@ export const usePollIntervalQuery: <TData = unknown, TVariables = OperationVaria
   query: DocumentNode | TypedDocumentNode<TData, TVariables>,
   options?: QueryHookOptions<TData, TVariables>,
   transform?: (data: TData) => TTransResult
-) => Pick<QueryResult<TData, TVariables>, 'data' | 'loading'> & { transformedData?: TTransResult } = (
+) => Pick<QueryResult<TData, TVariables>, 'data' | 'loading' | 'refetch'> & { transformedData?: TTransResult } = (
   query,
   options,
   transform
 ) => {
-  const { data, loading } = useQuery(query, {
+  const { data, loading, refetch } = useQuery(query, {
     pollInterval: LONG_LONG_DURATION,
     notifyOnNetworkStatusChange: true,
     ...options,
   });
 
-  return { data, loading, transformedData: transform && data ? transform(data) : undefined };
+  return { data, loading, transformedData: transform && data ? transform(data) : undefined, refetch };
 };

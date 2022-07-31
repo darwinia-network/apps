@@ -41,7 +41,13 @@ type EChartsOption = echarts.ComposeOption<
   GridComponentOption | BarSeriesOption | LineSeriesOption | TooltipComponentOption
 >;
 
-export const Overview = ({ destination }: { destination: CrossChainDestination }) => {
+export const Overview = ({
+  destination,
+  setRefresh,
+}: {
+  destination: CrossChainDestination;
+  setRefresh: (fn: () => void) => void;
+}) => {
   const { api, network } = useApi();
   const { t } = useTranslation();
 
@@ -58,11 +64,11 @@ export const Overview = ({ destination }: { destination: CrossChainDestination }
     loading: true,
   });
 
-  const { loading: feemarketLoading, transformedData: overviewStatisticsState } = usePollIntervalQuery<
-    OverviewStatisticsData,
-    { destination: string },
-    OverviewStatisticsState
-  >(
+  const {
+    loading: feemarketLoading,
+    transformedData: overviewStatisticsState,
+    refetch: refetchFeemarket,
+  } = usePollIntervalQuery<OverviewStatisticsData, { destination: string }, OverviewStatisticsState>(
     OVERVIEW_STATISTICS,
     {
       variables: { destination },
@@ -70,7 +76,11 @@ export const Overview = ({ destination }: { destination: CrossChainDestination }
     transformOverviewStatistics
   );
 
-  const { loading: feeHistoryLoading, transformedData: feeHistoryState } = usePollIntervalQuery<
+  const {
+    loading: feeHistoryLoading,
+    transformedData: feeHistoryState,
+    refetch: refetchFeeHistory,
+  } = usePollIntervalQuery<
     FeeMarketFeeAndOderHistoryData,
     { destination: string; time: string },
     FeeMarketFeeAndOrderHistortState
@@ -82,7 +92,11 @@ export const Overview = ({ destination }: { destination: CrossChainDestination }
     transformFeeMarketFeeHistort
   );
 
-  const { loading: orderHistoryLoading, transformedData: orderHistoryState } = usePollIntervalQuery<
+  const {
+    loading: orderHistoryLoading,
+    transformedData: orderHistoryState,
+    refetch: refetchOrderHistory,
+  } = usePollIntervalQuery<
     FeeMarketFeeAndOderHistoryData,
     { destination: string; time: string },
     FeeMarketFeeAndOrderHistortState
@@ -93,6 +107,14 @@ export const Overview = ({ destination }: { destination: CrossChainDestination }
     },
     transformFeeMarketOrderHistort
   );
+
+  useEffect(() => {
+    setRefresh(() => () => {
+      refetchFeemarket();
+      refetchFeeHistory();
+      refetchOrderHistory();
+    });
+  }, [setRefresh, refetchFeemarket, refetchFeeHistory, refetchOrderHistory]);
 
   useEffect(() => {
     const sub$$ = timer(0, LONG_LONG_DURATION)

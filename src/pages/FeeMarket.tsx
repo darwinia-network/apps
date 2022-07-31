@@ -1,6 +1,6 @@
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Tabs, Empty } from 'antd';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { Overview } from '../components/feemarket/Overview';
@@ -16,7 +16,7 @@ import { CustomTab } from '../components/widget/CustomTab';
 // eslint-disable-next-line complexity
 export function FeeMarket() {
   const { network } = useApi();
-  const { supportedDestinations, destination } = useFeeMarket();
+  const { supportedDestinations, destination, setRefresh } = useFeeMarket();
   const { search, pathname } = useLocation();
   const navigate = useNavigate();
   const { t } = useTranslation();
@@ -29,6 +29,45 @@ export function FeeMarket() {
   const [activeKey, setActiveKey] = useState<FeeMarketTab>(
     Object.values(FeeMarketTab).includes(tab as FeeMarketTab) ? (tab as FeeMarketTab) : FeeMarketTab.OVERVIEW
   );
+
+  const [refreshOverview, setRefreshOverview] = useState<() => void>(() => () => undefined);
+  const [refreshRelayers, serRefreshRelayers] = useState<() => void>(() => () => undefined);
+  const [refreshRelayersDetail, serRefreshRelayersDetail] = useState<() => void>(() => () => undefined);
+  const [refreshOrders, setRefreshOrders] = useState<() => void>(() => () => undefined);
+  const [refreshOrdersDetail, setRefreshOrdersDetail] = useState<() => void>(() => () => undefined);
+
+  // eslint-disable-next-line complexity
+  useEffect(() => {
+    switch (activeKey) {
+      case FeeMarketTab.OVERVIEW:
+        setRefresh(() => refreshOverview);
+        break;
+      case FeeMarketTab.RELAYERS:
+        if (relayer) {
+          setRefresh(() => refreshRelayersDetail);
+        } else {
+          setRefresh(() => refreshRelayers);
+        }
+        break;
+      case FeeMarketTab.OREDERS:
+        if (orderid) {
+          setRefresh(() => refreshOrdersDetail);
+        } else {
+          setRefresh(() => refreshOrders);
+        }
+        break;
+    }
+  }, [
+    activeKey,
+    relayer,
+    orderid,
+    setRefresh,
+    refreshOverview,
+    refreshRelayers,
+    refreshRelayersDetail,
+    refreshOrders,
+    refreshOrdersDetail,
+  ]);
 
   return supportedDestinations.length && destination ? (
     <GraphqlProvider>
@@ -49,23 +88,27 @@ export function FeeMarket() {
           key={FeeMarketTab.OVERVIEW}
           tab={<CustomTab text={t('Overview')} tabKey={FeeMarketTab.OVERVIEW} activeKey={activeKey} />}
         >
-          <Overview destination={destination} />
+          <Overview destination={destination} setRefresh={setRefreshOverview} />
         </Tabs.TabPane>
         <Tabs.TabPane
           key={FeeMarketTab.RELAYERS}
           tab={<CustomTab text={t('Relayers')} tabKey={FeeMarketTab.RELAYERS} activeKey={activeKey} />}
         >
           {relayer ? (
-            <RelayerDetail relayer={relayer} destination={destination} />
+            <RelayerDetail relayer={relayer} destination={destination} setRefresh={serRefreshRelayersDetail} />
           ) : (
-            <Relayers destination={destination} />
+            <Relayers destination={destination} setRefresh={serRefreshRelayers} />
           )}
         </Tabs.TabPane>
         <Tabs.TabPane
           key={FeeMarketTab.OREDERS}
           tab={<CustomTab text={t('Orders')} tabKey={FeeMarketTab.OREDERS} activeKey={activeKey} />}
         >
-          {orderid ? <OrderDetail orderid={orderid} destination={destination} /> : <Orders destination={destination} />}
+          {orderid ? (
+            <OrderDetail orderid={orderid} destination={destination} setRefresh={setRefreshOrdersDetail} />
+          ) : (
+            <Orders destination={destination} setRefresh={setRefreshOrders} />
+          )}
         </Tabs.TabPane>
       </Tabs>
     </GraphqlProvider>

@@ -75,9 +75,11 @@ type EChartsOption = echarts.ComposeOption<
 export const RelayerDetail = ({
   relayer: relayerAddress,
   destination,
+  setRefresh,
 }: {
   relayer: string;
   destination: CrossChainDestination;
+  setRefresh: (fn: () => void) => void;
 }) => {
   const { network } = useApi();
   const { t } = useTranslation();
@@ -86,11 +88,11 @@ export const RelayerDetail = ({
   const [feeSegmented, setFeeSegmented] = useState(SegmentedType.ALL);
   const [rewardSlashSegmented, setRewardSlashSegmented] = useState(SegmentedType.ALL);
 
-  const { loading: rewardsAndSlashsLoading, transformedData: rewardsAndSlashsState } = usePollIntervalQuery<
-    RelayerRewardsAndSlashsData,
-    { relayer: string; time: string },
-    RewardsAndSlashsState
-  >(
+  const {
+    loading: rewardsAndSlashsLoading,
+    transformedData: rewardsAndSlashsState,
+    refetch: refetchRewardsAndSlashs,
+  } = usePollIntervalQuery<RelayerRewardsAndSlashsData, { relayer: string; time: string }, RewardsAndSlashsState>(
     RELAYER_REWARDS_AND_SLASHS,
     {
       variables: {
@@ -101,11 +103,11 @@ export const RelayerDetail = ({
     transformRewardsAndSlashs
   );
 
-  const { loading: feeHistoryLoading, transformedData: feeHistoryState } = usePollIntervalQuery<
-    RelayerFeeHistoryData,
-    { relayer: string; time: string },
-    FeeHistoryState
-  >(
+  const {
+    loading: feeHistoryLoading,
+    transformedData: feeHistoryState,
+    refetch: refetchFeeHistory,
+  } = usePollIntervalQuery<RelayerFeeHistoryData, { relayer: string; time: string }, FeeHistoryState>(
     RELAYER_FEE_HISTORY,
     {
       variables: {
@@ -116,11 +118,11 @@ export const RelayerDetail = ({
     transformFeeHistory
   );
 
-  const { loading: relayerOrdersLoading, transformedData: relayerOrdersState } = usePollIntervalQuery<
-    RelayerOrdersData,
-    { relayer: string },
-    RelayerOrdersState[]
-  >(
+  const {
+    loading: relayerOrdersLoading,
+    transformedData: relayerOrdersState,
+    refetch: refetchRelayerOrders,
+  } = usePollIntervalQuery<RelayerOrdersData, { relayer: string }, RelayerOrdersState[]>(
     RELAYER_ORDERS,
     {
       variables: {
@@ -129,6 +131,14 @@ export const RelayerDetail = ({
     },
     transformRelayerOrders
   );
+
+  useEffect(() => {
+    setRefresh(() => () => {
+      refetchRewardsAndSlashs();
+      refetchFeeHistory();
+      refetchRelayerOrders();
+    });
+  }, [setRefresh, refetchRewardsAndSlashs, refetchFeeHistory, refetchRelayerOrders]);
 
   const columns: ColumnsType<RelayerOrdersState> = [
     {

@@ -117,7 +117,7 @@ function IntroGuide() {
 function App() {
   const { t } = useTranslation();
   const { network } = useApi();
-  const { supportedDestinations, setDestination, destination } = useFeeMarket();
+  const { destination, supportedDestinations, refresh, setDestination } = useFeeMarket();
   const [theme] = useState<THEME>(readStorage().theme ?? THEME.LIGHT);
   const location = useLocation();
   const [collapsed, setCollapsed] = useState(false);
@@ -161,6 +161,7 @@ function App() {
                   destinations={supportedDestinations}
                   defaultValue={destination}
                   onSelect={setDestination}
+                  refresh={refresh}
                 />
               </div>
             </div>

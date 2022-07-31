@@ -123,7 +123,13 @@ const BlockFilterInput = ({
 };
 
 // eslint-disable-next-line complexity
-export const Orders = ({ destination }: { destination: CrossChainDestination }) => {
+export const Orders = ({
+  destination,
+  setRefresh,
+}: {
+  destination: CrossChainDestination;
+  setRefresh: (fn: () => void) => void;
+}) => {
   const { network } = useApi();
   const { t } = useTranslation();
   const dataSourceRef = useRef<OrderData[]>([]);
@@ -135,16 +141,18 @@ export const Orders = ({ destination }: { destination: CrossChainDestination }) 
     status: FilterStatus.ALL,
     slot: FilterSlot.ALL,
   });
-  const { loading: statisticsLoading, data: statisticsData } = usePollIntervalQuery<
-    OrdersStatisticsData,
-    { destination: string }
-  >(ORDERS_STATISTICS, {
+  const {
+    loading: statisticsLoading,
+    data: statisticsData,
+    refetch: refetchStatistics,
+  } = usePollIntervalQuery<OrdersStatisticsData, { destination: string }>(ORDERS_STATISTICS, {
     variables: { destination },
   });
-  const { loading: totalOrdersLoading, data: totalOrdersData } = usePollIntervalQuery<
-    FeeMarketOrders,
-    { destination: string }
-  >(FEE_MARKET_ORDERS, {
+  const {
+    loading: totalOrdersLoading,
+    data: totalOrdersData,
+    refetch: refetchTotalOrders,
+  } = usePollIntervalQuery<FeeMarketOrders, { destination: string }>(FEE_MARKET_ORDERS, {
     variables: { destination },
   });
 
@@ -411,6 +419,13 @@ export const Orders = ({ destination }: { destination: CrossChainDestination }) 
 
     return () => instance.dispose();
   }, [statisticsData?.feeMarketEntity, t]);
+
+  useEffect(() => {
+    setRefresh(() => () => {
+      refetchStatistics();
+      refetchTotalOrders();
+    });
+  }, [setRefresh, refetchStatistics, refetchTotalOrders]);
 
   return (
     <>

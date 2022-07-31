@@ -32,12 +32,19 @@ enum RelayerTab {
 const renderBalance = (value: Balance | string | number, symbol: string): string =>
   new BN(value).isZero() ? fromWei({ value }, prettyNumber) : `${fromWei({ value }, prettyNumber)} ${symbol}`;
 
-export const Relayers = ({ destination }: { destination: CrossChainDestination }) => {
+export const Relayers = ({
+  destination,
+  setRefresh,
+}: {
+  destination: CrossChainDestination;
+  setRefresh: (fn: () => void) => void;
+}) => {
   const { api, network } = useApi();
   const apollo = useApolloClient();
   const { t } = useTranslation();
   const [tab, setTab] = useState(RelayerTab.ALL);
   const [loading, setLoaing] = useState(false);
+  const [refreshFlag, toggleRefreshFlag] = useState(false);
   const [relayers, setRelayers] = useState<PalletFeeMarketRelayer[]>([]);
   const [dataSource, setDataSource] = useState<RelayerData[]>([]);
   const dataSourceRef = useRef<RelayerData[]>([]);
@@ -152,7 +159,7 @@ export const Relayers = ({ destination }: { destination: CrossChainDestination }
         sub$$.unsubscribe();
       }
     };
-  }, [api, destination, tab]);
+  }, [api, destination, tab, refreshFlag]);
 
   useEffect(() => {
     if (!relayers.length) {
@@ -203,6 +210,10 @@ export const Relayers = ({ destination }: { destination: CrossChainDestination }
 
     return () => sub$$.unsubscribe();
   }, [apollo, destination, relayers]);
+
+  useEffect(() => {
+    setRefresh(() => () => toggleRefreshFlag((prev) => !prev));
+  }, [setRefresh]);
 
   return (
     <>

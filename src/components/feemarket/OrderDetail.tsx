@@ -2,6 +2,7 @@ import { Card, Descriptions, Badge, Divider, Breadcrumb, Spin } from 'antd';
 import { NavLink } from 'react-router-dom';
 import { formatDistance, format } from 'date-fns';
 import { useTranslation } from 'react-i18next';
+import { useEffect } from 'react';
 
 import { Path } from '../../config/routes';
 import { ORDER_DETAIL, DATE_TIME_FORMATE } from '../../config';
@@ -33,21 +34,36 @@ const getPrioritySlot = (confirmedSlotIndex?: number | null): string => {
 };
 
 // eslint-disable-next-line complexity
-export const OrderDetail = ({ orderid, destination }: { orderid: string; destination: CrossChainDestination }) => {
+export const OrderDetail = ({
+  orderid,
+  destination,
+  setRefresh,
+}: {
+  orderid: string;
+  destination: CrossChainDestination;
+  setRefresh: (fn: () => void) => void;
+}) => {
   const { network } = useApi();
   const { t } = useTranslation();
 
-  const { loading: orderDetailLoading, transformedData: orderDetailState } = usePollIntervalQuery<
-    OrderDetailData,
-    { orderId: string },
-    OrderDetailState | undefined
-  >(
+  const {
+    loading: orderDetailLoading,
+    transformedData: orderDetailState,
+    refetch,
+  } = usePollIntervalQuery<OrderDetailData, { orderId: string }, OrderDetailState | undefined>(
     ORDER_DETAIL,
     {
       variables: { orderId: `${destination}-${orderid}` },
     },
     transformOrderDetail
   );
+
+  useEffect(() => {
+    setRefresh(() => () => {
+      console.log('refresh');
+      refetch();
+    });
+  }, [setRefresh, refetch]);
 
   return (
     <>
