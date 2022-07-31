@@ -49,8 +49,8 @@ export const FeeMarketProvider = ({ children }: PropsWithChildren<unknown>) => {
   );
 
   useEffect(() => {
-    _setDestination(supportedDestinations[0]);
-  }, [supportedDestinations]);
+    _setDestination(supportedDestinations.find((item) => item === dest) ?? supportedDestinations[0]);
+  }, [supportedDestinations, dest]);
 
   return (
     <FeeMarketContext.Provider
