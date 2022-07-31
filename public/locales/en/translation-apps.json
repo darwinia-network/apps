@@ -200,7 +200,7 @@
   "points": "points",
   "total issuance({{symbol}})": "total issuance({{symbol}})",
   "total staked(Power)": "total staked(Power)",
-  "transferrable": "transferrable",
+  "Transferable": "Transferable",
   "twitter": "twitter",
   "unbond tokens for staking, unbonded tokens become available after 14 days": "unbond tokens for staking, unbonded tokens become available after 14 days",
   "validators": "validators",
@@ -301,5 +301,8 @@
   "End block": "End block",
   "Faucet": "Faucet",
   "Reward Extrinsic": "Reward Extrinsic",
-  "Slash Extrinsic": "Slash Extrinsic"
+  "Slash Extrinsic": "Slash Extrinsic",
+  "Do not fill in any cold wallet address.": "Do not fill in any cold wallet address.",
+  "Do not fill in any cold wallet address or exchange controlled address.": "Do not fill in any cold wallet address or exchange controlled address.",
+  "Estimated fees of {{amount}} {{token}}": "Estimated fees of {{amount}} {{token}}"
 }
