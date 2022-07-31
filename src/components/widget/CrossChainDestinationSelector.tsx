@@ -2,7 +2,7 @@ import { Select } from 'antd';
 import { SyncOutlined } from '@ant-design/icons';
 import { useMatch } from 'react-router-dom';
 import { Path } from '../../config/routes';
-import { CrossChainDestination } from '../../model';
+import { CrossChainDestination, Network } from '../../model';
 
 const labels: Record<CrossChainDestination, string> = {
   Crab: 'Crab',
@@ -15,11 +15,13 @@ const labels: Record<CrossChainDestination, string> = {
 };
 
 export const CrossChainDestinationSelector = ({
+  network,
   defaultValue,
   destinations,
   refresh = () => undefined,
   onSelect,
 }: {
+  network: Network;
   defaultValue?: CrossChainDestination | null;
   destinations: CrossChainDestination[];
   refresh: () => void;
@@ -38,7 +40,10 @@ export const CrossChainDestinationSelector = ({
         defaultValue={defaultValue || destinations[0]}
         style={{ minWidth: '10rem' }}
       />
-      <SyncOutlined className="text-xl text-pangolin-main" onClick={refresh} />
+      <SyncOutlined
+        className={`text-${network}-main inline-flex items-center justify-center text-xl transition-transform duration-300 transform hover:rotate-90 fee-market-refresh`}
+        onClick={refresh}
+      />
     </div>
   ) : null;
 };

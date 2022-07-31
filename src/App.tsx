@@ -160,6 +160,7 @@ function App() {
                 <CrossChainDestinationSelector
                   destinations={supportedDestinations}
                   defaultValue={destination}
+                  network={network.name}
                   onSelect={setDestination}
                   refresh={refresh}
                 />
