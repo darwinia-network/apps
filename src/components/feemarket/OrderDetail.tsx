@@ -1,4 +1,4 @@
-import { Card, Descriptions, Badge, Divider, Breadcrumb, Spin } from 'antd';
+import { Card, Descriptions, Badge, Breadcrumb, Spin } from 'antd';
 import { NavLink } from 'react-router-dom';
 import { formatDistance, format } from 'date-fns';
 import { useTranslation } from 'react-i18next';
@@ -151,7 +151,6 @@ export const OrderDetail = ({
 
           {orderDetailState?.rewards.length ? (
             <>
-              <Divider className="my-2" />
               <Descriptions column={1} title={<span className="text-sm font-bold text-black">{t('Reward')}</span>}>
                 <Descriptions.Item label={t('Reward Extrinsic')}>
                   <SubscanLink
@@ -203,7 +202,6 @@ export const OrderDetail = ({
 
           {orderDetailState?.slashs.length ? (
             <>
-              <Divider className="my-2" />
               <Descriptions column={1} title={<span className="text-sm font-bold text-black">{t('Slash')}</span>}>
                 <Descriptions.Item label={t('Delay Blocks')}>{orderDetailState.slashs[0].delayTime}</Descriptions.Item>
                 <Descriptions.Item label={t('Slash Extrinsic')}>
