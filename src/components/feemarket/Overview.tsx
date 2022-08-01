@@ -257,7 +257,7 @@ export const Overview = ({
             title={t('Average Speed')}
             value={
               <Spin size="small" spinning={feemarketLoading}>
-                <span>
+                <span className="capitalize">
                   {formatDistanceStrict(
                     new Date(),
                     new Date(Date.now() + (overviewStatisticsState?.averageSpeed || 0))

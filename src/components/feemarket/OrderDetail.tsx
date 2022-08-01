@@ -3,6 +3,7 @@ import { NavLink } from 'react-router-dom';
 import { formatDistance, format } from 'date-fns';
 import { useTranslation } from 'react-i18next';
 import { useEffect } from 'react';
+import { capitalize } from 'lodash';
 
 import { Path } from '../../config/routes';
 import { ORDER_DETAIL, DATE_TIME_FORMATE } from '../../config';
@@ -83,10 +84,11 @@ export const OrderDetail = ({
             <Descriptions.Item label={t('Lane ID')}>{orderDetailState?.createLaneId || '-'}</Descriptions.Item>
             <Descriptions.Item label={t('Time Stamp')}>
               {orderDetailState?.createTime
-                ? `${formatDistance(new Date(orderDetailState.createTime), new Date(), { addSuffix: true })} ( ${format(
-                    new Date(orderDetailState.createTime),
-                    DATE_TIME_FORMATE
-                  )} +UTC)`
+                ? `${capitalize(
+                    formatDistance(new Date(`${orderDetailState.createTime}Z`), Date.now(), {
+                      addSuffix: true,
+                    })
+                  )} ( ${format(new Date(orderDetailState.createTime), DATE_TIME_FORMATE)} +UTC)`
                 : '-'}
             </Descriptions.Item>
             <Descriptions.Item label={t('Source TxID')}>

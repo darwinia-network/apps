@@ -205,7 +205,7 @@ export const RelayerDetail = ({
       key: 'createTime',
       dataIndex: 'createTime',
       align: 'center',
-      render: (value) => formatDistanceStrict(new Date(value), new Date(), { addSuffix: true }),
+      render: (value) => formatDistanceStrict(new Date(`${value}Z`), Date.now(), { addSuffix: true }),
     },
   ];
 
