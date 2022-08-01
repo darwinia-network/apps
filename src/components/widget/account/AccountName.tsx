@@ -1,16 +1,20 @@
-import { CheckCircleFilled, LinkOutlined, MinusCircleFilled } from '@ant-design/icons';
+import { CheckCircleFilled, LinkOutlined, MinusCircleFilled, CheckOutlined } from '@ant-design/icons';
 import { DeriveAccountRegistration } from '@polkadot/api-derive/accounts/types';
 import { TypeRegistry } from '@polkadot/types/create';
 import { AccountId, AccountIndex, Address } from '@polkadot/types/interfaces';
 import { stringToU8a } from '@polkadot/util';
 import { isFunction } from 'lodash';
-import { ReactNode, useEffect, useState, forwardRef } from 'react';
-import { from } from 'rxjs';
+import { ReactNode, useEffect, useState } from 'react';
+import { from, of, delay } from 'rxjs';
+import { CopyToClipboard } from 'react-copy-to-clipboard';
 import { useApi } from '../../../hooks';
+import { CopyIcon } from '../../icons';
 import { getAddressName } from '../../../utils';
+import { SHORT_DURATION } from '../../../config';
 
 interface AccountNameProps {
   account: string;
+  copyable?: boolean;
   className?: string;
 }
 
@@ -123,9 +127,10 @@ function extractIdentity(address: string, identity: DeriveAccountRegistration): 
   return elem;
 }
 
-export const AccountName = forwardRef<HTMLSpanElement, AccountNameProps>(({ account, className }, ref) => {
+export const AccountName = ({ account, copyable, className }: AccountNameProps) => {
   const [name, setName] = useState<ReactNode>(() => extractName(account));
   const { api } = useApi();
+  const [isCopied, setIsCopied] = useState<boolean>(false);
 
   useEffect(() => {
     // eslint-disable-next-line complexity
@@ -150,9 +155,20 @@ export const AccountName = forwardRef<HTMLSpanElement, AccountNameProps>(({ acco
     return () => sub$$.unsubscribe();
   }, [account, api]);
 
+  useEffect(() => {
+    if (isCopied) {
+      of(false).pipe(delay(SHORT_DURATION)).subscribe(setIsCopied);
+    }
+  }, [isCopied]);
+
   return (
-    <span ref={ref} className={className}>
+    <span className={`inline-flex items-end ${className}`}>
       {name}
+      {copyable && (
+        <CopyToClipboard text={account} onCopy={() => setIsCopied(true)}>
+          {isCopied ? <CheckOutlined className="text-sm ml-1" /> : <CopyIcon className="text-sm ml-px" />}
+        </CopyToClipboard>
+      )}
     </span>
   );
-});
+};
