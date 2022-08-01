@@ -76,7 +76,7 @@ export const OrderDetail = ({
 
       <Card className="mt-1">
         <Spin spinning={orderDetailLoading}>
-          <Descriptions column={1}>
+          <Descriptions column={1} title={<span className="text-sm font-bold text-black">{t('Detail')}</span>}>
             <Descriptions.Item label={t('Nonce')}>{orderid}</Descriptions.Item>
             <Descriptions.Item label={t('Lane ID')}>{orderDetailState?.createLaneId || '-'}</Descriptions.Item>
             <Descriptions.Item label={t('Source TxID')}>
@@ -116,8 +116,6 @@ export const OrderDetail = ({
             </Descriptions.Item>
           </Descriptions>
 
-          <Divider className="my-2" />
-
           <Descriptions column={1}>
             <Descriptions.Item label={t('Created Block')}>
               {orderDetailState?.createBlock ? (
@@ -154,7 +152,7 @@ export const OrderDetail = ({
           {orderDetailState?.rewards.length ? (
             <>
               <Divider className="my-2" />
-              <Descriptions column={1}>
+              <Descriptions column={1} title={<span className="text-sm font-bold text-black">{t('Reward')}</span>}>
                 <Descriptions.Item label={t('Reward Extrinsic')}>
                   <SubscanLink
                     network={network.name}
@@ -206,7 +204,7 @@ export const OrderDetail = ({
           {orderDetailState?.slashs.length ? (
             <>
               <Divider className="my-2" />
-              <Descriptions column={1}>
+              <Descriptions column={1} title={<span className="text-sm font-bold text-black">{t('Slash')}</span>}>
                 <Descriptions.Item label={t('Delay Blocks')}>{orderDetailState.slashs[0].delayTime}</Descriptions.Item>
                 <Descriptions.Item label={t('Slash Extrinsic')}>
                   <SubscanLink
