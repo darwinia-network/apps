@@ -137,7 +137,7 @@ export const OrderDetail = ({
             <Descriptions.Item label={t('Assigned Relayers')}>
               <div className="inline-flex items-center space-x-4">
                 {orderDetailState?.assignedRelayers.map((relayer) => (
-                  <AccountName key={relayer} account={relayer} />
+                  <AccountName key={relayer} account={relayer} copyable />
                 ))}
               </div>
             </Descriptions.Item>
@@ -161,7 +161,7 @@ export const OrderDetail = ({
                 </Descriptions.Item>
                 {orderDetailState.rewards[0].assignedRelayerId && (
                   <Descriptions.Item label={t(RelayerRole.ASSIGNED)}>
-                    <AccountName account={orderDetailState.rewards[0].assignedRelayerId.split('-')[1]} />
+                    <AccountName account={orderDetailState.rewards[0].assignedRelayerId.split('-')[1]} copyable />
                     <span>
                       &nbsp;
                       {`| +${fromWei({ value: orderDetailState.rewards[0].assignedAmount }, prettyNumber)} ${
@@ -171,7 +171,7 @@ export const OrderDetail = ({
                   </Descriptions.Item>
                 )}
                 <Descriptions.Item label={t(RelayerRole.DELIVERY)}>
-                  <AccountName account={orderDetailState.rewards[0].deliveredRelayerId.split('-')[1]} />
+                  <AccountName account={orderDetailState.rewards[0].deliveredRelayerId.split('-')[1]} copyable />
                   <span>
                     &nbsp;
                     {`| +${fromWei({ value: orderDetailState.rewards[0].deliveredAmount }, prettyNumber)} ${
@@ -180,7 +180,7 @@ export const OrderDetail = ({
                   </span>
                 </Descriptions.Item>
                 <Descriptions.Item label={t(RelayerRole.CONFIRMED)}>
-                  <AccountName account={orderDetailState.rewards[0].confirmedRelayerId.split('-')[1]} />
+                  <AccountName account={orderDetailState.rewards[0].confirmedRelayerId.split('-')[1]} copyable />
                   <span>
                     &nbsp;
                     {`| +${fromWei({ value: orderDetailState.rewards[0].confirmedAmount }, prettyNumber)} ${
@@ -212,7 +212,7 @@ export const OrderDetail = ({
                 </Descriptions.Item>
                 {orderDetailState.slashs.map((slash) => (
                   <Descriptions.Item label={t(RelayerRole.ASSIGNED)} key={slash.relayerId}>
-                    <AccountName account={slash.relayerId.split('-')[1]} />
+                    <AccountName account={slash.relayerId.split('-')[1]} copyable />
                     <span>
                       &nbsp;{`| -${fromWei({ value: slash.amount }, prettyNumber)} ${network.tokens.ring.symbol}`}
                     </span>
