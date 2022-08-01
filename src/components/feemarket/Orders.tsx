@@ -39,7 +39,6 @@ type OrderData = {
   orderId: string;
   deliveryRelayer?: string | null;
   confirmationRelayer?: string | null;
-  assignedRelayer?: string;
   createBlock: number;
   finishBlock?: number | null;
   sender: string;
@@ -171,23 +170,6 @@ export const Orders = ({
         searchParams.set(SearchParamsKey.ORDER, value);
         return <NavLink to={`?${searchParams.toString()}`}>{value}</NavLink>;
       },
-    },
-    {
-      title: (
-        <div className="flex justify-center">
-          <span>{t(RelayerRole.ASSIGNED)}</span>
-        </div>
-      ),
-      key: 'assignedRelayer',
-      dataIndex: 'assignedRelayer',
-      render: (value) =>
-        value ? (
-          <IdentAccountName account={value} />
-        ) : (
-          <div className="flex justify-center">
-            <span>-</span>
-          </div>
-        ),
     },
     {
       title: (
@@ -361,7 +343,6 @@ export const Orders = ({
       orderId: node.id.split('-')[1],
       deliveryRelayer: node.deliveredRelayerId?.split('-')[1],
       confirmationRelayer: node.confirmedRelayerId?.split('-')[1],
-      assignedRelayer: node.assignedRelayerId?.split('-')[1],
     }));
 
     setDataSource(dataSourceRef.current);

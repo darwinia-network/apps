@@ -259,7 +259,6 @@ export interface FeeMarketOrders {
   orderEntities?: {
     nodes: {
       id: string;
-      assignedRelayerId?: string;
       deliveredRelayerId?: string;
       confirmedRelayerId?: string;
       createBlock: number;

@@ -143,7 +143,6 @@ export const FEE_MARKET_ORDERS = gql`
       nodes {
         id
         sender
-        assignedRelayerId
         deliveredRelayerId
         confirmedRelayerId
         createBlock
