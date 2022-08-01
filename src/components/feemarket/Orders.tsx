@@ -160,15 +160,26 @@ export const Orders = ({
       title: t('Order ID'),
       key: 'orderId',
       dataIndex: 'orderId',
-      width: '6%',
+      width: '10%',
       align: 'center',
-      render: (value) => {
+      render: (value, record) => {
         const searchParams = new URLSearchParams();
         searchParams.set(SearchParamsKey.RPC, encodeURIComponent(network.provider.rpc));
         searchParams.set(SearchParamsKey.DESTINATION, destination);
         searchParams.set(SearchParamsKey.TAB, FeeMarketTab.OREDERS);
         searchParams.set(SearchParamsKey.ORDER, value);
-        return <NavLink to={`?${searchParams.toString()}`}>{value}</NavLink>;
+        return (
+          <div className="inline-flex items-center">
+            {record.status === SubqlOrderStatus.IN_PROGRESS ? (
+              <Badge status="processing" />
+            ) : record.status === SubqlOrderStatus.OUT_OF_SLOT ? (
+              <Badge status="warning" />
+            ) : (
+              <Badge status="success" />
+            )}
+            <NavLink to={`?${searchParams.toString()}`}>{value}</NavLink>
+          </div>
+        );
       },
     },
     {
@@ -230,19 +241,6 @@ export const Orders = ({
           </div>
         ) : (
           '-'
-        ),
-    },
-    {
-      title: t('Status'),
-      key: 'status',
-      align: 'center',
-      render: (_, record) =>
-        record.status === SubqlOrderStatus.IN_PROGRESS ? (
-          <Badge status="processing" text={OrderStatus.IN_PROGRESS} />
-        ) : record.status === SubqlOrderStatus.OUT_OF_SLOT ? (
-          <Badge status="warning" text={OrderStatus.OUT_OF_SLOT} />
-        ) : (
-          <Badge status="success" text={OrderStatus.FINISHED} />
         ),
     },
   ];
