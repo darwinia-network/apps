@@ -138,7 +138,7 @@ export const OrderDetail = ({
                 ? `${formatDistance(new Date(orderDetailState.createTime), new Date(), { addSuffix: true })} ( ${format(
                     new Date(orderDetailState.createTime),
                     DATE_TIME_FORMATE
-                  )} )`
+                  )} +UTC)`
                 : '-'}
             </Descriptions.Item>
             <Descriptions.Item label={t('Confirmed Time')}>
@@ -146,7 +146,7 @@ export const OrderDetail = ({
                 ? `${formatDistance(new Date(orderDetailState.finishTime), new Date(), { addSuffix: true })} ( ${format(
                     new Date(orderDetailState.finishTime),
                     DATE_TIME_FORMATE
-                  )} )`
+                  )} +UTC)`
                 : '-'}
             </Descriptions.Item>
           </Descriptions>
