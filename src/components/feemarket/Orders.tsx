@@ -183,13 +183,10 @@ export const Orders = ({
       },
     },
     {
-      title: (
-        <div className="flex justify-center">
-          <span>{t(RelayerRole.DELIVERY)}</span>
-        </div>
-      ),
+      title: t(RelayerRole.DELIVERY),
       key: 'deliveryRelayer',
       dataIndex: 'deliveryRelayer',
+      align: 'center',
       render: (value) =>
         value ? (
           <IdentAccountName account={value} />
@@ -200,13 +197,10 @@ export const Orders = ({
         ),
     },
     {
-      title: (
-        <div className="flex justify-center">
-          <span>{t(RelayerRole.CONFIRMED)}</span>
-        </div>
-      ),
+      title: t(RelayerRole.CONFIRMED),
       key: 'confirmationRelayer',
       dataIndex: 'confirmationRelayer',
+      align: 'center',
       render: (value) =>
         value ? (
           <IdentAccountName account={value} />
