@@ -25,9 +25,11 @@ const getPrioritySlot = (confirmedSlotIndex?: number | null): string => {
     case -1:
       return SlotState.OUT_OF_SLOT;
     case 0:
+      return SlotState.SLOT_1;
     case 1:
+      return SlotState.SLOT_2;
     case 2: // eslint-disable-line no-magic-numbers
-      return `${confirmedSlotIndex + 1}`;
+      return SlotState.SLOT_3;
     default:
       return '-';
   }
@@ -79,6 +81,14 @@ export const OrderDetail = ({
           <Descriptions column={1} title={<span className="text-sm font-bold text-black">{t('Detail')}</span>}>
             <Descriptions.Item label={t('Nonce')}>{orderid}</Descriptions.Item>
             <Descriptions.Item label={t('Lane ID')}>{orderDetailState?.createLaneId || '-'}</Descriptions.Item>
+            <Descriptions.Item label={t('Time Stamp')}>
+              {orderDetailState?.createTime
+                ? `${formatDistance(new Date(orderDetailState.createTime), new Date(), { addSuffix: true })} ( ${format(
+                    new Date(orderDetailState.createTime),
+                    DATE_TIME_FORMATE
+                  )} +UTC)`
+                : '-'}
+            </Descriptions.Item>
             <Descriptions.Item label={t('Source TxID')}>
               {orderDetailState?.sourceTxHash ? (
                 <SubscanLink network={network.name} txHash={orderDetailState.sourceTxHash} />
@@ -102,57 +112,45 @@ export const OrderDetail = ({
                 <Badge status="processing" text={t(OrderStatus.IN_PROGRESS)} />
               )}
             </Descriptions.Item>
-            <Descriptions.Item label={t('Cross-chain Fee')}>
+            <Descriptions.Item label={t('Fee')}>
               {orderDetailState?.fee
                 ? `${fromWei({ value: orderDetailState.fee }, prettyNumber)} ${network.tokens.ring.symbol}`
                 : '-'}
             </Descriptions.Item>
-            <Descriptions.Item label={t('Finished at Slot')}>
-              {t(getPrioritySlot(orderDetailState?.confirmedSlotIndex))}&nbsp;(within {orderDetailState?.slotTime}{' '}
-              blocks)
-            </Descriptions.Item>
-            <Descriptions.Item label={t('Out of Slots Block Number')}>
-              {orderDetailState?.outOfSlot || '-'}
-            </Descriptions.Item>
-          </Descriptions>
-
-          <Descriptions column={1}>
-            <Descriptions.Item label={t('Created Block')}>
+            <Descriptions.Item label={t('Created At')}>
               {orderDetailState?.createBlock ? (
                 <SubscanLink network={network.name} block={orderDetailState.createBlock.toString()} prefix="#" />
               ) : (
                 '-'
               )}
             </Descriptions.Item>
-            <Descriptions.Item label={t('Confirmed Block')}>
+            <Descriptions.Item label={t('Confirmed At')}>
               {orderDetailState?.finishBlock ? (
                 <SubscanLink network={network.name} block={orderDetailState.finishBlock.toString()} prefix="#" />
               ) : (
                 '-'
               )}
             </Descriptions.Item>
-            <Descriptions.Item label={t('Created Time')}>
-              {orderDetailState?.createTime
-                ? `${formatDistance(new Date(orderDetailState.createTime), new Date(), { addSuffix: true })} ( ${format(
-                    new Date(orderDetailState.createTime),
-                    DATE_TIME_FORMATE
-                  )} +UTC)`
-                : '-'}
+            <Descriptions.Item label={t('Slot At')}>
+              {t(getPrioritySlot(orderDetailState?.confirmedSlotIndex))}
             </Descriptions.Item>
-            <Descriptions.Item label={t('Confirmed Time')}>
-              {orderDetailState?.finishTime
-                ? `${formatDistance(new Date(orderDetailState.finishTime), new Date(), { addSuffix: true })} ( ${format(
-                    new Date(orderDetailState.finishTime),
-                    DATE_TIME_FORMATE
-                  )} +UTC)`
-                : '-'}
+            <Descriptions.Item label={t('Assigned Relayers')}>
+              <div className="inline-flex items-center space-x-4">
+                {orderDetailState?.assignedRelayers.map((relayer) => (
+                  <AccountName key={relayer} account={relayer} />
+                ))}
+              </div>
             </Descriptions.Item>
           </Descriptions>
 
           {orderDetailState?.rewards.length ? (
             <>
-              <Descriptions column={1} title={<span className="text-sm font-bold text-black">{t('Reward')}</span>}>
-                <Descriptions.Item label={t('Reward Extrinsic')}>
+              <Descriptions
+                column={1}
+                className="mt-4"
+                title={<span className="text-sm font-bold text-black">{t('Reward')}</span>}
+              >
+                <Descriptions.Item label={t('Extrinsic')}>
                   <SubscanLink
                     network={network.name}
                     extrinsic={{
@@ -166,7 +164,7 @@ export const OrderDetail = ({
                     <AccountName account={orderDetailState.rewards[0].assignedRelayerId.split('-')[1]} />
                     <span>
                       &nbsp;
-                      {`| ${fromWei({ value: orderDetailState.rewards[0].assignedAmount }, prettyNumber)} ${
+                      {`| +${fromWei({ value: orderDetailState.rewards[0].assignedAmount }, prettyNumber)} ${
                         network.tokens.ring.symbol
                       }`}
                     </span>
@@ -176,7 +174,7 @@ export const OrderDetail = ({
                   <AccountName account={orderDetailState.rewards[0].deliveredRelayerId.split('-')[1]} />
                   <span>
                     &nbsp;
-                    {`| ${fromWei({ value: orderDetailState.rewards[0].deliveredAmount }, prettyNumber)} ${
+                    {`| +${fromWei({ value: orderDetailState.rewards[0].deliveredAmount }, prettyNumber)} ${
                       network.tokens.ring.symbol
                     }`}
                   </span>
@@ -185,7 +183,7 @@ export const OrderDetail = ({
                   <AccountName account={orderDetailState.rewards[0].confirmedRelayerId.split('-')[1]} />
                   <span>
                     &nbsp;
-                    {`| ${fromWei({ value: orderDetailState.rewards[0].confirmedAmount }, prettyNumber)} ${
+                    {`| +${fromWei({ value: orderDetailState.rewards[0].confirmedAmount }, prettyNumber)} ${
                       network.tokens.ring.symbol
                     }`}
                   </span>
@@ -203,8 +201,7 @@ export const OrderDetail = ({
           {orderDetailState?.slashs.length ? (
             <>
               <Descriptions column={1} title={<span className="text-sm font-bold text-black">{t('Slash')}</span>}>
-                <Descriptions.Item label={t('Delay Blocks')}>{orderDetailState.slashs[0].delayTime}</Descriptions.Item>
-                <Descriptions.Item label={t('Slash Extrinsic')}>
+                <Descriptions.Item label={t('Extrinsic')}>
                   <SubscanLink
                     network={network.name}
                     extrinsic={{

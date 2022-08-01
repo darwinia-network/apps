@@ -172,6 +172,7 @@ export const ORDER_DETAIL = gql`
       finishTime
       createBlock
       finishBlock
+      assignedRelayers
       slashs(orderBy: SLASH_TIME_ASC) {
         nodes {
           amount

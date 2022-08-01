@@ -179,6 +179,7 @@ interface OrderDetailBase {
   finishTime?: string | null;
   createBlock: number;
   finishBlock?: number | null;
+  assignedRelayers: string[];
 }
 
 interface OrderDetailSlash {
