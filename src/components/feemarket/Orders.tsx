@@ -217,7 +217,7 @@ export const Orders = ({
         ),
     },
     {
-      title: t('Created Block'),
+      title: t('Created At'),
       key: 'createBlock',
       dataIndex: 'createBlock',
       align: 'center',
@@ -229,7 +229,7 @@ export const Orders = ({
       ),
     },
     {
-      title: t('Confirmed Block'),
+      title: t('Confirmed At'),
       key: 'finishBlock',
       dataIndex: 'finishBlock',
       align: 'center',
