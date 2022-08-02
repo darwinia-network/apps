@@ -191,7 +191,7 @@ export const OrderDetail = ({
                   </span>
                 </Descriptions.Item>
                 {orderDetailState.rewards[0].treasuryAmount && (
-                  <Descriptions.Item label={t('Treaury')}>{`${fromWei(
+                  <Descriptions.Item label={t('Treaury')}>{`+${fromWei(
                     { value: orderDetailState.rewards[0].treasuryAmount },
                     prettyNumber
                   )} ${network.tokens.ring.symbol}`}</Descriptions.Item>
