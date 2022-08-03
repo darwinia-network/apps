@@ -14,12 +14,7 @@ import { SVGRenderer } from 'echarts/renderers';
 import { UniversalTransition } from 'echarts/features';
 
 import { Statistics } from '../widget/Statistics';
-import {
-  LONG_LONG_DURATION,
-  OVERVIEW_STATISTICS,
-  IN_PROGRESS_ORDERS_RELAYERS,
-  FEE_MARKET_FEE_AND_ORDER_HISTORY,
-} from '../../config';
+import { LONG_LONG_DURATION, OVERVIEW_STATISTICS, FEE_MARKET_FEE_AND_ORDER_HISTORY } from '../../config';
 import { useApi, usePollIntervalQuery } from '../../hooks';
 import {
   getFeeMarketModule,
@@ -32,7 +27,6 @@ import {
   PalletFeeMarketRelayer,
   SegmentedType,
   CrossChainDestination,
-  InProgressOrdersRelayersData,
   OverviewStatisticsData,
   OverviewStatisticsState,
   FeeMarketFeeAndOderHistoryData,
@@ -47,7 +41,13 @@ type EChartsOption = echarts.ComposeOption<
   GridComponentOption | BarSeriesOption | LineSeriesOption | TooltipComponentOption
 >;
 
-export const Overview = ({ destination }: { destination: CrossChainDestination }) => {
+export const Overview = ({
+  destination,
+  setRefresh,
+}: {
+  destination: CrossChainDestination;
+  setRefresh: (fn: () => void) => void;
+}) => {
   const { api, network } = useApi();
   const { t } = useTranslation();
 
@@ -58,17 +58,17 @@ export const Overview = ({ destination }: { destination: CrossChainDestination }
   const [orderSegmentedType, setOrderSegmentedType] = useState(SegmentedType.ALL);
 
   const [currentFee, setCurrentFee] = useState<{ value?: Balance; loading: boolean }>({ loading: true });
-  const [totalRelayers, setTotalRelayers] = useState<{ total: number; inactive: number; loading: boolean }>({
+  const [totalRelayers, setTotalRelayers] = useState<{ total: number; active: number; loading: boolean }>({
     total: 0,
-    inactive: 0,
+    active: 0,
     loading: true,
   });
 
-  const { loading: feemarketLoading, transformedData: overviewStatisticsState } = usePollIntervalQuery<
-    OverviewStatisticsData,
-    { destination: string },
-    OverviewStatisticsState
-  >(
+  const {
+    loading: feemarketLoading,
+    transformedData: overviewStatisticsState,
+    refetch: refetchFeemarket,
+  } = usePollIntervalQuery<OverviewStatisticsData, { destination: string }, OverviewStatisticsState>(
     OVERVIEW_STATISTICS,
     {
       variables: { destination },
@@ -76,14 +76,11 @@ export const Overview = ({ destination }: { destination: CrossChainDestination }
     transformOverviewStatistics
   );
 
-  const { data: relayersUnfinishedOrdersData } = usePollIntervalQuery<
-    InProgressOrdersRelayersData,
-    { destination: string }
-  >(IN_PROGRESS_ORDERS_RELAYERS, {
-    variables: { destination },
-  });
-
-  const { loading: feeHistoryLoading, transformedData: feeHistoryState } = usePollIntervalQuery<
+  const {
+    loading: feeHistoryLoading,
+    transformedData: feeHistoryState,
+    refetch: refetchFeeHistory,
+  } = usePollIntervalQuery<
     FeeMarketFeeAndOderHistoryData,
     { destination: string; time: string },
     FeeMarketFeeAndOrderHistortState
@@ -95,7 +92,11 @@ export const Overview = ({ destination }: { destination: CrossChainDestination }
     transformFeeMarketFeeHistort
   );
 
-  const { loading: orderHistoryLoading, transformedData: orderHistoryState } = usePollIntervalQuery<
+  const {
+    loading: orderHistoryLoading,
+    transformedData: orderHistoryState,
+    refetch: refetchOrderHistory,
+  } = usePollIntervalQuery<
     FeeMarketFeeAndOderHistoryData,
     { destination: string; time: string },
     FeeMarketFeeAndOrderHistortState
@@ -106,6 +107,14 @@ export const Overview = ({ destination }: { destination: CrossChainDestination }
     },
     transformFeeMarketOrderHistort
   );
+
+  useEffect(() => {
+    setRefresh(() => () => {
+      refetchFeemarket();
+      refetchFeeHistory();
+      refetchOrderHistory();
+    });
+  }, [setRefresh, refetchFeemarket, refetchFeeHistory, refetchOrderHistory]);
 
   useEffect(() => {
     const sub$$ = timer(0, LONG_LONG_DURATION)
@@ -130,26 +139,12 @@ export const Overview = ({ destination }: { destination: CrossChainDestination }
   useEffect(() => {
     setTotalRelayers((prev) => ({ ...prev, loading: true }));
 
-    const relayersUnfinishedOrders =
-      relayersUnfinishedOrdersData?.orderEntities?.nodes.reduce((relayersUnfinishedOrders, order) => {
-        order.assignedRelayers.forEach((relayer) => {
-          relayersUnfinishedOrders[relayer] = (relayersUnfinishedOrders[relayer] || 0) + 1;
-        });
-
-        return relayersUnfinishedOrders;
-      }, {} as Record<string, number>) || {};
-
     const sub$$ = from(api.query[getFeeMarketModule(destination)].relayers<Vec<AccountId32>>())
       .pipe(
-        tap((total) => setTotalRelayers((prev) => ({ ...prev, total: total.length }))),
         switchMap((total) => {
-          const relayers = Object.keys(relayersUnfinishedOrders).filter((relayer) =>
-            total.map((account) => account.toString()).includes(relayer)
-          );
-
-          return relayers.length
+          return total.length
             ? forkJoin(
-                relayers.map((relayer) =>
+                total.map((relayer) =>
                   api.query[getFeeMarketModule(destination)].relayersMap<PalletFeeMarketRelayer>(relayer)
                 )
               )
@@ -157,25 +152,29 @@ export const Overview = ({ destination }: { destination: CrossChainDestination }
         })
       )
       .subscribe({
-        next: (res) => {
-          let inactive = 0;
+        next: (relayers) => {
+          let active = 0;
           const collateralPerOrder = api.consts[getFeeMarketModule(destination)].collateralPerOrder as u128;
 
-          res.forEach((relayer) => {
-            if (collateralPerOrder.muln(relayersUnfinishedOrders[relayer.id.toString()] + 1).gt(relayer.collateral)) {
-              // https://github.com/darwinia-network/apps/issues/165
-              inactive++;
+          relayers.forEach((relayer) => {
+            if (relayer.collateral.gte(collateralPerOrder)) {
+              // https://github.com/darwinia-network/apps/issues/314
+              active++;
             }
           });
 
-          setTotalRelayers((prev) => ({ ...prev, inactive, loading: false }));
+          setTotalRelayers({
+            active,
+            total: relayers.length,
+            loading: false,
+          });
         },
-        complete: () => setTotalRelayers((prev) => ({ ...prev, inactive: 0, loading: false })),
-        error: () => setTotalRelayers((prev) => ({ ...prev, inactive: prev.total, loading: false })),
+        complete: () => setTotalRelayers((prev) => ({ ...prev, loading: false })),
+        error: () => setTotalRelayers((prev) => ({ ...prev, loading: false })),
       });
 
     return () => sub$$.unsubscribe();
-  }, [relayersUnfinishedOrdersData, api, destination]);
+  }, [api, destination]);
 
   useEffect(() => {
     if (!totalOrdersRef.current || totalOrdersRef.current.clientHeight === 0) {
@@ -249,7 +248,7 @@ export const Overview = ({ destination }: { destination: CrossChainDestination }
             title={t('Total Relayers')}
             value={
               <Spin size="small" spinning={totalRelayers.loading}>
-                <span>{`${totalRelayers.total - totalRelayers.inactive} / ${totalRelayers.total}`}</span>
+                <span>{`${totalRelayers.active} / ${totalRelayers.total}`}</span>
               </Spin>
             }
           />
@@ -258,7 +257,7 @@ export const Overview = ({ destination }: { destination: CrossChainDestination }
             title={t('Average Speed')}
             value={
               <Spin size="small" spinning={feemarketLoading}>
-                <span>
+                <span className="capitalize">
                   {formatDistanceStrict(
                     new Date(),
                     new Date(Date.now() + (overviewStatisticsState?.averageSpeed || 0))

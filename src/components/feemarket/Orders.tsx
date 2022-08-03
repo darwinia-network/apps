@@ -39,7 +39,6 @@ type OrderData = {
   orderId: string;
   deliveryRelayer?: string | null;
   confirmationRelayer?: string | null;
-  assignedRelayer?: string;
   createBlock: number;
   finishBlock?: number | null;
   sender: string;
@@ -123,7 +122,13 @@ const BlockFilterInput = ({
 };
 
 // eslint-disable-next-line complexity
-export const Orders = ({ destination }: { destination: CrossChainDestination }) => {
+export const Orders = ({
+  destination,
+  setRefresh,
+}: {
+  destination: CrossChainDestination;
+  setRefresh: (fn: () => void) => void;
+}) => {
   const { network } = useApi();
   const { t } = useTranslation();
   const dataSourceRef = useRef<OrderData[]>([]);
@@ -135,16 +140,18 @@ export const Orders = ({ destination }: { destination: CrossChainDestination }) 
     status: FilterStatus.ALL,
     slot: FilterSlot.ALL,
   });
-  const { loading: statisticsLoading, data: statisticsData } = usePollIntervalQuery<
-    OrdersStatisticsData,
-    { destination: string }
-  >(ORDERS_STATISTICS, {
+  const {
+    loading: statisticsLoading,
+    data: statisticsData,
+    refetch: refetchStatistics,
+  } = usePollIntervalQuery<OrdersStatisticsData, { destination: string }>(ORDERS_STATISTICS, {
     variables: { destination },
   });
-  const { loading: totalOrdersLoading, data: totalOrdersData } = usePollIntervalQuery<
-    FeeMarketOrders,
-    { destination: string }
-  >(FEE_MARKET_ORDERS, {
+  const {
+    loading: totalOrdersLoading,
+    data: totalOrdersData,
+    refetch: refetchTotalOrders,
+  } = usePollIntervalQuery<FeeMarketOrders, { destination: string }>(FEE_MARKET_ORDERS, {
     variables: { destination },
   });
 
@@ -153,42 +160,33 @@ export const Orders = ({ destination }: { destination: CrossChainDestination }) 
       title: t('Order ID'),
       key: 'orderId',
       dataIndex: 'orderId',
-      width: '6%',
+      width: '10%',
       align: 'center',
-      render: (value) => {
+      render: (value, record) => {
         const searchParams = new URLSearchParams();
         searchParams.set(SearchParamsKey.RPC, encodeURIComponent(network.provider.rpc));
         searchParams.set(SearchParamsKey.DESTINATION, destination);
         searchParams.set(SearchParamsKey.TAB, FeeMarketTab.OREDERS);
         searchParams.set(SearchParamsKey.ORDER, value);
-        return <NavLink to={`?${searchParams.toString()}`}>{value}</NavLink>;
+        return (
+          <div className="inline-flex items-center">
+            {record.status === SubqlOrderStatus.IN_PROGRESS ? (
+              <Badge status="processing" />
+            ) : record.status === SubqlOrderStatus.OUT_OF_SLOT ? (
+              <Badge status="warning" />
+            ) : (
+              <Badge status="success" />
+            )}
+            <NavLink to={`?${searchParams.toString()}`}>{value}</NavLink>
+          </div>
+        );
       },
     },
     {
-      title: (
-        <div className="flex justify-center">
-          <span>{t(RelayerRole.ASSIGNED)}</span>
-        </div>
-      ),
-      key: 'assignedRelayer',
-      dataIndex: 'assignedRelayer',
-      render: (value) =>
-        value ? (
-          <IdentAccountName account={value} />
-        ) : (
-          <div className="flex justify-center">
-            <span>-</span>
-          </div>
-        ),
-    },
-    {
-      title: (
-        <div className="flex justify-center">
-          <span>{t(RelayerRole.DELIVERY)}</span>
-        </div>
-      ),
+      title: t(RelayerRole.DELIVERY),
       key: 'deliveryRelayer',
       dataIndex: 'deliveryRelayer',
+      align: 'center',
       render: (value) =>
         value ? (
           <IdentAccountName account={value} />
@@ -199,13 +197,10 @@ export const Orders = ({ destination }: { destination: CrossChainDestination }) 
         ),
     },
     {
-      title: (
-        <div className="flex justify-center">
-          <span>{t(RelayerRole.CONFIRMED)}</span>
-        </div>
-      ),
+      title: t(RelayerRole.CONFIRMATION),
       key: 'confirmationRelayer',
       dataIndex: 'confirmationRelayer',
+      align: 'center',
       render: (value) =>
         value ? (
           <IdentAccountName account={value} />
@@ -216,19 +211,19 @@ export const Orders = ({ destination }: { destination: CrossChainDestination }) 
         ),
     },
     {
-      title: t('Start Block'),
+      title: t('Created At'),
       key: 'createBlock',
       dataIndex: 'createBlock',
       align: 'center',
       render: (value, record) => (
         <div className="flex flex-col justify-center">
           <SubscanLink network={network.name} block={value} prefix="#" />
-          <span>{format(new Date(record.createTime), DATE_TIME_FORMATE)}</span>
+          <span>{format(new Date(record.createTime), DATE_TIME_FORMATE)} (+UTC)</span>
         </div>
       ),
     },
     {
-      title: t('Confirm Block'),
+      title: t('Confirmed At'),
       key: 'finishBlock',
       dataIndex: 'finishBlock',
       align: 'center',
@@ -236,23 +231,10 @@ export const Orders = ({ destination }: { destination: CrossChainDestination }) 
         value ? (
           <div className="flex flex-col justify-center">
             <SubscanLink network={network.name} block={value} prefix="#" />
-            {record.finishTime ? <span>{format(new Date(record.finishTime), DATE_TIME_FORMATE)}</span> : null}
+            {record.finishTime ? <span>{format(new Date(record.finishTime), DATE_TIME_FORMATE)} (+UTC)</span> : null}
           </div>
         ) : (
           '-'
-        ),
-    },
-    {
-      title: t('Status'),
-      key: 'status',
-      align: 'center',
-      render: (_, record) =>
-        record.status === SubqlOrderStatus.IN_PROGRESS ? (
-          <Badge status="processing" text={OrderStatus.IN_PROGRESS} />
-        ) : record.status === SubqlOrderStatus.OUT_OF_SLOT ? (
-          <Badge status="warning" text={OrderStatus.OUT_OF_SLOT} />
-        ) : (
-          <Badge status="success" text={OrderStatus.FINISHED} />
         ),
     },
   ];
@@ -353,7 +335,6 @@ export const Orders = ({ destination }: { destination: CrossChainDestination }) 
       orderId: node.id.split('-')[1],
       deliveryRelayer: node.deliveredRelayerId?.split('-')[1],
       confirmationRelayer: node.confirmedRelayerId?.split('-')[1],
-      assignedRelayer: node.assignedRelayerId?.split('-')[1],
     }));
 
     setDataSource(dataSourceRef.current);
@@ -411,6 +392,13 @@ export const Orders = ({ destination }: { destination: CrossChainDestination }) 
 
     return () => instance.dispose();
   }, [statisticsData?.feeMarketEntity, t]);
+
+  useEffect(() => {
+    setRefresh(() => () => {
+      refetchStatistics();
+      refetchTotalOrders();
+    });
+  }, [setRefresh, refetchStatistics, refetchTotalOrders]);
 
   return (
     <>

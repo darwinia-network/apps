@@ -143,7 +143,7 @@ const updateOrders = (previous: RelayerOrdersState[], id: string, createTime: st
         }
 
         if (confirmedAmount) {
-          roles.add(RelayerRole.CONFIRMED);
+          roles.add(RelayerRole.CONFIRMATION);
           order.reward = order.reward.add(new BN(confirmedAmount));
         }
       });

@@ -17,6 +17,8 @@ export interface FeeMarketCtx {
   supportedDestinations: CrossChainDestination[];
 
   setDestination: (dest: CrossChainDestination) => void;
+  refresh: () => void;
+  setRefresh: (fn: () => void) => void;
 }
 
 export const FeeMarketContext = createContext<FeeMarketCtx>({} as FeeMarketCtx);
@@ -25,6 +27,7 @@ export const FeeMarketProvider = ({ children }: PropsWithChildren<unknown>) => {
   const { network } = useApi();
   const { search } = useLocation();
   const navigate = useNavigate();
+  const [refresh, setRefresh] = useState<() => void>(() => () => undefined);
 
   const searchParams = new URLSearchParams(search);
   const dest = searchParams.get(SearchParamsKey.DESTINATION);
@@ -49,14 +52,16 @@ export const FeeMarketProvider = ({ children }: PropsWithChildren<unknown>) => {
   );
 
   useEffect(() => {
-    _setDestination(supportedDestinations[0]);
-  }, [supportedDestinations]);
+    _setDestination(supportedDestinations.find((item) => item === dest) ?? supportedDestinations[0]);
+  }, [supportedDestinations, dest]);
 
   return (
     <FeeMarketContext.Provider
       value={{
         destination,
         supportedDestinations,
+        refresh,
+        setRefresh,
         setDestination,
       }}
     >

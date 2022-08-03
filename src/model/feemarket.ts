@@ -32,7 +32,7 @@ export enum FeeMarketTab {
 export enum RelayerRole {
   ASSIGNED = 'Assigned Relayer',
   DELIVERY = 'Delivery Relayer',
-  CONFIRMED = 'Confirmed Relayer',
+  CONFIRMATION = 'Confirmation Relayer',
 }
 
 export enum SlotState {
@@ -179,6 +179,7 @@ interface OrderDetailBase {
   finishTime?: string | null;
   createBlock: number;
   finishBlock?: number | null;
+  assignedRelayers: string[];
 }
 
 interface OrderDetailSlash {
@@ -217,14 +218,6 @@ export interface OrderDetailData {
 export interface OrderDetailState extends OrderDetailBase {
   slashs: OrderDetailSlash[];
   rewards: OrderDetailReward[];
-}
-
-export interface InProgressOrdersRelayersData {
-  orderEntities?: {
-    nodes: {
-      assignedRelayers: string[];
-    }[];
-  } | null;
 }
 
 export interface OverviewStatisticsData {
@@ -267,7 +260,6 @@ export interface FeeMarketOrders {
   orderEntities?: {
     nodes: {
       id: string;
-      assignedRelayerId?: string;
       deliveredRelayerId?: string;
       confirmedRelayerId?: string;
       createBlock: number;
