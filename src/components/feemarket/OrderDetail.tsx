@@ -181,7 +181,7 @@ export const OrderDetail = ({
                     }`}
                   </span>
                 </Descriptions.Item>
-                <Descriptions.Item label={t(RelayerRole.CONFIRMED)}>
+                <Descriptions.Item label={t(RelayerRole.CONFIRMATION)}>
                   <AccountName account={orderDetailState.rewards[0].confirmedRelayerId.split('-')[1]} copyable />
                   <span>
                     &nbsp;

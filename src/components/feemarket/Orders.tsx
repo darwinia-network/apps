@@ -197,7 +197,7 @@ export const Orders = ({
         ),
     },
     {
-      title: t(RelayerRole.CONFIRMED),
+      title: t(RelayerRole.CONFIRMATION),
       key: 'confirmationRelayer',
       dataIndex: 'confirmationRelayer',
       align: 'center',

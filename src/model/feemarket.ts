@@ -32,7 +32,7 @@ export enum FeeMarketTab {
 export enum RelayerRole {
   ASSIGNED = 'Assigned Relayer',
   DELIVERY = 'Delivery Relayer',
-  CONFIRMED = 'Confirmed Relayer',
+  CONFIRMATION = 'Confirmation Relayer',
 }
 
 export enum SlotState {
