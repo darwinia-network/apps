@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import Highcharts from 'highcharts/highstock';
 import HighchartsReact from 'highcharts-react-official';
 
-export const TotalOrdersChart = () => {
+export const FeeHistoryChart = () => {
   const { t } = useTranslation();
   const [options, setOptions] = useState<Highcharts.Options>({});
 
@@ -19,16 +19,16 @@ export const TotalOrdersChart = () => {
         spacingTop: 20,
       },
       title: {
-        text: t('Total Orders'),
+        text: t('Fee History'),
         align: 'left',
         margin: 0,
       },
       series: [
         {
-          type: 'column',
-          name: t('Orders'),
+          type: 'line',
+          name: t('Fee'),
           color: '#512DBC',
-          data: new Array(45).fill(0).map((_, index) => [now + day * index, Math.floor(Math.random() * 100)]), // eslint-disable-line
+          data: new Array(40).fill(0).map((_, index) => [now + day * index, Math.floor(Math.random() * 100)]), // eslint-disable-line
         },
       ],
       tooltip: {

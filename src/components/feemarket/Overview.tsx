@@ -35,6 +35,7 @@ import {
 import { TooltipBalance } from '../../components/widget/TooltipBalance';
 import { Segmented } from '../widget/fee-market';
 import { TotalOrdersChart } from './TotalOrdersChart';
+import { FeeHistoryChart } from './FeeHistoryChart';
 
 echarts.use([GridComponent, TooltipComponent, BarChart, LineChart, SVGRenderer, UniversalTransition]);
 
@@ -301,6 +302,10 @@ export const Overview = ({
           />
         </div>
       </Card>
+      <div className="flex justify-between items-center space-x-4 mt-8">
+        <TotalOrdersChart />
+        <FeeHistoryChart />
+      </div>
       <div className="flex items-center justify-between space-x-4 mt-8">
         <Card className="shadow-xxl flex-1">
           <div className="flex items-center justify-between">
@@ -321,8 +326,6 @@ export const Overview = ({
           </Spin>
         </Card>
       </div>
-
-      <TotalOrdersChart />
     </>
   );
 };
