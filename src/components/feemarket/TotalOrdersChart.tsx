@@ -34,6 +34,9 @@ export const TotalOrdersChart = () => {
       tooltip: {
         borderColor: '#512DBC',
         borderRadius: 12,
+        dateTimeLabelFormats: {
+          millisecond: '%Y/%m/%dT%k:%M:%SZ',
+        },
       },
       credits: {
         enabled: false,
@@ -44,6 +47,13 @@ export const TotalOrdersChart = () => {
       scrollbar: {
         enabled: false,
       },
+      xAxis: [
+        {
+          labels: {
+            format: '{value:%Y/%m/%d}',
+          },
+        },
+      ],
       rangeSelector: {
         inputEnabled: false,
         labelStyle: {
@@ -85,7 +95,7 @@ export const TotalOrdersChart = () => {
       highcharts={Highcharts}
       options={options}
       constructorType="stockChart"
-      containerProps={{ className: 'h-96 my-12 shadow-xxl rounded-lg' }}
+      containerProps={{ className: 'h-96 w-full shadow-xxl rounded-lg' }}
     />
   );
 };
