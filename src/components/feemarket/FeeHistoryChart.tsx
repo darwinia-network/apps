@@ -3,14 +3,11 @@ import { useTranslation } from 'react-i18next';
 import Highcharts from 'highcharts/highstock';
 import HighchartsReact from 'highcharts-react-official';
 
-export const FeeHistoryChart = () => {
+export const FeeHistoryChart = ({ data }: { data: [number, number][] }) => {
   const { t } = useTranslation();
   const [options, setOptions] = useState<Highcharts.Options>({});
 
   useEffect(() => {
-    const now = Date.now();
-    const day = 60 * 60 * 24 * 1000; // eslint-disable-line
-
     setOptions({
       chart: {
         spacingLeft: 30,
@@ -28,14 +25,18 @@ export const FeeHistoryChart = () => {
           type: 'line',
           name: t('Fee'),
           color: '#512DBC',
-          data: new Array(40).fill(0).map((_, index) => [now + day * index, Math.floor(Math.random() * 100)]), // eslint-disable-line
+          data: [...data],
         },
       ],
       tooltip: {
         borderColor: '#512DBC',
         borderRadius: 12,
         dateTimeLabelFormats: {
-          millisecond: '%Y/%m/%dT%k:%M:%SZ',
+          millisecond: '%Y/%m/%d(+UTC)',
+          second: '%Y/%m/%d(+UTC)',
+          minute: '%Y/%m/%d(+UTC)',
+          hour: '%Y/%m/%d(+UTC)',
+          day: '%Y/%m/%d(+UTC)',
         },
       },
       credits: {
@@ -88,7 +89,7 @@ export const FeeHistoryChart = () => {
         selected: 0,
       },
     });
-  }, [t]);
+  }, [t, data]);
 
   return (
     <HighchartsReact

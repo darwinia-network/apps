@@ -16,7 +16,6 @@ import {
   OverviewStatisticsData,
   OverviewStatisticsState,
   FeeMarketFeeAndOderHistoryData,
-  FeeMarketFeeAndOrderHistortState,
 } from '../../model';
 
 const reduceDatesAndAmount = (previous: Record<string, BN>, time: string, amount: string) => {
@@ -205,40 +204,23 @@ export const transformOverviewStatistics = (data: OverviewStatisticsData): Overv
   };
 };
 
-export const transformFeeMarketFeeHistort = (
-  data: FeeMarketFeeAndOderHistoryData
-): FeeMarketFeeAndOrderHistortState => {
-  const initData: FeeMarketFeeAndOrderHistortState = { dates: [], values: [] };
-
+export const transformFeeMarketFeeHistort = (data: FeeMarketFeeAndOderHistoryData): [number, number][] => {
   return (
-    data.orderEntities?.nodes.reduce(({ dates, values }, { fee, createTime }) => {
-      dates.push(createTime.split('.')[0].replace(/-/g, '/'));
-      values.push(fromWei({ value: fee }, prettyNumber));
-
-      return { dates, values };
-    }, initData) || initData
+    data.orderEntities?.nodes.map(({ fee, createTime }) => [
+      new Date(`${createTime}Z`).getTime(),
+      Number(fromWei({ value: fee }, prettyNumber)),
+    ]) || []
   );
 };
 
-export const transformFeeMarketOrderHistort = (
-  data: FeeMarketFeeAndOderHistoryData
-): FeeMarketFeeAndOrderHistortState => {
-  const initData: FeeMarketFeeAndOrderHistortState = { dates: [], values: [] };
-
+export const transformFeeMarketOrderHistort = (data: FeeMarketFeeAndOderHistoryData): [number, number][] => {
   const datesOrders =
     data.orderEntities?.nodes.reduce((acc, { createTime }) => {
-      const date = createTime.split('T')[0];
+      const date = `${createTime.split('T')[0]}T00:00:00Z`;
       acc[date] = (acc[date] || 0) + 1;
 
       return acc;
     }, {} as Record<string, number>) || {};
 
-  return (
-    Object.keys(datesOrders).reduce(({ dates, values }, date) => {
-      dates.push(date.replace(/-/g, '/'));
-      values.push(datesOrders[date].toString());
-
-      return { dates, values };
-    }, initData) || initData
-  );
+  return Object.keys(datesOrders).map((date) => [new Date(date).getTime(), datesOrders[date]]);
 };

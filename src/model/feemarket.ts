@@ -243,11 +243,6 @@ export interface FeeMarketFeeAndOderHistoryData {
   } | null;
 }
 
-export interface FeeMarketFeeAndOrderHistortState {
-  dates: string[];
-  values: string[];
-}
-
 export interface OrdersStatisticsData {
   feeMarketEntity?: {
     totalFinished?: number;

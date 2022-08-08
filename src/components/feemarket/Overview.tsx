@@ -1,17 +1,10 @@
 import { Card, Spin } from 'antd';
 import { useTranslation } from 'react-i18next';
-import { useEffect, useState, createRef } from 'react';
+import { useEffect, useState } from 'react';
 import type { Option, Vec, u128 } from '@polkadot/types';
 import { Balance, AccountId32 } from '@polkadot/types/interfaces';
 import { timer, switchMap, from, forkJoin, tap, EMPTY } from 'rxjs';
 import { formatDistanceStrict } from 'date-fns';
-
-import * as echarts from 'echarts/core';
-import { GridComponent, GridComponentOption, TooltipComponent, TooltipComponentOption } from 'echarts/components';
-import { BarChart, BarSeriesOption } from 'echarts/charts';
-import { LineChart, LineSeriesOption } from 'echarts/charts';
-import { SVGRenderer } from 'echarts/renderers';
-import { UniversalTransition } from 'echarts/features';
 
 import { Statistics } from '../widget/Statistics';
 import { LONG_LONG_DURATION, OVERVIEW_STATISTICS, FEE_MARKET_FEE_AND_ORDER_HISTORY } from '../../config';
@@ -30,18 +23,10 @@ import {
   OverviewStatisticsData,
   OverviewStatisticsState,
   FeeMarketFeeAndOderHistoryData,
-  FeeMarketFeeAndOrderHistortState,
 } from '../../model';
 import { TooltipBalance } from '../../components/widget/TooltipBalance';
-import { Segmented } from '../widget/fee-market';
 import { TotalOrdersChart } from './TotalOrdersChart';
 import { FeeHistoryChart } from './FeeHistoryChart';
-
-echarts.use([GridComponent, TooltipComponent, BarChart, LineChart, SVGRenderer, UniversalTransition]);
-
-type EChartsOption = echarts.ComposeOption<
-  GridComponentOption | BarSeriesOption | LineSeriesOption | TooltipComponentOption
->;
 
 export const Overview = ({
   destination,
@@ -52,12 +37,6 @@ export const Overview = ({
 }) => {
   const { api, network } = useApi();
   const { t } = useTranslation();
-
-  const totalOrdersRef = createRef<HTMLDivElement>();
-  const feeHistoryRef = createRef<HTMLDivElement>();
-
-  const [feeSgmentedType, setFeeSegmentedType] = useState(SegmentedType.ALL);
-  const [orderSegmentedType, setOrderSegmentedType] = useState(SegmentedType.ALL);
 
   const [currentFee, setCurrentFee] = useState<{ value?: Balance; loading: boolean }>({ loading: true });
   const [totalRelayers, setTotalRelayers] = useState<{ total: number; active: number; loading: boolean }>({
@@ -79,33 +58,25 @@ export const Overview = ({
   );
 
   const {
-    loading: feeHistoryLoading,
+    // loading: feeHistoryLoading,
     transformedData: feeHistoryState,
     refetch: refetchFeeHistory,
-  } = usePollIntervalQuery<
-    FeeMarketFeeAndOderHistoryData,
-    { destination: string; time: string },
-    FeeMarketFeeAndOrderHistortState
-  >(
+  } = usePollIntervalQuery<FeeMarketFeeAndOderHistoryData, { destination: string; time: string }, [number, number][]>(
     FEE_MARKET_FEE_AND_ORDER_HISTORY,
     {
-      variables: { destination, time: getSegmentedDateByType(feeSgmentedType) },
+      variables: { destination, time: getSegmentedDateByType(SegmentedType.ALL) },
     },
     transformFeeMarketFeeHistort
   );
 
   const {
-    loading: orderHistoryLoading,
+    // loading: orderHistoryLoading,
     transformedData: orderHistoryState,
     refetch: refetchOrderHistory,
-  } = usePollIntervalQuery<
-    FeeMarketFeeAndOderHistoryData,
-    { destination: string; time: string },
-    FeeMarketFeeAndOrderHistortState
-  >(
+  } = usePollIntervalQuery<FeeMarketFeeAndOderHistoryData, { destination: string; time: string }, [number, number][]>(
     FEE_MARKET_FEE_AND_ORDER_HISTORY,
     {
-      variables: { destination, time: getSegmentedDateByType(orderSegmentedType) },
+      variables: { destination, time: getSegmentedDateByType(SegmentedType.ALL) },
     },
     transformFeeMarketOrderHistort
   );
@@ -178,69 +149,6 @@ export const Overview = ({
     return () => sub$$.unsubscribe();
   }, [api, destination]);
 
-  useEffect(() => {
-    if (!totalOrdersRef.current || totalOrdersRef.current.clientHeight === 0) {
-      return;
-    }
-
-    const option: EChartsOption = {
-      tooltip: {
-        trigger: 'axis',
-        position: (pt) => [pt[0], '10%'],
-      },
-      xAxis: {
-        type: 'category',
-        data: orderHistoryState?.dates,
-      },
-      yAxis: {
-        type: 'value',
-      },
-      series: [
-        {
-          data: orderHistoryState?.values,
-          type: 'bar',
-        },
-      ],
-    };
-
-    const instance = echarts.init(totalOrdersRef.current);
-    instance.setOption(option);
-
-    return () => instance.dispose();
-  }, [orderHistoryState, totalOrdersRef]);
-
-  useEffect(() => {
-    if (!feeHistoryRef.current || feeHistoryRef.current.clientHeight === 0) {
-      return;
-    }
-
-    const option: EChartsOption = {
-      tooltip: {
-        trigger: 'axis',
-        position: (pt) => [pt[0], '10%'],
-      },
-      xAxis: {
-        type: 'category',
-        data: feeHistoryState?.dates,
-      },
-      yAxis: {
-        type: 'value',
-      },
-      series: [
-        {
-          data: feeHistoryState?.values,
-          type: 'line',
-          smooth: true,
-        },
-      ],
-    };
-
-    const instance = echarts.init(feeHistoryRef.current);
-    instance.setOption(option);
-
-    return () => instance.dispose();
-  }, [feeHistoryState, feeHistoryRef]);
-
   return (
     <>
       <Card className="shadow-xxl">
@@ -303,28 +211,8 @@ export const Overview = ({
         </div>
       </Card>
       <div className="flex justify-between items-center space-x-4 mt-8">
-        <TotalOrdersChart />
-        <FeeHistoryChart />
-      </div>
-      <div className="flex items-center justify-between space-x-4 mt-8">
-        <Card className="shadow-xxl flex-1">
-          <div className="flex items-center justify-between">
-            <h3 className="font-medium text-base text-black opacity-80">{t('Total Orders')}</h3>
-            <Segmented onSelect={setOrderSegmentedType} value={orderSegmentedType} />
-          </div>
-          <Spin spinning={orderHistoryLoading}>
-            <div ref={totalOrdersRef} className="h-96 w-full" />
-          </Spin>
-        </Card>
-        <Card className="shadow-xxl flex-1">
-          <div className="flex items-center justify-between">
-            <h3 className="font-medium text-base text-black opacity-80">{t('Fee History')}</h3>
-            <Segmented onSelect={setFeeSegmentedType} value={feeSgmentedType} />
-          </div>
-          <Spin spinning={feeHistoryLoading}>
-            <div ref={feeHistoryRef} className="h-96 w-full" />
-          </Spin>
-        </Card>
+        <TotalOrdersChart data={orderHistoryState || []} />
+        <FeeHistoryChart data={feeHistoryState || []} />
       </div>
     </>
   );
