@@ -34,6 +34,7 @@ import {
 } from '../../model';
 import { TooltipBalance } from '../../components/widget/TooltipBalance';
 import { Segmented } from '../widget/fee-market';
+import { TotalOrdersChart } from './TotalOrdersChart';
 
 echarts.use([GridComponent, TooltipComponent, BarChart, LineChart, SVGRenderer, UniversalTransition]);
 
@@ -320,6 +321,8 @@ export const Overview = ({
           </Spin>
         </Card>
       </div>
+
+      <TotalOrdersChart />
     </>
   );
 };
