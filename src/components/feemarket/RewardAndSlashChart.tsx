@@ -3,6 +3,9 @@ import { useTranslation } from 'react-i18next';
 import Highcharts from 'highcharts/highstock';
 import HighchartsReact from 'highcharts-react-official';
 
+// https://api.highcharts.com/highcharts/colors
+// const colors = ["#7cb5ec", "#434348", "#90ed7d", "#f7a35c", "#8085e9", "#f15c80", "#e4d354", "#2b908f", "#f45b5b", "#91e8e1"]; // highcharts default colors
+
 export const RewardAndSlashChart = ({
   rewardData,
   slashData,
@@ -12,8 +15,6 @@ export const RewardAndSlashChart = ({
 }) => {
   const { t } = useTranslation();
   const [options, setOptions] = useState<Highcharts.Options>({});
-
-  // const j = ["#7cb5ec", "#434348", "#90ed7d", "#f7a35c", "#8085e9", "#f15c80", "#e4d354", "#2b908f", "#f45b5b", "#91e8e1"];
 
   useEffect(() => {
     setOptions({
