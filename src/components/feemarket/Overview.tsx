@@ -11,14 +11,12 @@ import { LONG_LONG_DURATION, OVERVIEW_STATISTICS, FEE_MARKET_FEE_AND_ORDER_HISTO
 import { useApi, usePollIntervalQuery } from '../../hooks';
 import {
   getFeeMarketModule,
-  getSegmentedDateByType,
   transformOverviewStatistics,
   transformFeeMarketFeeHistort,
   transformFeeMarketOrderHistort,
 } from '../../utils';
 import {
   PalletFeeMarketRelayer,
-  SegmentedType,
   CrossChainDestination,
   OverviewStatisticsData,
   OverviewStatisticsState,
@@ -61,10 +59,10 @@ export const Overview = ({
     // loading: feeHistoryLoading,
     transformedData: feeHistoryState,
     refetch: refetchFeeHistory,
-  } = usePollIntervalQuery<FeeMarketFeeAndOderHistoryData, { destination: string; time: string }, [number, number][]>(
+  } = usePollIntervalQuery<FeeMarketFeeAndOderHistoryData, { destination: string }, [number, number][]>(
     FEE_MARKET_FEE_AND_ORDER_HISTORY,
     {
-      variables: { destination, time: getSegmentedDateByType(SegmentedType.ALL) },
+      variables: { destination },
     },
     transformFeeMarketFeeHistort
   );
@@ -73,10 +71,10 @@ export const Overview = ({
     // loading: orderHistoryLoading,
     transformedData: orderHistoryState,
     refetch: refetchOrderHistory,
-  } = usePollIntervalQuery<FeeMarketFeeAndOderHistoryData, { destination: string; time: string }, [number, number][]>(
+  } = usePollIntervalQuery<FeeMarketFeeAndOderHistoryData, { destination: string }, [number, number][]>(
     FEE_MARKET_FEE_AND_ORDER_HISTORY,
     {
-      variables: { destination, time: getSegmentedDateByType(SegmentedType.ALL) },
+      variables: { destination },
     },
     transformFeeMarketOrderHistort
   );
