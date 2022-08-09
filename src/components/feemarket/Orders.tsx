@@ -8,12 +8,6 @@ import { format } from 'date-fns';
 import moment from 'moment';
 import { useTranslation } from 'react-i18next';
 
-import * as echarts from 'echarts/core';
-import { TooltipComponent, TooltipComponentOption, LegendComponent, LegendComponentOption } from 'echarts/components';
-import { PieChart, PieSeriesOption } from 'echarts/charts';
-import { LabelLayout } from 'echarts/features';
-import { CanvasRenderer } from 'echarts/renderers';
-
 import { ORDERS_STATISTICS, FEE_MARKET_ORDERS, DATE_TIME_FORMATE } from '../../config';
 import { useApi, usePollIntervalQuery } from '../../hooks';
 import {
@@ -30,10 +24,7 @@ import {
 } from '../../model';
 import { IdentAccountName } from '../widget/account/IdentAccountName';
 import { SubscanLink } from '../widget/SubscanLink';
-
-echarts.use([TooltipComponent, LegendComponent, PieChart, CanvasRenderer, LabelLayout]);
-
-type EChartsOption = echarts.ComposeOption<TooltipComponentOption | LegendComponentOption | PieSeriesOption>;
+import { OrdersStatistics } from './OrdersStatisticsChart';
 
 type OrderData = {
   orderId: string;
@@ -132,7 +123,6 @@ export const Orders = ({
   const { network } = useApi();
   const { t } = useTranslation();
   const dataSourceRef = useRef<OrderData[]>([]);
-  const statisticCharRef = useRef<HTMLDivElement>(null);
   const [dataSource, setDataSource] = useState<OrderData[]>([]);
   const [search, setSearch] = useState<SearchData>({ type: SearchType.ORDER_ID, value: '' });
   const [filter, setFilter] = useState<FilterData>({
@@ -341,59 +331,6 @@ export const Orders = ({
   }, [totalOrdersData?.orderEntities?.nodes]);
 
   useEffect(() => {
-    if (!statisticCharRef.current) {
-      return;
-    }
-
-    const option: EChartsOption = {
-      tooltip: {
-        trigger: 'item',
-      },
-      color: ['#91cc75', '#5470c6', '#fac858'],
-      legend: {
-        orient: 'vertical',
-        top: 'center',
-        left: '40%',
-        show: true,
-        itemWidth: 10,
-        itemHeight: 10,
-        borderRadius: [0, 0, 0, 0],
-      },
-      series: [
-        {
-          name: 'Order Status',
-          type: 'pie',
-          radius: ['70%', '90%'],
-          avoidLabelOverlap: false,
-          label: {
-            show: false,
-          },
-          center: ['20%', '50%'],
-          data: [
-            {
-              value: statisticsData?.feeMarketEntity?.totalFinished || 0,
-              name: t(OrderStatus.FINISHED) as string,
-            },
-            {
-              value: statisticsData?.feeMarketEntity?.totalInProgress || 0,
-              name: `${t(OrderStatus.IN_PROGRESS)} (${t('In Slot')})`,
-            },
-            {
-              value: statisticsData?.feeMarketEntity?.totalOutOfSlot || 0,
-              name: `${t(OrderStatus.IN_PROGRESS)} (${t(OrderStatus.OUT_OF_SLOT)})`,
-            },
-          ],
-        },
-      ],
-    };
-
-    const instance = echarts.init(statisticCharRef.current);
-    instance.setOption(option);
-
-    return () => instance.dispose();
-  }, [statisticsData?.feeMarketEntity, t]);
-
-  useEffect(() => {
     setRefresh(() => () => {
       refetchStatistics();
       refetchTotalOrders();
@@ -440,7 +377,11 @@ export const Orders = ({
             }
             valueStyle={{ textAlign: 'center' }}
           />
-          <div ref={statisticCharRef} className="h-24 w-72" />
+          <OrdersStatistics
+            finished={statisticsData?.feeMarketEntity?.totalFinished || 0}
+            inSlot={statisticsData?.feeMarketEntity?.totalInProgress || 0}
+            outOfSlot={statisticsData?.feeMarketEntity?.totalOutOfSlot || 0}
+          />
         </div>
       </Card>
       <Card className="mt-6">
