@@ -35,7 +35,7 @@ export const OrdersStatistics = ({
       },
       plotOptions: {
         pie: {
-          size: 90,
+          size: 80,
           dataLabels: {
             enabled: false,
           },
@@ -53,7 +53,7 @@ export const OrdersStatistics = ({
         {
           type: 'pie',
           name: t('Orders Status'),
-          innerSize: '65%',
+          innerSize: '70%',
           data: [
             {
               y: finished,
