@@ -7,7 +7,7 @@ import type {
   QueryResult,
 } from '@apollo/client';
 
-import { LONG_LONG_DURATION } from '../config';
+// import { LONG_LONG_DURATION } from '../config';
 
 export const usePollIntervalQuery: <TData = unknown, TVariables = OperationVariables, TTransResult = unknown>(
   query: DocumentNode | TypedDocumentNode<TData, TVariables>,
@@ -19,7 +19,7 @@ export const usePollIntervalQuery: <TData = unknown, TVariables = OperationVaria
   transform
 ) => {
   const { data, loading, refetch } = useQuery(query, {
-    pollInterval: LONG_LONG_DURATION,
+    // pollInterval: LONG_LONG_DURATION,
     notifyOnNetworkStatusChange: true,
     ...options,
   });
