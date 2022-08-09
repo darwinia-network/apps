@@ -55,6 +55,11 @@ export const FeeHistoryChart = ({ data }: { data: [number, number][] }) => {
           },
         },
       ],
+      yAxis: [
+        {
+          opposite: false,
+        },
+      ],
       rangeSelector: {
         inputEnabled: false,
         labelStyle: {
@@ -66,6 +71,7 @@ export const FeeHistoryChart = ({ data }: { data: [number, number][] }) => {
         },
         buttonPosition: {
           align: 'right',
+          y: -20,
         },
         buttons: [
           {
