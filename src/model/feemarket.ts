@@ -17,12 +17,6 @@ export interface PalletFeeMarketRelayer extends Struct {
   fee: Balance;
 }
 
-export enum SegmentedType {
-  ALL,
-  L7D,
-  L30D,
-}
-
 export enum FeeMarketTab {
   OVERVIEW = 'overview',
   RELAYERS = 'relayers',
@@ -88,12 +82,6 @@ export interface RelayerRewardsAndSlashsData {
   } | null;
 }
 
-export type RewardsAndSlashsState = {
-  dates: string[];
-  rewards: string[];
-  slashs: string[];
-};
-
 export interface RelayerFeeHistoryData {
   relayerEntity?: {
     feeHistory?: {
@@ -104,11 +92,6 @@ export interface RelayerFeeHistoryData {
     } | null;
   } | null;
 }
-
-export type FeeHistoryState = {
-  dates: string[];
-  values: string[];
-};
 
 export interface RelayerOrdersData {
   relayerEntity?: {

@@ -3,9 +3,17 @@ import { useTranslation } from 'react-i18next';
 import Highcharts from 'highcharts/highstock';
 import HighchartsReact from 'highcharts-react-official';
 
-export const FeeHistoryChart = ({ data }: { data: [number, number][] }) => {
+export const RewardAndSlashChart = ({
+  rewardData,
+  slashData,
+}: {
+  rewardData: [number, number][];
+  slashData: [number, number][];
+}) => {
   const { t } = useTranslation();
   const [options, setOptions] = useState<Highcharts.Options>({});
+
+  // const j = ["#7cb5ec", "#434348", "#90ed7d", "#f7a35c", "#8085e9", "#f15c80", "#e4d354", "#2b908f", "#f45b5b", "#91e8e1"];
 
   useEffect(() => {
     setOptions({
@@ -16,16 +24,22 @@ export const FeeHistoryChart = ({ data }: { data: [number, number][] }) => {
         spacingTop: 20,
       },
       title: {
-        text: t('Fee History'),
+        text: t('Reward & Slash'),
         align: 'left',
         margin: 0,
       },
       series: [
         {
-          type: 'line',
-          name: t('Fee'),
-          color: '#8085e9',
-          data: [...data],
+          type: 'column',
+          name: t('Reward'),
+          color: '#90ed7d',
+          data: [...rewardData],
+        },
+        {
+          type: 'column',
+          name: t('Slash'),
+          color: '#f45b5b',
+          data: [...slashData],
         },
       ],
       tooltip: {
@@ -94,7 +108,7 @@ export const FeeHistoryChart = ({ data }: { data: [number, number][] }) => {
         selected: 0,
       },
     });
-  }, [t, data]);
+  }, [t, rewardData, slashData]);
 
   return (
     <HighchartsReact

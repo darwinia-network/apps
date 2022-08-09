@@ -24,12 +24,11 @@ export const TotalOrdersChart = ({ data }: { data: [number, number][] }) => {
         {
           type: 'column',
           name: t('Orders'),
-          color: '#512DBC',
+          color: '#8085e9',
           data: [...data],
         },
       ],
       tooltip: {
-        borderColor: '#512DBC',
         borderRadius: 12,
         dateTimeLabelFormats: {
           millisecond: '%Y/%m/%d(+UTC)',

@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import Highcharts from 'highcharts/highstock';
 import HighchartsReact from 'highcharts-react-official';
 
-export const FeeHistoryChart = ({ data }: { data: [number, number][] }) => {
+export const QuoteHistoryChart = ({ data }: { data: [number, number][] }) => {
   const { t } = useTranslation();
   const [options, setOptions] = useState<Highcharts.Options>({});
 
@@ -16,14 +16,14 @@ export const FeeHistoryChart = ({ data }: { data: [number, number][] }) => {
         spacingTop: 20,
       },
       title: {
-        text: t('Fee History'),
+        text: t('Quote History'),
         align: 'left',
         margin: 0,
       },
       series: [
         {
           type: 'line',
-          name: t('Fee'),
+          name: t('Quote'),
           color: '#8085e9',
           data: [...data],
         },
@@ -31,11 +31,11 @@ export const FeeHistoryChart = ({ data }: { data: [number, number][] }) => {
       tooltip: {
         borderRadius: 12,
         dateTimeLabelFormats: {
-          millisecond: '%Y/%m/%d(+UTC)',
-          second: '%Y/%m/%d(+UTC)',
-          minute: '%Y/%m/%d(+UTC)',
-          hour: '%Y/%m/%d(+UTC)',
-          day: '%Y/%m/%d(+UTC)',
+          millisecond: '%Y/%m/%dT%H:%M%S(+UTC)',
+          second: '%Y/%m/%dT%H:%M:%S(+UTC)',
+          minute: '%Y/%m/%dT%H:%M:%S(+UTC)',
+          hour: '%Y/%m/%dT%H:%M:%S(+UTC)',
+          day: '%Y/%m/%dT%H:%M:%S(+UTC)',
         },
       },
       credits: {
@@ -50,7 +50,7 @@ export const FeeHistoryChart = ({ data }: { data: [number, number][] }) => {
       xAxis: [
         {
           labels: {
-            format: '{value:%Y/%m/%d}',
+            format: '{value:%Y/%m/%dT%H:%M:%S}',
           },
         },
       ],
