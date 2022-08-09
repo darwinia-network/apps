@@ -104,11 +104,7 @@ export const RelayerDetail = ({
         searchParams.set(SearchParamsKey.DESTINATION, destination);
         searchParams.set(SearchParamsKey.TAB, FeeMarketTab.OREDERS);
         searchParams.set(SearchParamsKey.ORDER, value);
-        return (
-          <Link to={`${Path.feemarket}?${searchParams.toString()}`} target="_blank">
-            {value}
-          </Link>
-        );
+        return <Link to={`${Path.feemarket}?${searchParams.toString()}`}>{value}</Link>;
       },
     },
     {
