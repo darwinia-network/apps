@@ -95,6 +95,7 @@ const BlockFilterInput = ({
         onChange={(v) => {
           onChange({ start: v, end: value?.end });
         }}
+        className="w-28"
       />
       <span>-</span>
       <InputNumber
@@ -107,6 +108,7 @@ const BlockFilterInput = ({
             end: v,
           });
         }}
+        className="w-28"
       />
     </div>
   );
@@ -388,7 +390,11 @@ export const Orders = ({
         <div className="flex items-center space-x-2">
           <Input
             addonBefore={
-              <Select value={search.type} onSelect={(type) => setSearch((prev) => ({ ...prev, type }))}>
+              <Select
+                value={search.type}
+                onSelect={(type) => setSearch((prev) => ({ ...prev, type }))}
+                className="w-36"
+              >
                 <Select.Option value={SearchType.ORDER_ID}>{t(SearchType.ORDER_ID)}</Select.Option>
                 <Select.Option value={SearchType.SENDER_ADDRESS}>{t(SearchType.SENDER_ADDRESS)}</Select.Option>
               </Select>
