@@ -47,13 +47,6 @@ export const FeeHistoryChart = ({ data }: { data: [number, number][] }) => {
       scrollbar: {
         enabled: false,
       },
-      xAxis: [
-        {
-          labels: {
-            format: '{value:%Y/%m/%d}',
-          },
-        },
-      ],
       yAxis: [
         {
           opposite: false,

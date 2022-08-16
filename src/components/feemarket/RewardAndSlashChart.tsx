@@ -62,13 +62,6 @@ export const RewardAndSlashChart = ({
       scrollbar: {
         enabled: false,
       },
-      xAxis: [
-        {
-          labels: {
-            format: '{value:%Y/%m/%d}',
-          },
-        },
-      ],
       yAxis: [
         {
           opposite: false,

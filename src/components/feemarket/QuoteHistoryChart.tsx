@@ -47,13 +47,6 @@ export const QuoteHistoryChart = ({ data }: { data: [number, number][] }) => {
       scrollbar: {
         enabled: false,
       },
-      xAxis: [
-        {
-          labels: {
-            format: '{value:%Y/%m/%dT%H:%M:%S}',
-          },
-        },
-      ],
       yAxis: [
         {
           opposite: false,
