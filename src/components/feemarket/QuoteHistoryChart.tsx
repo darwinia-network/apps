@@ -62,6 +62,11 @@ export const QuoteHistoryChart = ({ data }: { data: [number, number][] }) => {
       scrollbar: {
         enabled: false,
       },
+      xAxis: {
+        labels: {
+          format: '{value:%e. %b}',
+        },
+      },
       yAxis: [
         {
           opposite: false,
