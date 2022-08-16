@@ -1,14 +1,11 @@
-import { format, compareAsc } from 'date-fns';
+import { compareAsc } from 'date-fns';
 import { BN, BN_ZERO } from '@polkadot/util';
 
-import { DATE_FORMAT } from '../../config';
 import { prettyNumber, fromWei } from '..';
 import {
   RelayerRole,
   RelayerRewardsAndSlashsData,
-  RewardsAndSlashsState,
   RelayerFeeHistoryData,
-  FeeHistoryState,
   RelayerOrdersData,
   RelayerOrdersState,
   OrderDetailData,
@@ -16,17 +13,18 @@ import {
   OverviewStatisticsData,
   OverviewStatisticsState,
   FeeMarketFeeAndOderHistoryData,
-  FeeMarketFeeAndOrderHistortState,
 } from '../../model';
 
 const reduceDatesAndAmount = (previous: Record<string, BN>, time: string, amount: string) => {
-  const day = format(new Date(time), DATE_FORMAT);
+  const day = `${time.split('T')[0]}Z`;
   previous[day] = previous[day] ? previous[day].add(new BN(amount)) : new BN(amount);
   return previous;
 };
 
 // eslint-disable-next-line complexity
-export const transformRewardsAndSlashs = (data: RelayerRewardsAndSlashsData): RewardsAndSlashsState => {
+export const transformRewardsAndSlashs = (
+  data: RelayerRewardsAndSlashsData
+): { rewards: [number, number][]; slashs: [number, number][] } => {
   if (data.relayerEntity) {
     const { assignedRewards, deliveredRewards, confirmedRewards, slashs: relayerSlashs } = data.relayerEntity;
 
@@ -63,38 +61,27 @@ export const transformRewardsAndSlashs = (data: RelayerRewardsAndSlashsData): Re
     ).sort((a, b) => compareAsc(new Date(a), new Date(b)));
 
     return {
-      dates: datesRewardsAndSlashs,
-      ...(datesRewardsAndSlashs.reduce(
-        ({ slashs, rewards }, date) => {
-          rewards.push(datesRewards[date] ? fromWei({ value: datesRewards[date] }, prettyNumber) : '0');
-          slashs.push(datesSlashs[date] ? fromWei({ value: datesSlashs[date] }, prettyNumber) : '0');
-          return { rewards, slashs };
-        },
-        { rewards: [], slashs: [] } as { rewards: string[]; slashs: string[] }
-      ) || { rewards: [], slashs: [] }),
+      rewards: datesRewardsAndSlashs.map((date) => [
+        new Date(date).getTime(),
+        datesRewards[date] ? Number(fromWei({ value: datesRewards[date] }, prettyNumber)) : 0,
+      ]),
+      slashs: datesRewardsAndSlashs.map((date) => [
+        new Date(date).getTime(),
+        datesSlashs[date] ? Number(fromWei({ value: datesSlashs[date] }, prettyNumber)) : 0,
+      ]),
     };
   }
 
-  return { dates: [], rewards: [], slashs: [] };
+  return { rewards: [], slashs: [] };
 };
 
-export const transformFeeHistory = (data: RelayerFeeHistoryData): FeeHistoryState => {
+export const transformFeeHistory = (data: RelayerFeeHistoryData): [number, number][] => {
   const history = data.relayerEntity?.feeHistory?.nodes || [];
 
-  const datesValues =
-    history.reduce((acc, { fee, newfeeTime }) => {
-      acc[format(new Date(newfeeTime), DATE_FORMAT)] = fromWei({ value: fee }, prettyNumber);
-      return acc;
-    }, {} as Record<string, string>) || {};
-
-  return {
-    ...(Object.keys(datesValues).reduce(
-      ({ dates, values }, date) => {
-        return { dates: dates.concat([date]), values: values.concat([datesValues[date]]) };
-      },
-      { dates: [], values: [] } as FeeHistoryState
-    ) || { dates: [], values: [] }),
-  };
+  return history.map(({ fee, newfeeTime }) => [
+    new Date(`${newfeeTime}Z`).getTime(),
+    Number(fromWei({ value: fee }, prettyNumber)),
+  ]);
 };
 
 const updateOrders = (previous: RelayerOrdersState[], id: string, createTime: string) => {
@@ -205,40 +192,23 @@ export const transformOverviewStatistics = (data: OverviewStatisticsData): Overv
   };
 };
 
-export const transformFeeMarketFeeHistort = (
-  data: FeeMarketFeeAndOderHistoryData
-): FeeMarketFeeAndOrderHistortState => {
-  const initData: FeeMarketFeeAndOrderHistortState = { dates: [], values: [] };
-
+export const transformFeeMarketFeeHistort = (data: FeeMarketFeeAndOderHistoryData): [number, number][] => {
   return (
-    data.orderEntities?.nodes.reduce(({ dates, values }, { fee, createTime }) => {
-      dates.push(createTime.split('.')[0].replace(/-/g, '/'));
-      values.push(fromWei({ value: fee }, prettyNumber));
-
-      return { dates, values };
-    }, initData) || initData
+    data.orderEntities?.nodes.map(({ fee, createTime }) => [
+      new Date(`${createTime}Z`).getTime(),
+      Number(fromWei({ value: fee }, prettyNumber)),
+    ]) || []
   );
 };
 
-export const transformFeeMarketOrderHistort = (
-  data: FeeMarketFeeAndOderHistoryData
-): FeeMarketFeeAndOrderHistortState => {
-  const initData: FeeMarketFeeAndOrderHistortState = { dates: [], values: [] };
-
+export const transformFeeMarketOrderHistort = (data: FeeMarketFeeAndOderHistoryData): [number, number][] => {
   const datesOrders =
     data.orderEntities?.nodes.reduce((acc, { createTime }) => {
-      const date = createTime.split('T')[0];
+      const date = `${createTime.split('T')[0]}T00:00:00Z`;
       acc[date] = (acc[date] || 0) + 1;
 
       return acc;
     }, {} as Record<string, number>) || {};
 
-  return (
-    Object.keys(datesOrders).reduce(({ dates, values }, date) => {
-      dates.push(date.replace(/-/g, '/'));
-      values.push(datesOrders[date].toString());
-
-      return { dates, values };
-    }, initData) || initData
-  );
+  return Object.keys(datesOrders).map((date) => [new Date(date).getTime(), datesOrders[date]]);
 };

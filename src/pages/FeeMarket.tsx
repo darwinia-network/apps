@@ -69,6 +69,12 @@ export function FeeMarket() {
     refreshOrdersDetail,
   ]);
 
+  useEffect(() => {
+    setActiveKey(
+      Object.values(FeeMarketTab).includes(tab as FeeMarketTab) ? (tab as FeeMarketTab) : FeeMarketTab.OVERVIEW
+    );
+  }, [tab]);
+
   return supportedDestinations.length && destination ? (
     <GraphqlProvider>
       <Tabs

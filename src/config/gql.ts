@@ -11,11 +11,8 @@ export const OVERVIEW_STATISTICS = gql`
 `;
 
 export const FEE_MARKET_FEE_AND_ORDER_HISTORY = gql`
-  query feeMarketFeeHistory($destination: String!, $time: Datetime!) {
-    orderEntities(
-      filter: { and: [{ id: { startsWith: $destination } }, { createTime: { greaterThan: $time } }] }
-      orderBy: CREATE_TIME_ASC
-    ) {
+  query feeMarketFeeHistory($destination: String!) {
+    orderEntities(filter: { id: { startsWith: $destination } }, orderBy: CREATE_TIME_ASC) {
       nodes {
         fee
         createTime
@@ -35,27 +32,27 @@ export const RELAYER_TOTAL_ORDERS_SLASHS_REWARDS = gql`
 `;
 
 export const RELAYER_REWARDS_AND_SLASHS = gql`
-  query relayerRewardsAndSlashs($relayer: String!, $time: Datetime!) {
+  query relayerRewardsAndSlashs($relayer: String!) {
     relayerEntity(id: $relayer) {
-      assignedRewards(filter: { rewardTime: { greaterThan: $time } }) {
+      assignedRewards {
         nodes {
           rewardTime
           assignedAmount
         }
       }
-      deliveredRewards(filter: { rewardTime: { greaterThan: $time } }) {
+      deliveredRewards {
         nodes {
           rewardTime
           deliveredAmount
         }
       }
-      confirmedRewards(filter: { rewardTime: { greaterThan: $time } }) {
+      confirmedRewards {
         nodes {
           rewardTime
           confirmedAmount
         }
       }
-      slashs(filter: { slashTime: { greaterThan: $time } }) {
+      slashs {
         nodes {
           amount
           slashTime
@@ -66,9 +63,9 @@ export const RELAYER_REWARDS_AND_SLASHS = gql`
 `;
 
 export const RELAYER_FEE_HISTORY = gql`
-  query relayerFeeHistory($relayer: String!, $time: Datetime!) {
+  query relayerFeeHistory($relayer: String!) {
     relayerEntity(id: $relayer) {
-      feeHistory(filter: { newfeeTime: { greaterThan: $time } }, orderBy: NEWFEE_TIME_ASC) {
+      feeHistory(orderBy: NEWFEE_TIME_ASC) {
         nodes {
           fee
           newfeeTime
