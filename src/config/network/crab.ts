@@ -38,6 +38,6 @@ export const crabConfig: DVMChainConfig = {
     kton: { decimal: '9', symbol: 'CKTON' },
   },
   subquery: {
-    endpoint: 'https://api.subquery.network/sq/darwinia-network/apps-crab',
+    endpoint: 'https://subql.darwinia.network/subql-apps-crab/',
   },
 };

@@ -38,6 +38,6 @@ export const pangolinConfig: DVMChainConfig = {
     kton: { decimal: '9', symbol: 'PKTON' },
   },
   subquery: {
-    endpoint: 'https://api.subquery.network/sq/darwinia-network/apps-pangolin',
+    endpoint: 'https://subql.darwinia.network/subql-apps-pangolin/',
   },
 };
