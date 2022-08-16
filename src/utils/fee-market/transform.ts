@@ -12,7 +12,8 @@ import {
   OrderDetailState,
   OverviewStatisticsData,
   OverviewStatisticsState,
-  FeeMarketFeeAndOderHistoryData,
+  OrderHistoryData,
+  FeeHistoryData,
 } from '../../model';
 
 const reduceDatesAndAmount = (previous: Record<string, BN>, time: string, amount: string) => {
@@ -192,16 +193,22 @@ export const transformOverviewStatistics = (data: OverviewStatisticsData): Overv
   };
 };
 
-export const transformFeeMarketFeeHistort = (data: FeeMarketFeeAndOderHistoryData): [number, number][] => {
-  return (
-    data.orderEntities?.nodes.map(({ fee, createTime }) => [
-      new Date(`${createTime}Z`).getTime(),
-      Number(fromWei({ value: fee }, prettyNumber)),
-    ]) || []
-  );
+export const transformFeeMarketFeeHistort = (data: FeeHistoryData): [number, number][] => {
+  const datesFees =
+    data.marketFeeHistory?.data?.reduce((acc, { fee, timestamp }) => {
+      const date = `${timestamp.split('T')[0]}T00:00:00Z`;
+      acc[date] = (acc[date] || new BN(fee)).add(new BN(fee)).divn(2); // eslint-disable-line no-magic-numbers
+
+      return acc;
+    }, {} as Record<string, BN>) || {};
+
+  return Object.keys(datesFees).map((date) => [
+    new Date(date).getTime(),
+    Number(fromWei({ value: datesFees[date] }, prettyNumber)),
+  ]);
 };
 
-export const transformFeeMarketOrderHistort = (data: FeeMarketFeeAndOderHistoryData): [number, number][] => {
+export const transformFeeMarketOrderHistort = (data: OrderHistoryData): [number, number][] => {
   const datesOrders =
     data.orderEntities?.nodes.reduce((acc, { createTime }) => {
       const date = `${createTime.split('T')[0]}T00:00:00Z`;

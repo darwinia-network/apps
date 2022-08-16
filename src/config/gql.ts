@@ -10,13 +10,21 @@ export const OVERVIEW_STATISTICS = gql`
   }
 `;
 
-export const FEE_MARKET_FEE_AND_ORDER_HISTORY = gql`
-  query feeMarketFeeHistory($destination: String!) {
+export const MARKET_ORDER_HISTORY = gql`
+  query marketOrderHistory($destination: String!) {
     orderEntities(filter: { id: { startsWith: $destination } }, orderBy: CREATE_TIME_ASC) {
       nodes {
         fee
         createTime
       }
+    }
+  }
+`;
+
+export const MARKET_FEE_HISTORY = gql`
+  query marketFeeHistory($destination: String!) {
+    marketFeeHistory(id: $destination) {
+      data
     }
   }
 `;

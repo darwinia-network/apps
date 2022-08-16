@@ -217,13 +217,26 @@ export interface OverviewStatisticsState {
   totalOrders: number;
 }
 
-export interface FeeMarketFeeAndOderHistoryData {
+export interface OrderHistoryData {
   orderEntities?: {
     nodes: {
       fee: string;
       createTime: string;
     }[];
   } | null;
+}
+
+export interface FeeHistoryData {
+  marketFeeHistory?: {
+    id: string;
+    data:
+      | {
+          fee: string;
+          timestamp: string;
+          blockNumber: number;
+        }[]
+      | null;
+  };
 }
 
 export interface OrdersStatisticsData {

@@ -7,7 +7,7 @@ import { timer, switchMap, from, forkJoin, tap, EMPTY } from 'rxjs';
 import { formatDistanceStrict } from 'date-fns';
 
 import { Statistics } from '../widget/Statistics';
-import { LONG_LONG_DURATION, OVERVIEW_STATISTICS, FEE_MARKET_FEE_AND_ORDER_HISTORY } from '../../config';
+import { LONG_LONG_DURATION, OVERVIEW_STATISTICS, MARKET_ORDER_HISTORY, MARKET_FEE_HISTORY } from '../../config';
 import { useApi, usePollIntervalQuery } from '../../hooks';
 import {
   getFeeMarketModule,
@@ -20,7 +20,8 @@ import {
   CrossChainDestination,
   OverviewStatisticsData,
   OverviewStatisticsState,
-  FeeMarketFeeAndOderHistoryData,
+  OrderHistoryData,
+  FeeHistoryData,
 } from '../../model';
 import { TooltipBalance } from '../../components/widget/TooltipBalance';
 import { TotalOrdersChart } from './TotalOrdersChart';
@@ -59,8 +60,8 @@ export const Overview = ({
     // loading: feeHistoryLoading,
     transformedData: feeHistoryState,
     refetch: refetchFeeHistory,
-  } = usePollIntervalQuery<FeeMarketFeeAndOderHistoryData, { destination: string }, [number, number][]>(
-    FEE_MARKET_FEE_AND_ORDER_HISTORY,
+  } = usePollIntervalQuery<FeeHistoryData, { destination: string }, [number, number][]>(
+    MARKET_FEE_HISTORY,
     {
       variables: { destination },
     },
@@ -71,8 +72,8 @@ export const Overview = ({
     // loading: orderHistoryLoading,
     transformedData: orderHistoryState,
     refetch: refetchOrderHistory,
-  } = usePollIntervalQuery<FeeMarketFeeAndOderHistoryData, { destination: string }, [number, number][]>(
-    FEE_MARKET_FEE_AND_ORDER_HISTORY,
+  } = usePollIntervalQuery<OrderHistoryData, { destination: string }, [number, number][]>(
+    MARKET_ORDER_HISTORY,
     {
       variables: { destination },
     },
