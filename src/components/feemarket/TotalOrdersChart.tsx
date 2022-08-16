@@ -1,11 +1,26 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import Highcharts from 'highcharts/highstock';
 import HighchartsReact from 'highcharts-react-official';
 
+import { useApi } from 'src/hooks';
+
 export const TotalOrdersChart = ({ data }: { data: [number, number][] }) => {
+  const { network } = useApi();
   const { t } = useTranslation();
   const [options, setOptions] = useState<Highcharts.Options>({});
+
+  const mainColor = useMemo(() => {
+    switch (network.name) {
+      case 'darwinia':
+        return '#FF0083';
+      case 'crab':
+      case 'pangolin':
+      case 'pangoro':
+      default:
+        return '#8085e9';
+    }
+  }, [network.name]);
 
   useEffect(() => {
     setOptions({
@@ -24,7 +39,7 @@ export const TotalOrdersChart = ({ data }: { data: [number, number][] }) => {
         {
           type: 'column',
           name: t('Orders'),
-          color: '#8085e9',
+          color: mainColor,
           data: [...data],
         },
       ],
@@ -87,7 +102,7 @@ export const TotalOrdersChart = ({ data }: { data: [number, number][] }) => {
         selected: 0,
       },
     });
-  }, [t, data]);
+  }, [t, data, mainColor]);
 
   return (
     <HighchartsReact

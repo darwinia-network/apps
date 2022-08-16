@@ -5,7 +5,7 @@ import { useApi } from '../hooks';
 
 const networksDestinations: Record<PolkadotTypeNetwork, CrossChainDestination[]> = {
   crab: ['Darwinia', 'CrabParachain'],
-  darwinia: [],
+  darwinia: ['Default'],
   pangolin: ['PangolinParachain', 'Pangoro'],
   pangoro: ['Pangolin'],
   'crab-parachain': [],

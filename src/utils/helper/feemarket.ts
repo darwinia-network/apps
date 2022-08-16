@@ -15,6 +15,7 @@ export const getFeeMarketModule = (dest: CrossChainDestination): string => {
       return 'crabParachainFeeMarket';
     case 'PangolinParachain':
       return 'pangolinParachainFeeMarket';
+    case 'Default':
     default:
       return 'feeMarket';
   }
