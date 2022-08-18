@@ -305,5 +305,6 @@
   "Extrinsic": "Extrinsic",
   "Do not fill in any cold wallet address.": "请不要在此处填写冷钱包账户。",
   "Do not fill in any cold wallet address or exchange controlled address.": "请不要在此处填写冷钱包账户或交易所控制的账户地址。",
-  "Estimated fees of {{amount}} {{token}}": "预估手续费为 {{amount}} {{token}}"
+  "Estimated fees of {{amount}} {{token}}": "预估手续费为 {{amount}} {{token}}",
+  "A tool to migrate your Darwinia Tokens to the new contract.": "一个迁移你的 Darwinia Tokens 到新的合约的工具。"
 }

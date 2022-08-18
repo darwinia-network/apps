@@ -111,6 +111,12 @@ export function Portal() {
         ),
         link: 'https://subwallet.app/',
       },
+      {
+        name: 'Darwinia Token Migration',
+        logo: '/image/portal/token-migration.png',
+        description: t('A tool to migrate your Darwinia Tokens to the new contract.'),
+        link: 'https://token-migration.darwinia.network/',
+      },
     ],
     [t, network]
   );
