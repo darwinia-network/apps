@@ -3,8 +3,8 @@ import { DVMChainConfig } from '../../model';
 export const pangolinConfig: DVMChainConfig = {
   dvm: {
     kton: {
-      address: '0x8809f9b3ACEF1dA309f49b5Ab97A4C0faA64E6Ae',
-      symbol: 'WPKTON',
+      address: '0x0000000000000000000000000000000000000402',
+      symbol: 'PKTON',
       decimals: 18,
     },
     ring: {
