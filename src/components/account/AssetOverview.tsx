@@ -40,6 +40,11 @@ export function AssetOverview({ asset, loading, refresh }: AssetOverviewProps) {
     [asset.token?.symbol]
   );
 
+  const canTransferToEvm = useMemo(
+    () => network.name === 'crab' || network.name === 'pangolin' || network.name === 'pangoro',
+    [network.name]
+  );
+
   return (
     <>
       <Card className="p-4 shadow-xxl">
@@ -129,6 +134,7 @@ export function AssetOverview({ asset, loading, refresh }: AssetOverviewProps) {
         <AddressItem
           name="to"
           label={'Receiver'}
+          canEth={canTransferToEvm}
           extra={
             <div className="inline-flex items-center ml-1 mt-2 space-x-1">
               <ExclamationCircleFilled className="text-yellow-400" />
