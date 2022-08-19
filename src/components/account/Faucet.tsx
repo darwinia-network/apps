@@ -90,7 +90,12 @@ export const Faucet = ({ network, address, symbol }: { network: Network; address
       url: `/api/${network}`,
       params: { address },
     }).subscribe({
-      next: ({ code, message, data }) => {
+      next: (res) => {
+        if (!res) {
+          return;
+        }
+
+        const { code, message, data } = res;
         if (code === FaucetResponseCode.SUCCESS_TRANSFER) {
           const { txHash, lastTime, throttleHours } = data as FaucetTransferData & FaucetThrottleData;
           notification.success({
@@ -134,7 +139,12 @@ export const Faucet = ({ network, address, symbol }: { network: Network; address
       url: `/api/${network}`,
       params: { address },
     }).subscribe({
-      next: ({ code, message, data }) => {
+      next: (res) => {
+        if (!res) {
+          return;
+        }
+
+        const { code, message, data } = res;
         if (code === FaucetResponseCode.FAILED_THROTTLE) {
           setThrottle(data as FaucetThrottleData);
         }
