@@ -25,7 +25,7 @@ import {
 import { AddressItem } from '../../widget/form-control/AddressItem';
 import { BalanceControl } from '../../widget/form-control/BalanceControl';
 import { DVMChainConfig } from '../../../model';
-import { ClaimKton } from './ClaimKton';
+// import { ClaimKton } from './ClaimKton';
 import { ImportToken } from './ImportToken';
 
 interface WithdrawFormValues {
@@ -82,37 +82,40 @@ export function Withdraw() {
     [activeAccount, kton?.address]
   );
 
+  // eslint-disable-next-line complexity
   const handleWithdraw = useCallback(() => {
     try {
       setBusy(true);
 
-      const { destination, asset, amount } = withdrawFormValue;
+      const { destination, asset } = withdrawFormValue;
+      const amount = toWei({ value: withdrawFormValue.amount, unit: 'ether' });
       const web3 = entrance.web3.getInstance(entrance.web3.defaultProvider);
 
-      if (asset === ring.symbol) {
-        const ext = api.tx.balances.transfer(
+      if (asset === ring.symbol || network.name === 'pangolin') {
+        const transfer = asset === ring.symbol ? api.tx.balances.transfer : api.tx.kton.transfer;
+        const extrinsic = transfer(
           destination,
-          toWei({ value: amount, unit: 'gwei' })
+          fromWei({ value: amount }).split('.')[0] // use substrate precision here!! use split to remove possible decimals
         ) as SubmittableExtrinsic<'promise'>;
 
         from(
           web3.eth.estimateGas({
             from: activeAccount,
             to: DVM_DISPATCH_ADDRESS,
-            data: u8aToHex(ext.method.toU8a()),
+            data: u8aToHex(extrinsic.method.toU8a()),
           })
         ).subscribe((gas) => {
           const maxFeePerGas = new BN(toWei({ value: 10, unit: 'Gwei' }));
-          const fee = maxFeePerGas.muln(gas);
+          const fee = asset === ring.symbol ? maxFeePerGas.muln(gas) : BN_ZERO;
 
-          const max = new BN(dvmBalances[0]);
-          const want = new BN(toWei({ value: amount, unit: 'ether' }));
+          const want = new BN(amount);
+          const max = asset === ring.symbol ? new BN(dvmBalances[0]) : new BN(dvmBalances[1]);
           const transferable = want.add(fee).lt(max) ? want : max.sub(fee);
 
           if (transferable.gt(BN_ZERO)) {
-            const extrinsic = api.tx.balances.transfer(
+            const extrinsic = transfer(
               destination,
-              fromWei({ value: transferable }).split('.')[0] // use substrate precision here!!
+              fromWei({ value: transferable }).split('.')[0] // use substrate precision here!! use split to remove possible decimals
             ) as SubmittableExtrinsic<'promise'>;
 
             const tx = web3.eth.sendTransaction({
@@ -142,9 +145,7 @@ export function Withdraw() {
       } else if (asset === kton?.symbol) {
         const contract = new web3.eth.Contract(abi.ktonABI, kton.address);
 
-        const tx = contract.methods
-          .withdraw(convertToDvm(destination), toWei({ value: amount, unit: 'ether' }))
-          .send({ from: activeAccount });
+        const tx = contract.methods.withdraw(convertToDvm(destination), amount).send({ from: activeAccount });
 
         handleEthTxResult(tx, {
           txSuccessCb: () => {
@@ -164,7 +165,7 @@ export function Withdraw() {
         description: (error as Error).message,
       });
     }
-  }, [activeAccount, ring, kton, withdrawFormValue, api, dvmBalances, refreshAssets, refreshDvmBalances]);
+  }, [activeAccount, ring, kton, withdrawFormValue, api, dvmBalances, network.name, refreshAssets, refreshDvmBalances]);
 
   useEffect(() => {
     const sub$$ = refreshDvmBalances();
@@ -210,7 +211,7 @@ export function Withdraw() {
   return (
     <>
       <Card>
-        <ClaimKton dvmAddress={activeAccount} onSuccess={refreshDvmBalances} />
+        {/* <ClaimKton dvmAddress={activeAccount} onSuccess={refreshDvmBalances} /> */}
 
         <div className="my-8 flex items-center space-x-4">
           {activeAccount && (
