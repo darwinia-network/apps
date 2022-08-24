@@ -8,35 +8,34 @@ import { format } from 'date-fns';
 import moment from 'moment';
 import { useTranslation } from 'react-i18next';
 
-import { ORDERS_STATISTICS, FEE_MARKET_ORDERS, DATE_TIME_FORMATE } from '../../config';
-import { useApi, usePollIntervalQuery } from '../../hooks';
+import { ORDERS_STATISTICS, ORDERS_OVERVIEW, DATE_TIME_FORMATE } from '../../config';
+import { useApi, useMyQuery } from '../../hooks';
 import {
-  OrdersStatisticsData,
-  FeeMarketOrders,
-  CrossChainDestination,
+  DarwiniaChain,
   SearchParamsKey,
   FeeMarketTab,
   SlotState,
   OrderStatus,
   RelayerRole,
-  SubqlOrderStatus,
   FinishedOrNot,
+  TOrdersStatistics,
+  TOrdersOverview,
 } from '../../model';
 import { IdentAccountName } from '../widget/account/IdentAccountName';
 import { SubscanLink } from '../widget/SubscanLink';
-import { OrdersStatistics } from './OrdersStatisticsChart';
+import { OrdersStatisticsChart } from './OrdersStatisticsChart';
 
 type OrderData = {
-  orderId: string;
-  deliveryRelayer?: string | null;
-  confirmationRelayer?: string | null;
-  createBlock: number;
-  finishBlock?: number | null;
-  sender: string;
-  status: SubqlOrderStatus;
-  createTime: string;
-  finishTime?: string | null;
-  confirmedSlotIndex: number | null;
+  id: string;
+  sender?: string | null;
+  deliveredRelayersId?: string[] | null;
+  confirmedRelayersId?: string[] | null;
+  createBlockNumber: number;
+  finishBlockNumber: number | null;
+  createBlockTime: string;
+  finishBlockTime?: string | null;
+  status: OrderStatus;
+  confirmedSlotIndex?: number | null;
 };
 
 enum SearchType {
@@ -119,7 +118,7 @@ export const Orders = ({
   destination,
   setRefresh,
 }: {
-  destination: CrossChainDestination;
+  destination: DarwiniaChain;
   setRefresh: (fn: () => void) => void;
 }) => {
   const { network } = useApi();
@@ -133,55 +132,55 @@ export const Orders = ({
     slot: FilterSlot.ALL,
   });
   const {
-    loading: statisticsLoading,
-    data: statisticsData,
-    refetch: refetchStatistics,
-  } = usePollIntervalQuery<OrdersStatisticsData, { destination: string }>(ORDERS_STATISTICS, {
+    loading: ordersStatisticsLoading,
+    data: ordersStatisticsData,
+    refetch: refetchOrdersStatistics,
+  } = useMyQuery<TOrdersStatistics, { destination: string }>(ORDERS_STATISTICS, {
     variables: { destination },
   });
   const {
-    loading: totalOrdersLoading,
-    data: totalOrdersData,
-    refetch: refetchTotalOrders,
-  } = usePollIntervalQuery<FeeMarketOrders, { destination: string }>(FEE_MARKET_ORDERS, {
+    loading: ordersOverviewLoading,
+    data: ordersOverviewData,
+    refetch: refetchOrdersOverview,
+  } = useMyQuery<TOrdersOverview, { destination: string }>(ORDERS_OVERVIEW, {
     variables: { destination },
   });
 
   const columns: ColumnsType<OrderData> = [
     {
       title: t('Order ID'),
-      key: 'orderId',
-      dataIndex: 'orderId',
+      key: 'id',
+      dataIndex: 'id',
       width: '10%',
       align: 'center',
-      render: (value, record) => {
+      render: (value: string, record) => {
         const searchParams = new URLSearchParams();
         searchParams.set(SearchParamsKey.RPC, encodeURIComponent(network.provider.rpc));
         searchParams.set(SearchParamsKey.DESTINATION, destination);
         searchParams.set(SearchParamsKey.TAB, FeeMarketTab.OREDERS);
-        searchParams.set(SearchParamsKey.ORDER, value);
+        searchParams.set(SearchParamsKey.ORDER, value.split('-')[1]);
         return (
           <div className="inline-flex items-center">
-            {record.status === SubqlOrderStatus.IN_PROGRESS ? (
+            {record.confirmedSlotIndex === null ? (
               <Badge status="processing" />
-            ) : record.status === SubqlOrderStatus.OUT_OF_SLOT ? (
+            ) : record.confirmedSlotIndex === -1 ? (
               <Badge status="warning" />
             ) : (
               <Badge status="success" />
             )}
-            <NavLink to={`?${searchParams.toString()}`}>{value}</NavLink>
+            <NavLink to={`?${searchParams.toString()}`}>{value.split('-')[1]}</NavLink>
           </div>
         );
       },
     },
     {
       title: t(RelayerRole.DELIVERY),
-      key: 'deliveryRelayer',
-      dataIndex: 'deliveryRelayer',
+      key: 'deliveredRelayersId',
+      dataIndex: 'deliveredRelayersId',
       align: 'center',
-      render: (value) =>
-        value ? (
-          <IdentAccountName account={value} />
+      render: (value: string[] | null) =>
+        value?.length ? (
+          <IdentAccountName account={value[0]} />
         ) : (
           <div className="flex justify-center">
             <span>-</span>
@@ -190,12 +189,12 @@ export const Orders = ({
     },
     {
       title: t(RelayerRole.CONFIRMATION),
-      key: 'confirmationRelayer',
-      dataIndex: 'confirmationRelayer',
+      key: 'confirmedRelayersId',
+      dataIndex: 'confirmedRelayersId',
       align: 'center',
-      render: (value) =>
-        value ? (
-          <IdentAccountName account={value} />
+      render: (value: string[] | null) =>
+        value?.length ? (
+          <IdentAccountName account={value[0]} />
         ) : (
           <div className="flex justify-center">
             <span>-</span>
@@ -204,26 +203,28 @@ export const Orders = ({
     },
     {
       title: t('Created At'),
-      key: 'createBlock',
-      dataIndex: 'createBlock',
+      key: 'createBlockNumber',
+      dataIndex: 'createBlockNumber',
       align: 'center',
-      render: (value, record) => (
+      render: (value: number, record) => (
         <div className="flex flex-col justify-center">
-          <SubscanLink network={network.name} block={value} prefix="#" />
-          <span>{format(new Date(record.createTime), DATE_TIME_FORMATE)} (+UTC)</span>
+          <SubscanLink network={network.name} block={value.toString()} prefix="#" />
+          <span>{format(new Date(`${record.createBlockTime}Z`), DATE_TIME_FORMATE)} (+UTC)</span>
         </div>
       ),
     },
     {
       title: t('Confirmed At'),
-      key: 'finishBlock',
-      dataIndex: 'finishBlock',
+      key: 'finishBlockNumber',
+      dataIndex: 'finishBlockNumber',
       align: 'center',
-      render: (value, record) =>
+      render: (value: number | null, record) =>
         value ? (
           <div className="flex flex-col justify-center">
-            <SubscanLink network={network.name} block={value} prefix="#" />
-            {record.finishTime ? <span>{format(new Date(record.finishTime), DATE_TIME_FORMATE)} (+UTC)</span> : null}
+            <SubscanLink network={network.name} block={value.toString()} prefix="#" />
+            {record.finishBlockTime ? (
+              <span>{format(new Date(`${record.finishBlockTime}Z`), DATE_TIME_FORMATE)} (+UTC)</span>
+            ) : null}
           </div>
         ) : (
           '-'
@@ -234,7 +235,8 @@ export const Orders = ({
   const handleSearch = useCallback(() => {
     if (search.value) {
       if (search.type === SearchType.ORDER_ID) {
-        setDataSource(dataSourceRef.current.filter((item) => item.orderId === search.value));
+        // eslint-disable-next-line no-magic-numbers
+        setDataSource(dataSourceRef.current.filter((item) => item.id.split('-')[2] === search.value));
       } else if (search.type === SearchType.SENDER_ADDRESS) {
         setDataSource(dataSourceRef.current.filter((item) => item.sender === search.value));
       }
@@ -254,8 +256,8 @@ export const Orders = ({
           const durationStart = duration[0].format(dateFormat);
           const durationEnd = duration[1].format(dateFormat);
 
-          const createTime = moment(item.createTime.split('T')[0]);
-          const finishTime = item.finishTime ? moment(item.finishTime.split('T')[0]) : null;
+          const createTime = moment(item.createBlockTime.split('T')[0]);
+          const finishTime = item.finishBlockTime ? moment(item.finishBlockTime.split('T')[0]) : null;
 
           if (
             !(
@@ -270,8 +272,8 @@ export const Orders = ({
         if (
           block &&
           !(
-            (block.start ? block.start <= item.createBlock : true) &&
-            (block.end && item.finishBlock ? item.finishBlock <= block.end : true)
+            (block.start ? block.start <= item.createBlockNumber : true) &&
+            (block.end && item.finishBlockNumber ? item.finishBlockNumber <= block.end : true)
           )
         ) {
           return false;
@@ -280,12 +282,12 @@ export const Orders = ({
         switch (status) {
           // case FilterStatus.ALL:
           case FilterStatus.FINISHED:
-            if (item.status !== SubqlOrderStatus.FINISHED) {
+            if (item.status !== 'Finished') {
               return false;
             }
             break;
           case FilterStatus.IN_PROGRESS:
-            if (item.status === SubqlOrderStatus.FINISHED) {
+            if (item.status !== 'InProgress') {
               return false;
             }
             break;
@@ -294,23 +296,23 @@ export const Orders = ({
         switch (slot) {
           // case FilterSlot.ALL:
           case FilterSlot.SLOT_1:
-            if (!(item.confirmedSlotIndex === 0)) {
+            if (item.confirmedSlotIndex !== 0) {
               return false;
             }
             break;
           case FilterSlot.SLOT_2:
-            if (!(item.confirmedSlotIndex === 1)) {
+            if (item.confirmedSlotIndex !== 1) {
               return false;
             }
             break;
           case FilterSlot.SLOT_3:
             // eslint-disable-next-line no-magic-numbers
-            if (!(item.confirmedSlotIndex === 2)) {
+            if (item.confirmedSlotIndex !== 2) {
               return false;
             }
             break;
           case FilterSlot.OUT_OF_SLOT:
-            if (!(item.confirmedSlotIndex === -1 || item.status === SubqlOrderStatus.OUT_OF_SLOT)) {
+            if (item.confirmedSlotIndex !== -1) {
               return false;
             }
             break;
@@ -322,67 +324,61 @@ export const Orders = ({
   }, []);
 
   useEffect(() => {
-    dataSourceRef.current = (totalOrdersData?.orderEntities?.nodes || []).map((node) => ({
-      ...node,
-      orderId: node.id.split('-')[1],
-      deliveryRelayer: node.deliveredRelayerId?.split('-')[1],
-      confirmationRelayer: node.confirmedRelayerId?.split('-')[1],
-    }));
-
+    dataSourceRef.current = ordersOverviewData?.orders?.nodes || [];
     setDataSource(dataSourceRef.current);
-  }, [totalOrdersData?.orderEntities?.nodes]);
+  }, [ordersOverviewData?.orders?.nodes]);
 
   useEffect(() => {
     setRefresh(() => () => {
-      refetchStatistics();
-      refetchTotalOrders();
+      refetchOrdersStatistics();
+      refetchOrdersOverview();
     });
-  }, [setRefresh, refetchStatistics, refetchTotalOrders]);
+  }, [setRefresh, refetchOrdersStatistics, refetchOrdersOverview]);
 
   return (
     <>
       <Card>
         <div className="flex items-center justify-around">
           <Statistic
-            value={statisticsData?.feeMarketEntity?.totalFinished || 0}
+            value={ordersStatisticsData?.market?.finishedOrders || 0}
             title={
-              <Spin size="small" spinning={statisticsLoading}>
+              <Spin size="small" spinning={ordersStatisticsLoading}>
                 <div className="flex flex-col items-center">
                   <CheckCircleOutlined className="text-xl" />
-                  <span>{t(OrderStatus.FINISHED)}</span>
+                  <span>{t('Finished')}</span>
                 </div>
               </Spin>
             }
             valueStyle={{ textAlign: 'center' }}
           />
           <Statistic
-            value={statisticsData?.feeMarketEntity?.totalInProgress || 0}
+            value={ordersStatisticsData?.market?.inProgressInSlotOrders || 0}
             title={
-              <Spin size="small" spinning={statisticsLoading}>
+              <Spin size="small" spinning={ordersStatisticsLoading}>
                 <div className="flex flex-col items-center">
                   <ClockCircleOutlined className="text-xl" />
-                  <span>{`${t(OrderStatus.IN_PROGRESS)} (${t('In Slot')})`}</span>
+                  <span>{`${t('In Progress')} (${t('In Slot')})`}</span>
                 </div>
               </Spin>
             }
             valueStyle={{ textAlign: 'center' }}
           />
           <Statistic
-            value={statisticsData?.feeMarketEntity?.totalOutOfSlot || 0}
+            value={ordersStatisticsData?.market?.inProgressOutOfSlotOrders || 0}
             title={
-              <Spin size="small" spinning={statisticsLoading}>
+              <Spin size="small" spinning={ordersStatisticsLoading}>
                 <div className="flex flex-col items-center">
                   <ExclamationCircleOutlined className="text-xl" />
-                  <span>{`${t(OrderStatus.IN_PROGRESS)} (${t(OrderStatus.OUT_OF_SLOT)})`}</span>
+                  <span>{`${t('In Progress')} (${t('Out of Slot')})`}</span>
                 </div>
               </Spin>
             }
             valueStyle={{ textAlign: 'center' }}
           />
-          <OrdersStatistics
-            finished={statisticsData?.feeMarketEntity?.totalFinished || 0}
-            inSlot={statisticsData?.feeMarketEntity?.totalInProgress || 0}
-            outOfSlot={statisticsData?.feeMarketEntity?.totalOutOfSlot || 0}
+          <OrdersStatisticsChart
+            finished={ordersStatisticsData?.market?.finishedOrders || 0}
+            inSlot={ordersStatisticsData?.market?.inProgressInSlotOrders || 0}
+            outOfSlot={ordersStatisticsData?.market?.inProgressOutOfSlotOrders || 0}
           />
         </div>
       </Card>
@@ -459,7 +455,7 @@ export const Orders = ({
         </Form>
       </Card>
       <Card className="mt-2">
-        <Table columns={columns} dataSource={dataSource} rowKey="orderId" loading={totalOrdersLoading} />
+        <Table columns={columns} dataSource={dataSource} rowKey="orderId" loading={ordersOverviewLoading} />
       </Card>
     </>
   );

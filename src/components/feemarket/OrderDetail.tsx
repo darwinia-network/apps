@@ -7,18 +7,10 @@ import { capitalize } from 'lodash';
 
 import { Path } from '../../config/routes';
 import { ORDER_DETAIL, DATE_TIME_FORMATE } from '../../config';
-import {
-  CrossChainDestination,
-  SlotState,
-  RelayerRole,
-  SubqlOrderStatus,
-  OrderStatus,
-  OrderDetailData,
-  OrderDetailState,
-} from '../../model';
-import { useApi, usePollIntervalQuery } from '../../hooks';
+import { DarwiniaChain, SlotState, RelayerRole, TOrderDetail } from '../../model';
+import { useApi, useMyQuery } from '../../hooks';
 import { SubscanLink } from '../widget/SubscanLink';
-import { fromWei, prettyNumber, transformOrderDetail } from '../../utils';
+import { fromWei, prettyNumber } from '../../utils';
 import { AccountName } from '../widget/account/AccountName';
 
 const getPrioritySlot = (confirmedSlotIndex?: number | null): string => {
@@ -43,7 +35,7 @@ export const OrderDetail = ({
   setRefresh,
 }: {
   orderid: string;
-  destination: CrossChainDestination;
+  destination: DarwiniaChain;
   setRefresh: (fn: () => void) => void;
 }) => {
   const { network } = useApi();
@@ -51,22 +43,17 @@ export const OrderDetail = ({
 
   const {
     loading: orderDetailLoading,
-    transformedData: orderDetailState,
-    refetch,
-  } = usePollIntervalQuery<OrderDetailData, { orderId: string }, OrderDetailState | undefined>(
-    ORDER_DETAIL,
-    {
-      variables: { orderId: `${destination}-${orderid}` },
-    },
-    transformOrderDetail
-  );
+    data: orderDetailData,
+    refetch: refetchOrderDetail,
+  } = useMyQuery<TOrderDetail, { orderId: string }>(ORDER_DETAIL, {
+    variables: { orderId: `${destination}-${orderid}` },
+  });
 
   useEffect(() => {
     setRefresh(() => () => {
-      console.log('refresh');
-      refetch();
+      refetchOrderDetail();
     });
-  }, [setRefresh, refetch]);
+  }, [setRefresh, refetchOrderDetail]);
 
   return (
     <>
@@ -81,118 +68,135 @@ export const OrderDetail = ({
         <Spin spinning={orderDetailLoading}>
           <Descriptions column={1} title={<span className="text-sm font-bold text-black">{t('Detail')}</span>}>
             <Descriptions.Item label={t('Nonce')}>{orderid}</Descriptions.Item>
-            <Descriptions.Item label={t('Lane ID')}>{orderDetailState?.createLaneId || '-'}</Descriptions.Item>
+            <Descriptions.Item label={t('Lane ID')}>
+              {orderDetailData?.order?.id.split('-')[1] || '-'}
+            </Descriptions.Item>
             <Descriptions.Item label={t('Time Stamp')}>
-              {orderDetailState?.createTime
+              {orderDetailData?.order?.createBlockTime
                 ? `${capitalize(
-                    formatDistance(new Date(`${orderDetailState.createTime}Z`), Date.now(), {
+                    formatDistance(new Date(`${orderDetailData.order.createBlockTime}Z`), Date.now(), {
                       addSuffix: true,
                     })
-                  )} ( ${format(new Date(orderDetailState.createTime), DATE_TIME_FORMATE)} +UTC)`
+                  )} ( ${format(new Date(orderDetailData.order.createBlockTime), DATE_TIME_FORMATE)} +UTC)`
                 : '-'}
             </Descriptions.Item>
             <Descriptions.Item label={t('Source TxID')}>
-              {orderDetailState?.sourceTxHash ? (
-                <SubscanLink network={network.name} txHash={orderDetailState.sourceTxHash} />
+              {orderDetailData?.order?.sourceTxHash ? (
+                <SubscanLink network={network.name} txHash={orderDetailData.order.sourceTxHash} />
               ) : (
                 '-'
               )}
             </Descriptions.Item>
             <Descriptions.Item label={t('Sender')}>
-              {orderDetailState?.sender ? (
-                <SubscanLink copyable address={orderDetailState.sender} network={network.name} />
+              {orderDetailData?.order?.sender ? (
+                <SubscanLink copyable address={orderDetailData.order.sender} network={network.name} />
               ) : (
                 '-'
               )}
             </Descriptions.Item>
             <Descriptions.Item label={t('Status')}>
-              {orderDetailState?.status === SubqlOrderStatus.FINISHED ? (
-                <Badge status="success" text={t(OrderStatus.FINISHED)} />
-              ) : orderDetailState?.status === SubqlOrderStatus.OUT_OF_SLOT ? (
-                <Badge status="warning" text={t(OrderStatus.OUT_OF_SLOT)} />
+              {orderDetailData?.order?.status === 'Finished' ? (
+                <Badge status="success" text={t('Finished')} />
               ) : (
-                <Badge status="processing" text={t(OrderStatus.IN_PROGRESS)} />
+                <Badge status="processing" text={t('In Progress')} />
               )}
             </Descriptions.Item>
             <Descriptions.Item label={t('Fee')}>
-              {orderDetailState?.fee
-                ? `${fromWei({ value: orderDetailState.fee }, prettyNumber)} ${network.tokens.ring.symbol}`
+              {orderDetailData?.order?.fee
+                ? `${fromWei({ value: orderDetailData.order.fee }, prettyNumber)} ${network.tokens.ring.symbol}`
                 : '-'}
             </Descriptions.Item>
             <Descriptions.Item label={t('Created At')}>
-              {orderDetailState?.createBlock ? (
-                <SubscanLink network={network.name} block={orderDetailState.createBlock.toString()} prefix="#" />
+              {orderDetailData?.order?.createBlockNumber ? (
+                <SubscanLink
+                  network={network.name}
+                  block={orderDetailData.order.createBlockNumber.toString()}
+                  prefix="#"
+                />
               ) : (
                 '-'
               )}
             </Descriptions.Item>
             <Descriptions.Item label={t('Confirmed At')}>
-              {orderDetailState?.finishBlock ? (
-                <SubscanLink network={network.name} block={orderDetailState.finishBlock.toString()} prefix="#" />
+              {orderDetailData?.order?.finishBlockNumber ? (
+                <SubscanLink
+                  network={network.name}
+                  block={orderDetailData.order.finishBlockNumber.toString()}
+                  prefix="#"
+                />
               ) : (
                 '-'
               )}
             </Descriptions.Item>
             <Descriptions.Item label={t('Slot At')}>
-              {t(getPrioritySlot(orderDetailState?.confirmedSlotIndex))}
+              {t(getPrioritySlot(orderDetailData?.order?.confirmedSlotIndex))}
             </Descriptions.Item>
             <Descriptions.Item label={t('Assigned Relayers')}>
               <div className="inline-flex items-center space-x-4">
-                {orderDetailState?.assignedRelayers.map((relayer) => (
-                  <AccountName key={relayer} account={relayer} copyable />
+                {orderDetailData?.order?.assignedRelayersId.map((relayer) => (
+                  <AccountName key={relayer} account={relayer.split('-')[1]} copyable />
                 ))}
               </div>
             </Descriptions.Item>
           </Descriptions>
 
-          {orderDetailState?.rewards.length ? (
+          {orderDetailData?.order?.rewards?.nodes.length ? (
             <>
               <Descriptions
                 column={1}
                 className="mt-4"
                 title={<span className="text-sm font-bold text-black">{t('Reward')}</span>}
               >
-                <Descriptions.Item label={t('Extrinsic')}>
-                  <SubscanLink
-                    network={network.name}
-                    extrinsic={{
-                      height: orderDetailState.rewards[0].rewardBlock,
-                      index: orderDetailState.rewards[0].rewardExtrinsic,
-                    }}
-                  />
-                </Descriptions.Item>
-                {orderDetailState.rewards[0].assignedRelayerId && (
-                  <Descriptions.Item label={t(RelayerRole.ASSIGNED)}>
-                    <AccountName account={orderDetailState.rewards[0].assignedRelayerId.split('-')[1]} copyable />
-                    <span>
-                      &nbsp;
-                      {`| +${fromWei({ value: orderDetailState.rewards[0].assignedAmount }, prettyNumber)} ${
-                        network.tokens.ring.symbol
-                      }`}
-                    </span>
+                {orderDetailData?.order?.rewards?.nodes[0]?.extrinsicIndex && (
+                  <Descriptions.Item label={t('Extrinsic')}>
+                    <SubscanLink
+                      network={network.name}
+                      extrinsic={{
+                        height: orderDetailData.order.rewards.nodes[0].blockNumber,
+                        index: orderDetailData.order.rewards.nodes[0].extrinsicIndex,
+                      }}
+                    />
                   </Descriptions.Item>
                 )}
-                <Descriptions.Item label={t(RelayerRole.DELIVERY)}>
-                  <AccountName account={orderDetailState.rewards[0].deliveredRelayerId.split('-')[1]} copyable />
-                  <span>
-                    &nbsp;
-                    {`| +${fromWei({ value: orderDetailState.rewards[0].deliveredAmount }, prettyNumber)} ${
-                      network.tokens.ring.symbol
-                    }`}
-                  </span>
-                </Descriptions.Item>
-                <Descriptions.Item label={t(RelayerRole.CONFIRMATION)}>
-                  <AccountName account={orderDetailState.rewards[0].confirmedRelayerId.split('-')[1]} copyable />
-                  <span>
-                    &nbsp;
-                    {`| +${fromWei({ value: orderDetailState.rewards[0].confirmedAmount }, prettyNumber)} ${
-                      network.tokens.ring.symbol
-                    }`}
-                  </span>
-                </Descriptions.Item>
-                {orderDetailState.rewards[0].treasuryAmount && (
+                {orderDetailData.order.rewards.nodes[0].assignedRelayersId?.map((relayer, index) => {
+                  const amount = (orderDetailData.order?.rewards?.nodes[0].assignedAmounts as string[])[index];
+                  return (
+                    <Descriptions.Item label={t(RelayerRole.ASSIGNED)} key={index}>
+                      <AccountName account={relayer.split('-')[1]} copyable />
+                      <span>
+                        &nbsp;
+                        {`| +${fromWei({ value: amount }, prettyNumber)} ${network.tokens.ring.symbol}`}
+                      </span>
+                    </Descriptions.Item>
+                  );
+                })}
+                {orderDetailData.order.rewards.nodes[0].deliveredRelayersId?.map((relayer, index) => {
+                  const amount = (orderDetailData.order?.rewards?.nodes[0].deliveredAmounts as string[])[index];
+                  return (
+                    <Descriptions.Item label={t(RelayerRole.DELIVERY)} key={index}>
+                      <AccountName account={relayer.split('-')[1]} copyable />
+                      <span>
+                        &nbsp;
+                        {`| +${fromWei({ value: amount }, prettyNumber)} ${network.tokens.ring.symbol}`}
+                      </span>
+                    </Descriptions.Item>
+                  );
+                })}
+                {orderDetailData.order.rewards.nodes[0].confirmedRelayersId?.map((relayer, index) => {
+                  const amount = (orderDetailData.order?.rewards?.nodes[0].confirmedAmounts as string[])[index];
+                  return (
+                    <Descriptions.Item label={t(RelayerRole.CONFIRMATION)} key={index}>
+                      <AccountName account={relayer.split('-')[1]} copyable />
+                      <span>
+                        &nbsp;
+                        {`| +${fromWei({ value: amount }, prettyNumber)} ${network.tokens.ring.symbol}`}
+                      </span>
+                    </Descriptions.Item>
+                  );
+                })}
+                {orderDetailData.order.rewards.nodes[0].treasuryAmount && (
                   <Descriptions.Item label={t('Treaury')}>{`+${fromWei(
-                    { value: orderDetailState.rewards[0].treasuryAmount },
+                    { value: orderDetailData.order.rewards.nodes[0].treasuryAmount },
                     prettyNumber
                   )} ${network.tokens.ring.symbol}`}</Descriptions.Item>
                 )}
@@ -200,19 +204,21 @@ export const OrderDetail = ({
             </>
           ) : null}
 
-          {orderDetailState?.slashs.length ? (
+          {orderDetailData?.order?.slashs?.nodes.length ? (
             <>
               <Descriptions column={1} title={<span className="text-sm font-bold text-black">{t('Slash')}</span>}>
-                <Descriptions.Item label={t('Extrinsic')}>
-                  <SubscanLink
-                    network={network.name}
-                    extrinsic={{
-                      height: orderDetailState.slashs[0].slashBlock,
-                      index: orderDetailState.slashs[0].slashExtrinsic,
-                    }}
-                  />
-                </Descriptions.Item>
-                {orderDetailState.slashs.map((slash) => (
+                {orderDetailData?.order?.slashs?.nodes[0]?.extrinsicIndex && (
+                  <Descriptions.Item label={t('Extrinsic')}>
+                    <SubscanLink
+                      network={network.name}
+                      extrinsic={{
+                        height: orderDetailData.order.slashs.nodes[0].blockNumber,
+                        index: orderDetailData?.order?.slashs?.nodes[0]?.extrinsicIndex,
+                      }}
+                    />
+                  </Descriptions.Item>
+                )}
+                {orderDetailData.order.slashs.nodes.map((slash) => (
                   <Descriptions.Item label={t(RelayerRole.ASSIGNED)} key={slash.relayerId}>
                     <AccountName account={slash.relayerId.split('-')[1]} copyable />
                     <span>

@@ -9,7 +9,7 @@ import type {
 
 // import { LONG_LONG_DURATION } from '../config';
 
-export const usePollIntervalQuery: <TData = unknown, TVariables = OperationVariables, TTransResult = unknown>(
+export const useMyQuery: <TData = unknown, TVariables = OperationVariables, TTransResult = unknown>(
   query: DocumentNode | TypedDocumentNode<TData, TVariables>,
   options?: QueryHookOptions<TData, TVariables>,
   transform?: (data: TData) => TTransResult

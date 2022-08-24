@@ -1,22 +1,16 @@
 import { createContext, PropsWithChildren, useCallback, useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { CrossChainDestination, PolkadotTypeNetwork, SearchParamsKey } from '../model';
+import { RuntimeVersion } from '@polkadot/types/interfaces';
+
+import { marketApiSections } from '../config';
+import { SearchParamsKey, DarwiniaChain } from '../model';
 import { useApi } from '../hooks';
 
-const networksDestinations: Record<PolkadotTypeNetwork, CrossChainDestination[]> = {
-  crab: ['Darwinia', 'CrabParachain'],
-  darwinia: ['Default'],
-  pangolin: ['PangolinParachain', 'Pangoro'],
-  pangoro: ['Pangolin'],
-  'crab-parachain': [],
-  'pangolin-parachain': [],
-};
-
 export interface FeeMarketCtx {
-  destination: CrossChainDestination | null | undefined;
-  supportedDestinations: CrossChainDestination[];
+  destination: DarwiniaChain | null | undefined;
+  supportedDestinations: DarwiniaChain[];
 
-  setDestination: (dest: CrossChainDestination) => void;
+  setDestination: (destination: DarwiniaChain) => void;
   refresh: () => void;
   setRefresh: (fn: () => void) => void;
 }
@@ -24,7 +18,7 @@ export interface FeeMarketCtx {
 export const FeeMarketContext = createContext<FeeMarketCtx>({} as FeeMarketCtx);
 
 export const FeeMarketProvider = ({ children }: PropsWithChildren<unknown>) => {
-  const { network } = useApi();
+  const { api } = useApi();
   const { search } = useLocation();
   const navigate = useNavigate();
   const [refresh, setRefresh] = useState<() => void>(() => () => undefined);
@@ -32,16 +26,18 @@ export const FeeMarketProvider = ({ children }: PropsWithChildren<unknown>) => {
   const searchParams = new URLSearchParams(search);
   const dest = searchParams.get(SearchParamsKey.DESTINATION);
 
-  const supportedDestinations = useMemo(
-    () => networksDestinations[network.name as PolkadotTypeNetwork] || [],
-    [network.name]
-  );
-  const [destination, _setDestination] = useState<CrossChainDestination>(
+  const supportedDestinations = useMemo(() => {
+    const { specName } = api.consts.system.version as RuntimeVersion;
+    const source = specName.toString() as DarwiniaChain;
+    return Object.keys(marketApiSections[source] || {}) as DarwiniaChain[];
+  }, [api]);
+
+  const [destination, _setDestination] = useState<DarwiniaChain>(
     supportedDestinations.find((item) => item === dest) ?? supportedDestinations[0]
   );
 
   const setDestination = useCallback(
-    (d: CrossChainDestination) => {
+    (d: DarwiniaChain) => {
       const searchParams = new URLSearchParams(window.location.search);
       searchParams.set(SearchParamsKey.DESTINATION, d);
       navigate(`?${searchParams.toString()}`);

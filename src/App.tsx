@@ -13,7 +13,7 @@ import { ConnectWallet } from './components/widget/ConnectWallet';
 import { ActiveAccount } from './components/widget/account/ActiveAccount';
 import { Language } from './components/widget/Language';
 import { getActiveNav, SideNav } from './components/widget/SideNav';
-import { CrossChainDestinationSelector } from './components/widget/CrossChainDestinationSelector';
+import { FeeMarketDestinationSelector } from './components/widget/FeeMarketDestinationSelector';
 import { toggleTheme } from './components/widget/ThemeSwitch';
 import { THEME } from './config';
 import { routes } from './config/routes';
@@ -157,7 +157,7 @@ function App() {
                 >
                   {t(activeNav.length ? activeNav[0].label : '')}
                 </h2>
-                <CrossChainDestinationSelector
+                <FeeMarketDestinationSelector
                   destinations={supportedDestinations}
                   defaultValue={destination}
                   network={network.name}

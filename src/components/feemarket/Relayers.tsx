@@ -2,17 +2,17 @@ import { useEffect, useState, useRef, useCallback } from 'react';
 import { Table, Input, Radio, Card } from 'antd';
 import type { ColumnsType } from 'antd/lib/table';
 import { NavLink } from 'react-router-dom';
-import { from, switchMap, forkJoin, Subscription, timer, tap } from 'rxjs';
+import { from, switchMap, forkJoin, Subscription, EMPTY } from 'rxjs';
 import type { Option, Vec } from '@polkadot/types';
 import { BN } from '@polkadot/util';
 import type { Balance, AccountId32 } from '@polkadot/types/interfaces';
 import { useApolloClient } from '@apollo/client';
 import { useTranslation } from 'react-i18next';
 
-import { getFeeMarketModule, fromWei, prettyNumber } from '../../utils';
+import { getFeeMarketApiSection, fromWei, prettyNumber } from '../../utils';
 import { useApi } from '../../hooks';
-import { PalletFeeMarketRelayer, CrossChainDestination, SearchParamsKey, FeeMarketTab } from '../../model';
-import { LONG_LONG_DURATION, RELAYER_TOTAL_ORDERS_SLASHS_REWARDS } from '../../config';
+import { PalletFeeMarketRelayer, DarwiniaChain, SearchParamsKey, FeeMarketTab, TRelayerOverview } from '../../model';
+import { RELAYER_OVERVIEW } from '../../config';
 import { IdentAccountName } from '../widget/account/IdentAccountName';
 
 type RelayerData = {
@@ -36,7 +36,7 @@ export const Relayers = ({
   destination,
   setRefresh,
 }: {
-  destination: CrossChainDestination;
+  destination: DarwiniaChain;
   setRefresh: (fn: () => void) => void;
 }) => {
   const { api, network } = useApi();
@@ -44,7 +44,6 @@ export const Relayers = ({
   const { t } = useTranslation();
   const [tab, setTab] = useState(RelayerTab.ALL);
   const [loading, setLoaing] = useState(false);
-  const [refreshFlag, toggleRefreshFlag] = useState(false);
   const [relayers, setRelayers] = useState<PalletFeeMarketRelayer[]>([]);
   const [dataSource, setDataSource] = useState<RelayerData[]>([]);
   const dataSourceRef = useRef<RelayerData[]>([]);
@@ -122,77 +121,55 @@ export const Relayers = ({
     }
   }, []);
 
-  useEffect(() => {
-    let sub$$: Subscription;
+  const updateRelayers = useCallback(() => {
+    const apiSection = getFeeMarketApiSection(api, destination);
 
-    if (tab === RelayerTab.ALL) {
-      sub$$ = timer(0, LONG_LONG_DURATION)
-        .pipe(
-          tap(() => setLoaing(true)),
-          switchMap(() => from(api.query[getFeeMarketModule(destination)].relayers<Vec<AccountId32>>())),
-          switchMap((res) =>
-            forkJoin(
-              res.map((item) => api.query[getFeeMarketModule(destination)].relayersMap<PalletFeeMarketRelayer>(item))
+    if (apiSection) {
+      if (tab === RelayerTab.ALL) {
+        setLoaing(true);
+
+        from(api.query[apiSection].relayers<Vec<AccountId32>>())
+          .pipe(
+            switchMap((res) =>
+              forkJoin(res.map((item) => api.query[apiSection].relayersMap<PalletFeeMarketRelayer>(item)))
             )
           )
-        )
-        .subscribe((res) => {
-          setLoaing(false);
-          setRelayers(res);
-        });
-    } else if (tab === RelayerTab.ASSIGNED) {
-      sub$$ = timer(0, LONG_LONG_DURATION)
-        .pipe(
-          tap(() => setLoaing(true)),
-          switchMap(() =>
-            from(api.query[getFeeMarketModule(destination)].assignedRelayers<Option<Vec<PalletFeeMarketRelayer>>>())
-          )
-        )
-        .subscribe((res) => {
+          .subscribe((res) => {
+            setLoaing(false);
+            setRelayers(res);
+          });
+      } else if (tab === RelayerTab.ASSIGNED) {
+        setLoaing(true);
+
+        from(api.query[apiSection].assignedRelayers<Option<Vec<PalletFeeMarketRelayer>>>()).subscribe((res) => {
           setLoaing(false);
           setRelayers(res.isSome ? res.unwrap() : []);
         });
+      }
     }
 
-    return () => {
-      if (sub$$) {
-        sub$$.unsubscribe();
-      }
-    };
-  }, [api, destination, tab, refreshFlag]);
+    return EMPTY.subscribe();
+  }, [api, destination, tab]);
 
   useEffect(() => {
-    if (!relayers.length) {
-      setDataSource([]);
-      return;
-    }
+    let sub$$: Subscription;
 
-    setLoaing(true);
+    if (relayers.length) {
+      setLoaing(true);
 
-    const sub$$ = forkJoin(
-      relayers.map((relayer) =>
-        apollo.query({
-          query: RELAYER_TOTAL_ORDERS_SLASHS_REWARDS,
-          variables: { relayer: `${destination}-${relayer.id.toString()}` },
-        })
-      )
-    ).subscribe(
-      (
-        res: {
-          data: null | {
-            relayerEntity: null | {
-              totalOrders: null | number;
-              totalSlashs: null | string;
-              totalRewards: null | string;
-            };
-          };
-        }[]
-      ) => {
+      sub$$ = forkJoin(
+        relayers.map((relayer) =>
+          apollo.query<TRelayerOverview, { relayerId: string }>({
+            query: RELAYER_OVERVIEW,
+            variables: { relayerId: `${destination}-${relayer.id.toString()}` },
+          })
+        )
+      ).subscribe((res) => {
         dataSourceRef.current = res.map(({ data }, index) => {
           const relayer = relayers[index];
-          const orders = data?.relayerEntity?.totalOrders || 0;
-          const slashs = data?.relayerEntity?.totalSlashs || '0';
-          const rewards = data?.relayerEntity?.totalRewards || '0';
+          const orders = data.relayer?.totalOrders || 0;
+          const slashs = data.relayer?.totalSlashs || '0';
+          const rewards = data.relayer?.totalRewards || '0';
 
           return {
             relayer: relayer.id.toString(),
@@ -205,15 +182,26 @@ export const Relayers = ({
         });
         setDataSource(dataSourceRef.current);
         setLoaing(false);
-      }
-    );
+      });
+    } else {
+      setDataSource([]);
+    }
 
-    return () => sub$$.unsubscribe();
-  }, [apollo, destination, relayers]);
+    return () => {
+      sub$$?.unsubscribe();
+    };
+  }, [relayers, apollo, destination]);
 
   useEffect(() => {
-    setRefresh(() => () => toggleRefreshFlag((prev) => !prev));
-  }, [setRefresh]);
+    setRefresh(() => () => {
+      updateRelayers();
+    });
+  }, [setRefresh, updateRelayers]);
+
+  useEffect(() => {
+    const sub$$ = updateRelayers();
+    return () => sub$$.unsubscribe();
+  }, [updateRelayers]);
 
   return (
     <>

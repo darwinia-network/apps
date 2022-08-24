@@ -1,41 +1,39 @@
 import { Card, Spin } from 'antd';
 import { useTranslation } from 'react-i18next';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
+import { BN } from '@polkadot/util';
 import type { Option, Vec, u128 } from '@polkadot/types';
 import { Balance, AccountId32 } from '@polkadot/types/interfaces';
-import { timer, switchMap, from, forkJoin, tap, EMPTY } from 'rxjs';
+import { switchMap, from, forkJoin, EMPTY } from 'rxjs';
 import { formatDistanceStrict } from 'date-fns';
+import { useApolloClient } from '@apollo/client';
 
 import { Statistics } from '../widget/Statistics';
-import { LONG_LONG_DURATION, OVERVIEW_STATISTICS, MARKET_ORDER_HISTORY, MARKET_FEE_HISTORY } from '../../config';
-import { useApi, usePollIntervalQuery } from '../../hooks';
-import {
-  getFeeMarketModule,
-  transformOverviewStatistics,
-  transformFeeMarketFeeHistort,
-  transformFeeMarketOrderHistort,
-} from '../../utils';
+import { FEE_MARKET_OVERVIEW, TOTAL_ORDERS_OVERVIEW, MARKET_FEE_OVERVIEW } from '../../config';
+import { useApi, useMyQuery } from '../../hooks';
+import { getFeeMarketApiSection, transformTotalOrdersOverview, fromWei, prettyNumber } from '../../utils';
 import {
   PalletFeeMarketRelayer,
-  CrossChainDestination,
-  OverviewStatisticsData,
-  OverviewStatisticsState,
-  OrderHistoryData,
-  FeeHistoryData,
+  DarwiniaChain,
+  TFeeMarketOverview,
+  TTotalOrderOverview,
+  TMarketFeeOverview,
 } from '../../model';
 import { TooltipBalance } from '../../components/widget/TooltipBalance';
 import { TotalOrdersChart } from './TotalOrdersChart';
 import { FeeHistoryChart } from './FeeHistoryChart';
 
+// eslint-disable-next-line complexity
 export const Overview = ({
   destination,
   setRefresh,
 }: {
-  destination: CrossChainDestination;
+  destination: DarwiniaChain;
   setRefresh: (fn: () => void) => void;
 }) => {
   const { api, network } = useApi();
   const { t } = useTranslation();
+  const apollo = useApolloClient();
 
   const [currentFee, setCurrentFee] = useState<{ value?: Balance; loading: boolean }>({ loading: true });
   const [totalRelayers, setTotalRelayers] = useState<{ total: number; active: number; loading: boolean }>({
@@ -43,60 +41,79 @@ export const Overview = ({
     active: 0,
     loading: true,
   });
+  const [marketFeeOverviewData, setMarketFeeOverviewData] = useState<[number, number][]>([]);
 
   const {
-    loading: feemarketLoading,
-    transformedData: overviewStatisticsState,
-    refetch: refetchFeemarket,
-  } = usePollIntervalQuery<OverviewStatisticsData, { destination: string }, OverviewStatisticsState>(
-    OVERVIEW_STATISTICS,
-    {
-      variables: { destination },
+    data: feeMarketOverviewData,
+    loading: feeMarketOverviewLoading,
+    refetch: refetchFeeMarketStatistics,
+  } = useMyQuery<TFeeMarketOverview, { destination: DarwiniaChain }>(FEE_MARKET_OVERVIEW, {
+    variables: {
+      destination,
     },
-    transformOverviewStatistics
+  });
+
+  const { transformedData: totalOrdersOverviewData, refetch: refetchTotalOrdersOverview } = useMyQuery<
+    TTotalOrderOverview,
+    { destination: DarwiniaChain },
+    [number, number][]
+  >(
+    TOTAL_ORDERS_OVERVIEW,
+    {
+      variables: {
+        destination,
+      },
+    },
+    transformTotalOrdersOverview
   );
 
-  const {
-    // loading: feeHistoryLoading,
-    transformedData: feeHistoryState,
-    refetch: refetchFeeHistory,
-  } = usePollIntervalQuery<FeeHistoryData, { destination: string }, [number, number][]>(
-    MARKET_FEE_HISTORY,
-    {
-      variables: { destination },
-    },
-    transformFeeMarketFeeHistort
-  );
+  const updateTotalRelayers = useCallback(() => {
+    const apiSection = getFeeMarketApiSection(api, destination);
 
-  const {
-    // loading: orderHistoryLoading,
-    transformedData: orderHistoryState,
-    refetch: refetchOrderHistory,
-  } = usePollIntervalQuery<OrderHistoryData, { destination: string }, [number, number][]>(
-    MARKET_ORDER_HISTORY,
-    {
-      variables: { destination },
-    },
-    transformFeeMarketOrderHistort
-  );
+    if (apiSection) {
+      setTotalRelayers((prev) => ({ ...prev, loading: true }));
 
-  useEffect(() => {
-    setRefresh(() => () => {
-      refetchFeemarket();
-      refetchFeeHistory();
-      refetchOrderHistory();
-    });
-  }, [setRefresh, refetchFeemarket, refetchFeeHistory, refetchOrderHistory]);
-
-  useEffect(() => {
-    const sub$$ = timer(0, LONG_LONG_DURATION)
-      .pipe(
-        tap(() => setCurrentFee((prev) => ({ ...prev, loading: true }))),
-        switchMap(() =>
-          from(api.query[getFeeMarketModule(destination)].assignedRelayers<Option<Vec<PalletFeeMarketRelayer>>>())
+      return from(api.query[apiSection].relayers<Vec<AccountId32>>())
+        .pipe(
+          switchMap((total) => {
+            return total.length
+              ? forkJoin(total.map((relayer) => api.query[apiSection].relayersMap<PalletFeeMarketRelayer>(relayer)))
+              : EMPTY;
+          })
         )
-      )
-      .subscribe((res) => {
+        .subscribe({
+          next: (relayers) => {
+            let active = 0;
+            const collateralPerOrder = api.consts[apiSection].collateralPerOrder as u128;
+
+            relayers.forEach((relayer) => {
+              if (relayer.collateral.gte(collateralPerOrder)) {
+                // https://github.com/darwinia-network/apps/issues/314
+                active++;
+              }
+            });
+
+            setTotalRelayers({
+              active,
+              total: relayers.length,
+              loading: false,
+            });
+          },
+          complete: () => setTotalRelayers((prev) => ({ ...prev, loading: false })),
+          error: () => setTotalRelayers((prev) => ({ ...prev, loading: false })),
+        });
+    }
+
+    return EMPTY.subscribe();
+  }, [api, destination]);
+
+  const updateCurrentFee = useCallback(() => {
+    const apiSection = getFeeMarketApiSection(api, destination);
+
+    if (apiSection) {
+      setCurrentFee((prev) => ({ ...prev, loading: true }));
+
+      return from(api.query[apiSection].assignedRelayers<Option<Vec<PalletFeeMarketRelayer>>>()).subscribe((res) => {
         if (res.isSome) {
           const lastOne = res.unwrap().pop();
           setCurrentFee({ loading: false, value: lastOne?.fee });
@@ -104,49 +121,70 @@ export const Overview = ({
           setCurrentFee({ loading: false, value: undefined });
         }
       });
+    }
 
-    return () => sub$$.unsubscribe();
+    return EMPTY.subscribe();
   }, [api, destination]);
 
-  useEffect(() => {
-    setTotalRelayers((prev) => ({ ...prev, loading: true }));
-
-    const sub$$ = from(api.query[getFeeMarketModule(destination)].relayers<Vec<AccountId32>>())
-      .pipe(
-        switchMap((total) => {
-          return total.length
-            ? forkJoin(
-                total.map((relayer) =>
-                  api.query[getFeeMarketModule(destination)].relayersMap<PalletFeeMarketRelayer>(relayer)
-                )
-              )
-            : EMPTY;
-        })
-      )
-      .subscribe({
-        next: (relayers) => {
-          let active = 0;
-          const collateralPerOrder = api.consts[getFeeMarketModule(destination)].collateralPerOrder as u128;
-
-          relayers.forEach((relayer) => {
-            if (relayer.collateral.gte(collateralPerOrder)) {
-              // https://github.com/darwinia-network/apps/issues/314
-              active++;
-            }
-          });
-
-          setTotalRelayers({
-            active,
-            total: relayers.length,
-            loading: false,
-          });
-        },
-        complete: () => setTotalRelayers((prev) => ({ ...prev, loading: false })),
-        error: () => setTotalRelayers((prev) => ({ ...prev, loading: false })),
+  const queryMarketFee = useCallback(
+    async (
+      previous: { fee: string; timestamp: string }[],
+      destination: DarwiniaChain
+    ): Promise<{ fee: string; timestamp: string }[]> => {
+      const result = await apollo.query<TMarketFeeOverview, { destination: string; offset: number }>({
+        query: MARKET_FEE_OVERVIEW,
+        variables: { destination, offset: previous.length },
       });
 
+      previous = previous.concat(result.data.marketFees?.nodes || []);
+
+      if (result.data.marketFees?.pageInfo.hasNextPage) {
+        return await queryMarketFee(previous, destination);
+      }
+
+      return previous;
+    },
+    [apollo]
+  );
+
+  useEffect(() => {
+    const sub$$ = from(queryMarketFee([], destination)).subscribe((data) => {
+      const datesValues =
+        data.reduce((acc, cur) => {
+          const date = `${cur.timestamp.split('T')[0]}Z`;
+          acc[date] = (acc[date] || new BN(cur.fee)).add(new BN(cur.fee)).divn(2); // eslint-disable-line no-magic-numbers
+          return acc;
+        }, {} as Record<string, BN>) || {};
+
+      setMarketFeeOverviewData(
+        Object.keys(datesValues).map((date) => [
+          new Date(date).getTime(),
+          Number(fromWei({ value: datesValues[date] }, prettyNumber)),
+        ])
+      );
+    });
+
     return () => sub$$.unsubscribe();
-  }, [api, destination]);
+  }, [destination, queryMarketFee]);
+
+  useEffect(() => {
+    setRefresh(() => () => {
+      updateTotalRelayers();
+      updateCurrentFee();
+      refetchFeeMarketStatistics();
+      refetchTotalOrdersOverview();
+    });
+  }, [setRefresh, updateTotalRelayers, updateCurrentFee, refetchFeeMarketStatistics, refetchTotalOrdersOverview]);
+
+  useEffect(() => {
+    const sub$$ = updateTotalRelayers();
+    return () => sub$$.unsubscribe();
+  }, [updateTotalRelayers]);
+
+  useEffect(() => {
+    const sub$$ = updateCurrentFee();
+    return () => sub$$.unsubscribe();
+  }, [updateCurrentFee]);
 
   return (
     <>
@@ -165,11 +203,11 @@ export const Overview = ({
             className="lg:border-r lg:justify-center"
             title={t('Average Speed')}
             value={
-              <Spin size="small" spinning={feemarketLoading}>
+              <Spin size="small" spinning={feeMarketOverviewLoading}>
                 <span className="capitalize">
                   {formatDistanceStrict(
                     new Date(),
-                    new Date(Date.now() + (overviewStatisticsState?.averageSpeed || 0))
+                    new Date(Date.now() + (feeMarketOverviewData?.market?.averageSpeed || 0))
                   )}
                 </span>
               </Spin>
@@ -189,9 +227,9 @@ export const Overview = ({
             className="lg:border-r lg:justify-center"
             title={t('Total Rewards')}
             value={
-              <Spin size="small" spinning={feemarketLoading}>
+              <Spin size="small" spinning={feeMarketOverviewLoading}>
                 <TooltipBalance
-                  value={overviewStatisticsState?.totalRewards}
+                  value={feeMarketOverviewData?.market?.totalReward}
                   precision={Number(network.tokens.ring.decimal)}
                 />
                 <span> {network.tokens.ring.symbol}</span>
@@ -202,16 +240,20 @@ export const Overview = ({
             className="lg:justify-center"
             title={t('Total Orders')}
             value={
-              <Spin size="small" spinning={feemarketLoading}>
-                <span>{overviewStatisticsState?.totalOrders || 0}</span>
+              <Spin size="small" spinning={feeMarketOverviewLoading}>
+                <span>
+                  {(feeMarketOverviewData?.market?.finishedOrders || 0) +
+                    (feeMarketOverviewData?.market?.inProgressInSlotOrders || 0) +
+                    (feeMarketOverviewData?.market?.inProgressOutOfSlotOrders || 0)}
+                </span>
               </Spin>
             }
           />
         </div>
       </Card>
       <div className="flex justify-between items-center space-x-4 mt-8">
-        <TotalOrdersChart data={orderHistoryState || []} />
-        <FeeHistoryChart data={feeHistoryState || []} />
+        <TotalOrdersChart data={totalOrdersOverviewData || []} />
+        <FeeHistoryChart data={marketFeeOverviewData || []} />
       </div>
     </>
   );

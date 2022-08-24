@@ -3,9 +3,7 @@ import { useTranslation } from 'react-i18next';
 import Highcharts from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
 
-import { OrderStatus } from '../../model';
-
-export const OrdersStatistics = ({
+export const OrdersStatisticsChart = ({
   finished,
   inSlot,
   outOfSlot,
@@ -60,17 +58,17 @@ export const OrdersStatistics = ({
           data: [
             {
               y: finished,
-              name: t(OrderStatus.FINISHED) as string,
+              name: `${t('Finished')}`,
               color: '#90ed7d',
             },
             {
               y: inSlot,
-              name: `${t(OrderStatus.IN_PROGRESS)} (${t('In Slot')})`,
+              name: `${t('In Progress')} (${t('In Slot')})`,
               color: '#8085e9',
             },
             {
               y: outOfSlot,
-              name: `${t(OrderStatus.IN_PROGRESS)} (${t(OrderStatus.OUT_OF_SLOT)})`,
+              name: `${t('In Progress')} (${t('Out of Slot')})`,
               color: '#f45b5b',
             },
           ],
