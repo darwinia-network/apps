@@ -2,6 +2,30 @@ import type { AccountId, Balance } from '@polkadot/types/interfaces';
 import type { Struct } from '@polkadot/types-codec';
 import type { BN } from '@polkadot/util';
 
+export enum FeeMarketTab {
+  OVERVIEW = 'overview',
+  RELAYERS = 'relayers',
+  OREDERS = 'oreders',
+}
+
+export enum RelayerRole {
+  ASSIGNED = 'Assigned Relayer',
+  DELIVERY = 'Delivery Relayer',
+  CONFIRMATION = 'Confirmation Relayer',
+}
+
+export enum SlotState {
+  SLOT_1 = 'Slot 1',
+  SLOT_2 = 'Slot 2',
+  SLOT_3 = 'Slot 3',
+  OUT_OF_SLOT = 'Out of Slot',
+}
+
+export enum OrderStatus {
+  FINISHED = 'Finished',
+  IN_PROGRESS = 'InProgress',
+}
+
 // The value is the specName
 export type DarwiniaChain =
   | 'Crab'
@@ -27,35 +51,10 @@ export interface PalletFeeMarketRelayer extends Struct {
   fee: Balance;
 }
 
-export enum FeeMarketTab {
-  OVERVIEW = 'overview',
-  RELAYERS = 'relayers',
-  OREDERS = 'oreders',
-}
-
-export enum RelayerRole {
-  ASSIGNED = 'Assigned Relayer',
-  DELIVERY = 'Delivery Relayer',
-  CONFIRMATION = 'Confirmation Relayer',
-}
-
-export enum SlotState {
-  SLOT_1 = 'Slot 1',
-  SLOT_2 = 'Slot 2',
-  SLOT_3 = 'Slot 3',
-  OUT_OF_SLOT = 'Out of Slot',
-}
-
-export enum FinishedOrNot {
-  FINISHED = 'Finished',
-  IN_PROGRESS = 'In Progress',
-}
-
-export type OrderStatus = 'Finished' | 'InProgress';
-
 export type RelayerOrdersDataSource = {
-  orderId: string;
-  createTime: string;
+  lane: string;
+  nonce: number;
+  createBlockTime: string;
   reward: BN;
   slash: BN;
   relayerRoles: RelayerRole[];
@@ -63,7 +62,7 @@ export type RelayerOrdersDataSource = {
 
 export interface TFeeMarketOverview {
   market?: {
-    averageSpeed: number | null;
+    averageSpeed: number | null; // milliseconds
     totalReward: string | null;
     finishedOrders: number | null;
     inProgressInSlotOrders: number | null;
@@ -94,9 +93,16 @@ export interface TMarketFeeOverview {
 
 export interface TRelayerOverview {
   relayer?: {
-    totalOrders: number | null;
     totalSlashs: string | null;
     totalRewards: string | null;
+    slashs: {
+      nodes: {
+        orderId: string;
+      }[];
+    } | null;
+    assignedRelayerOrdersId: string[] | null;
+    deliveredRelayerOrdersId: string[] | null;
+    confirmedRelayerOrdersId: string[] | null;
   } | null;
 }
 

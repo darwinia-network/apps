@@ -1,5 +1,5 @@
 import { Card, Breadcrumb, Table } from 'antd';
-import { NavLink, Link } from 'react-router-dom';
+import { NavLink, Link, useLocation } from 'react-router-dom';
 import { ColumnsType } from 'antd/lib/table';
 import { useEffect, useState } from 'react';
 import { formatDistanceStrict } from 'date-fns';
@@ -20,10 +20,9 @@ import {
   TRelayerOrders,
   TOrderSimple,
 } from '../../model';
-import { Path } from '../../config/routes';
 import { AccountName } from '../widget/account/AccountName';
 import { RELAYER_REWARD_SLASH, REWARD_SIMPLE, RELAYER_QUOTES, RELAYER_ORDERS, ORDER_SIMPLE } from '../../config';
-import { useApi, useMyQuery } from '../../hooks';
+import { useApi, useCustomQuery } from '../../hooks';
 import {
   fromWei,
   prettyNumber,
@@ -45,6 +44,7 @@ export const RelayerDetail = ({
 }) => {
   const { network } = useApi();
   const { t } = useTranslation();
+  const { pathname } = useLocation();
   const apollo = useApolloClient();
   const [rewardSlashData, setRewardSlashData] = useState<{
     rewards: [number, number][];
@@ -52,7 +52,7 @@ export const RelayerDetail = ({
   } | null>(null);
   const [dataSource, setDataSource] = useState<RelayerOrdersDataSource[]>([]);
 
-  const { data: relayerRewardSlashData, refetch: refetchRelayerRewardSlash } = useMyQuery<
+  const { data: rewardAndSlashData, refetch: refetchRewardAndSlash } = useCustomQuery<
     TRelayerRewardSlash,
     { relayerId: string }
   >(RELAYER_REWARD_SLASH, {
@@ -61,7 +61,7 @@ export const RelayerDetail = ({
     },
   });
 
-  const { transformedData: relayerQuotesData, refetch: refetchRelayerQuotes } = useMyQuery<
+  const { transformedData: quoteData, refetch: refetchQuote } = useCustomQuery<
     TRelayerQuotes,
     { relayerId: string },
     [number, number][]
@@ -79,135 +79,96 @@ export const RelayerDetail = ({
     loading: relayerOrdersLoading,
     data: relayerOrdersData,
     refetch: refetchRelayerOrders,
-  } = useMyQuery<TRelayerOrders, { relayerId: string }>(RELAYER_ORDERS, {
+  } = useCustomQuery<TRelayerOrders, { relayerId: string }>(RELAYER_ORDERS, {
     variables: {
       relayerId: `${destination}-${relayerAddress}`,
     },
   });
 
   useEffect(() => {
-    const assignedObs = relayerRewardSlashData?.relayer?.assignedRelayerRewardsId?.length
-      ? forkJoin(
-          relayerRewardSlashData.relayer.assignedRelayerRewardsId.map((rewardId) =>
-            apollo.query<TRewardSimple, { rewardId: string }>({
-              query: REWARD_SIMPLE,
-              variables: { rewardId },
-            })
+    const queryRewards = (rewardsId?: string[] | null) =>
+      rewardsId?.length
+        ? forkJoin(
+            rewardsId.map((rewardId) =>
+              apollo.query<TRewardSimple, { rewardId: string }>({
+                query: REWARD_SIMPLE,
+                variables: { rewardId },
+              })
+            )
           )
-        )
-      : Promise.resolve([]);
+        : Promise.resolve([]);
 
-    const deliveredObs = relayerRewardSlashData?.relayer?.deliveredRelayerRewardsId?.length
-      ? forkJoin(
-          relayerRewardSlashData.relayer.deliveredRelayerRewardsId.map((rewardId) =>
-            apollo.query<TRewardSimple, { rewardId: string }>({
-              query: REWARD_SIMPLE,
-              variables: { rewardId },
-            })
-          )
+    const sub$$ = forkJoin([
+      queryRewards(rewardAndSlashData?.relayer?.assignedRelayerRewardsId),
+      queryRewards(rewardAndSlashData?.relayer?.deliveredRelayerRewardsId),
+      queryRewards(rewardAndSlashData?.relayer?.confirmedRelayerRewardsId),
+    ]).subscribe(([assignedRewards, deliveredRewards, confirmedRewards]) => {
+      setRewardSlashData(
+        transformRelayerRewardSlash(
+          relayerAddress,
+          assignedRewards,
+          deliveredRewards,
+          confirmedRewards,
+          rewardAndSlashData?.relayer?.slashs?.nodes
         )
-      : Promise.resolve([]);
-
-    const confirmedObs = relayerRewardSlashData?.relayer?.confirmedRelayerRewardsId?.length
-      ? forkJoin(
-          relayerRewardSlashData?.relayer?.confirmedRelayerRewardsId?.map((rewardId) =>
-            apollo.query<TRewardSimple, { rewardId: string }>({
-              query: REWARD_SIMPLE,
-              variables: { rewardId },
-            })
-          )
-        )
-      : Promise.resolve([]);
-
-    const sub$$ = forkJoin([assignedObs, deliveredObs, confirmedObs]).subscribe(
-      ([assignedRewards, deliveredRewards, confirmedRewards]) => {
-        setRewardSlashData(
-          transformRelayerRewardSlash(
-            relayerAddress,
-            assignedRewards,
-            deliveredRewards,
-            confirmedRewards,
-            relayerRewardSlashData?.relayer?.slashs?.nodes
-          )
-        );
-      }
-    );
+      );
+    });
 
     return () => sub$$.unsubscribe();
-  }, [apollo, relayerAddress, relayerRewardSlashData]);
+  }, [apollo, relayerAddress, rewardAndSlashData]);
 
   useEffect(() => {
-    const assignedObs = relayerOrdersData?.relayer?.assignedRelayerOrdersId?.length
-      ? forkJoin(
-          relayerOrdersData?.relayer?.assignedRelayerOrdersId?.map((orderId) =>
-            apollo.query<TOrderSimple, { orderId: string }>({
-              query: ORDER_SIMPLE,
-              variables: { orderId },
-            })
+    const queryOrders = (ordersId?: string[] | null) =>
+      ordersId?.length
+        ? forkJoin(
+            ordersId.map((orderId) =>
+              apollo.query<TOrderSimple, { orderId: string }>({
+                query: ORDER_SIMPLE,
+                variables: { orderId },
+              })
+            )
           )
-        )
-      : Promise.resolve([]);
+        : Promise.resolve([]);
 
-    const deliveredObs = relayerOrdersData?.relayer?.deliveredRelayerOrdersId?.length
-      ? forkJoin(
-          relayerOrdersData?.relayer?.deliveredRelayerOrdersId?.map((orderId) =>
-            apollo.query<TOrderSimple, { orderId: string }>({
-              query: ORDER_SIMPLE,
-              variables: { orderId },
-            })
-          )
+    const sub$$ = forkJoin([
+      queryOrders(relayerOrdersData?.relayer?.assignedRelayerOrdersId),
+      queryOrders(relayerOrdersData?.relayer?.deliveredRelayerOrdersId),
+      queryOrders(relayerOrdersData?.relayer?.confirmedRelayerOrdersId),
+    ]).subscribe(([assignedOrders, deliveredOrders, confirmedOrders]) => {
+      setDataSource(
+        transformRelayerOrders(
+          relayerAddress,
+          assignedOrders,
+          deliveredOrders,
+          confirmedOrders,
+          relayerOrdersData?.relayer?.slashs?.nodes
         )
-      : Promise.resolve([]);
-
-    const confirmedObs = relayerOrdersData?.relayer?.confirmedRelayerOrdersId?.length
-      ? forkJoin(
-          relayerOrdersData?.relayer?.confirmedRelayerOrdersId?.map((orderId) =>
-            apollo.query<TOrderSimple, { orderId: string }>({
-              query: ORDER_SIMPLE,
-              variables: { orderId },
-            })
-          )
-        )
-      : Promise.resolve([]);
-
-    const sub$$ = forkJoin([assignedObs, deliveredObs, confirmedObs]).subscribe(
-      ([assignedOrders, deliveredOrders, confirmedOrders]) => {
-        setDataSource(
-          transformRelayerOrders(
-            assignedOrders,
-            deliveredOrders,
-            confirmedOrders,
-            relayerOrdersData?.relayer?.id,
-            relayerOrdersData?.relayer?.slashs?.nodes
-          )
-        );
-      }
-    );
+      );
+    });
 
     return () => sub$$.unsubscribe();
-  }, [apollo, relayerOrdersData]);
+  }, [apollo, relayerAddress, relayerOrdersData]);
 
   useEffect(() => {
     setRefresh(() => () => {
-      refetchRelayerRewardSlash();
-      refetchRelayerQuotes();
+      refetchRewardAndSlash();
+      refetchQuote();
       refetchRelayerOrders();
     });
-  }, [setRefresh, refetchRelayerRewardSlash, refetchRelayerQuotes, refetchRelayerOrders]);
+  }, [setRefresh, refetchRewardAndSlash, refetchQuote, refetchRelayerOrders]);
 
   const columns: ColumnsType<RelayerOrdersDataSource> = [
     {
       title: t('Order ID'),
-      key: 'orderId',
-      dataIndex: 'orderId',
       align: 'center',
-      render: (value) => {
+      render: (_, record) => {
         const searchParams = new URLSearchParams();
         searchParams.set(SearchParamsKey.RPC, encodeURIComponent(network.provider.rpc));
         searchParams.set(SearchParamsKey.DESTINATION, destination);
         searchParams.set(SearchParamsKey.TAB, FeeMarketTab.OREDERS);
-        searchParams.set(SearchParamsKey.ORDER, value);
-        return <Link to={`${Path.feemarket}?${searchParams.toString()}`}>{value}</Link>;
+        searchParams.set(SearchParamsKey.LANE, record.lane);
+        searchParams.set(SearchParamsKey.NONCE, record.nonce.toString());
+        return <Link to={`${pathname}?${searchParams.toString()}`}>{record.nonce}</Link>;
       },
     },
     {
@@ -217,8 +178,8 @@ export const RelayerDetail = ({
       align: 'center',
       render: (value: RelayerRole[]) => (
         <div className="flex flex-col justify-center">
-          {value.map((item) => (
-            <span key={item}>{t(item)}</span>
+          {value.map((role) => (
+            <span key={role}>{t(role)}</span>
           ))}
         </div>
       ),
@@ -253,10 +214,9 @@ export const RelayerDetail = ({
     },
     {
       title: t('Time'),
-      key: 'createTime',
-      dataIndex: 'createTime',
       align: 'center',
-      render: (value) => formatDistanceStrict(new Date(`${value}Z`), Date.now(), { addSuffix: true }),
+      render: (_, record) =>
+        formatDistanceStrict(new Date(`${record.createBlockTime}Z`), Date.now(), { addSuffix: true }),
     },
   ];
 
@@ -264,20 +224,25 @@ export const RelayerDetail = ({
     <>
       <Breadcrumb separator=">" className="flex">
         <Breadcrumb.Item>
-          <NavLink to={`${Path.feemarket}?tab=${FeeMarketTab.RELAYERS}`}>{t('Relayers')}</NavLink>
+          <NavLink to={`${pathname}?tab=${FeeMarketTab.RELAYERS}`}>{t('Relayers')}</NavLink>
         </Breadcrumb.Item>
         <Breadcrumb.Item>
-          <AccountName account={relayerAddress || 'Unknown'} />
+          <AccountName account={relayerAddress} />
         </Breadcrumb.Item>
       </Breadcrumb>
 
       <div className="flex justify-between items-center mt-1 space-x-4">
         <RewardAndSlashChart rewardData={rewardSlashData?.rewards || []} slashData={rewardSlashData?.slashs || []} />
-        <QuoteHistoryChart data={relayerQuotesData || []} />
+        <QuoteHistoryChart data={quoteData || []} />
       </div>
 
       <Card className="mt-4">
-        <Table columns={columns} dataSource={dataSource} rowKey="orderId" loading={relayerOrdersLoading} />
+        <Table
+          columns={columns}
+          dataSource={dataSource}
+          rowKey={(record) => `${record.lane}-${record.nonce}`}
+          loading={relayerOrdersLoading}
+        />
       </Card>
     </>
   );

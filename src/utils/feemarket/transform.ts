@@ -1,5 +1,5 @@
 import { compareAsc, compareDesc } from 'date-fns';
-import { BN, BN_ZERO, isArray } from '@polkadot/util';
+import { BN, BN_ZERO, isArray, bnToBn } from '@polkadot/util';
 
 import { prettyNumber, fromWei } from '..';
 import {
@@ -25,12 +25,13 @@ export const transformRelayerRewardSlash = (
     return previous;
   };
 
-  const extractReward = (blockTime?: string, relayersId?: string[] | null, amounts?: string[] | null) => {
+  // eslint-disable-next-line complexity
+  const extractReward = (blockTime?: string, relayersId?: string[] | null, amounts?: string[] | string | null) => {
     const idx = (relayersId || []).findIndex((relayerId) => relayerId.split('-')[1] === relayerAddress);
     if (idx >= 0 && amounts?.length && blockTime) {
       return {
         blockTime,
-        amount: amounts[idx],
+        amount: isArray(amounts) ? amounts[idx] : (amounts || '').split(',')[idx],
       };
     }
     return null;
@@ -39,28 +40,16 @@ export const transformRelayerRewardSlash = (
   const rewards =
     assignedRelayerRewards
       .map(({ data: { reward } }) =>
-        extractReward(
-          reward?.blockTime,
-          reward?.assignedRelayersId,
-          isArray(reward?.assignedAmounts) ? reward?.assignedAmounts : (reward?.assignedAmounts || '').split(',')
-        )
+        extractReward(reward?.blockTime, reward?.assignedRelayersId, reward?.assignedAmounts)
       )
       .concat(
         deliveredRelayerRewards.map(({ data: { reward } }) =>
-          extractReward(
-            reward?.blockTime,
-            reward?.deliveredRelayersId,
-            isArray(reward?.deliveredAmounts) ? reward?.deliveredAmounts : (reward?.deliveredAmounts || '').split(',')
-          )
+          extractReward(reward?.blockTime, reward?.deliveredRelayersId, reward?.deliveredAmounts)
         )
       )
       .concat(
         confirmedRelayerRewards.map(({ data: { reward } }) =>
-          extractReward(
-            reward?.blockTime,
-            reward?.confirmedRelayersId,
-            isArray(reward?.confirmedAmounts) ? reward?.confirmedAmounts : (reward?.confirmedAmounts || '').split(',')
-          )
+          extractReward(reward?.blockTime, reward?.confirmedRelayersId, reward?.confirmedAmounts)
         )
       )
       .reduce((acc, cur) => {
@@ -104,20 +93,22 @@ export const transformRelayerQuotes = (data: TRelayerQuotes): [number, number][]
 const reduceOrder = (
   previous: RelayerOrdersDataSource[],
   role: RelayerRole,
-  orderData: TOrderSimple,
-  relayerId: string
+  relayerAddress: string,
+  orderData: TOrderSimple
 ) => {
   const { order } = orderData;
 
   if (order) {
-    const idx = previous.findIndex((item) => item.orderId === order.id);
+    const [, lane, nonce] = order.id.split('-');
+    const idx = previous.findIndex((item) => item.lane === lane && item.nonce.toString() === nonce);
 
-    const row =
+    const row: RelayerOrdersDataSource =
       idx >= 0
         ? previous[idx]
         : {
-            orderId: order.id,
-            createTime: order.createBlockTime,
+            lane,
+            nonce: Number(nonce),
+            createBlockTime: order.createBlockTime,
             reward: BN_ZERO,
             slash: BN_ZERO,
             relayerRoles: [] as RelayerRole[],
@@ -152,18 +143,17 @@ const reduceOrder = (
               : isArray(confirmedAmounts)
               ? confirmedAmounts
               : (confirmedAmounts || '').split(',');
-          const relayers =
+          const relayersId =
             role === RelayerRole.ASSIGNED
               ? assignedRelayersId
               : role === RelayerRole.DELIVERY
               ? deliveredRelayersId
               : confirmedRelayersId;
 
-          const idx = (relayers || []).findIndex((item) => item === relayerId);
+          const idx = (relayersId || []).findIndex((relayerId) => relayerId.split('-')[1] === relayerAddress);
           if (idx >= 0 && amounts?.length) {
-            return acc.add(new BN(amounts[idx]));
+            return acc.add(bnToBn(amounts[idx]));
           }
-
           return acc;
         },
         BN_ZERO
@@ -179,39 +169,39 @@ const reduceOrder = (
 
 // eslint-disable-next-line complexity
 export const transformRelayerOrders = (
+  relayerAddress: string,
   assignedOrders: { data: TOrderSimple }[],
   deliveredOrders: { data: TOrderSimple }[],
   confirmedOrders: { data: TOrderSimple }[],
-  relayerId?: string | null,
   slashs?: { amount: string; blockTime: string; orderId: string; order: { createBlockTime: string } }[]
 ): RelayerOrdersDataSource[] => {
   let dataSource: RelayerOrdersDataSource[] = [];
 
-  if (relayerId) {
-    dataSource = assignedOrders.reduce(
-      (acc, cur) => reduceOrder(acc, RelayerRole.ASSIGNED, cur.data, relayerId),
-      dataSource
-    );
-    dataSource = deliveredOrders.reduce(
-      (acc, cur) => reduceOrder(acc, RelayerRole.DELIVERY, cur.data, relayerId),
-      dataSource
-    );
-    dataSource = confirmedOrders.reduce(
-      (acc, cur) => reduceOrder(acc, RelayerRole.CONFIRMATION, cur.data, relayerId),
-      dataSource
-    );
-  }
+  dataSource = assignedOrders.reduce(
+    (acc, cur) => reduceOrder(acc, RelayerRole.ASSIGNED, relayerAddress, cur.data),
+    dataSource
+  );
+  dataSource = deliveredOrders.reduce(
+    (acc, cur) => reduceOrder(acc, RelayerRole.DELIVERY, relayerAddress, cur.data),
+    dataSource
+  );
+  dataSource = confirmedOrders.reduce(
+    (acc, cur) => reduceOrder(acc, RelayerRole.CONFIRMATION, relayerAddress, cur.data),
+    dataSource
+  );
 
   for (const slash of slashs || []) {
-    const idx = dataSource.findIndex((item) => item.orderId === slash.orderId);
+    const [, lane, nonce] = slash.orderId.split('-');
+    const idx = dataSource.findIndex((item) => item.lane === lane && item.nonce.toString() === nonce);
     if (idx >= 0) {
-      dataSource[idx].slash = new BN(slash.amount);
+      dataSource[idx].slash = bnToBn(slash.amount);
       const roles = new Set<RelayerRole>(dataSource[idx].relayerRoles);
       dataSource[idx].relayerRoles = Array.from(roles.add(RelayerRole.ASSIGNED));
     } else {
       dataSource.push({
-        orderId: slash.orderId,
-        createTime: slash.order.createBlockTime,
+        lane,
+        nonce: Number(nonce),
+        createBlockTime: slash.order.createBlockTime,
         reward: BN_ZERO,
         slash: new BN(slash.amount),
         relayerRoles: [RelayerRole.ASSIGNED],
@@ -219,15 +209,14 @@ export const transformRelayerOrders = (
     }
   }
 
-  return dataSource.sort((a, b) => compareDesc(new Date(a.createTime), new Date(b.createTime)));
+  return dataSource.sort((a, b) => compareDesc(new Date(a.createBlockTime), new Date(b.createBlockTime)));
 };
 
 export const transformTotalOrdersOverview = (data: TTotalOrderOverview): [number, number][] => {
   const datesOrders =
     data.orders?.nodes.reduce((acc, { createBlockTime }) => {
-      const date = `${createBlockTime.split('T')[0]}T00:00:00Z`;
+      const date = `${createBlockTime.split('T')[0]}Z`;
       acc[date] = (acc[date] || 0) + 1;
-
       return acc;
     }, {} as Record<string, number>) || {};
 

@@ -4,7 +4,7 @@ import type { ColumnsType } from 'antd/lib/table';
 import { NavLink } from 'react-router-dom';
 import { from, switchMap, forkJoin, Subscription, EMPTY } from 'rxjs';
 import type { Option, Vec } from '@polkadot/types';
-import { BN } from '@polkadot/util';
+import { BN, bnToBn } from '@polkadot/util';
 import type { Balance, AccountId32 } from '@polkadot/types/interfaces';
 import { useApolloClient } from '@apollo/client';
 import { useTranslation } from 'react-i18next';
@@ -15,22 +15,22 @@ import { PalletFeeMarketRelayer, DarwiniaChain, SearchParamsKey, FeeMarketTab, T
 import { RELAYER_OVERVIEW } from '../../config';
 import { IdentAccountName } from '../widget/account/IdentAccountName';
 
-type RelayerData = {
-  relayer: string;
-  countOrders: number;
-  collateral: Balance;
-  quote: Balance;
-  sumReward: BN;
-  sumSlash: BN;
-};
-
 enum RelayerTab {
   ALL,
   ASSIGNED,
 }
 
+interface DataSourceState {
+  relayer: string;
+  orders: number;
+  collateral: Balance;
+  quote: Balance;
+  reward: BN;
+  slash: BN;
+}
+
 const renderBalance = (value: Balance | string | number, symbol: string): string =>
-  new BN(value).isZero() ? fromWei({ value }, prettyNumber) : `${fromWei({ value }, prettyNumber)} ${symbol}`;
+  bnToBn(value).isZero() ? '0' : `${fromWei({ value }, prettyNumber)} ${symbol}`;
 
 export const Relayers = ({
   destination,
@@ -42,13 +42,13 @@ export const Relayers = ({
   const { api, network } = useApi();
   const apollo = useApolloClient();
   const { t } = useTranslation();
-  const [tab, setTab] = useState(RelayerTab.ALL);
-  const [loading, setLoaing] = useState(false);
+  const dataSourceRef = useRef<DataSourceState[]>([]);
+  const [activeKey, setActiveKey] = useState(RelayerTab.ALL);
+  const [loading, setLoading] = useState(false);
+  const [dataSource, setDataSource] = useState<DataSourceState[]>([]);
   const [relayers, setRelayers] = useState<PalletFeeMarketRelayer[]>([]);
-  const [dataSource, setDataSource] = useState<RelayerData[]>([]);
-  const dataSourceRef = useRef<RelayerData[]>([]);
 
-  const columns: ColumnsType<RelayerData> = [
+  const columns: ColumnsType<DataSourceState> = [
     {
       title: (
         <div className="flex justify-center">
@@ -72,10 +72,10 @@ export const Relayers = ({
     },
     {
       title: t('Count(orders)'),
-      key: 'countOrders',
-      dataIndex: 'countOrders',
+      key: 'orders',
+      dataIndex: 'orders',
       align: 'center',
-      sorter: (a, b) => a.countOrders - b.countOrders,
+      sorter: (a, b) => a.orders - b.orders,
     },
     {
       title: t('Collateral'),
@@ -95,19 +95,19 @@ export const Relayers = ({
     },
     {
       title: t('Sum(reward)'),
-      key: 'sumReward',
-      dataIndex: 'sumReward',
+      key: 'reward',
+      dataIndex: 'reward',
       align: 'center',
       render: (value) => renderBalance(value, network.tokens.ring.symbol),
-      sorter: (a, b) => a.sumReward.cmp(b.sumReward),
+      sorter: (a, b) => a.reward.cmp(b.reward),
     },
     {
       title: t('Sum(slash)'),
-      key: 'sumSlash',
-      dataIndex: 'sumSlash',
+      key: 'slash',
+      dataIndex: 'slash',
       align: 'center',
       render: (value) => renderBalance(value, network.tokens.ring.symbol),
-      sorter: (a, b) => a.sumSlash.cmp(b.sumSlash),
+      sorter: (a, b) => a.slash.cmp(b.slash),
     },
   ];
 
@@ -125,8 +125,8 @@ export const Relayers = ({
     const apiSection = getFeeMarketApiSection(api, destination);
 
     if (apiSection) {
-      if (tab === RelayerTab.ALL) {
-        setLoaing(true);
+      if (activeKey === RelayerTab.ALL) {
+        setLoading(true);
 
         from(api.query[apiSection].relayers<Vec<AccountId32>>())
           .pipe(
@@ -135,27 +135,27 @@ export const Relayers = ({
             )
           )
           .subscribe((res) => {
-            setLoaing(false);
+            setLoading(false);
             setRelayers(res);
           });
-      } else if (tab === RelayerTab.ASSIGNED) {
-        setLoaing(true);
+      } else if (activeKey === RelayerTab.ASSIGNED) {
+        setLoading(true);
 
         from(api.query[apiSection].assignedRelayers<Option<Vec<PalletFeeMarketRelayer>>>()).subscribe((res) => {
-          setLoaing(false);
+          setLoading(false);
           setRelayers(res.isSome ? res.unwrap() : []);
         });
       }
     }
 
     return EMPTY.subscribe();
-  }, [api, destination, tab]);
+  }, [api, destination, activeKey]);
 
   useEffect(() => {
     let sub$$: Subscription;
 
     if (relayers.length) {
-      setLoaing(true);
+      setLoading(true);
 
       sub$$ = forkJoin(
         relayers.map((relayer) =>
@@ -167,27 +167,35 @@ export const Relayers = ({
       ).subscribe((res) => {
         dataSourceRef.current = res.map(({ data }, index) => {
           const relayer = relayers[index];
-          const orders = data.relayer?.totalOrders || 0;
-          const slashs = data.relayer?.totalSlashs || '0';
-          const rewards = data.relayer?.totalRewards || '0';
+          const slash = bnToBn(data.relayer?.totalSlashs);
+          const reward = bnToBn(data.relayer?.totalRewards);
+
+          const ordersId = new Set<string>();
+          (data.relayer?.assignedRelayerOrdersId || [])
+            .concat(data.relayer?.deliveredRelayerOrdersId || [])
+            .concat(data.relayer?.confirmedRelayerOrdersId || [])
+            .forEach((orderId) => ordersId.add(orderId));
+          (data.relayer?.slashs?.nodes || []).forEach((item) => ordersId.add(item.orderId));
 
           return {
             relayer: relayer.id.toString(),
-            countOrders: orders,
+            orders: Array.from(ordersId).length,
             collateral: relayer.collateral,
             quote: relayer.fee,
-            sumReward: new BN(rewards),
-            sumSlash: new BN(slashs),
+            slash,
+            reward,
           };
         });
         setDataSource(dataSourceRef.current);
-        setLoaing(false);
+        setLoading(false);
       });
     } else {
+      dataSourceRef.current = [];
       setDataSource([]);
     }
 
     return () => {
+      setLoading(false);
       sub$$?.unsubscribe();
     };
   }, [relayers, apollo, destination]);
@@ -206,7 +214,7 @@ export const Relayers = ({
   return (
     <>
       <div className="flex items-end justify-between">
-        <Radio.Group onChange={(e) => setTab(e.target.value)} value={tab}>
+        <Radio.Group onChange={(e) => setActiveKey(e.target.value)} value={activeKey}>
           <Radio.Button value={RelayerTab.ALL}>
             <span className="relayers-sub-tab">{t('All Relayers')}</span>
           </Radio.Button>

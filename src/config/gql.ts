@@ -40,9 +40,16 @@ export const MARKET_FEE_OVERVIEW = gql`
 export const RELAYER_OVERVIEW = gql`
   query relayerOverview($relayerId: String!) {
     relayer(id: $relayerId) {
-      totalOrders
       totalSlashs
       totalRewards
+      slashs {
+        nodes {
+          orderId
+        }
+      }
+      assignedRelayerOrdersId
+      deliveredRelayerOrdersId
+      confirmedRelayerOrdersId
     }
   }
 `;

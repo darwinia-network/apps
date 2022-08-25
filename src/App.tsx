@@ -159,7 +159,7 @@ function App() {
                 </h2>
                 <FeeMarketDestinationSelector
                   destinations={supportedDestinations}
-                  defaultValue={destination}
+                  value={destination}
                   network={network.name}
                   onSelect={setDestination}
                   refresh={refresh}

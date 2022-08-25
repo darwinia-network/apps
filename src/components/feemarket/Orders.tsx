@@ -9,7 +9,7 @@ import moment from 'moment';
 import { useTranslation } from 'react-i18next';
 
 import { ORDERS_STATISTICS, ORDERS_OVERVIEW, DATE_TIME_FORMATE } from '../../config';
-import { useApi, useMyQuery } from '../../hooks';
+import { useApi, useCustomQuery } from '../../hooks';
 import {
   DarwiniaChain,
   SearchParamsKey,
@@ -17,26 +17,12 @@ import {
   SlotState,
   OrderStatus,
   RelayerRole,
-  FinishedOrNot,
   TOrdersStatistics,
   TOrdersOverview,
 } from '../../model';
 import { IdentAccountName } from '../widget/account/IdentAccountName';
 import { SubscanLink } from '../widget/SubscanLink';
 import { OrdersStatisticsChart } from './OrdersStatisticsChart';
-
-type OrderData = {
-  id: string;
-  sender?: string | null;
-  deliveredRelayersId?: string[] | null;
-  confirmedRelayersId?: string[] | null;
-  createBlockNumber: number;
-  finishBlockNumber: number | null;
-  createBlockTime: string;
-  finishBlockTime?: string | null;
-  status: OrderStatus;
-  confirmedSlotIndex?: number | null;
-};
 
 enum SearchType {
   ORDER_ID = 'Order ID',
@@ -57,31 +43,45 @@ enum FilterAll {
   ALL = 'All',
 }
 
-type FilterStatus = FilterAll | FinishedOrNot;
-const FilterStatus = { ...FilterAll, ...FinishedOrNot };
+type FilterStatus = FilterAll | OrderStatus;
+const FilterStatus = { ...FilterAll, ...OrderStatus };
 
 type FilterSlot = FilterAll | SlotState;
 const FilterSlot = { ...FilterAll, ...SlotState };
 
-type BlockFilterInputState = {
+interface BlockRange {
   start?: number | null;
   end?: number | null;
-};
+}
 
 interface FilterData {
   dimension: TimeDimension;
   status: FilterStatus;
   slot: FilterSlot;
-  block?: BlockFilterInputState | null;
+  block?: BlockRange | null;
   duration?: [start: Moment, end: Moment] | null;
 }
 
-const BlockFilterInput = ({
+interface DataSourceState {
+  lane: string;
+  nonce: number;
+  sender?: string | null;
+  status: OrderStatus;
+  deliveredRelayer?: string | null;
+  confirmedRelayer?: string | null;
+  createBlockTime: string;
+  finishBlockTime?: string | null;
+  createBlockNumber: number;
+  finishBlockNumber?: number | null;
+  confirmedSlotIndex?: number | null;
+}
+
+const BlockRangeInput = ({
   value,
   onChange = (_) => undefined,
 }: {
-  value?: BlockFilterInputState;
-  onChange?: (value: BlockFilterInputState) => void;
+  value?: BlockRange;
+  onChange?: (range: BlockRange) => void;
 }) => {
   const { t } = useTranslation();
 
@@ -123,64 +123,59 @@ export const Orders = ({
 }) => {
   const { network } = useApi();
   const { t } = useTranslation();
-  const dataSourceRef = useRef<OrderData[]>([]);
-  const [dataSource, setDataSource] = useState<OrderData[]>([]);
+
+  const dataSourceRef = useRef<DataSourceState[]>([]);
+  const [dataSource, setDataSource] = useState<DataSourceState[]>([]);
+
   const [search, setSearch] = useState<SearchData>({ type: SearchType.ORDER_ID, value: '' });
   const [filter, setFilter] = useState<FilterData>({
     dimension: TimeDimension.DATE,
     status: FilterStatus.ALL,
     slot: FilterSlot.ALL,
   });
+
   const {
     loading: ordersStatisticsLoading,
     data: ordersStatisticsData,
     refetch: refetchOrdersStatistics,
-  } = useMyQuery<TOrdersStatistics, { destination: string }>(ORDERS_STATISTICS, {
+  } = useCustomQuery<TOrdersStatistics, { destination: string }>(ORDERS_STATISTICS, {
     variables: { destination },
   });
+
   const {
     loading: ordersOverviewLoading,
     data: ordersOverviewData,
     refetch: refetchOrdersOverview,
-  } = useMyQuery<TOrdersOverview, { destination: string }>(ORDERS_OVERVIEW, {
+  } = useCustomQuery<TOrdersOverview, { destination: string }>(ORDERS_OVERVIEW, {
     variables: { destination },
   });
 
-  const columns: ColumnsType<OrderData> = [
+  const columns: ColumnsType<DataSourceState> = [
     {
       title: t('Order ID'),
-      key: 'id',
-      dataIndex: 'id',
       width: '10%',
       align: 'center',
-      render: (value: string, record) => {
+      render: (_, record) => {
         const searchParams = new URLSearchParams();
         searchParams.set(SearchParamsKey.RPC, encodeURIComponent(network.provider.rpc));
         searchParams.set(SearchParamsKey.DESTINATION, destination);
         searchParams.set(SearchParamsKey.TAB, FeeMarketTab.OREDERS);
-        searchParams.set(SearchParamsKey.ORDER, value.split('-')[1]);
+        searchParams.set(SearchParamsKey.LANE, record.lane);
+        searchParams.set(SearchParamsKey.NONCE, record.nonce.toString());
         return (
           <div className="inline-flex items-center">
-            {record.confirmedSlotIndex === null ? (
-              <Badge status="processing" />
-            ) : record.confirmedSlotIndex === -1 ? (
-              <Badge status="warning" />
-            ) : (
-              <Badge status="success" />
-            )}
-            <NavLink to={`?${searchParams.toString()}`}>{value.split('-')[1]}</NavLink>
+            {record.status === OrderStatus.FINISHED ? <Badge status="success" /> : <Badge status="processing" />}
+            <NavLink to={`?${searchParams.toString()}`}>{record.nonce}</NavLink>
           </div>
         );
       },
     },
     {
       title: t(RelayerRole.DELIVERY),
-      key: 'deliveredRelayersId',
-      dataIndex: 'deliveredRelayersId',
       align: 'center',
-      render: (value: string[] | null) =>
-        value?.length ? (
-          <IdentAccountName account={value[0].split('-')[1]} />
+      render: (_, record) =>
+        record.deliveredRelayer ? (
+          <IdentAccountName account={record.deliveredRelayer} />
         ) : (
           <div className="flex justify-center">
             <span>-</span>
@@ -189,12 +184,10 @@ export const Orders = ({
     },
     {
       title: t(RelayerRole.CONFIRMATION),
-      key: 'confirmedRelayersId',
-      dataIndex: 'confirmedRelayersId',
       align: 'center',
-      render: (value: string[] | null) =>
-        value?.length ? (
-          <IdentAccountName account={value[0].split('-')[1]} />
+      render: (_, record) =>
+        record.confirmedRelayer ? (
+          <IdentAccountName account={record.confirmedRelayer} />
         ) : (
           <div className="flex justify-center">
             <span>-</span>
@@ -203,25 +196,21 @@ export const Orders = ({
     },
     {
       title: t('Created At'),
-      key: 'createBlockNumber',
-      dataIndex: 'createBlockNumber',
       align: 'center',
-      render: (value: number, record) => (
+      render: (_, record) => (
         <div className="flex flex-col justify-center">
-          <SubscanLink network={network.name} block={value.toString()} prefix="#" />
+          <SubscanLink network={network.name} block={record.createBlockNumber.toString()} prefix="#" />
           <span>{format(new Date(`${record.createBlockTime}Z`), DATE_TIME_FORMATE)} (+UTC)</span>
         </div>
       ),
     },
     {
       title: t('Confirmed At'),
-      key: 'finishBlockNumber',
-      dataIndex: 'finishBlockNumber',
       align: 'center',
-      render: (value: number | null, record) =>
-        value ? (
+      render: (_, record) =>
+        record.finishBlockNumber && record.finishBlockTime ? (
           <div className="flex flex-col justify-center">
-            <SubscanLink network={network.name} block={value.toString()} prefix="#" />
+            <SubscanLink network={network.name} block={record.finishBlockNumber.toString()} prefix="#" />
             {record.finishBlockTime ? (
               <span>{format(new Date(`${record.finishBlockTime}Z`), DATE_TIME_FORMATE)} (+UTC)</span>
             ) : null}
@@ -236,7 +225,7 @@ export const Orders = ({
     if (search.value) {
       if (search.type === SearchType.ORDER_ID) {
         // eslint-disable-next-line no-magic-numbers
-        setDataSource(dataSourceRef.current.filter((item) => item.id.split('-')[2] === search.value));
+        setDataSource(dataSourceRef.current.filter((item) => item.nonce.toString() === search.value));
       } else if (search.type === SearchType.SENDER_ADDRESS) {
         setDataSource(dataSourceRef.current.filter((item) => item.sender === search.value));
       }
@@ -252,35 +241,33 @@ export const Orders = ({
       // eslint-disable-next-line complexity
       dataSourceRef.current.filter((item) => {
         if (duration) {
-          const dateFormat = 'YYYY-MM-DD';
-          const durationStart = duration[0].format(dateFormat);
-          const durationEnd = duration[1].format(dateFormat);
+          const momentFormat = 'YYYY-MM-DD';
+          const filterStart = duration[0].format(momentFormat);
+          const filterEnd = duration[1].format(momentFormat);
 
           const createTime = moment(item.createBlockTime.split('T')[0]);
           const finishTime = item.finishBlockTime ? moment(item.finishBlockTime.split('T')[0]) : null;
 
-          if (
-            !(
-              createTime.isBetween(durationStart, durationEnd, undefined, '[]') ||
-              (finishTime && finishTime.isBetween(durationStart, durationEnd, undefined, '[]'))
-            )
-          ) {
+          const match =
+            createTime.isBetween(filterStart, filterEnd, undefined, '[]') ||
+            (finishTime && finishTime.isBetween(filterStart, filterEnd, undefined, '[]'));
+
+          if (!match) {
             return false;
           }
         }
 
-        if (
-          block &&
-          !(
+        if (block) {
+          const match =
             (block.start ? block.start <= item.createBlockNumber : true) &&
-            (block.end && item.finishBlockNumber ? item.finishBlockNumber <= block.end : true)
-          )
-        ) {
-          return false;
+            (block.end && item.finishBlockNumber ? item.finishBlockNumber <= block.end : true);
+
+          if (!match) {
+            return false;
+          }
         }
 
         switch (status) {
-          // case FilterStatus.ALL:
           case FilterStatus.FINISHED:
             if (item.status !== 'Finished') {
               return false;
@@ -294,7 +281,6 @@ export const Orders = ({
         }
 
         switch (slot) {
-          // case FilterSlot.ALL:
           case FilterSlot.SLOT_1:
             if (item.confirmedSlotIndex !== 0) {
               return false;
@@ -324,7 +310,19 @@ export const Orders = ({
   }, []);
 
   useEffect(() => {
-    dataSourceRef.current = ordersOverviewData?.orders?.nodes || [];
+    dataSourceRef.current = (ordersOverviewData?.orders?.nodes || [])
+      .map((node) => {
+        const [, lane, nonce] = node.id.split('-');
+
+        return {
+          ...node,
+          lane,
+          nonce: Number(nonce),
+          deliveredRelayer: (node.deliveredRelayersId || [])[0]?.split('-')[1],
+          confirmedRelayer: (node.confirmedRelayersId || [])[0]?.split('-')[1],
+        };
+      })
+      .sort((a, b) => b.createBlockNumber - a.createBlockNumber);
     setDataSource(dataSourceRef.current);
   }, [ordersOverviewData?.orders?.nodes]);
 
@@ -426,7 +424,7 @@ export const Orders = ({
             </Form.Item>
           ) : (
             <Form.Item name="block" label={t('Block')}>
-              <BlockFilterInput />
+              <BlockRangeInput />
             </Form.Item>
           )}
           <Form.Item name={`status`} label={t('Finished Status')}>
@@ -455,7 +453,12 @@ export const Orders = ({
         </Form>
       </Card>
       <Card className="mt-2">
-        <Table columns={columns} dataSource={dataSource} rowKey="orderId" loading={ordersOverviewLoading} />
+        <Table
+          columns={columns}
+          dataSource={dataSource}
+          rowKey={(record) => `${record.lane}-${record.nonce}`}
+          loading={ordersOverviewLoading}
+        />
       </Card>
     </>
   );

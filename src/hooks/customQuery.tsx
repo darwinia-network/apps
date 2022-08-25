@@ -9,7 +9,7 @@ import type {
 
 // import { LONG_LONG_DURATION } from '../config';
 
-export const useMyQuery: <TData = unknown, TVariables = OperationVariables, TTransResult = unknown>(
+export const useCustomQuery: <TData = unknown, TVariables = OperationVariables, TTransResult = unknown>(
   query: DocumentNode | TypedDocumentNode<TData, TVariables>,
   options?: QueryHookOptions<TData, TVariables>,
   transform?: (data: TData) => TTransResult
@@ -24,5 +24,10 @@ export const useMyQuery: <TData = unknown, TVariables = OperationVariables, TTra
     ...options,
   });
 
-  return { data, loading, transformedData: transform && data ? transform(data) : undefined, refetch };
+  return {
+    data,
+    loading,
+    transformedData: data && transform ? transform(data) : undefined,
+    refetch,
+  };
 };

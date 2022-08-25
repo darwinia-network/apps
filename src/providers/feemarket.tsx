@@ -21,10 +21,11 @@ export const FeeMarketProvider = ({ children }: PropsWithChildren<unknown>) => {
   const { api } = useApi();
   const { search } = useLocation();
   const navigate = useNavigate();
+  const [destination, _setDestination] = useState<DarwiniaChain | null>();
   const [refresh, setRefresh] = useState<() => void>(() => () => undefined);
 
   const searchParams = new URLSearchParams(search);
-  const dest = searchParams.get(SearchParamsKey.DESTINATION);
+  const paramDestination = searchParams.get(SearchParamsKey.DESTINATION);
 
   const supportedDestinations = useMemo(() => {
     const { specName } = api.consts.system.version as RuntimeVersion;
@@ -32,24 +33,20 @@ export const FeeMarketProvider = ({ children }: PropsWithChildren<unknown>) => {
     return Object.keys(marketApiSections[source] || {}) as DarwiniaChain[];
   }, [api]);
 
-  const [destination, _setDestination] = useState<DarwiniaChain>(
-    supportedDestinations.find((item) => item === dest) ?? supportedDestinations[0]
-  );
-
   const setDestination = useCallback(
-    (d: DarwiniaChain) => {
+    (dest: DarwiniaChain) => {
       const searchParams = new URLSearchParams(window.location.search);
-      searchParams.set(SearchParamsKey.DESTINATION, d);
+      searchParams.set(SearchParamsKey.DESTINATION, dest);
       navigate(`?${searchParams.toString()}`);
 
-      _setDestination(d);
+      _setDestination(dest);
     },
     [navigate]
   );
 
   useEffect(() => {
-    _setDestination(supportedDestinations.find((item) => item === dest) ?? supportedDestinations[0]);
-  }, [supportedDestinations, dest]);
+    _setDestination(supportedDestinations.find((dest) => dest === paramDestination) ?? supportedDestinations[0]);
+  }, [supportedDestinations, paramDestination]);
 
   return (
     <FeeMarketContext.Provider

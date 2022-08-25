@@ -10,7 +10,7 @@ import { useApolloClient } from '@apollo/client';
 
 import { Statistics } from '../widget/Statistics';
 import { FEE_MARKET_OVERVIEW, TOTAL_ORDERS_OVERVIEW, MARKET_FEE_OVERVIEW } from '../../config';
-import { useApi, useMyQuery } from '../../hooks';
+import { useApi, useCustomQuery } from '../../hooks';
 import { getFeeMarketApiSection, transformTotalOrdersOverview, fromWei, prettyNumber } from '../../utils';
 import {
   PalletFeeMarketRelayer,
@@ -47,14 +47,14 @@ export const Overview = ({
   const {
     data: feeMarketOverviewData,
     loading: feeMarketOverviewLoading,
-    refetch: refetchFeeMarketStatistics,
-  } = useMyQuery<TFeeMarketOverview, { destination: DarwiniaChain }>(FEE_MARKET_OVERVIEW, {
+    refetch: refetchFeeMarketOverview,
+  } = useCustomQuery<TFeeMarketOverview, { destination: DarwiniaChain }>(FEE_MARKET_OVERVIEW, {
     variables: {
       destination,
     },
   });
 
-  const { transformedData: totalOrdersOverviewData, refetch: refetchTotalOrdersOverview } = useMyQuery<
+  const { transformedData: totalOrdersOverviewData, refetch: refetchTotalOrdersOverview } = useCustomQuery<
     TTotalOrderOverview,
     { destination: DarwiniaChain },
     [number, number][]
@@ -178,10 +178,10 @@ export const Overview = ({
     setRefresh(() => () => {
       updateTotalRelayers();
       updateCurrentFee();
-      refetchFeeMarketStatistics();
+      refetchFeeMarketOverview();
       refetchTotalOrdersOverview();
     });
-  }, [setRefresh, updateTotalRelayers, updateCurrentFee, refetchFeeMarketStatistics, refetchTotalOrdersOverview]);
+  }, [setRefresh, updateTotalRelayers, updateCurrentFee, refetchFeeMarketOverview, refetchTotalOrdersOverview]);
 
   useEffect(() => {
     const sub$$ = updateTotalRelayers();
@@ -212,10 +212,7 @@ export const Overview = ({
             value={
               <Spin size="small" spinning={feeMarketOverviewLoading}>
                 <span className="capitalize">
-                  {formatDistanceStrict(
-                    new Date(),
-                    new Date(Date.now() + (feeMarketOverviewData?.market?.averageSpeed || 0))
-                  )}
+                  {formatDistanceStrict(Date.now(), Date.now() + (feeMarketOverviewData?.market?.averageSpeed || 0))}
                 </span>
               </Spin>
             }
