@@ -41,6 +41,7 @@ export const Overview = ({
     active: 0,
     loading: true,
   });
+  const [marketFeeOverviewLoading, setMarketFeeOverviewLoading] = useState(true);
   const [marketFeeOverviewData, setMarketFeeOverviewData] = useState<[number, number][]>([]);
 
   const {
@@ -148,6 +149,8 @@ export const Overview = ({
   );
 
   useEffect(() => {
+    setMarketFeeOverviewLoading(true);
+
     const sub$$ = from(queryMarketFee([], destination)).subscribe((data) => {
       const datesValues =
         data.reduce((acc, cur) => {
@@ -162,9 +165,13 @@ export const Overview = ({
           Number(fromWei({ value: datesValues[date] }, prettyNumber)),
         ])
       );
+      setMarketFeeOverviewLoading(false);
     });
 
-    return () => sub$$.unsubscribe();
+    return () => {
+      sub$$.unsubscribe();
+      setMarketFeeOverviewLoading(false);
+    };
   }, [destination, queryMarketFee]);
 
   useEffect(() => {
@@ -253,7 +260,7 @@ export const Overview = ({
       </Card>
       <div className="flex justify-between items-center space-x-4 mt-8">
         <TotalOrdersChart data={totalOrdersOverviewData || []} />
-        <FeeHistoryChart data={marketFeeOverviewData || []} />
+        <FeeHistoryChart data={marketFeeOverviewData || []} loading={marketFeeOverviewLoading} />
       </div>
     </>
   );

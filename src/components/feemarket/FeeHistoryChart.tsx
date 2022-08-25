@@ -1,14 +1,15 @@
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import Highcharts from 'highcharts/highstock';
 import HighchartsReact from 'highcharts-react-official';
 
 import { useApi } from 'src/hooks';
 
-export const FeeHistoryChart = ({ data }: { data: [number, number][] }) => {
+export const FeeHistoryChart = ({ data, loading }: { data: [number, number][]; loading?: boolean }) => {
   const { network } = useApi();
   const { t } = useTranslation();
   const [options, setOptions] = useState<Highcharts.Options>({});
+  const chartComponentRef = useRef<HighchartsReact.RefObject>(null);
 
   const mainColor = useMemo(() => {
     switch (network.name) {
@@ -21,6 +22,14 @@ export const FeeHistoryChart = ({ data }: { data: [number, number][] }) => {
         return '#8085e9';
     }
   }, [network.name]);
+
+  useEffect(() => {
+    if (loading) {
+      chartComponentRef.current?.chart.showLoading();
+    } else {
+      chartComponentRef.current?.chart.hideLoading();
+    }
+  }, [loading]);
 
   useEffect(() => {
     setOptions({
@@ -113,6 +122,7 @@ export const FeeHistoryChart = ({ data }: { data: [number, number][] }) => {
     <HighchartsReact
       highcharts={Highcharts}
       options={options}
+      ref={chartComponentRef}
       constructorType="stockChart"
       containerProps={{ className: 'h-96 w-full shadow-xxl rounded-lg' }}
     />
