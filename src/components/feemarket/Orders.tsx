@@ -180,7 +180,7 @@ export const Orders = ({
       align: 'center',
       render: (value: string[] | null) =>
         value?.length ? (
-          <IdentAccountName account={value[0]} />
+          <IdentAccountName account={value[0].split('-')[1]} />
         ) : (
           <div className="flex justify-center">
             <span>-</span>
@@ -194,7 +194,7 @@ export const Orders = ({
       align: 'center',
       render: (value: string[] | null) =>
         value?.length ? (
-          <IdentAccountName account={value[0]} />
+          <IdentAccountName account={value[0].split('-')[1]} />
         ) : (
           <div className="flex justify-center">
             <span>-</span>
