@@ -186,17 +186,17 @@ export const OrderDetail = ({
                   </Descriptions.Item>
                 )}
                 {renderRelayersReward({
-                  label: t(RelayerRole.CONFIRMATION),
+                  label: t(RelayerRole.ASSIGNED),
                   amounts: orderDetailData.order.rewards.nodes[0].assignedAmounts,
                   relayersId: orderDetailData.order.rewards.nodes[0].assignedRelayersId,
                 })}
                 {renderRelayersReward({
-                  label: t(RelayerRole.ASSIGNED),
+                  label: t(RelayerRole.DELIVERY),
                   amounts: orderDetailData.order.rewards.nodes[0].deliveredAmounts,
                   relayersId: orderDetailData.order.rewards.nodes[0].deliveredRelayersId,
                 })}
                 {renderRelayersReward({
-                  label: t(RelayerRole.DELIVERY),
+                  label: t(RelayerRole.CONFIRMATION),
                   amounts: orderDetailData.order.rewards.nodes[0].confirmedAmounts,
                   relayersId: orderDetailData.order.rewards.nodes[0].confirmedRelayersId,
                 })}
