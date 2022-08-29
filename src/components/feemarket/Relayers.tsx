@@ -11,7 +11,7 @@ import { useTranslation } from 'react-i18next';
 
 import { getFeeMarketApiSection, fromWei, prettyNumber } from '../../utils';
 import { useApi } from '../../hooks';
-import { PalletFeeMarketRelayer, DarwiniaChain, SearchParamsKey, FeeMarketTab, TRelayerOverview } from '../../model';
+import { PalletFeeMarketRelayer, DarwiniaChain, SearchParamsKey, FeeMarketTab, RelayerEntity } from '../../model';
 import { RELAYER_OVERVIEW } from '../../config';
 import { IdentAccountName } from '../widget/account/IdentAccountName';
 
@@ -159,7 +159,10 @@ export const Relayers = ({
 
       sub$$ = forkJoin(
         relayers.map((relayer) =>
-          apollo.query<TRelayerOverview, { relayerId: string }>({
+          apollo.query<
+            { relayer: Pick<RelayerEntity, 'totalOrders' | 'totalRewards' | 'totalSlashes'> | null },
+            { relayerId: string }
+          >({
             query: RELAYER_OVERVIEW,
             variables: { relayerId: `${destination}-${relayer.id.toString()}` },
           })

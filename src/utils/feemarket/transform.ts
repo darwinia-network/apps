@@ -5,17 +5,20 @@ import { prettyNumber, fromWei } from '..';
 import {
   RelayerRole,
   RelayerOrdersDataSource,
-  TTotalOrderOverview,
-  TFeeHistory,
-  TRelayerRewardSlash,
-  TRelayerOrders,
+  OrderEntity,
+  FeeEntity,
+  SlashEntity,
+  RewardEntity,
   SlashReward,
-  TQuoteHistory,
+  QuoteEntity,
 } from '../../model';
 
-export const transformRelayerRewardSlash = (
-  data: TRelayerRewardSlash
-): { rewards: [number, number][]; slashs: [number, number][] } => {
+export const transformRelayerRewardSlash = (data: {
+  relayer: {
+    slashes: { nodes: Pick<SlashEntity, 'amount' | 'blockTime'>[] } | null;
+    rewards: { nodes: Pick<RewardEntity, 'amount' | 'blockTime'>[] } | null;
+  } | null;
+}): { rewards: [number, number][]; slashs: [number, number][] } => {
   const slashes =
     data.relayer?.slashes?.nodes.reduce((acc, cur) => {
       const date = `${cur.blockTime.split('T')[0]}Z`;
@@ -50,7 +53,9 @@ export const transformRelayerRewardSlash = (
   };
 };
 
-export const transformRelayerQuotes = (data: TQuoteHistory): [number, number][] => {
+export const transformRelayerQuotes = (data: {
+  quoteHistory: Pick<QuoteEntity, 'data'> | null;
+}): [number, number][] => {
   return (data.quoteHistory?.data || []).map(({ amount, blockTime }) => [
     new Date(blockTime).getTime(),
     Number(fromWei({ value: amount }, prettyNumber)),
@@ -59,36 +64,49 @@ export const transformRelayerQuotes = (data: TQuoteHistory): [number, number][] 
 
 const reduceSlashReward = (
   previous: RelayerOrdersDataSource[],
-  cur: SlashReward,
+  current: SlashReward,
   isSlash: boolean
 ): RelayerOrdersDataSource[] => {
-  const idx = previous.findIndex((item) => item.lane === cur.order?.lane && item.nonce === cur.order.nonce);
+  const idx = previous.findIndex((item) => item.lane === current.order?.lane && item.nonce === current.order.nonce);
 
   const row: RelayerOrdersDataSource =
     idx >= 0
       ? previous[idx]
       : {
-          lane: cur.order?.lane as string,
-          nonce: cur.order?.nonce as string,
-          createBlockTime: cur.order?.createBlockTime as string,
+          lane: current.order?.lane as string,
+          nonce: current.order?.nonce as string,
+          createBlockTime: current.order?.createBlockTime as string,
           reward: BN_ZERO,
           slash: BN_ZERO,
           relayerRoles: [] as RelayerRole[],
         };
 
   const roles = new Set<RelayerRole>(row.relayerRoles);
-  row.relayerRoles = Array.from(roles.add(cur.relayerRole));
+  row.relayerRoles = Array.from(roles.add(current.relayerRole));
 
   if (isSlash) {
-    row.slash = row.slash.add(bnToBn(cur.amount));
+    row.slash = row.slash.add(bnToBn(current.amount));
   } else {
-    row.reward = row.reward.add(bnToBn(cur.amount));
+    row.reward = row.reward.add(bnToBn(current.amount));
   }
 
   return previous.splice(idx, idx === -1 ? 0 : 1, row);
 };
 
-export const transformRelayerOrders = (data: TRelayerOrders): RelayerOrdersDataSource[] => {
+export const transformRelayerOrders = (data: {
+  relayer?: {
+    slashes: {
+      nodes: (Pick<SlashEntity, 'amount' | 'relayerRole'> & {
+        order: Pick<OrderEntity, 'lane' | 'nonce' | 'createBlockTime'> | null;
+      })[];
+    } | null;
+    rewards: {
+      nodes: (Pick<SlashEntity, 'amount' | 'relayerRole'> & {
+        order: Pick<OrderEntity, 'lane' | 'nonce' | 'createBlockTime'> | null;
+      })[];
+    } | null;
+  } | null;
+}): RelayerOrdersDataSource[] => {
   let dataSource: RelayerOrdersDataSource[] = [];
 
   dataSource =
@@ -99,7 +117,9 @@ export const transformRelayerOrders = (data: TRelayerOrders): RelayerOrdersDataS
   return dataSource.sort((a, b) => compareDesc(new Date(a.createBlockTime), new Date(b.createBlockTime)));
 };
 
-export const transformTotalOrdersOverview = (data: TTotalOrderOverview): [number, number][] => {
+export const transformTotalOrdersOverview = (data: {
+  orders: { nodes: Pick<OrderEntity, 'createBlockTime'>[] } | null;
+}): [number, number][] => {
   const datesOrders =
     data.orders?.nodes.reduce((acc, { createBlockTime }) => {
       const date = `${createBlockTime.split('T')[0]}Z`;
@@ -110,9 +130,9 @@ export const transformTotalOrdersOverview = (data: TTotalOrderOverview): [number
   return Object.keys(datesOrders).map((date) => [new Date(date).getTime(), datesOrders[date]]);
 };
 
-export const transformFeeHistory = (data: TFeeHistory): [number, number][] => {
+export const transformFeeHistory = (data: { feeHistory: Pick<FeeEntity, 'data'> | null }): [number, number][] => {
   const datesValues =
-    data.feeHistory?.data.reduce((acc, cur) => {
+    data.feeHistory?.data?.reduce((acc, cur) => {
       const date = `${cur.blockTime.split('T')[0]}Z`;
       acc[date] = (acc[date] || new BN(cur.amount)).add(new BN(cur.amount)).divn(2); // eslint-disable-line no-magic-numbers
       return acc;

@@ -16,16 +16,17 @@ import {
   FeeMarketTab,
   SlotState,
   OrderStatus,
-  TOrdersStatistics,
-  TOrdersOverview,
+  OrderEntity,
+  MarketEntity,
+  RelayerEntity,
 } from '../../model';
 import { IdentAccountName } from '../widget/account/IdentAccountName';
 import { SubscanLink } from '../widget/SubscanLink';
 import { OrdersStatisticsChart } from './OrdersStatisticsChart';
 
 enum SearchType {
-  ORDER_ID = 'Order ID',
-  SENDER_ADDRESS = 'Sender Address',
+  ORDER_ID,
+  SENDER_ADDRESS,
 }
 
 type SearchData = {
@@ -34,19 +35,19 @@ type SearchData = {
 };
 
 enum TimeDimension {
-  DATE = 'Date',
-  BLOCK = 'Block',
+  DATE,
+  BLOCK,
 }
 
-enum FilterAll {
+enum EnumAll {
   ALL = 'All',
 }
 
-type FilterStatus = FilterAll | OrderStatus;
-const FilterStatus = { ...FilterAll, ...OrderStatus };
+type FilterStatus = EnumAll | OrderStatus;
+const FilterStatus = { ...EnumAll, ...OrderStatus };
 
-type FilterSlot = FilterAll | SlotState;
-const FilterSlot = { ...FilterAll, ...SlotState };
+type FilterSlot = EnumAll | SlotState;
+const FilterSlot = { ...EnumAll, ...SlotState };
 
 interface BlockRange {
   start?: number | null;
@@ -61,18 +62,21 @@ interface FilterData {
   duration?: [start: Moment, end: Moment] | null;
 }
 
-interface DataSourceState {
-  lane: string;
-  nonce: string;
-  sender?: string | null;
-  status: OrderStatus;
+interface DataSourceState
+  extends Pick<
+    OrderEntity,
+    | 'lane'
+    | 'nonce'
+    | 'sender'
+    | 'status'
+    | 'createBlockTime'
+    | 'finishBlockTime'
+    | 'createBlockNumber'
+    | 'finishBlockNumber'
+    | 'slotIndex'
+  > {
   deliveredRelayer?: string | null;
   confirmedRelayer?: string | null;
-  createBlockTime: string;
-  finishBlockTime?: string | null;
-  createBlockNumber: number;
-  finishBlockNumber?: number | null;
-  confirmedSlotIndex?: number | null;
 }
 
 const BlockRangeInput = ({
@@ -137,7 +141,10 @@ export const Orders = ({
     loading: ordersStatisticsLoading,
     data: ordersStatisticsData,
     refetch: refetchOrdersStatistics,
-  } = useCustomQuery<TOrdersStatistics, { destination: string }>(ORDERS_STATISTICS, {
+  } = useCustomQuery<
+    { market: Pick<MarketEntity, 'finishedOrders' | 'unfinishedInSlotOrders' | 'unfinishedOutOfSlotOrders'> | null },
+    { destination: string }
+  >(ORDERS_STATISTICS, {
     variables: { destination },
   });
 
@@ -145,7 +152,28 @@ export const Orders = ({
     loading: ordersOverviewLoading,
     data: ordersOverviewData,
     refetch: refetchOrdersOverview,
-  } = useCustomQuery<TOrdersOverview, { destination: string }>(ORDERS_OVERVIEW, {
+  } = useCustomQuery<
+    {
+      orders: {
+        nodes: (Pick<
+          OrderEntity,
+          | 'lane'
+          | 'nonce'
+          | 'sender'
+          | 'createBlockTime'
+          | 'finishBlockTime'
+          | 'createBlockNumber'
+          | 'finishBlockNumber'
+          | 'status'
+          | 'slotIndex'
+        > & {
+          deliveryRelayers: { nodes: { deliveryRelayer: Pick<RelayerEntity, 'address'> }[] } | null;
+          confirmationRelayers: { nodes: { confirmationRelayer: Pick<RelayerEntity, 'address'> }[] } | null;
+        })[];
+      } | null;
+    },
+    { destination: string }
+  >(ORDERS_OVERVIEW, {
     variables: { destination },
   });
 
@@ -160,10 +188,10 @@ export const Orders = ({
         searchParams.set(SearchParamsKey.DESTINATION, destination);
         searchParams.set(SearchParamsKey.TAB, FeeMarketTab.OREDERS);
         searchParams.set(SearchParamsKey.LANE, record.lane);
-        searchParams.set(SearchParamsKey.NONCE, record.nonce.toString());
+        searchParams.set(SearchParamsKey.NONCE, record.nonce);
         return (
           <div className="inline-flex items-center">
-            {record.status === OrderStatus.FINISHED ? <Badge status="success" /> : <Badge status="processing" />}
+            {record.status === 'Finished' ? <Badge status="success" /> : <Badge status="processing" />}
             <NavLink to={`?${searchParams.toString()}`}>{record.nonce}</NavLink>
           </div>
         );
@@ -223,8 +251,7 @@ export const Orders = ({
   const handleSearch = useCallback(() => {
     if (search.value) {
       if (search.type === SearchType.ORDER_ID) {
-        // eslint-disable-next-line no-magic-numbers
-        setDataSource(dataSourceRef.current.filter((item) => item.nonce.toString() === search.value));
+        setDataSource(dataSourceRef.current.filter((item) => item.nonce === search.value));
       } else if (search.type === SearchType.SENDER_ADDRESS) {
         setDataSource(dataSourceRef.current.filter((item) => item.sender === search.value));
       }
@@ -268,12 +295,12 @@ export const Orders = ({
 
         switch (status) {
           case FilterStatus.FINISHED:
-            if (item.status !== 'Finished') {
+            if (item.status !== OrderStatus.FINISHED) {
               return false;
             }
             break;
           case FilterStatus.IN_PROGRESS:
-            if (item.status !== 'InProgress') {
+            if (item.status !== OrderStatus.IN_PROGRESS) {
               return false;
             }
             break;
@@ -281,23 +308,22 @@ export const Orders = ({
 
         switch (slot) {
           case FilterSlot.SLOT_1:
-            if (item.confirmedSlotIndex !== 0) {
+            if (item.slotIndex !== FilterSlot.SLOT_1) {
               return false;
             }
             break;
           case FilterSlot.SLOT_2:
-            if (item.confirmedSlotIndex !== 1) {
+            if (item.slotIndex !== FilterSlot.SLOT_2) {
               return false;
             }
             break;
           case FilterSlot.SLOT_3:
-            // eslint-disable-next-line no-magic-numbers
-            if (item.confirmedSlotIndex !== 2) {
+            if (item.slotIndex !== FilterSlot.SLOT_3) {
               return false;
             }
             break;
           case FilterSlot.OUT_OF_SLOT:
-            if (item.confirmedSlotIndex !== -1) {
+            if (item.slotIndex !== FilterSlot.OUT_OF_SLOT) {
               return false;
             }
             break;
@@ -384,8 +410,8 @@ export const Orders = ({
                 onSelect={(type) => setSearch((prev) => ({ ...prev, type }))}
                 className="w-36"
               >
-                <Select.Option value={SearchType.ORDER_ID}>{t(SearchType.ORDER_ID)}</Select.Option>
-                <Select.Option value={SearchType.SENDER_ADDRESS}>{t(SearchType.SENDER_ADDRESS)}</Select.Option>
+                <Select.Option value={SearchType.ORDER_ID}>{t('Order ID')}</Select.Option>
+                <Select.Option value={SearchType.SENDER_ADDRESS}>{t('Sender Address')}</Select.Option>
               </Select>
             }
             className="w-96"
@@ -400,7 +426,7 @@ export const Orders = ({
           onValuesChange={(changedValues: Partial<FilterData>) => {
             const { dimension } = changedValues;
 
-            if (dimension) {
+            if (dimension !== undefined) {
               setFilter((prev) => ({ ...prev, dimension }));
             }
           }}
@@ -409,8 +435,8 @@ export const Orders = ({
         >
           <Form.Item name="dimension" label={t('Time Dimension')}>
             <Select className="w-20">
-              <Select.Option value={TimeDimension.DATE}>{t(TimeDimension.DATE)}</Select.Option>
-              <Select.Option value={TimeDimension.BLOCK}>{t(TimeDimension.BLOCK)}</Select.Option>
+              <Select.Option value={TimeDimension.DATE}>{t('Date')}</Select.Option>
+              <Select.Option value={TimeDimension.BLOCK}>{t('Block')}</Select.Option>
             </Select>
           </Form.Item>
           {filter.dimension === TimeDimension.DATE ? (
@@ -424,22 +450,22 @@ export const Orders = ({
           )}
           <Form.Item name={`status`} label={t('Finished Status')}>
             <Select className="w-32">
-              <Select.Option value={FilterStatus.ALL}>{t(FilterStatus.ALL)}</Select.Option>
+              <Select.Option value={FilterStatus.ALL}>{t('All')}</Select.Option>
               <Select.Option value={FilterStatus.FINISHED}>
-                <Badge status="success" text={t(FilterStatus.FINISHED)} />
+                <Badge status="success" text={t('Finished')} />
               </Select.Option>
               <Select.Option value={FilterStatus.IN_PROGRESS}>
-                <Badge status="processing" text={t(FilterStatus.IN_PROGRESS)} />
+                <Badge status="processing" text={t('In Progress')} />
               </Select.Option>
             </Select>
           </Form.Item>
           <Form.Item name={`slot`} label={t('Slot')}>
             <Select className="w-24">
-              <Select.Option value={FilterSlot.ALL}>{t(FilterSlot.ALL)}</Select.Option>
-              <Select.Option value={FilterSlot.SLOT_1}>{t(FilterSlot.SLOT_1)}</Select.Option>
-              <Select.Option value={FilterSlot.SLOT_2}>{t(FilterSlot.SLOT_2)}</Select.Option>
-              <Select.Option value={FilterSlot.SLOT_3}>{t(FilterSlot.SLOT_3)}</Select.Option>
-              <Select.Option value={FilterSlot.OUT_OF_SLOT}>{t(FilterSlot.OUT_OF_SLOT)}</Select.Option>
+              <Select.Option value={FilterSlot.ALL}>{t('All')}</Select.Option>
+              <Select.Option value={FilterSlot.SLOT_1}>{t('Slot 1')}</Select.Option>
+              <Select.Option value={FilterSlot.SLOT_2}>{t('Slot 2')}</Select.Option>
+              <Select.Option value={FilterSlot.SLOT_3}>{t('Slot 3')}</Select.Option>
+              <Select.Option value={FilterSlot.OUT_OF_SLOT}>{t('Out of Slot')}</Select.Option>
             </Select>
           </Form.Item>
           <Form.Item>

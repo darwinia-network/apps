@@ -10,13 +10,7 @@ import { Statistics } from '../widget/Statistics';
 import { FEE_MARKET_OVERVIEW, TOTAL_ORDERS_OVERVIEW, FEE_HISTORY } from '../../config';
 import { useApi, useCustomQuery } from '../../hooks';
 import { getFeeMarketApiSection, transformTotalOrdersOverview, transformFeeHistory } from '../../utils';
-import {
-  PalletFeeMarketRelayer,
-  DarwiniaChain,
-  TFeeMarketOverview,
-  TTotalOrderOverview,
-  TFeeHistory,
-} from '../../model';
+import { PalletFeeMarketRelayer, DarwiniaChain, MarketEntity, OrderEntity, FeeEntity } from '../../model';
 import { TooltipBalance } from '../../components/widget/TooltipBalance';
 import { TotalOrdersChart } from './TotalOrdersChart';
 import { FeeHistoryChart } from './FeeHistoryChart';
@@ -43,14 +37,17 @@ export const Overview = ({
     data: feeMarketOverviewData,
     loading: feeMarketOverviewLoading,
     refetch: refetchFeeMarketOverview,
-  } = useCustomQuery<TFeeMarketOverview, { destination: DarwiniaChain }>(FEE_MARKET_OVERVIEW, {
+  } = useCustomQuery<
+    { market: Pick<MarketEntity, 'averageSpeed' | 'totalOrders' | 'totalReward'> | null },
+    { destination: DarwiniaChain }
+  >(FEE_MARKET_OVERVIEW, {
     variables: {
       destination,
     },
   });
 
   const { transformedData: totalOrdersOverviewData, refetch: refetchTotalOrdersOverview } = useCustomQuery<
-    TTotalOrderOverview,
+    { orders: { nodes: Pick<OrderEntity, 'createBlockTime'>[] } | null },
     { destination: DarwiniaChain },
     [number, number][]
   >(
@@ -64,7 +61,7 @@ export const Overview = ({
   );
 
   const { transformedData: feeHistoryData, refetch: refetchFeeHistory } = useCustomQuery<
-    TFeeHistory,
+    { feeHistory: Pick<FeeEntity, 'data'> | null },
     { destination: DarwiniaChain },
     [number, number][]
   >(

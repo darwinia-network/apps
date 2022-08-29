@@ -6,22 +6,32 @@ import { useEffect } from 'react';
 import { capitalize } from 'lodash';
 
 import { ORDER_DETAIL, DATE_TIME_FORMATE } from '../../config';
-import { DarwiniaChain, SlotState, TOrderDetail, FeeMarketTab, OrderStatus, RelayerRole } from '../../model';
+import {
+  DarwiniaChain,
+  SlotState,
+  FeeMarketTab,
+  OrderStatus,
+  RelayerRole,
+  OrderEntity,
+  SlashEntity,
+  RelayerEntity,
+  RewardEntity,
+} from '../../model';
 import { useApi, useCustomQuery } from '../../hooks';
 import { SubscanLink } from '../widget/SubscanLink';
 import { fromWei, prettyNumber } from '../../utils';
 import { AccountName } from '../widget/account/AccountName';
 
-const getSlotText = (confirmedSlotIndex?: number | null): string => {
-  switch (confirmedSlotIndex) {
-    case -1:
-      return SlotState.OUT_OF_SLOT;
-    case 0:
-      return SlotState.SLOT_1;
-    case 1:
-      return SlotState.SLOT_2;
-    case 2: // eslint-disable-line no-magic-numbers
-      return SlotState.SLOT_3;
+const getSlotText = (slotIndex?: number | null): string => {
+  switch (slotIndex) {
+    case SlotState.OUT_OF_SLOT:
+      return 'Out of Slot';
+    case SlotState.SLOT_1:
+      return 'Slot 1';
+    case SlotState.SLOT_2:
+      return 'Slot 2';
+    case SlotState.SLOT_3:
+      return 'Slot 3';
     default:
       return '-';
   }
@@ -62,7 +72,42 @@ export const OrderDetail = ({
     loading: orderDetailLoading,
     data: orderDetailData,
     refetch: refetchOrderDetail,
-  } = useCustomQuery<TOrderDetail, { orderId: string }>(ORDER_DETAIL, {
+  } = useCustomQuery<
+    {
+      order:
+        | (Pick<
+            OrderEntity,
+            | 'lane'
+            | 'nonce'
+            | 'fee'
+            | 'sender'
+            | 'sourceTxHash'
+            | 'slotIndex'
+            | 'slotTime'
+            | 'outOfSlotBlock'
+            | 'status'
+            | 'createBlockTime'
+            | 'finishBlockTime'
+            | 'createBlockNumber'
+            | 'finishBlockNumber'
+            | 'treasuryAmount'
+            | 'assignedRelayersAddress'
+          > & {
+            slashes: {
+              nodes: (Pick<SlashEntity, 'amount' | 'relayerRole' | 'blockNumber' | 'extrinsicIndex'> & {
+                relayer: Pick<RelayerEntity, 'address'>;
+              })[];
+            } | null;
+            rewards: {
+              nodes: (Pick<RewardEntity, 'amount' | 'relayerRole' | 'blockNumber' | 'extrinsicIndex'> & {
+                relayer: Pick<RelayerEntity, 'address'>;
+              })[];
+            } | null;
+          })
+        | null;
+    },
+    { orderId: string }
+  >(ORDER_DETAIL, {
     variables: { orderId: `${destination}-${lane}-${nonce}` },
   });
 

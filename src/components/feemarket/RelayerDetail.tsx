@@ -12,9 +12,10 @@ import {
   FeeMarketTab,
   DarwiniaChain,
   RelayerOrdersDataSource,
-  TRelayerRewardSlash,
-  TQuoteHistory,
-  TRelayerOrders,
+  SlashEntity,
+  RewardEntity,
+  QuoteEntity,
+  OrderEntity,
 } from '../../model';
 import { AccountName } from '../widget/account/AccountName';
 import { RELAYER_REWARD_SLASH, QUOTE_HISTORY, RELAYER_ORDERS } from '../../config';
@@ -43,7 +44,12 @@ export const RelayerDetail = ({
   const { pathname } = useLocation();
 
   const { transformedData: rewardSlashData, refetch: refetchRewardAndSlash } = useCustomQuery<
-    TRelayerRewardSlash,
+    {
+      relayer: {
+        slashes: { nodes: Pick<SlashEntity, 'amount' | 'blockTime'>[] } | null;
+        rewards: { nodes: Pick<RewardEntity, 'amount' | 'blockTime'>[] } | null;
+      } | null;
+    },
     { relayerId: string },
     { rewards: [number, number][]; slashs: [number, number][] }
   >(
@@ -57,7 +63,7 @@ export const RelayerDetail = ({
   );
 
   const { transformedData: quoteData, refetch: refetchQuote } = useCustomQuery<
-    TQuoteHistory,
+    { quoteHistory: Pick<QuoteEntity, 'data'> | null },
     { relayerId: string },
     [number, number][]
   >(
@@ -74,7 +80,24 @@ export const RelayerDetail = ({
     loading: relayerOrdersLoading,
     transformedData: relayerOrdersData,
     refetch: refetchRelayerOrders,
-  } = useCustomQuery<TRelayerOrders, { relayerId: string }, RelayerOrdersDataSource[]>(
+  } = useCustomQuery<
+    {
+      relayer?: {
+        slashes: {
+          nodes: (Pick<SlashEntity, 'amount' | 'relayerRole'> & {
+            order: Pick<OrderEntity, 'lane' | 'nonce' | 'createBlockTime'> | null;
+          })[];
+        } | null;
+        rewards: {
+          nodes: (Pick<SlashEntity, 'amount' | 'relayerRole'> & {
+            order: Pick<OrderEntity, 'lane' | 'nonce' | 'createBlockTime'> | null;
+          })[];
+        } | null;
+      } | null;
+    },
+    { relayerId: string },
+    RelayerOrdersDataSource[]
+  >(
     RELAYER_ORDERS,
     {
       variables: {
@@ -102,7 +125,7 @@ export const RelayerDetail = ({
         searchParams.set(SearchParamsKey.DESTINATION, destination);
         searchParams.set(SearchParamsKey.TAB, FeeMarketTab.OREDERS);
         searchParams.set(SearchParamsKey.LANE, record.lane);
-        searchParams.set(SearchParamsKey.NONCE, record.nonce.toString());
+        searchParams.set(SearchParamsKey.NONCE, record.nonce);
         return <Link to={`${pathname}?${searchParams.toString()}`}>{record.nonce}</Link>;
       },
     },
