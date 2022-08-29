@@ -5,9 +5,7 @@ export const FEE_MARKET_OVERVIEW = gql`
     market(id: $destination) {
       averageSpeed
       totalReward
-      finishedOrders
-      inProgressInSlotOrders
-      inProgressOutOfSlotOrders
+      totalOrders
     }
   }
 `;
@@ -22,34 +20,12 @@ export const TOTAL_ORDERS_OVERVIEW = gql`
   }
 `;
 
-export const MARKET_FEE_OVERVIEW = gql`
-  query marketFeeOverview($destination: String!, $offset: Int!) {
-    marketFees(filter: { id: { startsWith: $destination } }, orderBy: TIMESTAMP_ASC, first: 100, offset: $offset) {
-      totalCount
-      pageInfo {
-        hasNextPage
-      }
-      nodes {
-        fee
-        timestamp
-      }
-    }
-  }
-`;
-
 export const RELAYER_OVERVIEW = gql`
   query relayerOverview($relayerId: String!) {
     relayer(id: $relayerId) {
-      totalSlashs
+      totalOrders
+      totalSlashes
       totalRewards
-      slashs {
-        nodes {
-          orderId
-        }
-      }
-      assignedRelayerOrdersId
-      deliveredRelayerOrdersId
-      confirmedRelayerOrdersId
     }
   }
 `;
@@ -69,15 +45,25 @@ export const ORDERS_OVERVIEW = gql`
     orders(filter: { id: { startsWith: $destination } }, orderBy: CREATE_EVENT_INDEX_DESC) {
       nodes {
         id
+        lane
+        nonce
         sender
-        deliveredRelayersId
-        confirmedRelayersId
+        deliveryRelayers {
+          nodes {
+            deliveryRelayerId
+          }
+        }
+        confirmationRelayers {
+          nodes {
+            confirmationRelayerId
+          }
+        }
         createBlockNumber
         finishBlockNumber
         createBlockTime
         finishBlockTime
         status
-        confirmedSlotIndex
+        slotIndex
       }
     }
   }
@@ -86,42 +72,43 @@ export const ORDERS_OVERVIEW = gql`
 export const ORDER_DETAIL = gql`
   query orderDetail($orderId: String!) {
     order(id: $orderId) {
-      id
+      lane
+      nonce
       fee
       sender
       sourceTxHash
       slotTime
       outOfSlotBlock
-      confirmedSlotIndex
+      slotIndex
       status
       createBlockTime
       finishBlockTime
       createBlockNumber
       finishBlockNumber
-      assignedRelayersId
-      slashs(orderBy: BLOCK_NUMBER_ASC) {
+      assignedRelayersAddress
+      slashes {
         nodes {
           amount
-          relayerId
-          delayTime
+          relayer {
+            address
+          }
+          relayerRole
           blockNumber
           extrinsicIndex
         }
       }
-      rewards(orderBy: BLOCK_NUMBER_ASC) {
+      rewards {
         nodes {
-          blockTime
+          amount
+          relayer {
+            address
+          }
+          relayerRole
           blockNumber
           extrinsicIndex
-          assignedRelayersId
-          deliveredRelayersId
-          confirmedRelayersId
-          assignedAmounts
-          deliveredAmounts
-          confirmedAmounts
-          treasuryAmount
         }
       }
+      treasuryAmount
     }
   }
 `;
@@ -129,42 +116,26 @@ export const ORDER_DETAIL = gql`
 export const RELAYER_REWARD_SLASH = gql`
   query relayerRewardSlash($relayerId: String!) {
     relayer(id: $relayerId) {
-      slashs(orderBy: BLOCK_NUMBER_ASC) {
+      slashes {
         nodes {
           amount
           blockTime
         }
       }
-      assignedRelayerRewardsId
-      deliveredRelayerRewardsId
-      confirmedRelayerRewardsId
-    }
-  }
-`;
-
-export const REWARD_SIMPLE = gql`
-  query rewardSimple($rewardId: String!) {
-    reward(id: $rewardId) {
-      blockTime
-      assignedAmounts
-      deliveredAmounts
-      confirmedAmounts
-      assignedRelayersId
-      deliveredRelayersId
-      confirmedRelayersId
-    }
-  }
-`;
-
-export const RELAYER_QUOTES = gql`
-  query relayerQuotes($relayerId: String!) {
-    relayer(id: $relayerId) {
-      quoteHistory(orderBy: BLOCK_NUMBER_ASC) {
+      rewards {
         nodes {
           amount
           blockTime
         }
       }
+    }
+  }
+`;
+
+export const QUOTE_HISTORY = gql`
+  query quoteHistory($relayerId: String!) {
+    quoteHistory(id: $relayerId) {
+      data
     }
   }
 `;
@@ -172,45 +143,36 @@ export const RELAYER_QUOTES = gql`
 export const RELAYER_ORDERS = gql`
   query relayerOrders($relayerId: String!) {
     relayer(id: $relayerId) {
-      id
-      assignedRelayerOrdersId
-      deliveredRelayerOrdersId
-      confirmedRelayerOrdersId
-      slashs {
+      slashes {
         nodes {
-          amount
-          blockTime
-          orderId
           order {
+            lane
+            nonce
             createBlockTime
           }
+          amount
+          relayerRole
+        }
+      }
+      rewards {
+        nodes {
+          order {
+            lane
+            nonce
+            createBlockTime
+          }
+          amount
+          relayerRole
         }
       }
     }
   }
 `;
 
-export const ORDER_SIMPLE = gql`
-  query orderSimple($orderId: String!) {
-    order(id: $orderId) {
-      id
-      createBlockTime
-      slashs {
-        nodes {
-          amount
-          relayerId
-        }
-      }
-      rewards {
-        nodes {
-          assignedAmounts
-          deliveredAmounts
-          confirmedAmounts
-          assignedRelayersId
-          deliveredRelayersId
-          confirmedRelayersId
-        }
-      }
+export const FEE_HISTORY = gql`
+  query feeHistory($destination: String!) {
+    feeHistory(id: $destination) {
+      data
     }
   }
 `;

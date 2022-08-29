@@ -1,23 +1,21 @@
 import { Card, Spin } from 'antd';
 import { useTranslation } from 'react-i18next';
 import { useCallback, useEffect, useState } from 'react';
-import { BN } from '@polkadot/util';
 import type { Option, Vec, u128 } from '@polkadot/types';
 import { Balance, AccountId32 } from '@polkadot/types/interfaces';
 import { switchMap, from, forkJoin, EMPTY } from 'rxjs';
 import { formatDistanceStrict } from 'date-fns';
-import { useApolloClient } from '@apollo/client';
 
 import { Statistics } from '../widget/Statistics';
-import { FEE_MARKET_OVERVIEW, TOTAL_ORDERS_OVERVIEW, MARKET_FEE_OVERVIEW } from '../../config';
+import { FEE_MARKET_OVERVIEW, TOTAL_ORDERS_OVERVIEW, FEE_HISTORY } from '../../config';
 import { useApi, useCustomQuery } from '../../hooks';
-import { getFeeMarketApiSection, transformTotalOrdersOverview, fromWei, prettyNumber } from '../../utils';
+import { getFeeMarketApiSection, transformTotalOrdersOverview, transformFeeHistory } from '../../utils';
 import {
   PalletFeeMarketRelayer,
   DarwiniaChain,
   TFeeMarketOverview,
   TTotalOrderOverview,
-  TMarketFeeOverview,
+  TFeeHistory,
 } from '../../model';
 import { TooltipBalance } from '../../components/widget/TooltipBalance';
 import { TotalOrdersChart } from './TotalOrdersChart';
@@ -33,7 +31,6 @@ export const Overview = ({
 }) => {
   const { api, network } = useApi();
   const { t } = useTranslation();
-  const apollo = useApolloClient();
 
   const [currentFee, setCurrentFee] = useState<{ value?: Balance; loading: boolean }>({ loading: true });
   const [totalRelayers, setTotalRelayers] = useState<{ total: number; active: number; loading: boolean }>({
@@ -41,8 +38,6 @@ export const Overview = ({
     active: 0,
     loading: true,
   });
-  const [marketFeeOverviewLoading, setMarketFeeOverviewLoading] = useState(true);
-  const [marketFeeOverviewData, setMarketFeeOverviewData] = useState<[number, number][]>([]);
 
   const {
     data: feeMarketOverviewData,
@@ -66,6 +61,20 @@ export const Overview = ({
       },
     },
     transformTotalOrdersOverview
+  );
+
+  const { transformedData: feeHistoryData, refetch: refetchFeeHistory } = useCustomQuery<
+    TFeeHistory,
+    { destination: DarwiniaChain },
+    [number, number][]
+  >(
+    FEE_HISTORY,
+    {
+      variables: {
+        destination,
+      },
+    },
+    transformFeeHistory
   );
 
   const updateTotalRelayers = useCallback(() => {
@@ -127,61 +136,22 @@ export const Overview = ({
     return EMPTY.subscribe();
   }, [api, destination]);
 
-  const queryMarketFee = useCallback(
-    async (
-      previous: { fee: string; timestamp: string }[],
-      destination: DarwiniaChain
-    ): Promise<{ fee: string; timestamp: string }[]> => {
-      const result = await apollo.query<TMarketFeeOverview, { destination: string; offset: number }>({
-        query: MARKET_FEE_OVERVIEW,
-        variables: { destination, offset: previous.length },
-      });
-
-      previous = previous.concat(result.data.marketFees?.nodes || []);
-
-      if (result.data.marketFees?.pageInfo.hasNextPage) {
-        return await queryMarketFee(previous, destination);
-      }
-
-      return previous;
-    },
-    [apollo]
-  );
-
-  useEffect(() => {
-    setMarketFeeOverviewLoading(true);
-
-    const sub$$ = from(queryMarketFee([], destination)).subscribe((data) => {
-      const datesValues =
-        data.reduce((acc, cur) => {
-          const date = `${cur.timestamp.split('T')[0]}Z`;
-          acc[date] = (acc[date] || new BN(cur.fee)).add(new BN(cur.fee)).divn(2); // eslint-disable-line no-magic-numbers
-          return acc;
-        }, {} as Record<string, BN>) || {};
-
-      setMarketFeeOverviewData(
-        Object.keys(datesValues).map((date) => [
-          new Date(date).getTime(),
-          Number(fromWei({ value: datesValues[date] }, prettyNumber)),
-        ])
-      );
-      setMarketFeeOverviewLoading(false);
-    });
-
-    return () => {
-      sub$$.unsubscribe();
-      setMarketFeeOverviewLoading(false);
-    };
-  }, [destination, queryMarketFee]);
-
   useEffect(() => {
     setRefresh(() => () => {
       updateTotalRelayers();
       updateCurrentFee();
       refetchFeeMarketOverview();
       refetchTotalOrdersOverview();
+      refetchFeeHistory();
     });
-  }, [setRefresh, updateTotalRelayers, updateCurrentFee, refetchFeeMarketOverview, refetchTotalOrdersOverview]);
+  }, [
+    setRefresh,
+    updateTotalRelayers,
+    updateCurrentFee,
+    refetchFeeMarketOverview,
+    refetchTotalOrdersOverview,
+    refetchFeeHistory,
+  ]);
 
   useEffect(() => {
     const sub$$ = updateTotalRelayers();
@@ -245,11 +215,7 @@ export const Overview = ({
             title={t('Total Orders')}
             value={
               <Spin size="small" spinning={feeMarketOverviewLoading}>
-                <span>
-                  {(feeMarketOverviewData?.market?.finishedOrders || 0) +
-                    (feeMarketOverviewData?.market?.inProgressInSlotOrders || 0) +
-                    (feeMarketOverviewData?.market?.inProgressOutOfSlotOrders || 0)}
-                </span>
+                <span>{feeMarketOverviewData?.market?.totalOrders || 0}</span>
               </Spin>
             }
           />
@@ -257,7 +223,7 @@ export const Overview = ({
       </Card>
       <div className="flex justify-between items-center space-x-4 mt-8">
         <TotalOrdersChart data={totalOrdersOverviewData || []} />
-        <FeeHistoryChart data={marketFeeOverviewData || []} loading={marketFeeOverviewLoading} />
+        <FeeHistoryChart data={feeHistoryData || []} />
       </div>
     </>
   );

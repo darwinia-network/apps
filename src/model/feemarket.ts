@@ -9,9 +9,9 @@ export enum FeeMarketTab {
 }
 
 export enum RelayerRole {
-  ASSIGNED = 'Assigned Relayer',
-  DELIVERY = 'Delivery Relayer',
-  CONFIRMATION = 'Confirmation Relayer',
+  ASSIGNED = 'Assigned',
+  DELIVERY = 'Delivery',
+  CONFIRMATION = 'Confirmation',
 }
 
 export enum SlotState {
@@ -53,7 +53,7 @@ export interface PalletFeeMarketRelayer extends Struct {
 
 export type RelayerOrdersDataSource = {
   lane: string;
-  nonce: number;
+  nonce: string;
   createBlockTime: string;
   reward: BN;
   slash: BN;
@@ -64,9 +64,7 @@ export interface TFeeMarketOverview {
   market?: {
     averageSpeed: number | null; // milliseconds
     totalReward: string | null;
-    finishedOrders: number | null;
-    inProgressInSlotOrders: number | null;
-    inProgressOutOfSlotOrders: number | null;
+    totalOrders: number | null;
   } | null;
 }
 
@@ -78,31 +76,11 @@ export interface TTotalOrderOverview {
   } | null;
 }
 
-export interface TMarketFeeOverview {
-  marketFees?: {
-    totalCount: number;
-    pageInfo: {
-      hasNextPage: boolean;
-    };
-    nodes: {
-      fee: string;
-      timestamp: string;
-    }[];
-  } | null;
-}
-
 export interface TRelayerOverview {
   relayer?: {
-    totalSlashs: string | null;
+    totalOrders: number | null;
+    totalSlashes: string | null;
     totalRewards: string | null;
-    slashs: {
-      nodes: {
-        orderId: string;
-      }[];
-    } | null;
-    assignedRelayerOrdersId: string[] | null;
-    deliveredRelayerOrdersId: string[] | null;
-    confirmedRelayerOrdersId: string[] | null;
   } | null;
 }
 
@@ -118,40 +96,54 @@ export interface TOrdersOverview {
   orders?: {
     nodes: {
       id: string;
+      lane: string;
+      nonce: string;
       sender?: string | null;
-      deliveredRelayersId?: string[] | null;
-      confirmedRelayersId?: string[] | null;
+      deliveryRelayers?: {
+        nodes: {
+          deliveryRelayerId: string;
+        }[];
+      };
+      confirmationRelayers?: {
+        nodes: {
+          confirmationRelayerId: string;
+        }[];
+      };
       createBlockNumber: number;
       finishBlockNumber: number | null;
       createBlockTime: string;
       finishBlockTime?: string | null;
       status: OrderStatus;
-      confirmedSlotIndex?: number | null;
+      slotIndex?: number | null;
     }[];
   } | null;
 }
 
 export interface TOrderDetail {
   order?: {
-    id: string;
+    lane: string;
+    nonce: string;
     fee: string;
     sender?: string | null;
     sourceTxHash?: string | null;
     slotTime?: number | null;
     outOfSlotBlock?: number | null;
-    confirmedSlotIndex?: number | null;
+    slotIndex?: number | null;
     status: OrderStatus;
     createBlockTime: string;
     finishBlockTime?: string | null;
     createBlockNumber: number;
     finishBlockNumber?: number | null;
-    assignedRelayersId: string[];
+    assignedRelayersAddress: string[];
+    treasuryAmount?: string | null;
 
-    slashs?: {
+    slashes?: {
       nodes: {
         amount: string;
-        relayerId: string;
-        delayTime?: number | null;
+        relayer?: {
+          address: string;
+        } | null;
+        relayerRole: RelayerRole;
         blockNumber: number;
         extrinsicIndex?: number | null;
       }[];
@@ -159,16 +151,13 @@ export interface TOrderDetail {
 
     rewards?: {
       nodes: {
-        blockTime: string;
+        amount: string;
+        relayer?: {
+          address: string;
+        } | null;
+        relayerRole: RelayerRole;
         blockNumber: number;
         extrinsicIndex?: number | null;
-        assignedRelayersId?: string[] | null;
-        deliveredRelayersId?: string[] | null;
-        confirmedRelayersId?: string[] | null;
-        assignedAmounts?: string[] | null;
-        deliveredAmounts?: string[] | null;
-        confirmedAmounts?: string[] | null;
-        treasuryAmount?: string | null;
       }[];
     } | null;
   } | null;
@@ -176,79 +165,53 @@ export interface TOrderDetail {
 
 export interface TRelayerRewardSlash {
   relayer?: {
-    slashs?: {
+    slashes?: {
       nodes: {
         amount: string;
         blockTime: string;
-      }[];
-    } | null;
-    assignedRelayerRewardsId: string[] | null;
-    deliveredRelayerRewardsId: string[] | null;
-    confirmedRelayerRewardsId: string[] | null;
-  } | null;
-}
-
-export interface TRewardSimple {
-  reward?: {
-    blockTime: string;
-    assignedAmounts?: string[] | null;
-    deliveredAmounts?: string[] | null;
-    confirmedAmounts?: string[] | null;
-    assignedRelayersId?: string[] | null;
-    deliveredRelayersId?: string[] | null;
-    confirmedRelayersId?: string[] | null;
-  } | null;
-}
-
-export interface TRelayerQuotes {
-  relayer?: {
-    quoteHistory?: {
-      nodes: {
-        amount: string;
-        blockTime: string;
-      }[];
-    } | null;
-  } | null;
-}
-
-export interface TRelayerOrders {
-  relayer?: {
-    id: string;
-    assignedRelayerOrdersId?: string[] | null;
-    deliveredRelayerOrdersId?: string[] | null;
-    confirmedRelayerOrdersId?: string[] | null;
-    slashs?: {
-      nodes: {
-        amount: string;
-        blockTime: string;
-        orderId: string;
-        order: {
-          createBlockTime: string;
-        };
-      }[];
-    } | null;
-  } | null;
-}
-
-export interface TOrderSimple {
-  order?: {
-    id: string;
-    createBlockTime: string;
-    slashs?: {
-      nodes: {
-        amount: string;
-        relayerId: string;
       }[];
     } | null;
     rewards?: {
       nodes: {
-        assignedAmounts?: string[] | null;
-        deliveredAmounts?: string[] | null;
-        confirmedAmounts?: string[] | null;
-        assignedRelayersId?: string[] | null;
-        deliveredRelayersId?: string[] | null;
-        confirmedRelayersId?: string[] | null;
+        amount: string;
+        blockTime: string;
       }[];
     } | null;
+  } | null;
+}
+
+export interface TQuoteHistory {
+  quoteHistory?: {
+    data: {
+      amount: string;
+      blockTime: string;
+    }[];
+  } | null;
+}
+
+export interface SlashReward {
+  order?: {
+    lane: string;
+    nonce: string;
+    createBlockTime: string;
+  };
+  amount: string;
+  relayerRole: RelayerRole;
+}
+
+export interface TRelayerOrders {
+  relayer?: {
+    address: string;
+    slashes?: { nodes: SlashReward[] } | null;
+    rewards?: { nodes: SlashReward[] } | null;
+  } | null;
+}
+
+export interface TFeeHistory {
+  feeHistory?: {
+    data: {
+      amount: string;
+      blockTime: string;
+    }[];
   } | null;
 }

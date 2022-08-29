@@ -16,7 +16,6 @@ import {
   FeeMarketTab,
   SlotState,
   OrderStatus,
-  RelayerRole,
   TOrdersStatistics,
   TOrdersOverview,
 } from '../../model';
@@ -64,7 +63,7 @@ interface FilterData {
 
 interface DataSourceState {
   lane: string;
-  nonce: number;
+  nonce: string;
   sender?: string | null;
   status: OrderStatus;
   deliveredRelayer?: string | null;
@@ -171,7 +170,7 @@ export const Orders = ({
       },
     },
     {
-      title: t(RelayerRole.DELIVERY),
+      title: t('Delivery Relayer'),
       align: 'center',
       render: (_, record) =>
         record.deliveredRelayer ? (
@@ -183,7 +182,7 @@ export const Orders = ({
         ),
     },
     {
-      title: t(RelayerRole.CONFIRMATION),
+      title: t('Confirmation Relayer'),
       align: 'center',
       render: (_, record) =>
         record.confirmedRelayer ? (
@@ -312,14 +311,10 @@ export const Orders = ({
   useEffect(() => {
     dataSourceRef.current = (ordersOverviewData?.orders?.nodes || [])
       .map((node) => {
-        const [, lane, nonce] = node.id.split('-');
-
         return {
           ...node,
-          lane,
-          nonce: Number(nonce),
-          deliveredRelayer: (node.deliveredRelayersId || [])[0]?.split('-')[1],
-          confirmedRelayer: (node.confirmedRelayersId || [])[0]?.split('-')[1],
+          deliveredRelayer: (node.deliveryRelayers?.nodes[0].deliveryRelayerId || [])[0]?.split('-')[1],
+          confirmedRelayer: (node.confirmationRelayers?.nodes[0].confirmationRelayerId || [])[0]?.split('-')[1],
         };
       })
       .sort((a, b) => b.createBlockNumber - a.createBlockNumber);

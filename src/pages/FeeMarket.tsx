@@ -110,12 +110,7 @@ export function FeeMarket() {
           tab={<CustomTab text={t('Orders')} tabKey={FeeMarketTab.OREDERS} activeKey={activeKey} />}
         >
           {lane && nonce ? (
-            <OrderDetail
-              destination={destination}
-              lane={lane}
-              nonce={Number(nonce)}
-              setRefresh={setRefreshOrdersDetail}
-            />
+            <OrderDetail destination={destination} lane={lane} nonce={nonce} setRefresh={setRefreshOrdersDetail} />
           ) : (
             <Orders destination={destination} setRefresh={setRefreshOrders} />
           )}

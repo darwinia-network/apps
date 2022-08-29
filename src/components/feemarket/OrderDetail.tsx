@@ -4,10 +4,9 @@ import { formatDistance, format } from 'date-fns';
 import { useTranslation } from 'react-i18next';
 import { useEffect } from 'react';
 import { capitalize } from 'lodash';
-import { isArray } from '@polkadot/util';
 
 import { ORDER_DETAIL, DATE_TIME_FORMATE } from '../../config';
-import { DarwiniaChain, SlotState, RelayerRole, TOrderDetail, FeeMarketTab, OrderStatus } from '../../model';
+import { DarwiniaChain, SlotState, TOrderDetail, FeeMarketTab, OrderStatus, RelayerRole } from '../../model';
 import { useApi, useCustomQuery } from '../../hooks';
 import { SubscanLink } from '../widget/SubscanLink';
 import { fromWei, prettyNumber } from '../../utils';
@@ -28,31 +27,20 @@ const getSlotText = (confirmedSlotIndex?: number | null): string => {
   }
 };
 
-const renderRelayersReward = ({
-  label,
-  relayersId,
-  amounts,
-}: {
-  label: string;
-  relayersId?: string[] | null;
-  amounts?: string[] | string | null;
-}) =>
-  relayersId?.length && amounts?.length
-    ? relayersId.map((relayerId, index) => {
-        const { network } = useApi();
-        const amount = isArray(amounts) ? amounts[index] : (amounts || '').split(',')[index];
+const renderRelayersReward = ({ label, values }: { label: string; values: { amount: string; relayer: string }[] }) =>
+  values.map(({ amount, relayer }, index) => {
+    const { network } = useApi();
 
-        return (
-          <Descriptions.Item label={label} key={index}>
-            <AccountName account={relayerId.split('-')[1]} copyable />
-            <span>
-              &nbsp;
-              {`| +${fromWei({ value: amount }, prettyNumber)} ${network.tokens.ring.symbol}`}
-            </span>
-          </Descriptions.Item>
-        );
-      })
-    : null;
+    return (
+      <Descriptions.Item label={label} key={index}>
+        <AccountName account={relayer} copyable />
+        <span>
+          &nbsp;
+          {`| +${fromWei({ value: amount }, prettyNumber)} ${network.tokens.ring.symbol}`}
+        </span>
+      </Descriptions.Item>
+    );
+  });
 
 // eslint-disable-next-line complexity
 export const OrderDetail = ({
@@ -62,7 +50,7 @@ export const OrderDetail = ({
   setRefresh,
 }: {
   lane: string;
-  nonce: number;
+  nonce: string;
   destination: DarwiniaChain;
   setRefresh: (fn: () => void) => void;
 }) => {
@@ -156,12 +144,12 @@ export const OrderDetail = ({
               )}
             </Descriptions.Item>
             <Descriptions.Item label={t('Slot At')}>
-              {t(getSlotText(orderDetailData?.order?.confirmedSlotIndex))}
+              {t(getSlotText(orderDetailData?.order?.slotIndex))}
             </Descriptions.Item>
             <Descriptions.Item label={t('Assigned Relayers')}>
               <div className="inline-flex items-center space-x-4">
-                {orderDetailData?.order?.assignedRelayersId.map((relayerId) => (
-                  <AccountName key={relayerId} account={relayerId.split('-')[1]} copyable />
+                {orderDetailData?.order?.assignedRelayersAddress.map((relayer) => (
+                  <AccountName key={relayer} account={relayer} copyable />
                 ))}
               </div>
             </Descriptions.Item>
@@ -186,23 +174,26 @@ export const OrderDetail = ({
                   </Descriptions.Item>
                 )}
                 {renderRelayersReward({
-                  label: t(RelayerRole.ASSIGNED),
-                  amounts: orderDetailData.order.rewards.nodes[0].assignedAmounts,
-                  relayersId: orderDetailData.order.rewards.nodes[0].assignedRelayersId,
+                  label: t('Assigned Relayer'),
+                  values: orderDetailData.order.rewards.nodes
+                    .filter((item) => item.relayerRole === RelayerRole.ASSIGNED)
+                    .map((item) => ({ amount: item.amount, relayer: item.relayer?.address as string } || [])),
                 })}
                 {renderRelayersReward({
-                  label: t(RelayerRole.DELIVERY),
-                  amounts: orderDetailData.order.rewards.nodes[0].deliveredAmounts,
-                  relayersId: orderDetailData.order.rewards.nodes[0].deliveredRelayersId,
+                  label: t('Delivery Relayer'),
+                  values: orderDetailData.order.rewards.nodes
+                    .filter((item) => item.relayerRole === RelayerRole.DELIVERY)
+                    .map((item) => ({ amount: item.amount, relayer: item.relayer?.address as string } || [])),
                 })}
                 {renderRelayersReward({
-                  label: t(RelayerRole.CONFIRMATION),
-                  amounts: orderDetailData.order.rewards.nodes[0].confirmedAmounts,
-                  relayersId: orderDetailData.order.rewards.nodes[0].confirmedRelayersId,
+                  label: t('Confirmation Relayer'),
+                  values: orderDetailData.order.rewards.nodes
+                    .filter((item) => item.relayerRole === RelayerRole.CONFIRMATION)
+                    .map((item) => ({ amount: item.amount, relayer: item.relayer?.address as string } || [])),
                 })}
-                {orderDetailData.order.rewards.nodes[0].treasuryAmount && (
+                {orderDetailData.order.treasuryAmount && (
                   <Descriptions.Item label={t('Treaury')}>{`+${fromWei(
-                    { value: orderDetailData.order.rewards.nodes[0].treasuryAmount },
+                    { value: orderDetailData.order.treasuryAmount },
                     prettyNumber
                   )} ${network.tokens.ring.symbol}`}</Descriptions.Item>
                 )}
@@ -210,23 +201,23 @@ export const OrderDetail = ({
             </>
           ) : null}
 
-          {orderDetailData?.order?.slashs?.nodes.length ? (
+          {orderDetailData?.order?.slashes?.nodes.length ? (
             <>
               <Descriptions column={1} title={<span className="text-sm font-bold text-black">{t('Slash')}</span>}>
-                {orderDetailData.order.slashs.nodes[0].extrinsicIndex && (
+                {orderDetailData.order.slashes.nodes[0].extrinsicIndex && (
                   <Descriptions.Item label={t('Extrinsic')}>
                     <SubscanLink
                       network={network.name}
                       extrinsic={{
-                        height: orderDetailData.order.slashs.nodes[0].blockNumber,
-                        index: orderDetailData.order.slashs.nodes[0].extrinsicIndex,
+                        height: orderDetailData.order.slashes.nodes[0].blockNumber,
+                        index: orderDetailData.order.slashes.nodes[0].extrinsicIndex,
                       }}
                     />
                   </Descriptions.Item>
                 )}
-                {orderDetailData.order.slashs.nodes.map((slash, index) => (
-                  <Descriptions.Item label={t(RelayerRole.ASSIGNED)} key={index}>
-                    <AccountName account={slash.relayerId.split('-')[1]} copyable />
+                {orderDetailData.order.slashes.nodes.map((slash, index) => (
+                  <Descriptions.Item label={t('Assigned Relayer')} key={index}>
+                    <AccountName account={slash.relayer?.address as string} copyable />
                     <span>
                       &nbsp;{`| -${fromWei({ value: slash.amount }, prettyNumber)} ${network.tokens.ring.symbol}`}
                     </span>

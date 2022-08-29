@@ -167,23 +167,13 @@ export const Relayers = ({
       ).subscribe((res) => {
         dataSourceRef.current = res.map(({ data }, index) => {
           const relayer = relayers[index];
-          const slash = bnToBn(data.relayer?.totalSlashs);
-          const reward = bnToBn(data.relayer?.totalRewards);
-
-          const ordersId = new Set<string>();
-          (data.relayer?.assignedRelayerOrdersId || [])
-            .concat(data.relayer?.deliveredRelayerOrdersId || [])
-            .concat(data.relayer?.confirmedRelayerOrdersId || [])
-            .forEach((orderId) => ordersId.add(orderId));
-          (data.relayer?.slashs?.nodes || []).forEach((item) => ordersId.add(item.orderId));
-
           return {
             relayer: relayer.id.toString(),
-            orders: Array.from(ordersId).length,
+            orders: data.relayer?.totalOrders || 0,
             collateral: relayer.collateral,
             quote: relayer.fee,
-            slash,
-            reward,
+            slash: bnToBn(data.relayer?.totalSlashes),
+            reward: bnToBn(data.relayer?.totalRewards),
           };
         });
         setDataSource(dataSourceRef.current);
