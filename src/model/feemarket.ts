@@ -334,8 +334,18 @@ export interface OrderEntity {
 export interface OrderRelayerEntity {
   id: string;
 
-  orderId: string;
-  relayerId: string;
+  assignedOrderId: string; // will deprecate
+  deliveryOrderId: string; // will deprecate
+  confirmationOrderId: string; // will deprecate
 
-  relayerRole: RelayerRole;
+  assignedRelayerId: string; // will deprecate
+  deliveryRelayerId: string; // will deprecate
+  confirmationRelayerId: string; // will deprecate
+
+  // next version
+
+  // orderId: string;
+  // relayerId: string;
+
+  // relayerRole: RelayerRole;
 }
