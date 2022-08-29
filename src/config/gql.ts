@@ -34,8 +34,8 @@ export const ORDERS_STATISTICS = gql`
   query ordersStatistics($destination: String!) {
     market(id: $destination) {
       finishedOrders
-      inProgressInSlotOrders
-      inProgressOutOfSlotOrders
+      unfinishedInSlotOrders
+      unfinishedOutOfSlotOrders
     }
   }
 `;

@@ -345,7 +345,7 @@ export const Orders = ({
             valueStyle={{ textAlign: 'center' }}
           />
           <Statistic
-            value={ordersStatisticsData?.market?.inProgressInSlotOrders || 0}
+            value={ordersStatisticsData?.market?.unfinishedInSlotOrders || 0}
             title={
               <Spin size="small" spinning={ordersStatisticsLoading}>
                 <div className="flex flex-col items-center">
@@ -357,7 +357,7 @@ export const Orders = ({
             valueStyle={{ textAlign: 'center' }}
           />
           <Statistic
-            value={ordersStatisticsData?.market?.inProgressOutOfSlotOrders || 0}
+            value={ordersStatisticsData?.market?.unfinishedOutOfSlotOrders || 0}
             title={
               <Spin size="small" spinning={ordersStatisticsLoading}>
                 <div className="flex flex-col items-center">
@@ -370,8 +370,8 @@ export const Orders = ({
           />
           <OrdersStatisticsChart
             finished={ordersStatisticsData?.market?.finishedOrders || 0}
-            inSlot={ordersStatisticsData?.market?.inProgressInSlotOrders || 0}
-            outOfSlot={ordersStatisticsData?.market?.inProgressOutOfSlotOrders || 0}
+            inSlot={ordersStatisticsData?.market?.unfinishedInSlotOrders || 0}
+            outOfSlot={ordersStatisticsData?.market?.unfinishedOutOfSlotOrders || 0}
           />
         </div>
       </Card>

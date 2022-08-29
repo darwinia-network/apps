@@ -87,8 +87,8 @@ export interface TRelayerOverview {
 export interface TOrdersStatistics {
   market?: {
     finishedOrders: number | null;
-    inProgressInSlotOrders: number | null;
-    inProgressOutOfSlotOrders: number | null;
+    unfinishedInSlotOrders: number | null;
+    unfinishedOutOfSlotOrders: number | null;
   } | null;
 }
 
