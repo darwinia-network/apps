@@ -44,7 +44,6 @@ export const ORDERS_OVERVIEW = gql`
   query ordersOverview($destination: String!) {
     orders(filter: { id: { startsWith: $destination } }, orderBy: CREATE_EVENT_INDEX_DESC) {
       nodes {
-        id
         lane
         nonce
         sender

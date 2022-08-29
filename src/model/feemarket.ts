@@ -95,7 +95,6 @@ export interface TOrdersStatistics {
 export interface TOrdersOverview {
   orders?: {
     nodes: {
-      id: string;
       lane: string;
       nonce: string;
       sender?: string | null;
