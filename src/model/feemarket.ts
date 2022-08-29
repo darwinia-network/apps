@@ -100,12 +100,16 @@ export interface TOrdersOverview {
       sender?: string | null;
       deliveryRelayers?: {
         nodes: {
-          deliveryRelayerId: string;
+          deliveryRelayer?: {
+            address: string;
+          } | null;
         }[];
       };
       confirmationRelayers?: {
         nodes: {
-          confirmationRelayerId: string;
+          confirmationRelayer?: {
+            address: string;
+          } | null;
         }[];
       };
       createBlockNumber: number;

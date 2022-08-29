@@ -49,12 +49,16 @@ export const ORDERS_OVERVIEW = gql`
         sender
         deliveryRelayers {
           nodes {
-            deliveryRelayerId
+            deliveryRelayer {
+              address
+            }
           }
         }
         confirmationRelayers {
           nodes {
-            confirmationRelayerId
+            confirmationRelayer {
+              address
+            }
           }
         }
         createBlockNumber

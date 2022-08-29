@@ -313,8 +313,8 @@ export const Orders = ({
       .map((node) => {
         return {
           ...node,
-          deliveredRelayer: (node.deliveryRelayers?.nodes[0].deliveryRelayerId || [])[0]?.split('-')[1],
-          confirmedRelayer: (node.confirmationRelayers?.nodes[0].confirmationRelayerId || [])[0]?.split('-')[1],
+          deliveredRelayer: node.deliveryRelayers?.nodes[0].deliveryRelayer?.address,
+          confirmedRelayer: node.confirmationRelayers?.nodes[0].confirmationRelayer?.address,
         };
       })
       .sort((a, b) => b.createBlockNumber - a.createBlockNumber);
