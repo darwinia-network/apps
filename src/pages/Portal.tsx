@@ -111,6 +111,12 @@ export function Portal() {
         ),
         link: 'https://subwallet.app/',
       },
+      {
+        name: 'Token Migration',
+        logo: '/image/portal/token-migration.png',
+        description: t('A tool to migrate your Darwinia Tokens to the new contract.'),
+        link: 'https://token-migration.darwinia.network/',
+      },
     ],
     [t, network]
   );
@@ -146,7 +152,7 @@ export function Portal() {
               <PortalCard key={index} onClick={() => window.open(link, '_blank', 'noopener noreferrer')}>
                 <div className="flex flex-col gap-4 items-center">
                   <img src={logo} style={{ height: 70, borderRadius: '50%' }} />
-                  <b className="fond-bold text-lg">{name}</b>
+                  <b className="fond-bold text-lg text-center">{name}</b>
                   <p>{description}</p>
                 </div>
               </PortalCard>
