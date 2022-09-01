@@ -4,10 +4,16 @@ import { isString, upperFirst } from 'lodash';
 import { useTranslation } from 'react-i18next';
 import { useAccount, useApi, useWallet } from '../../../hooks';
 import { CustomFormItemProps } from '../../../model';
-import { fromWei, isSpecifiedSS58Address, prettyNumber } from '../../../utils';
+import { fromWei, isSpecifiedSS58Address, prettyNumber, isValidEthAddress } from '../../../utils';
 import { IdentAccountAddress } from '../account/IdentAccountAddress';
 
-export function AddressItem({ label, disabled, rules = [], ...rest }: CustomFormItemProps & InputProps) {
+export function AddressItem({
+  label,
+  canEth,
+  disabled,
+  rules = [],
+  ...rest
+}: CustomFormItemProps & InputProps & { canEth?: boolean }) {
   const { t } = useTranslation();
   const { network } = useApi();
   const { accounts } = useWallet();
@@ -37,7 +43,9 @@ export function AddressItem({ label, disabled, rules = [], ...rest }: CustomForm
         { required: true },
         {
           validator(_, value) {
-            return isSpecifiedSS58Address(value, network.ss58Prefix) ? Promise.resolve() : Promise.reject();
+            return isSpecifiedSS58Address(value, network.ss58Prefix) || (canEth ? isValidEthAddress(value) : false)
+              ? Promise.resolve()
+              : Promise.reject();
           },
           message: t('Please enter a valid {{network}} address', { network: upperFirst(network.name) }),
         },

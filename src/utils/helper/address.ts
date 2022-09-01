@@ -6,6 +6,7 @@ import type { KeyringItemType, KeyringJson$Meta } from '@polkadot/ui-keyring/typ
 import { hexToU8a, numberToU8a, stringToU8a, u8aToHex, isHex } from '@polkadot/util';
 import { decodeAddress, encodeAddress } from '@polkadot/util-crypto';
 import { isNull } from 'lodash';
+import { isAddress as isEthAddress } from 'web3-utils';
 
 export const registry = new TypeRegistry();
 
@@ -126,4 +127,8 @@ export const isValidAddress = (address: string) => {
   } catch (error) {
     return false;
   }
+};
+
+export const isValidEthAddress = (address: string) => {
+  return isEthAddress(address);
 };

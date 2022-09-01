@@ -3,8 +3,8 @@ import { DVMChainConfig } from '../../model';
 export const crabConfig: DVMChainConfig = {
   dvm: {
     kton: {
-      address: '0x159933C635570D5042723359fbD1619dFe83D3f3',
-      symbol: 'WCKTON',
+      address: '0x0000000000000000000000000000000000000402',
+      symbol: 'CKTON',
       decimals: 18,
     },
     ring: {
