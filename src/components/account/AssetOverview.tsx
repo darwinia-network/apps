@@ -41,9 +41,7 @@ export function AssetOverview({ asset, loading, refresh }: AssetOverviewProps) {
   );
 
   const canTransferToEvm = useMemo(
-    // eslint-disable-next-line complexity
     () =>
-      (network.name === 'darwinia' && asset.asset === DarwiniaAsset.ring) ||
       network.name === 'crab' ||
       network.name === 'pangolin' ||
       (network.name === 'pangoro' && asset.asset === DarwiniaAsset.ring),
