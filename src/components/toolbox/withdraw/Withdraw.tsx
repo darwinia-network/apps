@@ -25,7 +25,6 @@ import {
 import { AddressItem } from '../../widget/form-control/AddressItem';
 import { BalanceControl } from '../../widget/form-control/BalanceControl';
 import { DVMChainConfig } from '../../../model';
-// import { ClaimKton } from './ClaimKton';
 import { ImportToken } from './ImportToken';
 
 interface WithdrawFormValues {
@@ -211,8 +210,6 @@ export function Withdraw() {
   return (
     <>
       <Card>
-        {/* <ClaimKton dvmAddress={activeAccount} onSuccess={refreshDvmBalances} /> */}
-
         <div className="my-8 flex items-center space-x-4">
           {activeAccount && (
             <div className="flex" style={{ width: '36rem' }}>
