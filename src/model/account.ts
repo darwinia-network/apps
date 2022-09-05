@@ -24,12 +24,6 @@ export interface AvailableBalance<T = DarwiniaAsset> {
   asset: T;
   token: Token;
 }
-
-export interface DailyLimit {
-  limit: string | number;
-  spentToday: string | number;
-}
-
 export interface Asset extends AvailableBalance {
   total: Balance | BN;
 }
