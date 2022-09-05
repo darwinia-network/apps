@@ -63,6 +63,9 @@ export async function getDarwiniaBalances(api: ApiPromise, account = ''): Promis
   return [BN_ZERO, BN_ZERO, BN_ZERO, BN_ZERO];
 }
 
+/**
+ * @returns The current balance for the given address in wei
+ */
 export async function getDvmBalances(ktonTokenAddress: string, account: string): Promise<[string, string]> {
   let ring = '0';
   let kton = '0';
