@@ -20,7 +20,7 @@ export interface Chain {
   ss58Format: string;
 }
 export interface AvailableBalance<T = DarwiniaAsset> {
-  max: string | number | BN;
+  max: Balance | BN;
   asset: T;
   token: Token;
 }

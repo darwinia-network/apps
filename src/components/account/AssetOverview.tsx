@@ -100,10 +100,10 @@ export function AssetOverview({ asset, loading, refresh }: AssetOverviewProps) {
           if (estimatedFee.isZero()) {
             setTransferable(null);
           } else if (asset.asset === DarwiniaAsset.ring) {
-            const max = new BN(asset.max as string).sub(estimatedFee);
+            const max = asset.max.sub(estimatedFee);
             setTransferable(max.gt(api.consts.balances?.existentialDeposit) ? max : BN_ZERO);
           } else {
-            setTransferable(new BN(asset.max as string));
+            setTransferable(asset.max);
           }
         }}
         initialValues={{ from: account?.displayAddress, to: recipient }}

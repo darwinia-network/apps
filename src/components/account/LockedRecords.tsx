@@ -1,7 +1,7 @@
 import { Table, Progress, Button, Modal } from 'antd';
 import { format } from 'date-fns';
 import { useState, useCallback, useEffect } from 'react';
-import { BN, bnToBn } from '@polkadot/util';
+import { BN, bnToBn, BN_ZERO } from '@polkadot/util';
 import type { Balance } from '@polkadot/types/interfaces';
 import { useTranslation } from 'react-i18next';
 import type { ColumnsType } from 'antd/lib/table';
@@ -163,8 +163,8 @@ export const LockedRecords = ({
             <Button
               onClick={() => {
                 const penalty = computeKtonPenalty(record);
-                const isInsufficient = new BN(
-                  stashAssets.find((asset) => asset.asset === DarwiniaAsset.kton)?.max || '0'
+                const isInsufficient = (
+                  stashAssets.find((asset) => asset.asset === DarwiniaAsset.kton)?.max || BN_ZERO
                 ).lt(penalty);
 
                 Modal.confirm({

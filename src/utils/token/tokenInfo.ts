@@ -25,44 +25,42 @@ const calcMax = (lockItem: any, current: BN) => {
 
 /**
  * @description other api can get balances:  api.derive.balances.all, api.query.system.account;
- * @see https://github.com/darwinia-network/wormhole-ui/issues/142
+ * @return [RING_BALANCE, KTON_BALANCE, RING_FREE, KTON_FREE]
  */
 // eslint-disable-next-line complexity
-export async function getDarwiniaBalances(api: ApiPromise, account = ''): Promise<[string, string]> {
-  // FIXME: (api.rpc as any).balances.usableBalance(0, '') result is not 0, manual reset
-  if (!account) {
-    return ['0', '0'];
+export async function getDarwiniaBalances(api: ApiPromise, account = ''): Promise<[BN, BN, BN, BN]> {
+  if (account) {
+    try {
+      await waitUntilConnected(api);
+
+      const {
+        data: { free: freeRing, freeKton },
+      }: { data: AccountData } = await api.query.system.account(account);
+
+      const ringLocks: PalletBalancesBalanceLock[] = (await api.query.balances.locks(account)) || [];
+      const ktonLocks: PalletBalancesBalanceLock[] = (await api.query.kton?.locks(account)) || [];
+
+      let maxRingLock = BN_ZERO;
+      let maxKtonLock = BN_ZERO;
+
+      ringLocks.forEach((item) => {
+        maxRingLock = calcMax(item, maxRingLock);
+      });
+
+      ktonLocks.forEach((item) => {
+        maxKtonLock = calcMax(item, maxKtonLock);
+      });
+
+      const ring = freeRing.sub(maxRingLock);
+      const kton = freeKton?.sub(maxKtonLock) ?? BN_ZERO;
+
+      return [ring.isNeg() ? BN_ZERO : ring, kton.isNeg() ? BN_ZERO : kton, freeRing, freeKton];
+    } catch (error) {
+      console.error('Get Darwinia balance:', error);
+    }
   }
 
-  await waitUntilConnected(api);
-
-  try {
-    const {
-      data: { free, freeKton },
-    }: { data: AccountData } = await api.query.system.account(account);
-
-    const locks: PalletBalancesBalanceLock[] = await api.query.balances.locks(account);
-    const ktonLocks: PalletBalancesBalanceLock[] = (await api.query.kton?.locks(account)) ?? [];
-
-    let maxLock = BN_ZERO;
-    let maxKtonLock = BN_ZERO;
-
-    locks.forEach((item) => {
-      maxLock = calcMax(item, maxLock);
-    });
-
-    ktonLocks.forEach((item) => {
-      maxKtonLock = calcMax(item, maxKtonLock);
-    });
-
-    const ring = free.sub(maxLock);
-    const kton = freeKton?.sub(maxKtonLock) ?? BN_ZERO;
-
-    return [ring.isNeg() ? BN_ZERO.toString() : ring.toString(), kton.isNeg() ? BN_ZERO.toString() : kton.toString()];
-  } catch (err) {
-    console.error(err);
-    return ['0', '0'];
-  }
+  return [BN_ZERO, BN_ZERO, BN_ZERO, BN_ZERO];
 }
 
 export async function getDvmBalances(ktonTokenAddress: string, account: string): Promise<[string, string]> {
