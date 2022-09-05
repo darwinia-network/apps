@@ -91,7 +91,12 @@ export function Withdraw() {
       const amount = toWei({ value: withdrawFormValue.amount, unit: 'ether' });
       const web3 = entrance.web3.getInstance(entrance.web3.defaultProvider);
 
-      if (asset === ring.symbol || network.name === 'crab' || network.name === 'pangolin') {
+      if (
+        asset === ring.symbol ||
+        network.name === 'crab' ||
+        network.name === 'darwinia' ||
+        network.name === 'pangolin'
+      ) {
         const transfer = asset === ring.symbol ? api.tx.balances.transfer : api.tx.kton.transfer;
         const extrinsic = transfer(
           destination,
