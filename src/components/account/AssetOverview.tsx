@@ -43,6 +43,7 @@ export function AssetOverview({ asset, loading, refresh }: AssetOverviewProps) {
   const canTransferToEvm = useMemo(
     () =>
       network.name === 'crab' ||
+      network.name === 'darwinia' ||
       network.name === 'pangolin' ||
       (network.name === 'pangoro' && asset.asset === DarwiniaAsset.ring),
     [network.name, asset.asset]
