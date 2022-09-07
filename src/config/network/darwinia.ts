@@ -2,6 +2,11 @@ import { DVMChainConfig } from '../../model';
 
 export const darwiniaConfig: DVMChainConfig = {
   dvm: {
+    kton: {
+      address: '0x0000000000000000000000000000000000000402',
+      symbol: 'KTON',
+      decimals: 18,
+    },
     ring: {
       address: '',
       symbol: 'RING',
