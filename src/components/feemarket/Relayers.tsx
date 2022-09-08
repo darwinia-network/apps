@@ -134,9 +134,12 @@ export const Relayers = ({
               forkJoin(res.map((item) => api.query[apiSection].relayersMap<PalletFeeMarketRelayer>(item)))
             )
           )
-          .subscribe((res) => {
-            setLoading(false);
-            setRelayers(res);
+          .subscribe({
+            next: (res) => {
+              setLoading(false);
+              setRelayers(res);
+            },
+            complete: () => setLoading(false),
           });
       } else if (activeKey === RelayerTab.ASSIGNED) {
         setLoading(true);
