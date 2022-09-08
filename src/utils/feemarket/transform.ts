@@ -90,7 +90,8 @@ const reduceSlashReward = (
     row.reward = row.reward.add(bnToBn(current.amount));
   }
 
-  return previous.splice(idx, idx === -1 ? 0 : 1, row);
+  previous.splice(idx, idx === -1 ? 0 : 1, row);
+  return previous;
 };
 
 export const transformRelayerOrders = (data: {
