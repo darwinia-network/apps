@@ -53,7 +53,7 @@ export const OrdersStatisticsChart = ({
       series: [
         {
           type: 'pie',
-          name: t('Orders Status'),
+          name: t('Orders Count'),
           innerSize: '70%',
           data: [
             {
