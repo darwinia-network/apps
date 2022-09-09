@@ -13,6 +13,7 @@ import {
   QuoteEntity,
 } from '../../model';
 
+// eslint-disable-next-line complexity
 export const transformRelayerRewardSlash = (data: {
   relayer: {
     slashes: { nodes: Pick<SlashEntity, 'amount' | 'blockTime'>[] } | null;
@@ -40,6 +41,17 @@ export const transformRelayerRewardSlash = (data: {
         return dates.add(date);
       }, new Set<string>())
   ).sort((a, b) => compareAsc(new Date(a), new Date(b)));
+
+  if (combineDates.length) {
+    const end = new Date(`${new Date().toISOString().split('T')[0]}Z`);
+
+    for (let cur = new Date(combineDates[0]); compareAsc(cur, end) <= 0; cur = addDays(cur, 1)) {
+      const date = `${cur.toISOString().split('T')[0]}Z`;
+      if (!combineDates.some((item) => item === date)) {
+        combineDates.push(date);
+      }
+    }
+  }
 
   return {
     rewards: combineDates.map((date) => [
