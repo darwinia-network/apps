@@ -16,25 +16,23 @@ import { CustomTab } from '../components/widget/CustomTab';
 // eslint-disable-next-line complexity
 export function FeeMarket() {
   const { network } = useApi();
-  const { supportedDestinations, destination, setRefresh } = useFeeMarket();
+  const { destination, supportedDestinations, setRefresh } = useFeeMarket();
   const { search, pathname } = useLocation();
   const navigate = useNavigate();
   const { t } = useTranslation();
-
-  const searchParams = new URLSearchParams(search);
-  const tab = searchParams.get(SearchParamsKey.TAB);
-  const orderid = searchParams.get(SearchParamsKey.ORDER);
-  const relayer = searchParams.get(SearchParamsKey.RELAYER);
-
-  const [activeKey, setActiveKey] = useState<FeeMarketTab>(
-    Object.values(FeeMarketTab).includes(tab as FeeMarketTab) ? (tab as FeeMarketTab) : FeeMarketTab.OVERVIEW
-  );
+  const [activeKey, setActiveKey] = useState<FeeMarketTab>(FeeMarketTab.OVERVIEW);
 
   const [refreshOverview, setRefreshOverview] = useState<() => void>(() => () => undefined);
   const [refreshRelayers, serRefreshRelayers] = useState<() => void>(() => () => undefined);
   const [refreshRelayersDetail, serRefreshRelayersDetail] = useState<() => void>(() => () => undefined);
   const [refreshOrders, setRefreshOrders] = useState<() => void>(() => () => undefined);
   const [refreshOrdersDetail, setRefreshOrdersDetail] = useState<() => void>(() => () => undefined);
+
+  const searchParams = new URLSearchParams(search);
+  const tab = searchParams.get(SearchParamsKey.TAB);
+  const lane = searchParams.get(SearchParamsKey.LANE);
+  const nonce = searchParams.get(SearchParamsKey.NONCE);
+  const relayer = searchParams.get(SearchParamsKey.RELAYER);
 
   // eslint-disable-next-line complexity
   useEffect(() => {
@@ -50,7 +48,7 @@ export function FeeMarket() {
         }
         break;
       case FeeMarketTab.OREDERS:
-        if (orderid) {
+        if (lane && nonce) {
           setRefresh(() => refreshOrdersDetail);
         } else {
           setRefresh(() => refreshOrders);
@@ -58,9 +56,10 @@ export function FeeMarket() {
         break;
     }
   }, [
-    activeKey,
+    lane,
+    nonce,
     relayer,
-    orderid,
+    activeKey,
     setRefresh,
     refreshOverview,
     refreshRelayers,
@@ -101,7 +100,7 @@ export function FeeMarket() {
           tab={<CustomTab text={t('Relayers')} tabKey={FeeMarketTab.RELAYERS} activeKey={activeKey} />}
         >
           {relayer ? (
-            <RelayerDetail relayer={relayer} destination={destination} setRefresh={serRefreshRelayersDetail} />
+            <RelayerDetail destination={destination} relayer={relayer} setRefresh={serRefreshRelayersDetail} />
           ) : (
             <Relayers destination={destination} setRefresh={serRefreshRelayers} />
           )}
@@ -110,8 +109,8 @@ export function FeeMarket() {
           key={FeeMarketTab.OREDERS}
           tab={<CustomTab text={t('Orders')} tabKey={FeeMarketTab.OREDERS} activeKey={activeKey} />}
         >
-          {orderid ? (
-            <OrderDetail orderid={orderid} destination={destination} setRefresh={setRefreshOrdersDetail} />
+          {lane && nonce ? (
+            <OrderDetail destination={destination} lane={lane} nonce={nonce} setRefresh={setRefreshOrdersDetail} />
           ) : (
             <Orders destination={destination} setRefresh={setRefreshOrders} />
           )}

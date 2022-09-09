@@ -38,6 +38,6 @@ export const darwiniaConfig: DVMChainConfig = {
     kton: { decimal: '9', symbol: 'KTON' },
   },
   subquery: {
-    endpoint: 'https://api.subquery.network/sq/darwinia-network/apps-darwinia',
+    endpoint: 'https://subql.darwinia.network/subql-apps-darwinia/',
   },
 };

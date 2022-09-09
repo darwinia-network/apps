@@ -33,6 +33,6 @@ export const pangoroConfig: DVMChainConfig = {
     kton: { decimal: '9', symbol: 'OKTON' },
   },
   subquery: {
-    endpoint: 'https://api.subquery.network/sq/darwinia-network/apps-pangoro',
+    endpoint: 'https://subql.darwinia.network/subql-apps-pangoro/',
   },
 };

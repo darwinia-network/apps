@@ -2,54 +2,53 @@ import { useEffect, useState, useRef, useCallback } from 'react';
 import { Table, Input, Radio, Card } from 'antd';
 import type { ColumnsType } from 'antd/lib/table';
 import { NavLink } from 'react-router-dom';
-import { from, switchMap, forkJoin, Subscription, timer, tap } from 'rxjs';
+import { from, switchMap, forkJoin, Subscription, EMPTY } from 'rxjs';
 import type { Option, Vec } from '@polkadot/types';
-import { BN } from '@polkadot/util';
+import { BN, bnToBn } from '@polkadot/util';
 import type { Balance, AccountId32 } from '@polkadot/types/interfaces';
 import { useApolloClient } from '@apollo/client';
 import { useTranslation } from 'react-i18next';
 
-import { getFeeMarketModule, fromWei, prettyNumber } from '../../utils';
+import { getFeeMarketApiSection, fromWei, prettyNumber } from '../../utils';
 import { useApi } from '../../hooks';
-import { PalletFeeMarketRelayer, CrossChainDestination, SearchParamsKey, FeeMarketTab } from '../../model';
-import { LONG_LONG_DURATION, RELAYER_TOTAL_ORDERS_SLASHS_REWARDS } from '../../config';
+import { PalletFeeMarketRelayer, DarwiniaChain, SearchParamsKey, FeeMarketTab, RelayerEntity } from '../../model';
+import { RELAYER_OVERVIEW } from '../../config';
 import { IdentAccountName } from '../widget/account/IdentAccountName';
-
-type RelayerData = {
-  relayer: string;
-  countOrders: number;
-  collateral: Balance;
-  quote: Balance;
-  sumReward: BN;
-  sumSlash: BN;
-};
 
 enum RelayerTab {
   ALL,
   ASSIGNED,
 }
 
+interface DataSourceState {
+  relayer: string;
+  orders: number;
+  collateral: Balance;
+  quote: Balance;
+  reward: BN;
+  slash: BN;
+}
+
 const renderBalance = (value: Balance | string | number, symbol: string): string =>
-  new BN(value).isZero() ? fromWei({ value }, prettyNumber) : `${fromWei({ value }, prettyNumber)} ${symbol}`;
+  bnToBn(value).isZero() ? '0' : `${fromWei({ value }, prettyNumber)} ${symbol}`;
 
 export const Relayers = ({
   destination,
   setRefresh,
 }: {
-  destination: CrossChainDestination;
+  destination: DarwiniaChain;
   setRefresh: (fn: () => void) => void;
 }) => {
   const { api, network } = useApi();
   const apollo = useApolloClient();
   const { t } = useTranslation();
-  const [tab, setTab] = useState(RelayerTab.ALL);
-  const [loading, setLoaing] = useState(false);
-  const [refreshFlag, toggleRefreshFlag] = useState(false);
+  const dataSourceRef = useRef<DataSourceState[]>([]);
+  const [activeKey, setActiveKey] = useState(RelayerTab.ALL);
+  const [loading, setLoading] = useState(false);
+  const [dataSource, setDataSource] = useState<DataSourceState[]>([]);
   const [relayers, setRelayers] = useState<PalletFeeMarketRelayer[]>([]);
-  const [dataSource, setDataSource] = useState<RelayerData[]>([]);
-  const dataSourceRef = useRef<RelayerData[]>([]);
 
-  const columns: ColumnsType<RelayerData> = [
+  const columns: ColumnsType<DataSourceState> = [
     {
       title: (
         <div className="flex justify-center">
@@ -73,10 +72,10 @@ export const Relayers = ({
     },
     {
       title: t('Count(orders)'),
-      key: 'countOrders',
-      dataIndex: 'countOrders',
+      key: 'orders',
+      dataIndex: 'orders',
       align: 'center',
-      sorter: (a, b) => a.countOrders - b.countOrders,
+      sorter: (a, b) => a.orders - b.orders,
     },
     {
       title: t('Collateral'),
@@ -96,19 +95,19 @@ export const Relayers = ({
     },
     {
       title: t('Sum(reward)'),
-      key: 'sumReward',
-      dataIndex: 'sumReward',
+      key: 'reward',
+      dataIndex: 'reward',
       align: 'center',
       render: (value) => renderBalance(value, network.tokens.ring.symbol),
-      sorter: (a, b) => a.sumReward.cmp(b.sumReward),
+      sorter: (a, b) => a.reward.cmp(b.reward),
     },
     {
       title: t('Sum(slash)'),
-      key: 'sumSlash',
-      dataIndex: 'sumSlash',
+      key: 'slash',
+      dataIndex: 'slash',
       align: 'center',
       render: (value) => renderBalance(value, network.tokens.ring.symbol),
-      sorter: (a, b) => a.sumSlash.cmp(b.sumSlash),
+      sorter: (a, b) => a.slash.cmp(b.slash),
     },
   ];
 
@@ -122,103 +121,96 @@ export const Relayers = ({
     }
   }, []);
 
+  const updateRelayers = useCallback(() => {
+    const apiSection = getFeeMarketApiSection(api, destination);
+
+    if (apiSection) {
+      if (activeKey === RelayerTab.ALL) {
+        setLoading(true);
+
+        from(api.query[apiSection].relayers<Vec<AccountId32>>())
+          .pipe(
+            switchMap((res) =>
+              forkJoin(res.map((item) => api.query[apiSection].relayersMap<PalletFeeMarketRelayer>(item)))
+            )
+          )
+          .subscribe({
+            next: (res) => {
+              setLoading(false);
+              setRelayers(res);
+            },
+            complete: () => setLoading(false),
+          });
+      } else if (activeKey === RelayerTab.ASSIGNED) {
+        setLoading(true);
+
+        from(api.query[apiSection].assignedRelayers<Option<Vec<PalletFeeMarketRelayer>>>()).subscribe((res) => {
+          setLoading(false);
+          setRelayers(res.isSome ? res.unwrap() : []);
+        });
+      }
+    }
+
+    return EMPTY.subscribe();
+  }, [api, destination, activeKey]);
+
   useEffect(() => {
     let sub$$: Subscription;
 
-    if (tab === RelayerTab.ALL) {
-      sub$$ = timer(0, LONG_LONG_DURATION)
-        .pipe(
-          tap(() => setLoaing(true)),
-          switchMap(() => from(api.query[getFeeMarketModule(destination)].relayers<Vec<AccountId32>>())),
-          switchMap((res) =>
-            forkJoin(
-              res.map((item) => api.query[getFeeMarketModule(destination)].relayersMap<PalletFeeMarketRelayer>(item))
-            )
-          )
+    if (relayers.length) {
+      setLoading(true);
+
+      sub$$ = forkJoin(
+        relayers.map((relayer) =>
+          apollo.query<
+            { relayer: Pick<RelayerEntity, 'totalOrders' | 'totalRewards' | 'totalSlashes'> | null },
+            { relayerId: string }
+          >({
+            query: RELAYER_OVERVIEW,
+            variables: { relayerId: `${destination}-${relayer.id.toString()}` },
+          })
         )
-        .subscribe((res) => {
-          setLoaing(false);
-          setRelayers(res);
-        });
-    } else if (tab === RelayerTab.ASSIGNED) {
-      sub$$ = timer(0, LONG_LONG_DURATION)
-        .pipe(
-          tap(() => setLoaing(true)),
-          switchMap(() =>
-            from(api.query[getFeeMarketModule(destination)].assignedRelayers<Option<Vec<PalletFeeMarketRelayer>>>())
-          )
-        )
-        .subscribe((res) => {
-          setLoaing(false);
-          setRelayers(res.isSome ? res.unwrap() : []);
-        });
-    }
-
-    return () => {
-      if (sub$$) {
-        sub$$.unsubscribe();
-      }
-    };
-  }, [api, destination, tab, refreshFlag]);
-
-  useEffect(() => {
-    if (!relayers.length) {
-      setDataSource([]);
-      return;
-    }
-
-    setLoaing(true);
-
-    const sub$$ = forkJoin(
-      relayers.map((relayer) =>
-        apollo.query({
-          query: RELAYER_TOTAL_ORDERS_SLASHS_REWARDS,
-          variables: { relayer: `${destination}-${relayer.id.toString()}` },
-        })
-      )
-    ).subscribe(
-      (
-        res: {
-          data: null | {
-            relayerEntity: null | {
-              totalOrders: null | number;
-              totalSlashs: null | string;
-              totalRewards: null | string;
-            };
-          };
-        }[]
-      ) => {
+      ).subscribe((res) => {
         dataSourceRef.current = res.map(({ data }, index) => {
           const relayer = relayers[index];
-          const orders = data?.relayerEntity?.totalOrders || 0;
-          const slashs = data?.relayerEntity?.totalSlashs || '0';
-          const rewards = data?.relayerEntity?.totalRewards || '0';
-
           return {
             relayer: relayer.id.toString(),
-            countOrders: orders,
+            orders: data.relayer?.totalOrders || 0,
             collateral: relayer.collateral,
             quote: relayer.fee,
-            sumReward: new BN(rewards),
-            sumSlash: new BN(slashs),
+            slash: bnToBn(data.relayer?.totalSlashes),
+            reward: bnToBn(data.relayer?.totalRewards),
           };
         });
         setDataSource(dataSourceRef.current);
-        setLoaing(false);
-      }
-    );
+        setLoading(false);
+      });
+    } else {
+      dataSourceRef.current = [];
+      setDataSource([]);
+    }
 
-    return () => sub$$.unsubscribe();
-  }, [apollo, destination, relayers]);
+    return () => {
+      setLoading(false);
+      sub$$?.unsubscribe();
+    };
+  }, [relayers, apollo, destination]);
 
   useEffect(() => {
-    setRefresh(() => () => toggleRefreshFlag((prev) => !prev));
-  }, [setRefresh]);
+    setRefresh(() => () => {
+      updateRelayers();
+    });
+  }, [setRefresh, updateRelayers]);
+
+  useEffect(() => {
+    const sub$$ = updateRelayers();
+    return () => sub$$.unsubscribe();
+  }, [updateRelayers]);
 
   return (
     <>
       <div className="flex items-end justify-between">
-        <Radio.Group onChange={(e) => setTab(e.target.value)} value={tab}>
+        <Radio.Group onChange={(e) => setActiveKey(e.target.value)} value={activeKey}>
           <Radio.Button value={RelayerTab.ALL}>
             <span className="relayers-sub-tab">{t('All Relayers')}</span>
           </Radio.Button>

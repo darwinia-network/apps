@@ -7,4 +7,3 @@ export * from './operator';
 export * from './storage';
 export * from './url';
 export * from './validator';
-export * from './feemarket';
