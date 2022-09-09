@@ -1,7 +1,7 @@
 import { compareAsc, compareDesc, addDays } from 'date-fns';
 import { BN, BN_ZERO, bnToBn } from '@polkadot/util';
 
-import { prettyNumber, fromWei } from '..';
+import { fromWei } from '..';
 import {
   RelayerRole,
   RelayerOrdersDataSource,
@@ -56,22 +56,42 @@ export const transformRelayerRewardSlash = (data: {
   return {
     rewards: combineDates.map((date) => [
       new Date(date).getTime(),
-      rewards[date] ? Number(fromWei({ value: rewards[date] }, prettyNumber)) : 0,
+      rewards[date] ? Number(fromWei({ value: rewards[date] })) : 0,
     ]),
     slashs: combineDates.map((date) => [
       new Date(date).getTime(),
-      slashes[date] ? Number(fromWei({ value: slashes[date] }, prettyNumber)) : 0,
+      slashes[date] ? Number(fromWei({ value: slashes[date] })) : 0,
     ]),
   };
 };
 
+// eslint-disable-next-line complexity
 export const transformRelayerQuotes = (data: {
   quoteHistory: Pick<QuoteEntity, 'data'> | null;
 }): [number, number][] => {
-  return (data.quoteHistory?.data || []).map(({ amount, blockTime }) => [
-    new Date(blockTime).getTime(),
-    Number(fromWei({ value: amount }, prettyNumber)),
-  ]);
+  const datesValues =
+    (data.quoteHistory?.data || []).reduce((acc, cur) => {
+      const date = `${cur.blockTime.split('T')[0]}Z`;
+      acc[date] = (acc[date] || new BN(cur.amount)).add(new BN(cur.amount)).divn(2); // eslint-disable-line no-magic-numbers
+      return acc;
+    }, {} as Record<string, BN>) || {};
+
+  const dates = Object.keys(datesValues).sort((a, b) => compareAsc(new Date(a), new Date(b)));
+  if (dates.length > 1) {
+    const end = new Date(`${new Date().toISOString().split('T')[0]}Z`);
+    for (let cur = new Date(dates[0]); compareAsc(cur, end) < 0; cur = addDays(cur, 1)) {
+      const next = addDays(cur, 1);
+      const dateCur = `${cur.toISOString().split('T')[0]}Z`;
+      const dateNext = `${next.toISOString().split('T')[0]}Z`;
+      if (!datesValues[dateNext]) {
+        datesValues[dateNext] = datesValues[dateCur];
+      }
+    }
+  }
+
+  return Object.keys(datesValues)
+    .sort((a, b) => compareAsc(new Date(a), new Date(b)))
+    .map((date) => [new Date(date).getTime(), Number(fromWei({ value: datesValues[date] }))]);
 };
 
 const reduceSlashReward = (
@@ -165,6 +185,6 @@ export const transformFeeHistory = (data: { feeHistory: Pick<FeeEntity, 'data'> 
 
   return Object.keys(datesValues).map((date) => [
     new Date(date).getTime(),
-    Number(fromWei({ value: datesValues[date] }, prettyNumber)),
+    Number(fromWei({ value: datesValues[date] })),
   ]);
 };
