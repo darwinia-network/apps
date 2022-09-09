@@ -1,4 +1,4 @@
-import { compareAsc, compareDesc } from 'date-fns';
+import { compareAsc, compareDesc, addDays } from 'date-fns';
 import { BN, BN_ZERO, bnToBn } from '@polkadot/util';
 
 import { prettyNumber, fromWei } from '..';
@@ -127,6 +127,18 @@ export const transformTotalOrdersOverview = (data: {
       acc[date] = (acc[date] || 0) + 1;
       return acc;
     }, {} as Record<string, number>) || {};
+
+  const dates = Object.keys(datesOrders).sort((a, b) => compareAsc(new Date(a), new Date(b)));
+  if (dates.length) {
+    const end = new Date(`${new Date().toISOString().split('T')[0]}Z`);
+
+    for (let cur = new Date(dates[0]); compareAsc(cur, end) <= 0; cur = addDays(cur, 1)) {
+      const date = `${cur.toISOString().split('T')[0]}Z`;
+      if (!datesOrders[date]) {
+        datesOrders[date] = 0;
+      }
+    }
+  }
 
   return Object.keys(datesOrders).map((date) => [new Date(date).getTime(), datesOrders[date]]);
 };
