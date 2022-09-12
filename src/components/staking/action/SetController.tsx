@@ -21,8 +21,14 @@ export function SetController({ type = 'text', className = '', size }: StakingAc
   const { api } = useApi();
   const { account } = useAccount();
   const [isVisible, setIsVisible] = useState(false);
-  const { stashAccount, controllerAccount, updateValidators, updateStakingDerive, refreshControllerAndStashAccount } =
-    useStaking();
+  const {
+    stashAccount,
+    controllerAccount,
+    updateValidators,
+    updateStakingDerive,
+    refreshControllerAccount,
+    refreshStashAccount,
+  } = useStaking();
 
   const currentAccount = useMemo(() => account?.displayAddress || '', [account]);
 
@@ -42,7 +48,8 @@ export function SetController({ type = 'text', className = '', size }: StakingAc
         }}
         onSuccess={() => {
           setIsVisible(false);
-          refreshControllerAndStashAccount();
+          refreshControllerAccount();
+          refreshStashAccount();
           updateValidators();
           updateStakingDerive();
         }}
