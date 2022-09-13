@@ -3,7 +3,7 @@ import { BN } from '@polkadot/util';
 import { useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useApi, useStaking, useAccount } from '../../../hooks';
-import { Fund } from '../../../model';
+import { DarwiniaAsset, Fund } from '../../../model';
 import { getUnit, getLedger, isRing, toWei, prettyNumber, fromWei } from '../../../utils';
 import { FormModal } from '../../widget/FormModal';
 import { AddressItem } from '../../widget/form-control/AddressItem';
@@ -34,7 +34,7 @@ export function Rebond({ type = 'text', className = '', size }: StakingActionPro
   const ledgers = useMemo(
     () =>
       assets.map((item) => ({
-        asset: item.asset,
+        asset: isRing(item.token.symbol) ? DarwiniaAsset.ring : DarwiniaAsset.kton,
         symbol: item.token.symbol,
         ...getLedger(item.token.symbol, isStakingLedgerEmpty, stakingDerive),
       })),
@@ -56,7 +56,7 @@ export function Rebond({ type = 'text', className = '', size }: StakingActionPro
         extrinsic={(values) => {
           const { fund } = values;
           const value = toWei({ value: fund.amount, unit: getUnit(+fund.token.decimal) });
-          const params = isRing(fund.asset) ? [value, new BN(0)] : [new BN(0), value];
+          const params = isRing(fund.token.symbol) ? [value, new BN(0)] : [new BN(0), value];
 
           return api.tx.staking.rebond(...params);
         }}

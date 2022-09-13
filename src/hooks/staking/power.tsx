@@ -21,8 +21,8 @@ export function usePower() {
       });
       const ktonBonded = new BN(0);
       const ringBonded = new BN(0);
-      const ktonExtra = isKton(selectedAsset.asset) ? new BN(value) : new BN(0);
-      const ringExtra = isRing(selectedAsset.asset) ? new BN(value) : new BN(0);
+      const ktonExtra = isKton(selectedAsset.token.symbol) ? new BN(value) : new BN(0);
+      const ringExtra = isRing(selectedAsset.token.symbol) ? new BN(value) : new BN(0);
       const { ring: ringPool, kton: ktonPool } = pool;
       const powerBase = assetToPower(ringBonded, ktonBonded, ringPool, ktonPool);
       const powerTelemetry = assetToPower(

@@ -49,7 +49,7 @@ export function AssetOverview({ asset, loading }: AssetOverviewProps) {
           <Description title={t('Available')} value={asset.max} />
           <Description title={t('Bonded')} value={ledger.bonded} />
           <Description title={t('Unbonded')} value={ledger.unbonded} />
-          {isRing(asset.asset) && <Description title={t('Locked')} value={ledger.locked} />}
+          {isRing(asset.token.symbol) && <Description title={t('Locked')} value={ledger.locked} />}
           <Description title={t('Unbonding')} value={ledger.unbonding} />
           <Description title={t('Total')} value={asset.total} />
         </Spin>

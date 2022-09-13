@@ -2,7 +2,7 @@ import { useState, useCallback, useEffect } from 'react';
 import { from, EMPTY } from 'rxjs';
 import { BN_ZERO } from '@polkadot/util';
 import { useApi } from '../hooks';
-import { Asset, DarwiniaAsset } from '../model';
+import { Asset } from '../model';
 import { getDarwiniaBalances } from '../utils';
 
 export const useAssets = (account?: string | null) => {
@@ -11,13 +11,11 @@ export const useAssets = (account?: string | null) => {
   const [assets, setAssets] = useState<Asset[]>([
     {
       max: BN_ZERO,
-      asset: DarwiniaAsset.ring,
       total: BN_ZERO,
       token: network.tokens.ring,
     },
     {
       max: BN_ZERO,
-      asset: DarwiniaAsset.kton,
       total: BN_ZERO,
       token: network.tokens.kton,
     },
@@ -32,13 +30,11 @@ export const useAssets = (account?: string | null) => {
           setAssets([
             {
               max: ringBalance,
-              asset: DarwiniaAsset.ring,
               total: freeRing,
               token: network.tokens.ring,
             },
             {
               max: ktonBalance,
-              asset: DarwiniaAsset.kton,
               total: freeKton,
               token: network.tokens.kton,
             },

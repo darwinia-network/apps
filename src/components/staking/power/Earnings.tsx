@@ -30,7 +30,7 @@ export function Earnings({ updateEraIndex }: PowerDetailProps) {
     refresh,
   } = useStakingRewards(eraSelectionIndex);
   const isMounted = useIsMounted();
-  const ringAsset = useMemo(() => assets.find((item) => isRing(item.asset)), [assets]);
+  const ringAsset = useMemo(() => assets.find((item) => isRing(item.token.symbol)), [assets]);
 
   useEffect(() => {
     if (!stashAccount) {

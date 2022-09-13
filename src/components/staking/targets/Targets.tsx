@@ -18,8 +18,8 @@ export function Targets() {
   const { totalWaiting, sourceData: waiting } = useWaitingNominators();
   const { api } = useApi();
   const { assets } = useAccount();
-  const ringSymbol = useMemo(() => assets.find((item) => isRing(item.asset))?.token.symbol ?? 'ring', [assets]);
-  const ktonSymbol = useMemo(() => assets.find((item) => isKton(item.asset))?.token.symbol ?? 'kton', [assets]);
+  const ringSymbol = useMemo(() => assets.find((item) => isRing(item.token.symbol))?.token.symbol ?? 'ring', [assets]);
+  const ktonSymbol = useMemo(() => assets.find((item) => isKton(item.token.symbol))?.token.symbol ?? 'kton', [assets]);
   const total = useMemo(() => totalStaked.add(totalWaiting), [totalStaked, totalWaiting]);
   const validatorCount = useMemo(
     () => (elected && waiting ? prettyNumber(elected.info.length + waiting.info.length, { decimal: 0 }) : '0'),

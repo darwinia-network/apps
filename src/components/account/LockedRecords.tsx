@@ -6,10 +6,9 @@ import type { Balance } from '@polkadot/types/interfaces';
 import { useTranslation } from 'react-i18next';
 import type { ColumnsType } from 'antd/lib/table';
 
-import { DarwiniaAsset } from 'src/model';
 import { useApi, useQueue, useStaking, useAssets, useAccount } from '../../hooks';
 import { DATE_FORMAT, THIRTY_DAYS_IN_MILLISECOND } from '../../config';
-import { fromWei, prettyNumber, computeKtonReward, processTime } from '../../utils';
+import { fromWei, prettyNumber, computeKtonReward, processTime, isKton } from '../../utils';
 import type { DarwiniaStakingStructsTimeDepositItem, TsInMs } from '../../api-derive/types';
 
 enum LockStatus {
@@ -163,9 +162,9 @@ export const LockedRecords = ({
             <Button
               onClick={() => {
                 const penalty = computeKtonPenalty(record);
-                const isInsufficient = (
-                  stashAssets.find((asset) => asset.asset === DarwiniaAsset.kton)?.max || BN_ZERO
-                ).lt(penalty);
+                const isInsufficient = (stashAssets.find((asset) => isKton(asset.token.symbol))?.max || BN_ZERO).lt(
+                  penalty
+                );
 
                 Modal.confirm({
                   title: t('Confirm to continue'),
