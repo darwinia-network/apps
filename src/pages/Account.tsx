@@ -46,7 +46,7 @@ export function Account() {
             <Button
               type="primary"
               onClick={() => {
-                window.open('https://wormhole.darwinia.network', '_blank');
+                window.open('https://helixbridge.app/', '_blank');
               }}
             >
               {t('Go to Helix')}

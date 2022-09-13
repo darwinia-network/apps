@@ -2,6 +2,11 @@ import { DVMChainConfig } from '../../model';
 
 export const darwiniaConfig: DVMChainConfig = {
   dvm: {
+    kton: {
+      address: '0x0000000000000000000000000000000000000402',
+      symbol: 'KTON',
+      decimals: 18,
+    },
     ring: {
       address: '',
       symbol: 'RING',
@@ -33,6 +38,6 @@ export const darwiniaConfig: DVMChainConfig = {
     kton: { decimal: '9', symbol: 'KTON' },
   },
   subquery: {
-    endpoint: 'https://api.subquery.network/sq/darwinia-network/apps-darwinia',
+    endpoint: 'https://subql.darwinia.network/subql-apps-darwinia/',
   },
 };

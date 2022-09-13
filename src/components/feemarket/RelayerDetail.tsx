@@ -1,31 +1,31 @@
 import { Card, Breadcrumb, Table } from 'antd';
-import { NavLink, Link } from 'react-router-dom';
+import { NavLink, Link, useLocation } from 'react-router-dom';
 import { ColumnsType } from 'antd/lib/table';
 import { useEffect } from 'react';
 import { formatDistanceStrict } from 'date-fns';
-import type { BN } from '@polkadot/util';
+import { BN } from '@polkadot/util';
 import { useTranslation } from 'react-i18next';
 
 import {
   SearchParamsKey,
   RelayerRole,
   FeeMarketTab,
-  CrossChainDestination,
-  RelayerRewardsAndSlashsData,
-  RelayerFeeHistoryData,
-  RelayerOrdersData,
-  RelayerOrdersState,
+  DarwiniaChain,
+  RelayerOrdersDataSource,
+  SlashEntity,
+  RewardEntity,
+  QuoteEntity,
+  OrderEntity,
 } from '../../model';
-import { Path } from '../../config/routes';
 import { AccountName } from '../widget/account/AccountName';
-import { RELAYER_ORDERS, RELAYER_REWARDS_AND_SLASHS, RELAYER_FEE_HISTORY } from '../../config';
-import { useApi, usePollIntervalQuery } from '../../hooks';
+import { RELAYER_REWARD_SLASH, QUOTE_HISTORY, RELAYER_ORDERS } from '../../config';
+import { useApi, useCustomQuery } from '../../hooks';
 import {
   fromWei,
   prettyNumber,
-  transformRewardsAndSlashs,
-  transformFeeHistory,
+  transformRelayerQuotes,
   transformRelayerOrders,
+  transformRelayerRewardSlash,
 } from '../../utils';
 import { RewardAndSlashChart } from './RewardAndSlashChart';
 import { QuoteHistoryChart } from './QuoteHistoryChart';
@@ -36,49 +36,72 @@ export const RelayerDetail = ({
   setRefresh,
 }: {
   relayer: string;
-  destination: CrossChainDestination;
+  destination: DarwiniaChain;
   setRefresh: (fn: () => void) => void;
 }) => {
   const { network } = useApi();
   const { t } = useTranslation();
+  const { pathname } = useLocation();
 
-  const { transformedData: rewardsAndSlashsState, refetch: refetchRewardsAndSlashs } = usePollIntervalQuery<
-    RelayerRewardsAndSlashsData,
-    { relayer: string },
+  const { transformedData: rewardSlashData, refetch: refetchRewardAndSlash } = useCustomQuery<
+    {
+      relayer: {
+        slashes: { nodes: Pick<SlashEntity, 'amount' | 'blockTime'>[] } | null;
+        rewards: { nodes: Pick<RewardEntity, 'amount' | 'blockTime'>[] } | null;
+      } | null;
+    },
+    { relayerId: string },
     { rewards: [number, number][]; slashs: [number, number][] }
   >(
-    RELAYER_REWARDS_AND_SLASHS,
+    RELAYER_REWARD_SLASH,
     {
       variables: {
-        relayer: `${destination}-${relayerAddress}`,
+        relayerId: `${destination}-${relayerAddress}`,
       },
     },
-    transformRewardsAndSlashs
+    transformRelayerRewardSlash
   );
 
-  const { transformedData: feeHistoryState, refetch: refetchFeeHistory } = usePollIntervalQuery<
-    RelayerFeeHistoryData,
-    { relayer: string },
+  const { transformedData: quoteData, refetch: refetchQuote } = useCustomQuery<
+    { quoteHistory: Pick<QuoteEntity, 'data'> | null },
+    { relayerId: string },
     [number, number][]
   >(
-    RELAYER_FEE_HISTORY,
+    QUOTE_HISTORY,
     {
       variables: {
-        relayer: `${destination}-${relayerAddress}`,
+        relayerId: `${destination}-${relayerAddress}`,
       },
     },
-    transformFeeHistory
+    transformRelayerQuotes
   );
 
   const {
     loading: relayerOrdersLoading,
-    transformedData: relayerOrdersState,
+    transformedData: relayerOrdersData,
     refetch: refetchRelayerOrders,
-  } = usePollIntervalQuery<RelayerOrdersData, { relayer: string }, RelayerOrdersState[]>(
+  } = useCustomQuery<
+    {
+      relayer?: {
+        slashes: {
+          nodes: (Pick<SlashEntity, 'amount' | 'relayerRole'> & {
+            order: Pick<OrderEntity, 'lane' | 'nonce' | 'createBlockTime'> | null;
+          })[];
+        } | null;
+        rewards: {
+          nodes: (Pick<SlashEntity, 'amount' | 'relayerRole'> & {
+            order: Pick<OrderEntity, 'lane' | 'nonce' | 'createBlockTime'> | null;
+          })[];
+        } | null;
+      } | null;
+    },
+    { relayerId: string },
+    RelayerOrdersDataSource[]
+  >(
     RELAYER_ORDERS,
     {
       variables: {
-        relayer: `${destination}-${relayerAddress}`,
+        relayerId: `${destination}-${relayerAddress}`,
       },
     },
     transformRelayerOrders
@@ -86,25 +109,24 @@ export const RelayerDetail = ({
 
   useEffect(() => {
     setRefresh(() => () => {
-      refetchRewardsAndSlashs();
-      refetchFeeHistory();
+      refetchRewardAndSlash();
+      refetchQuote();
       refetchRelayerOrders();
     });
-  }, [setRefresh, refetchRewardsAndSlashs, refetchFeeHistory, refetchRelayerOrders]);
+  }, [setRefresh, refetchRewardAndSlash, refetchQuote, refetchRelayerOrders]);
 
-  const columns: ColumnsType<RelayerOrdersState> = [
+  const columns: ColumnsType<RelayerOrdersDataSource> = [
     {
       title: t('Order ID'),
-      key: 'orderId',
-      dataIndex: 'orderId',
       align: 'center',
-      render: (value) => {
+      render: (_, record) => {
         const searchParams = new URLSearchParams();
         searchParams.set(SearchParamsKey.RPC, encodeURIComponent(network.provider.rpc));
         searchParams.set(SearchParamsKey.DESTINATION, destination);
         searchParams.set(SearchParamsKey.TAB, FeeMarketTab.OREDERS);
-        searchParams.set(SearchParamsKey.ORDER, value);
-        return <Link to={`${Path.feemarket}?${searchParams.toString()}`}>{value}</Link>;
+        searchParams.set(SearchParamsKey.LANE, record.lane);
+        searchParams.set(SearchParamsKey.NONCE, record.nonce);
+        return <Link to={`${pathname}?${searchParams.toString()}`}>{record.nonce}</Link>;
       },
     },
     {
@@ -114,8 +136,8 @@ export const RelayerDetail = ({
       align: 'center',
       render: (value: RelayerRole[]) => (
         <div className="flex flex-col justify-center">
-          {value.map((item) => (
-            <span key={item}>{t(item)}</span>
+          {value.map((role) => (
+            <span key={role}>{t(role)}</span>
           ))}
         </div>
       ),
@@ -150,10 +172,9 @@ export const RelayerDetail = ({
     },
     {
       title: t('Time'),
-      key: 'createTime',
-      dataIndex: 'createTime',
       align: 'center',
-      render: (value) => formatDistanceStrict(new Date(`${value}Z`), Date.now(), { addSuffix: true }),
+      render: (_, record) =>
+        formatDistanceStrict(new Date(`${record.createBlockTime}Z`), Date.now(), { addSuffix: true }),
     },
   ];
 
@@ -161,23 +182,25 @@ export const RelayerDetail = ({
     <>
       <Breadcrumb separator=">" className="flex">
         <Breadcrumb.Item>
-          <NavLink to={`${Path.feemarket}?tab=${FeeMarketTab.RELAYERS}`}>{t('Relayers')}</NavLink>
+          <NavLink to={`${pathname}?tab=${FeeMarketTab.RELAYERS}`}>{t('Relayers')}</NavLink>
         </Breadcrumb.Item>
         <Breadcrumb.Item>
-          <AccountName account={relayerAddress || 'Unknown'} />
+          <AccountName account={relayerAddress} />
         </Breadcrumb.Item>
       </Breadcrumb>
 
       <div className="flex justify-between items-center mt-1 space-x-4">
-        <RewardAndSlashChart
-          rewardData={rewardsAndSlashsState?.rewards || []}
-          slashData={rewardsAndSlashsState?.slashs || []}
-        />
-        <QuoteHistoryChart data={feeHistoryState || []} />
+        <RewardAndSlashChart rewardData={rewardSlashData?.rewards || []} slashData={rewardSlashData?.slashs || []} />
+        <QuoteHistoryChart data={quoteData || []} />
       </div>
 
       <Card className="mt-4">
-        <Table columns={columns} dataSource={relayerOrdersState} rowKey="orderId" loading={relayerOrdersLoading} />
+        <Table
+          columns={columns}
+          dataSource={relayerOrdersData || []}
+          rowKey={(record) => `${record.lane}-${record.nonce}`}
+          loading={relayerOrdersLoading}
+        />
       </Card>
     </>
   );

@@ -6,4 +6,3 @@ export * from './http';
 export * from './storage';
 export * from './url';
 export * from './validator';
-export * from './feemarket';

@@ -1,11 +1,26 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import Highcharts from 'highcharts/highstock';
 import HighchartsReact from 'highcharts-react-official';
 
+import { useApi } from 'src/hooks';
+
 export const QuoteHistoryChart = ({ data }: { data: [number, number][] }) => {
+  const { network } = useApi();
   const { t } = useTranslation();
   const [options, setOptions] = useState<Highcharts.Options>({});
+
+  const mainColor = useMemo(() => {
+    switch (network.name) {
+      case 'darwinia':
+        return '#FF0083';
+      case 'crab':
+      case 'pangolin':
+      case 'pangoro':
+      default:
+        return '#8085e9';
+    }
+  }, [network.name]);
 
   useEffect(() => {
     setOptions({
@@ -24,18 +39,18 @@ export const QuoteHistoryChart = ({ data }: { data: [number, number][] }) => {
         {
           type: 'line',
           name: t('Quote'),
-          color: '#8085e9',
+          color: mainColor,
           data: [...data],
         },
       ],
       tooltip: {
         borderRadius: 12,
         dateTimeLabelFormats: {
-          millisecond: '%Y/%m/%dT%H:%M%S(+UTC)',
-          second: '%Y/%m/%dT%H:%M:%S(+UTC)',
-          minute: '%Y/%m/%dT%H:%M:%S(+UTC)',
-          hour: '%Y/%m/%dT%H:%M:%S(+UTC)',
-          day: '%Y/%m/%dT%H:%M:%S(+UTC)',
+          millisecond: '%Y/%m/%d(+UTC)',
+          second: '%Y/%m/%d(+UTC)',
+          minute: '%Y/%m/%d(+UTC)',
+          hour: '%Y/%m/%d(+UTC)',
+          day: '%Y/%m/%d(+UTC)',
         },
       },
       credits: {
@@ -47,13 +62,11 @@ export const QuoteHistoryChart = ({ data }: { data: [number, number][] }) => {
       scrollbar: {
         enabled: false,
       },
-      xAxis: [
-        {
-          labels: {
-            format: '{value:%Y/%m/%dT%H:%M:%S}',
-          },
+      xAxis: {
+        labels: {
+          format: '{value:%e. %b}',
         },
-      ],
+      },
       yAxis: [
         {
           opposite: false,
@@ -94,7 +107,7 @@ export const QuoteHistoryChart = ({ data }: { data: [number, number][] }) => {
         selected: 0,
       },
     });
-  }, [t, data]);
+  }, [t, data, mainColor]);
 
   return (
     <HighchartsReact

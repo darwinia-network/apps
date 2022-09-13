@@ -132,7 +132,7 @@ function filterRewards(
   valInfo: [string, DeriveStakingQuery][],
   { rewards, stakingLedger }: { rewards: DeriveStakerReward[]; stakingLedger: PalletStakingStakingLedger }
 ): DeriveStakerReward[] {
-  const filter = eras.filter((e) => !stakingLedger.claimedRewards.some((s) => s.eq(e)));
+  const filter = eras.filter((e) => !stakingLedger?.claimedRewards.some((s) => s.eq(e)));
   const validators = valInfo.map(([v]) => v);
   const queryValidators = valInfo.map(([, q]) => q);
 

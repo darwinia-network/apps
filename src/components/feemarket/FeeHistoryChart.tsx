@@ -1,11 +1,35 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import Highcharts from 'highcharts/highstock';
 import HighchartsReact from 'highcharts-react-official';
 
-export const FeeHistoryChart = ({ data }: { data: [number, number][] }) => {
+import { useApi } from 'src/hooks';
+
+export const FeeHistoryChart = ({ data, loading }: { data: [number, number][]; loading?: boolean }) => {
+  const { network } = useApi();
   const { t } = useTranslation();
   const [options, setOptions] = useState<Highcharts.Options>({});
+  const chartComponentRef = useRef<HighchartsReact.RefObject>(null);
+
+  const mainColor = useMemo(() => {
+    switch (network.name) {
+      case 'darwinia':
+        return '#FF0083';
+      case 'crab':
+      case 'pangolin':
+      case 'pangoro':
+      default:
+        return '#8085e9';
+    }
+  }, [network.name]);
+
+  useEffect(() => {
+    if (loading) {
+      chartComponentRef.current?.chart.showLoading();
+    } else {
+      chartComponentRef.current?.chart.hideLoading();
+    }
+  }, [loading]);
 
   useEffect(() => {
     setOptions({
@@ -24,7 +48,7 @@ export const FeeHistoryChart = ({ data }: { data: [number, number][] }) => {
         {
           type: 'line',
           name: t('Fee'),
-          color: '#8085e9',
+          color: mainColor,
           data: [...data],
         },
       ],
@@ -47,13 +71,11 @@ export const FeeHistoryChart = ({ data }: { data: [number, number][] }) => {
       scrollbar: {
         enabled: false,
       },
-      xAxis: [
-        {
-          labels: {
-            format: '{value:%Y/%m/%d}',
-          },
+      xAxis: {
+        labels: {
+          format: '{value:%e. %b}',
         },
-      ],
+      },
       yAxis: [
         {
           opposite: false,
@@ -94,12 +116,13 @@ export const FeeHistoryChart = ({ data }: { data: [number, number][] }) => {
         selected: 0,
       },
     });
-  }, [t, data]);
+  }, [t, data, mainColor]);
 
   return (
     <HighchartsReact
       highcharts={Highcharts}
       options={options}
+      ref={chartComponentRef}
       constructorType="stockChart"
       containerProps={{ className: 'h-96 w-full shadow-xxl rounded-lg' }}
     />
