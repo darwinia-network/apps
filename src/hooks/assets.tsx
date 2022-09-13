@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from 'react';
-import { forkJoin, EMPTY } from 'rxjs';
+import { from, EMPTY } from 'rxjs';
 import { BN_ZERO } from '@polkadot/util';
 import { useApi } from '../hooks';
 import { Asset, DarwiniaAsset } from '../model';
@@ -27,8 +27,8 @@ export const useAssets = (account?: string | null) => {
     if (account && chain.ss58Format === network.ss58Prefix.toString()) {
       setLoading(true);
 
-      return forkJoin([getDarwiniaBalances(api, account)]).subscribe({
-        next: ([[ringBalance, ktonBalance, freeRing, freeKton]]) => {
+      return from(getDarwiniaBalances(api, account)).subscribe({
+        next: ([ringBalance, ktonBalance, freeRing, freeKton]) => {
           setAssets([
             {
               max: ringBalance,
