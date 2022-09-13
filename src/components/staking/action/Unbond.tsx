@@ -2,8 +2,8 @@ import { Button } from 'antd';
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAccount, useApi, useStaking } from '../../../hooks';
-import { Fund } from '../../../model';
-import { fundParam, getLedger, fromWei, prettyNumber } from '../../../utils';
+import { Fund, DarwiniaAsset } from '../../../model';
+import { fundParam, getLedger, fromWei, prettyNumber, isRing } from '../../../utils';
 import { FormModal } from '../../widget/FormModal';
 import { AddressItem } from '../../widget/form-control/AddressItem';
 import { FundItem } from '../../widget/form-control/FundItem';
@@ -33,7 +33,7 @@ export function Unbond({ type = 'text', className = '', size }: StakingActionPro
   const ledgers = useMemo(
     () =>
       assets.map((item) => ({
-        asset: item.asset,
+        asset: isRing(item.token.symbol) ? DarwiniaAsset.ring : DarwiniaAsset.kton,
         symbol: item.token.symbol,
         ...getLedger(item.token.symbol, isStakingLedgerEmpty, stakingDerive),
       })),

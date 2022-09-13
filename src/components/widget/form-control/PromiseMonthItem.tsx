@@ -35,7 +35,7 @@ export function PromiseMonthItem({
 
   return selectedAsset ? (
     <>
-      {isRing(selectedAsset?.asset) && (
+      {isRing(selectedAsset?.token.symbol) && (
         <FormItem
           name={name}
           label={
@@ -59,7 +59,7 @@ export function PromiseMonthItem({
               <Select.Option value={item} key={index}>
                 {!item
                   ? t('No fixed term Set a lock period will get additional {{symbol}} rewards', {
-                      symbol: upperCase(assets.find((asset) => isKton(asset.asset))?.token.symbol ?? 'kton'),
+                      symbol: upperCase(assets.find((asset) => isKton(asset.token.symbol))?.token.symbol ?? 'kton'),
                     })
                   : t('{{count}} Month', { count: item })}
               </Select.Option>
@@ -68,7 +68,7 @@ export function PromiseMonthItem({
         </FormItem>
       )}
 
-      {!!duration && isRing(selectedAsset?.asset) && (
+      {!!duration && isRing(selectedAsset?.token.symbol) && (
         <FormItem
           name="accept"
           rules={[
@@ -85,7 +85,7 @@ export function PromiseMonthItem({
             <p>
               {t(
                 'After setting a lock limit, you will receive an additional {{KTON}} bonus; if you unlock it in advance within the lock limit, you will be charged a penalty of 3 times the {{KTON}} reward.',
-                { KTON: assets.find((item) => isKton(item.asset))?.token.symbol }
+                { KTON: assets.find((item) => isKton(item.token.symbol))?.token.symbol }
               )}
             </p>
           }

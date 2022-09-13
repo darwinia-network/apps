@@ -1,15 +1,14 @@
 import { Table, Progress, Button, Modal } from 'antd';
 import { format } from 'date-fns';
 import { useState, useCallback, useEffect } from 'react';
-import { BN, bnToBn } from '@polkadot/util';
+import { BN, bnToBn, BN_ZERO } from '@polkadot/util';
 import type { Balance } from '@polkadot/types/interfaces';
 import { useTranslation } from 'react-i18next';
 import type { ColumnsType } from 'antd/lib/table';
 
-import { DarwiniaAsset } from 'src/model';
 import { useApi, useQueue, useStaking, useAssets, useAccount } from '../../hooks';
 import { DATE_FORMAT, THIRTY_DAYS_IN_MILLISECOND } from '../../config';
-import { fromWei, prettyNumber, computeKtonReward, processTime } from '../../utils';
+import { fromWei, prettyNumber, computeKtonReward, processTime, isKton } from '../../utils';
 import type { DarwiniaStakingStructsTimeDepositItem, TsInMs } from '../../api-derive/types';
 
 enum LockStatus {
@@ -163,9 +162,9 @@ export const LockedRecords = ({
             <Button
               onClick={() => {
                 const penalty = computeKtonPenalty(record);
-                const isInsufficient = new BN(
-                  stashAssets.find((asset) => asset.asset === DarwiniaAsset.kton)?.max || '0'
-                ).lt(penalty);
+                const isInsufficient = (stashAssets.find((asset) => isKton(asset.token.symbol))?.max || BN_ZERO).lt(
+                  penalty
+                );
 
                 Modal.confirm({
                   title: t('Confirm to continue'),

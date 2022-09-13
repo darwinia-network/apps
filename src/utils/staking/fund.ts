@@ -1,15 +1,18 @@
 import { BN, bnToBn } from '@polkadot/util';
 import type { Balance } from '@polkadot/types/interfaces';
-import { Fund } from '../../model';
+import { DarwiniaAsset, Fund } from '../../model';
 import { getUnit, toWei } from '../helper';
 import { DeriveStakingAccount } from '../../api-derive/types';
 import { isRing } from '../helper';
 
 export function fundParam(data: Fund) {
-  const { asset, amount, token } = data;
+  const { amount, token } = data;
 
   return {
-    [`${asset}balance`]: toWei({ value: amount, unit: getUnit(+token.decimal) }),
+    [`${isRing(token.symbol) ? DarwiniaAsset.ring : DarwiniaAsset.kton}balance`]: toWei({
+      value: amount,
+      unit: getUnit(+token.decimal),
+    }),
   };
 }
 

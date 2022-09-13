@@ -3,8 +3,8 @@ import { upperCase } from 'lodash';
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAccount, useApi, useStaking } from '../../../hooks';
-import { DarwiniaAsset, Fund } from '../../../model';
-import { fromWei, getUnit, isRing, toWei } from '../../../utils';
+import { Fund } from '../../../model';
+import { fromWei, getUnit, isKton, isRing, toWei } from '../../../utils';
 import { AddressItem } from '../../widget/form-control/AddressItem';
 import { FundItem } from '../../widget/form-control/FundItem';
 import { Label } from '../../widget/form-control/Label';
@@ -88,7 +88,7 @@ export function Deposit({ type = 'text', className = '', size }: StakingActionPr
               <span>
                 {t('Bonded {{amount}} {{symbol}}', {
                   amount: fromWei({ value: max.ring.toString() }),
-                  symbol: upperCase(assets.find((item) => isRing(item.asset))?.token.symbol ?? 'ring'),
+                  symbol: upperCase(assets.find((item) => isRing(item.token.symbol))?.token.symbol ?? 'ring'),
                 })}
               </span>
             </span>
@@ -106,7 +106,7 @@ export function Deposit({ type = 'text', className = '', size }: StakingActionPr
           }
           name="fund"
           onChange={setSelectedAsset}
-          hiddenAssets={[DarwiniaAsset.kton]}
+          hiddenAssets={(asset) => isKton(asset.token.symbol)}
           max={max}
         />
 

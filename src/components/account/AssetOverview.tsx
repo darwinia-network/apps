@@ -4,7 +4,7 @@ import { BN, BN_ZERO } from '@polkadot/util';
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useApi, useWallet, useAccount } from '../../hooks';
-import { AssetOverviewProps, DarwiniaAsset } from '../../model';
+import { AssetOverviewProps } from '../../model';
 import { fromWei, getUnit, insufficientBalanceRule, isRing, toWei } from '../../utils';
 import { FormModal } from '../widget/FormModal';
 import { TooltipBalance } from '../widget/TooltipBalance';
@@ -31,8 +31,8 @@ export function AssetOverview({ asset, loading, refresh }: AssetOverviewProps) {
   const [transferable, setTransferable] = useState<BN | null>(null);
 
   const supportFaucet = useMemo(
-    () => asset.asset === DarwiniaAsset.ring && (network.name === 'pangolin' || network.name === 'pangoro'),
-    [asset.asset, network.name]
+    () => isRing(asset.token.symbol) && (network.name === 'pangolin' || network.name === 'pangoro'),
+    [asset.token, network.name]
   );
 
   const tokenIconSrc = useMemo(
@@ -45,8 +45,8 @@ export function AssetOverview({ asset, loading, refresh }: AssetOverviewProps) {
       network.name === 'crab' ||
       network.name === 'darwinia' ||
       network.name === 'pangolin' ||
-      (network.name === 'pangoro' && asset.asset === DarwiniaAsset.ring),
-    [network.name, asset.asset]
+      (network.name === 'pangoro' && isRing(asset.token.symbol)),
+    [network.name, asset.token]
   );
 
   return (
@@ -98,11 +98,11 @@ export function AssetOverview({ asset, loading, refresh }: AssetOverviewProps) {
         onEstimatedFeeChange={(estimatedFee) => {
           if (estimatedFee.isZero()) {
             setTransferable(null);
-          } else if (asset.asset === DarwiniaAsset.ring) {
-            const max = new BN(asset.max as string).sub(estimatedFee);
+          } else if (isRing(asset.token.symbol)) {
+            const max = asset.max.sub(estimatedFee);
             setTransferable(max.gt(api.consts.balances?.existentialDeposit) ? max : BN_ZERO);
           } else {
-            setTransferable(new BN(asset.max as string));
+            setTransferable(asset.max);
           }
         }}
         initialValues={{ from: account?.displayAddress, to: recipient }}
@@ -143,8 +143,7 @@ export function AssetOverview({ asset, loading, refresh }: AssetOverviewProps) {
             <div className="inline-flex items-center ml-1 mt-2 space-x-1">
               <ExclamationCircleFilled className="text-yellow-400" />
               <span className="text-xs">
-                {network.name === 'darwinia' ||
-                (network.name === 'crab-parachain' && asset.asset === DarwiniaAsset.ring)
+                {network.name === 'darwinia' || (network.name === 'crab-parachain' && isRing(asset.token.symbol))
                   ? t('Do not fill in any cold wallet address or exchange controlled address.')
                   : t('Do not fill in any cold wallet address.')}
               </span>

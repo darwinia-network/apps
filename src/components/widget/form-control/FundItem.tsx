@@ -17,7 +17,10 @@ export function FundItem({ label, name, extra, max, hiddenAssets, rules = [], on
   const { t } = useTranslation();
   const { assets } = useAccount();
   const [asset, setAsset] = useState<Asset | null>(null);
-  const maxValue = useMemo(() => (max && asset ? max[asset.asset as DarwiniaAsset] : undefined), [asset, max]);
+  const maxValue = useMemo(
+    () => (max && asset ? max[isRing(asset.token.symbol) ? DarwiniaAsset.ring : DarwiniaAsset.kton] : undefined),
+    [asset, max]
+  );
 
   return (
     <FormItem
@@ -50,7 +53,7 @@ export function FundItem({ label, name, extra, max, hiddenAssets, rules = [], on
         isUndefined(extra) ? (
           <span className="text-xs">
             {t('Please keep a little {{token}} as fee', {
-              token: assets.find((item) => isRing(item.asset))?.token?.symbol ?? 'RING',
+              token: assets.find((item) => isRing(item.token.symbol))?.token?.symbol ?? 'RING',
             })}
           </span>
         ) : (

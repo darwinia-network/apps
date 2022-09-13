@@ -2,7 +2,6 @@ import type ExtType from '@polkadot/extension-inject/types';
 import { KeyringJson } from '@polkadot/ui-keyring/types';
 import type { BN } from '@polkadot/util';
 import type { Balance } from '@polkadot/types/interfaces';
-import { DarwiniaAsset } from './common';
 
 export type InjectedAccountWithMeta = ExtType.InjectedAccountWithMeta;
 
@@ -19,17 +18,10 @@ export interface Chain {
   tokens: Token[];
   ss58Format: string;
 }
-export interface AvailableBalance<T = DarwiniaAsset> {
-  max: string | number | BN;
-  asset: T;
+export interface AvailableBalance {
+  max: Balance | BN;
   token: Token;
 }
-
-export interface DailyLimit {
-  limit: string | number;
-  spentToday: string | number;
-}
-
 export interface Asset extends AvailableBalance {
   total: Balance | BN;
 }
