@@ -3,8 +3,10 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "@polkadot/api-augment": ["node_modules/@darwinia/types/interfaces/augment-api.d.ts"],
-      "@polkadot/types/lookup": ["node_modules/@polkadot/types-augment/lookup/index.d.ts"]
+      "@polkadot/api-augment": ["./node_modules/@darwinia/api-augment/darwinia/index.d.ts"],
+      "@polkadot/types-augment": ["./node_modules/@darwinia/types/interfaces/augment-types.d.ts"],
+      "@polkadot/rpc-augment": ["./node_modules/@darwinia/rpc-augment/darwinia/jsonrpc.d.ts"],
+      "@poladot/types/lookup": ["./node_modules/@darwinia/types-augment/lookup/darwinia/types-lookup.d.ts"]
     }
   }
 }

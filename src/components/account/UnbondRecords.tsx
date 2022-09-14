@@ -42,7 +42,9 @@ export const UnbondRecords = ({ dataSource, loading }: { dataSource: UnbondDataS
       extrinsic:
         api.tx.staking.withdrawUnbonded?.meta.args.length === 1
           ? api.tx.staking.withdrawUnbonded(spanCount)
-          : api.tx.staking.withdrawUnbonded(),
+          : // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            api.tx.staking.withdrawUnbonded(),
       txSuccessCb: () => {
         refreshAssets();
         updateStakingDerive();

@@ -3,7 +3,7 @@ import { DeriveAccountInfo } from '@polkadot/api-derive/types';
 import { Skeleton } from 'antd';
 import { createContext, useContext, useEffect, useState } from 'react';
 import { from } from 'rxjs';
-import { DeriveStakingQuery } from '../../../api-derive/types';
+import type { DeriveStakingQuery } from '@darwinia/api-derive/types';
 import { useApi } from '../../../hooks';
 import { useValidatorPrefs } from '../../../hooks/staking';
 

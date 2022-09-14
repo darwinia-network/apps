@@ -2,15 +2,16 @@ import { ExposureT, Power } from '@darwinia/types';
 import { Option, StorageKey } from '@polkadot/types';
 import { Nominations } from '@polkadot/types/interfaces';
 import { DeriveStakingWaiting } from '@polkadot/api-derive/types';
+import type { DarwiniaStakingStructsExposure } from '@polkadot/types/lookup';
 import { BN_ZERO } from '@polkadot/util';
 import type { BN } from '@polkadot/util';
 import { useEffect, useState } from 'react';
 import { from, takeWhile } from 'rxjs';
+import type { IDeriveStakingElected } from '@darwinia/api-derive/staking';
 import { useIsMountedOperator } from '..';
 import { useApi } from '../api';
 import { useWallet } from '../wallet';
 import { useIsMounted } from '../isMounted';
-import { IDeriveStakingElected } from '../../api-derive';
 
 function extractNominators(nominations: [StorageKey, Option<Nominations>][]): Record<string, [string, number][]> {
   return nominations.reduce((mapped: Record<string, [string, number][]>, [key, optNoms]) => {
@@ -53,10 +54,10 @@ function useNominators<T extends IDeriveStakingElected | DeriveStakingWaiting>(m
           .map(({ exposure, accountId }) => {
             const result: Record<string, BN> = {};
 
-            exposure?.others.reduce((isNominating, cur) => {
+            (exposure as DarwiniaStakingStructsExposure)?.others.reduce((isNominating, cur) => {
               const nominator = cur.who.toString();
 
-              result[nominator] = (result[nominator] || BN_ZERO).add(cur.value?.toBn() || BN_ZERO);
+              result[nominator] = (result[nominator] || BN_ZERO).add(cur.ringBalance?.toBn() || BN_ZERO);
 
               return isNominating || all.includes(nominator);
             }, all.includes(accountId.toString()));

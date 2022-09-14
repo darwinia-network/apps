@@ -3,10 +3,10 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { Option } from '@polkadot/types';
 import type { BlockNumber, Balance } from '@polkadot/types/interfaces';
+import type { DarwiniaStakingStructsStakingLedger } from '@darwinia/api-derive/types';
 import { StakingRecordType, UnbondDataSourceState, UnbondType } from '../staking/interface';
 import { useApi, useBestNumber, useStaking } from '../../hooks';
 import { CustomTab } from '../widget/CustomTab';
-import type { DarwiniaStakingStructsStakingLedger } from '../../api-derive/types';
 import { UnbondRecords } from './UnbondRecords';
 import { LockedRecords } from './LockedRecords';
 

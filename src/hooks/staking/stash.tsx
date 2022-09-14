@@ -6,7 +6,7 @@ import { BN } from '@polkadot/util';
 import { has } from 'lodash';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { from, Subscription, takeWhile, zip, map, EMPTY } from 'rxjs';
-import type { PalletStakingSlashingSlashingSpans } from '@polkadot/types/lookup';
+import type { DarwiniaStakingSlashingSlashingSpans } from '@polkadot/types/lookup';
 import { NoNullFields } from '../../model';
 import { useApi } from '../api';
 import { useWallet } from '../wallet';
@@ -233,9 +233,9 @@ export function useSlashingSpans(stashId?: string | null) {
     const sub$$ = from(api.query.staking.slashingSpans(stashId))
       .pipe(
         map((optSpans) =>
-          (optSpans as Option<PalletStakingSlashingSlashingSpans>).isNone
+          (optSpans as Option<DarwiniaStakingSlashingSlashingSpans>).isNone
             ? 0
-            : (optSpans as Option<PalletStakingSlashingSlashingSpans>).unwrap().prior.length + 1
+            : (optSpans as Option<DarwiniaStakingSlashingSlashingSpans>).unwrap().prior.length + 1
         )
       )
       .subscribe(setSpanCount);

@@ -14,7 +14,7 @@ export const useValidatorPrefs = (account?: string | null, eraIndex?: EraIndex) 
       return;
     }
 
-    const sub$$ = from(eraIndex ?? api.query.staking.currentEra())
+    const sub$$ = from(eraIndex ? Promise.resolve(eraIndex) : api.query.staking.currentEra())
       .pipe(
         switchMap((res) => {
           const index = eraIndex ?? (res as Option<EraIndex>).unwrap();

@@ -4,7 +4,7 @@ import { isNull } from 'lodash';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { from, takeWhile } from 'rxjs';
-import { DeriveStakingQuery } from '../../../api-derive/types';
+import type { DeriveStakingQuery } from '@darwinia/api-derive/types';
 import { useApi, useIsMounted, useStaking } from '../../../hooks';
 import { IdentAccountName } from '../../widget/account/IdentAccountName';
 import { prettyNumber } from '../../../utils';

@@ -1,9 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { from, EMPTY } from 'rxjs';
-import type { Option } from '@polkadot/types';
-
 import { useApi } from '../../hooks';
-import type { DarwiniaStakingStructsStakingLedger } from '../../api-derive/types';
 
 export const useStashAccount = (controllerAccount?: string | null) => {
   const { api } = useApi();
@@ -11,9 +8,7 @@ export const useStashAccount = (controllerAccount?: string | null) => {
 
   const refresh = useCallback(() => {
     if (controllerAccount && api.query.staking) {
-      return from<Promise<Option<DarwiniaStakingStructsStakingLedger>>>(
-        api.query.staking.ledger(controllerAccount)
-      ).subscribe((ledger) => {
+      return from(api.query.staking.ledger(controllerAccount)).subscribe((ledger) => {
         setStashAccount(ledger.isSome ? ledger.unwrap().stash.toString() : null);
       });
     } else {

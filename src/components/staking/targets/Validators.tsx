@@ -8,7 +8,7 @@ import { BN } from '@polkadot/util';
 import { Reducer, useEffect, useMemo, useReducer, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { from, map, mergeMap, reduce } from 'rxjs';
-import { IDeriveStakingElected } from '../../../api-derive';
+import type { IDeriveStakingElected } from '@darwinia/api-derive/staking';
 import { THEME } from '../../../config';
 import { useApi, useIsAccountFuzzyMatch, useIsMountedOperator } from '../../../hooks';
 import { STAKING_FAV_KEY, useFavorites } from '../../../hooks/favorites';

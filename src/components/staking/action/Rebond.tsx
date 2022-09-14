@@ -1,5 +1,5 @@
 import { Button } from 'antd';
-import { BN } from '@polkadot/util';
+import { BN_ZERO } from '@polkadot/util';
 import { useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useApi, useStaking, useAccount } from '../../../hooks';
@@ -56,9 +56,9 @@ export function Rebond({ type = 'text', className = '', size }: StakingActionPro
         extrinsic={(values) => {
           const { fund } = values;
           const value = toWei({ value: fund.amount, unit: getUnit(+fund.token.decimal) });
-          const params = isRing(fund.token.symbol) ? [value, new BN(0)] : [new BN(0), value];
+          const params = isRing(fund.token.symbol) ? [value, BN_ZERO] : [BN_ZERO, value];
 
-          return api.tx.staking.rebond(...params);
+          return api.tx.staking.rebond(params[0], params[1]);
         }}
         onSuccess={() => {
           setIsVisible(false);

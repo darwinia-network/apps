@@ -4,7 +4,7 @@ import { Button, Dropdown, Menu } from 'antd';
 import { useMemo, useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { from, EMPTY } from 'rxjs';
-import type { DeriveStakingAccount } from '../../../api-derive/types';
+import type { DeriveStakingAccount } from '@darwinia/api-derive/types';
 import { useApi, useStaking, useQueue, useSlashingSpans, useAccount, useWallet } from '../../../hooks';
 import {
   BondMore,
@@ -86,7 +86,9 @@ export function Actions({ eraSelectionIndex, disabled }: ActionsProps) {
       extrinsic:
         api.tx.staking.withdrawUnbonded?.meta.args.length === 1
           ? api.tx.staking.withdrawUnbonded(spanCount)
-          : api.tx.staking.withdrawUnbonded(),
+          : // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            api.tx.staking.withdrawUnbonded(),
       txSuccessCb: () => {
         refreshAssets();
         updateStakingDerive();
@@ -146,7 +148,11 @@ export function Actions({ eraSelectionIndex, disabled }: ActionsProps) {
               <Rebond className="w-full text-left" size="large" key="rebond" />,
               <Button
                 type="text"
-                disabled={!isOwnController || !stakingAccount?.redeemable?.gtn(0)}
+                disabled={
+                  !isOwnController ||
+                  !stakingAccount?.redeemable ||
+                  stakingAccount.redeemable[0].add(stakingAccount.redeemable[1]).lten(0)
+                }
                 onClick={withdrawFunds}
                 className="w-full text-left"
                 size="large"

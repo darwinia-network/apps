@@ -3,13 +3,13 @@ import { ApiPromise, WsProvider } from '@polkadot/api';
 import { derive } from '@polkadot/api-derive';
 import { DeriveCustom } from '@polkadot/api/types';
 import Web3 from 'web3';
-import { derive as darwiniaDerive } from '../../api-derive/derive';
+import { overwriteDerive } from '@darwinia/api-derive/derive';
 
 const { staking, ...rest } = derive;
 
 const customDerive = {
   ...rest,
-  staking: { ...staking, ...darwiniaDerive.staking },
+  staking: { ...staking, ...overwriteDerive.staking },
 } as DeriveCustom;
 
 interface ApiGuy<T> {
