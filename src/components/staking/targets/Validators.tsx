@@ -10,8 +10,7 @@ import { useTranslation } from 'react-i18next';
 import { from, map, mergeMap, reduce } from 'rxjs';
 import { IDeriveStakingElected } from '../../../api-derive';
 import { THEME } from '../../../config';
-import { useApi, useIsAccountFuzzyMatch, useIsMountedOperator } from '../../../hooks';
-import { STAKING_FAV_KEY, useFavorites } from '../../../hooks/favorites';
+import { useApi, useStaking, useIsAccountFuzzyMatch, useIsMountedOperator } from '../../../hooks';
 import { prettyNumber, readStorage } from '../../../utils';
 import { IdentAccountName } from '../../widget/account/IdentAccountName';
 import { Favorite } from '../../widget/Favorite';
@@ -96,7 +95,7 @@ function sortValidators(list: ValidatorInfo[]): ValidatorInfo[] {
 export function Validators({ data, lastReward }: ValidatorsProps) {
   const { t } = useTranslation();
   const { api, network } = useApi();
-  const [favorites] = useFavorites(STAKING_FAV_KEY);
+  const { favorites } = useStaking();
   const isMatch = useIsAccountFuzzyMatch();
   const [searchName, setSearchName] = useState('');
   const [rowData, setRowData] = useReducer<Reducer<ValidatorInfo[], ValidatorInfo[]>>((_, payload) => payload, []);
