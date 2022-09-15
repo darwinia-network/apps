@@ -3,7 +3,7 @@ import { useStashAccount } from './stashAccount';
 
 export const useControllerAndStashAccount = (account?: string | null) => {
   const { controllerAccount, refreshControllerAccount } = useControllerAccount(account);
-  const { stashAccount } = useStashAccount(controllerAccount);
+  const { stashAccount, refreshStashAccount } = useStashAccount(controllerAccount);
 
-  return { controllerAccount, stashAccount, refreshControllerAndStashAccount: refreshControllerAccount };
+  return { controllerAccount, stashAccount, refreshControllerAccount, refreshStashAccount };
 };

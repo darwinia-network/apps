@@ -30,7 +30,7 @@ export function StakingNow() {
   const { api } = useApi();
   const [form] = useForm<StakingFormValue>();
   const { account, assets, refreshAssets } = useAccount();
-  const { updateStakingDerive, refreshControllerAndStashAccount } = useStaking();
+  const { updateStakingDerive, refreshControllerAccount, refreshStashAccount } = useStaking();
   const [isVisible, setIsVisible] = useState(false);
   const [selectedAsset, setSelectedAsset] = useState<Fund | null>(null);
   const [duration, setDuration] = useState(0);
@@ -77,7 +77,8 @@ export function StakingNow() {
           setIsVisible(false);
           refreshAssets();
           updateStakingDerive();
-          refreshControllerAndStashAccount();
+          refreshControllerAccount();
+          refreshStashAccount();
         }}
         initialValues={{
           stash: account?.displayAddress,

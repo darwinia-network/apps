@@ -3,7 +3,7 @@ import { ElectionStatus } from '@polkadot/types/interfaces';
 import type { u32 } from '@polkadot/types';
 import { DarwiniaStakingStructsValidatorPrefs } from '@polkadot/types/lookup';
 import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react';
-import { combineLatest, from, tap, EMPTY } from 'rxjs';
+import { combineLatest, from, tap, EMPTY, Subscription } from 'rxjs';
 import type { DeriveStakingAccount } from '@darwinia/api-derive/types';
 import { useWallet, useApi, useIsMountedOperator, useAccount, useControllerAndStashAccount } from '../hooks';
 import { isSameAddress } from '../utils';
@@ -25,7 +25,8 @@ export interface StakingCtx {
   maxNominations: number;
   updateStakingDerive: () => void;
   updateValidators: () => void;
-  refreshControllerAndStashAccount: () => void;
+  refreshControllerAccount: () => Subscription;
+  refreshStashAccount: () => Subscription;
   validators: DarwiniaStakingStructsValidatorPrefs | null;
 }
 
@@ -35,9 +36,8 @@ export const StakingProvider = ({ children }: React.PropsWithChildren<unknown>) 
   const { api } = useApi();
   const { accounts } = useWallet();
   const { account } = useAccount();
-  const { controllerAccount, stashAccount, refreshControllerAndStashAccount } = useControllerAndStashAccount(
-    account?.displayAddress
-  );
+  const { controllerAccount, stashAccount, refreshControllerAccount, refreshStashAccount } =
+    useControllerAndStashAccount(account?.displayAddress);
   const { takeWhileIsMounted } = useIsMountedOperator();
   const [stashAccounts, setStashAccounts] = useState<string[]>([]);
   const [stakingDerive, setStakingDerive] = useState<DeriveStakingAccount | null>(null);
@@ -152,9 +152,14 @@ export const StakingProvider = ({ children }: React.PropsWithChildren<unknown>) 
   }, [api, isSupportedStaking]);
 
   useEffect(() => {
-    const sub$$ = refreshControllerAndStashAccount();
-    return () => sub$$.unsubscribe();
-  }, [refreshControllerAndStashAccount]);
+    const subCrl$$ = refreshControllerAccount();
+    const subSts$$ = refreshStashAccount();
+
+    return () => {
+      subCrl$$.unsubscribe();
+      subSts$$.unsubscribe();
+    };
+  }, [refreshControllerAccount, refreshStashAccount]);
 
   useEffect(() => {
     const sub$$ = updateStakingDerive();
@@ -190,7 +195,8 @@ export const StakingProvider = ({ children }: React.PropsWithChildren<unknown>) 
         maxNominations,
         updateStakingDerive,
         updateValidators,
-        refreshControllerAndStashAccount,
+        refreshControllerAccount,
+        refreshStashAccount,
         validators,
       }}
     >
