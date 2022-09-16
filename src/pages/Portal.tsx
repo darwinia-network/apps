@@ -117,6 +117,12 @@ export function Portal() {
         description: t('A tool to migrate your Darwinia Tokens to the new contract.'),
         link: 'https://token-migration.darwinia.network/',
       },
+      {
+        name: 'RARE 💎 GEMS',
+        logo: '/image/portal/raregems.svg',
+        description: t('Non-custodial NFT marketplace, connected to Crab network.'),
+        link: 'https://raregems.io/',
+      },
     ],
     [t, network]
   );
