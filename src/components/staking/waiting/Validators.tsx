@@ -7,7 +7,6 @@ import { useTranslation } from 'react-i18next';
 import { from, switchMap, timer } from 'rxjs';
 import { MIDDLE_DURATION } from '../../../config';
 import { useApi, useIsMountedOperator, useNominatorEntries, useStaking } from '../../../hooks';
-import { STAKING_FAV_KEY, useFavorites } from '../../../hooks/favorites';
 import { AccountWithClassifiedInfo, createClassifiedStakingOverview } from '../../../utils';
 import { HidablePanel } from '../HidablePanel';
 import { OverviewProvider } from '../overview/overview';
@@ -20,8 +19,7 @@ interface ValidatorsProps {
 export function Validators({ overview }: ValidatorsProps) {
   const { t } = useTranslation();
   const { api, network } = useApi();
-  const { stashAccounts } = useStaking();
-  const [favorites] = useFavorites(STAKING_FAV_KEY);
+  const { favorites, stashAccounts } = useStaking();
   const [searchName, setSearchName] = useState('');
   const [sourceData, setSourceData] = useState<AccountWithClassifiedInfo[]>([]);
   const [heartbeats, setHeartbeats] = useState<DeriveHeartbeats | null>(null);

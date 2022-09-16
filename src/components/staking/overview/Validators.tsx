@@ -9,7 +9,6 @@ import { from, switchMap, timer } from 'rxjs';
 import { debounce } from 'lodash';
 import { MIDDLE_DURATION } from '../../../config';
 import { useApi, useIsMountedOperator, useStaking } from '../../../hooks';
-import { STAKING_FAV_KEY, useFavorites } from '../../../hooks/favorites';
 import { AccountWithClassifiedInfo, createClassifiedStakingOverview, prettyNumber } from '../../../utils';
 import { HidablePanel } from '../HidablePanel';
 import { OverviewProvider } from './overview';
@@ -29,9 +28,8 @@ interface ValidatorsProps {
 export function Validators({ overview }: ValidatorsProps) {
   const { t } = useTranslation();
   const { api, network } = useApi();
-  const { stashAccounts } = useStaking();
+  const { favorites, stashAccounts } = useStaking();
   const [sourceData, setSourceData] = useState<AccountWithClassifiedInfo[]>([]);
-  const [favorites] = useFavorites(STAKING_FAV_KEY);
   const [heartbeats, setHeartbeats] = useState<DeriveHeartbeats | null>(null);
   const [points, setPoints] = useState<EraRewardPoints | null>(null);
   const [byAuthor, setByAuthor] = useReducer<Reducer<Record<string, string>, Record<string, string>>>(

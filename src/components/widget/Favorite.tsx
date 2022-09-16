@@ -1,5 +1,5 @@
 import { StarFilled, StarOutlined } from '@ant-design/icons';
-import { STAKING_FAV_KEY, useFavorites } from '../../hooks/favorites';
+import { useStaking } from '../../hooks';
 
 interface FavoriteProps {
   account: string;
@@ -7,12 +7,11 @@ interface FavoriteProps {
 }
 
 export function Favorite({ account, className = '' }: FavoriteProps) {
-  const [favorites, toggleFavorite] = useFavorites(STAKING_FAV_KEY);
-  const isFavorite = favorites.includes(account);
+  const { favorites, setFavorite } = useStaking();
 
   return (
-    <div onClick={() => toggleFavorite(account)} className={className + ' cursor-pointer'}>
-      {isFavorite ? <StarFilled className="text-yellow-400" /> : <StarOutlined />}
+    <div onClick={() => setFavorite(account)} className={className + ' cursor-pointer'}>
+      {favorites.includes(account) ? <StarFilled className="text-yellow-400" /> : <StarOutlined />}
     </div>
   );
 }
