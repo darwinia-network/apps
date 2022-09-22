@@ -29,7 +29,7 @@ export function AddressItem({
       label={isString(label) ? t(label) : label}
       extra={
         <span className="inline-flex items-center gap-2 text-xs">
-          <span>{t('available')}: </span>
+          <span>{t('Available')}: </span>
           {assets.map((item) => (
             <span key={item.token.symbol}>
               <span>{fromWei({ value: item.max }, prettyNumber)}</span>

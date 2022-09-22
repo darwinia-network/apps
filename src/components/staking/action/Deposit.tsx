@@ -85,11 +85,10 @@ export function Deposit({ type = 'text', className = '', size }: StakingActionPr
           disabled
           extra={
             <span className="inline-flex items-center gap-2 text-xs">
+              <span>{t('Bonded')}: </span>
               <span>
-                {t('Bonded {{amount}} {{symbol}}', {
-                  amount: fromWei({ value: max.ring.toString() }),
-                  symbol: upperCase(assets.find((item) => isRing(item.token.symbol))?.token.symbol ?? 'ring'),
-                })}
+                <span>{fromWei({ value: max.ring.toString() })}</span>
+                <span>{upperCase(assets.find((item) => isRing(item.token.symbol))?.token.symbol ?? 'ring')}</span>
               </span>
             </span>
           }
