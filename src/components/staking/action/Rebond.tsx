@@ -74,7 +74,7 @@ export function Rebond({ type = 'text', className = '', size }: StakingActionPro
           disabled
           extra={
             <span className="inline-flex items-center gap-2 text-xs">
-              <span>{t('available')}: </span>
+              <span>{t('Unbonding (include unbonded)')}: </span>
               {ledgers.map((item) => (
                 <span key={item.asset}>
                   <span>{fromWei({ value: item.unbonding }, prettyNumber)}</span>

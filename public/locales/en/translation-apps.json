@@ -160,6 +160,7 @@
   "Unbond funds": "Unbond funds",
   "Unbonded": "Unbonded",
   "Unbonding": "Unbonding",
+  "Unbonding (include unbonded)": "Unbonding (include unbonded)",
   "Unbonding The amount of tokens that has been unlocked but in the unbonding period.": "Unbonding: The amount of tokens that has been unlocked but in the unbonding period.",
   "Unclaimed": "Unclaimed",
   "Unclaimed {{amount}}": "Unclaimed {{amount}}",
