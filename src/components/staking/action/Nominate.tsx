@@ -5,7 +5,6 @@ import { useTranslation } from 'react-i18next';
 import { combineLatest, map } from 'rxjs';
 import { DeriveAccountInfo } from '@polkadot/api-derive/accounts/types';
 import { useApi, useStaking, useIsAccountFuzzyMatch } from '../../../hooks';
-import { STAKING_FAV_KEY, useFavorites } from '../../../hooks/favorites';
 import { FormModal } from '../../widget/FormModal';
 import { IdentAccountName } from '../../widget/account/IdentAccountName';
 import { AddressItem } from '../../widget/form-control/AddressItem';
@@ -40,6 +39,7 @@ export function Nominate({
   const [searchName, setSearchName] = useState('');
   const [available, setAvailable] = useState<AvailableState[]>([]);
   const {
+    favorites,
     isInElection,
     stashAccount,
     stakingDerive,
@@ -51,7 +51,6 @@ export function Nominate({
     updateStakingDerive,
   } = useStaking();
   const isMatch = useIsAccountFuzzyMatch();
-  const [favorites] = useFavorites(STAKING_FAV_KEY);
 
   const defaultSelected = useMemo(
     () => defaultSelects || (stakingDerive && stakingDerive.nominators.map((item) => item.toString())) || [],

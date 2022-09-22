@@ -1,12 +1,15 @@
 import { DeriveStakingOverview } from '@polkadot/api-derive/staking/types';
 import { ElectionStatus } from '@polkadot/types/interfaces';
 import type { u32 } from '@polkadot/types';
+import store from 'store';
 import { DarwiniaStakingStructsValidatorPrefs } from '@polkadot/types/lookup';
 import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react';
 import { combineLatest, from, tap, EMPTY, Subscription } from 'rxjs';
 import type { DeriveStakingAccount } from '@darwinia/api-derive/types';
 import { useWallet, useApi, useIsMountedOperator, useAccount, useControllerAndStashAccount } from '../hooks';
 import { isSameAddress } from '../utils';
+
+const STAKING_FAV_KEY = 'staking:favorites';
 
 export interface StakingCtx {
   availableValidators: string[];
@@ -23,6 +26,8 @@ export interface StakingCtx {
   stashAccount: string | null;
   stashAccounts: string[];
   maxNominations: number;
+  favorites: string[];
+  setFavorite: (address: string) => void;
   updateStakingDerive: () => void;
   updateValidators: () => void;
   refreshControllerAccount: () => Subscription;
@@ -39,6 +44,9 @@ export const StakingProvider = ({ children }: React.PropsWithChildren<unknown>) 
   const { controllerAccount, stashAccount, refreshControllerAccount, refreshStashAccount } =
     useControllerAndStashAccount(account?.displayAddress);
   const { takeWhileIsMounted } = useIsMountedOperator();
+  const [favorites, _setFavorites] = useState<string[]>(
+    store.get(`${STAKING_FAV_KEY}:${api.genesisHash.toHex()}`) || []
+  );
   const [stashAccounts, setStashAccounts] = useState<string[]>([]);
   const [stakingDerive, setStakingDerive] = useState<DeriveStakingAccount | null>(null);
   const [isStakingDeriveLoading, setIsStakingDeriveLoading] = useState<boolean>(false);
@@ -81,6 +89,17 @@ export const StakingProvider = ({ children }: React.PropsWithChildren<unknown>) 
   const isStakingLedgerEmpty = useMemo(
     () => !stakingDerive || !stakingDerive.stakingLedger || stakingDerive.stakingLedger.isEmpty,
     [stakingDerive]
+  );
+
+  const setFavorite = useCallback(
+    (address: string) => {
+      _setFavorites((prev) => {
+        const next = prev.includes(address) ? prev.filter((item) => item !== address) : prev.concat(address);
+        store.set(`${STAKING_FAV_KEY}:${api.genesisHash.toHex()}`, next);
+        return next;
+      });
+    },
+    [api.genesisHash]
   );
 
   const updateStakingDerive = useCallback(() => {
@@ -193,6 +212,8 @@ export const StakingProvider = ({ children }: React.PropsWithChildren<unknown>) 
         stashAccount,
         stashAccounts,
         maxNominations,
+        favorites,
+        setFavorite,
         updateStakingDerive,
         updateValidators,
         refreshControllerAccount,

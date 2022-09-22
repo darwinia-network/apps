@@ -31,7 +31,7 @@ export function StakingRecords() {
   const { bestNumber } = useBestNumber();
   const { t } = useTranslation();
   const [loading, setLoading] = useState(false);
-  const [activeKey, setActiveKey] = useState(StakingRecordType.LOCKS);
+  const [activeKey, setActiveKey] = useState(StakingRecordType.LOCKED);
   const [ledger, setLedger] = useState<DarwiniaStakingStructsStakingLedger | null>();
   const [unbondedDataSource, setUnondedDataSource] = useState<UnbondDataSourceState[]>([]);
   const [unbondingDataSource, setUnondingDataSource] = useState<UnbondDataSourceState[]>([]);
@@ -82,8 +82,8 @@ export function StakingRecords() {
         className={`overflow-x-scroll page-account-tabs page-account-tabs-${network.name}`}
       >
         <Tabs.TabPane
-          key={StakingRecordType.LOCKS}
-          tab={<CustomTab text={t(StakingRecordType.LOCKS)} tabKey={StakingRecordType.LOCKS} activeKey={activeKey} />}
+          key={StakingRecordType.LOCKED}
+          tab={<CustomTab text={t(StakingRecordType.LOCKED)} tabKey={StakingRecordType.LOCKED} activeKey={activeKey} />}
         >
           <LockedRecords locks={ledger?.depositItems || []} loading={loading} />
         </Tabs.TabPane>
