@@ -5,11 +5,12 @@ import { BN, bnToBn, BN_ZERO } from '@polkadot/util';
 import type { Balance } from '@polkadot/types/interfaces';
 import { useTranslation } from 'react-i18next';
 import type { ColumnsType } from 'antd/lib/table';
+import type { TsInMs } from '@darwinia/types';
+import type { DarwiniaStakingStructsTimeDepositItem } from '@darwinia/api-derive/types';
 
 import { useApi, useQueue, useStaking, useAssets, useAccount } from '../../hooks';
 import { DATE_FORMAT, THIRTY_DAYS_IN_MILLISECOND } from '../../config';
 import { fromWei, prettyNumber, computeKtonReward, processTime, isKton } from '../../utils';
-import type { DarwiniaStakingStructsTimeDepositItem, TsInMs } from '../../api-derive/types';
 
 enum LockStatus {
   LOCKING,

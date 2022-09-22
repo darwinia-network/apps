@@ -2,10 +2,10 @@ import { DeriveStakingOverview } from '@polkadot/api-derive/staking/types';
 import { ElectionStatus } from '@polkadot/types/interfaces';
 import type { u32 } from '@polkadot/types';
 import store from 'store';
-import { PalletStakingValidatorPrefs } from '@polkadot/types/lookup';
+import { DarwiniaStakingStructsValidatorPrefs } from '@polkadot/types/lookup';
 import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react';
 import { combineLatest, from, tap, EMPTY, Subscription } from 'rxjs';
-import { DeriveStakingAccount } from '../api-derive/types';
+import type { DeriveStakingAccount } from '@darwinia/api-derive/types';
 import { useWallet, useApi, useIsMountedOperator, useAccount, useControllerAndStashAccount } from '../hooks';
 import { isSameAddress } from '../utils';
 
@@ -32,7 +32,7 @@ export interface StakingCtx {
   updateValidators: () => void;
   refreshControllerAccount: () => Subscription;
   refreshStashAccount: () => Subscription;
-  validators: PalletStakingValidatorPrefs | null;
+  validators: DarwiniaStakingStructsValidatorPrefs | null;
 }
 
 export const StakingContext = createContext<StakingCtx | null>(null);
@@ -50,7 +50,7 @@ export const StakingProvider = ({ children }: React.PropsWithChildren<unknown>) 
   const [stashAccounts, setStashAccounts] = useState<string[]>([]);
   const [stakingDerive, setStakingDerive] = useState<DeriveStakingAccount | null>(null);
   const [isStakingDeriveLoading, setIsStakingDeriveLoading] = useState<boolean>(false);
-  const [validators, setValidators] = useState<PalletStakingValidatorPrefs | null>(null);
+  const [validators, setValidators] = useState<DarwiniaStakingStructsValidatorPrefs | null>(null);
   const [stakingOverview, setStakingOverview] = useState<DeriveStakingOverview | null>(null);
   const [isInElection, setIsInElection] = useState<boolean>(false);
 
@@ -124,7 +124,7 @@ export const StakingProvider = ({ children }: React.PropsWithChildren<unknown>) 
 
   const updateValidators = useCallback(() => {
     if (isSupportedStaking && stashAccount) {
-      return from<Promise<PalletStakingValidatorPrefs>>(api.query.staking.validators(stashAccount))
+      return from<Promise<DarwiniaStakingStructsValidatorPrefs>>(api.query.staking.validators(stashAccount))
         .pipe(takeWhileIsMounted())
         .subscribe((res) => setValidators(res));
     } else {
@@ -158,14 +158,14 @@ export const StakingProvider = ({ children }: React.PropsWithChildren<unknown>) 
   }, [api, isSupportedStaking]);
 
   useEffect(() => {
-    if (!isSupportedStaking) {
+    if (!isSupportedStaking || !api.query.staking?.eraElectionStatus) {
       setIsInElection(false);
       return;
     }
 
-    const sub$$ = from<Promise<ElectionStatus>>(
-      api.query.staking?.eraElectionStatus ? api.query.staking.eraElectionStatus() : Promise.resolve({ isOpen: false })
-    ).subscribe((status: ElectionStatus) => setIsInElection(status.isOpen));
+    const sub$$ = from(api.query.staking.eraElectionStatus() as Promise<ElectionStatus>).subscribe((status) =>
+      setIsInElection(status.isOpen)
+    );
 
     return () => sub$$.unsubscribe();
   }, [api, isSupportedStaking]);

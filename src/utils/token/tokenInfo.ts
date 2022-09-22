@@ -1,6 +1,5 @@
-import { AccountData } from '@darwinia/types';
 import { ApiPromise } from '@polkadot/api';
-import { PalletBalancesBalanceLock } from '@polkadot/types/lookup';
+import { PalletBalancesBalanceLock, DarwiniaCommonRuntimeImplsAccountData } from '@polkadot/types/lookup';
 import { BN_ZERO, bnMax, BN } from '@polkadot/util';
 import { waitUntilConnected } from '../network';
 import { entrance } from '../network';
@@ -35,7 +34,7 @@ export async function getDarwiniaBalances(api: ApiPromise, account = ''): Promis
 
       const {
         data: { free: freeRing, freeKton },
-      }: { data: AccountData } = await api.query.system.account(account);
+      }: { data: DarwiniaCommonRuntimeImplsAccountData } = await api.query.system.account(account);
 
       const ringLocks: PalletBalancesBalanceLock[] = (await api.query.balances.locks(account)) || [];
       const ktonLocks: PalletBalancesBalanceLock[] = (await api.query.kton?.locks(account)) || [];

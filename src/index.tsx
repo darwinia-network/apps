@@ -1,5 +1,4 @@
 import '@darwinia/types';
-import '@polkadot/api-augment';
 import 'intro.js/introjs.css';
 import { Suspense } from 'react';
 import ReactDOM from 'react-dom';

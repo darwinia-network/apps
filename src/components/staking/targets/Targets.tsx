@@ -48,12 +48,14 @@ export function Targets() {
         switchMap(({ activeEra }) => {
           const last = activeEra.gtn(0) ? activeEra.subn(1) : BN_ZERO;
 
-          return api.query.staking.erasValidatorReward([last]);
+          return api.query.staking.erasValidatorReward(last);
         }),
         takeWhileIsMounted()
       )
       .subscribe((res) => {
-        setLastReward((res as BN).toString());
+        if (res.isSome) {
+          setLastReward(res.toString());
+        }
       });
 
     return () => {

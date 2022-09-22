@@ -1,19 +1,19 @@
-import { BN, bnToBn } from '@polkadot/util';
+import { BN, BN_ZERO, bnToBn } from '@polkadot/util';
 import type { Balance } from '@polkadot/types/interfaces';
-import { DarwiniaAsset, Fund } from '../../model';
+import type { DeriveStakingAccount } from '@darwinia/api-derive/types';
+import { Fund } from '../../model';
 import { getUnit, toWei } from '../helper';
-import { DeriveStakingAccount } from '../../api-derive/types';
 import { isRing } from '../helper';
 
-export function fundParam(data: Fund) {
+export function fundParam(data: Fund): { RingBalance: string } | { KtonBalance: string } {
   const { amount, token } = data;
 
-  return {
-    [`${isRing(token.symbol) ? DarwiniaAsset.ring : DarwiniaAsset.kton}balance`]: toWei({
-      value: amount,
-      unit: getUnit(+token.decimal),
-    }),
-  };
+  const value = toWei({
+    value: amount,
+    unit: getUnit(+token.decimal),
+  });
+
+  return isRing(token.symbol) ? { RingBalance: value } : { KtonBalance: value };
 }
 
 // https://github.com/darwinia-network/darwinia-common/blob/main/frame/staking/src/inflation.rs#L129
@@ -30,6 +30,7 @@ export const computeKtonReward = (amount: Balance | BN | string | number, months
 };
 /* eslint-enable no-magic-numbers */
 
+// eslint-disable-next-line complexity
 export function getLedger(symbol: string, empty: boolean, derive: DeriveStakingAccount | null) {
   if (empty || !derive) {
     return { bonded: null, unbonding: null, locked: null };
@@ -46,7 +47,7 @@ export function getLedger(symbol: string, empty: boolean, derive: DeriveStakingA
     return {
       bonded,
       locked,
-      unbonded: derive.redeemableRing,
+      unbonded: derive.redeemable?.length ? derive.redeemable[0] : BN_ZERO,
       unbonding: unlockingTotalValue,
     };
   }
@@ -54,7 +55,7 @@ export function getLedger(symbol: string, empty: boolean, derive: DeriveStakingA
   return {
     bonded: stakingLedger.activeKton?.toBn(),
     locked: null,
-    unbonded: derive.redeemableKton,
+    unbonded: derive.redeemable?.length ? derive.redeemable[1] : BN_ZERO,
     unbonding: unlockingKtonTotalValue,
   };
 }

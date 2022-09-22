@@ -1,6 +1,5 @@
 import { createContext, PropsWithChildren, useCallback, useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { RuntimeVersion } from '@polkadot/types/interfaces';
 
 import { marketApiSections } from '../config';
 import { SearchParamsKey, DarwiniaChain } from '../model';
@@ -28,7 +27,7 @@ export const FeeMarketProvider = ({ children }: PropsWithChildren<unknown>) => {
   const paramDestination = searchParams.get(SearchParamsKey.DESTINATION);
 
   const supportedDestinations = useMemo(() => {
-    const { specName } = api.consts.system.version as RuntimeVersion;
+    const { specName } = api.consts.system.version;
     const source = specName.toString() as DarwiniaChain;
     return Object.keys(marketApiSections[source] || {}) as DarwiniaChain[];
   }, [api]);
