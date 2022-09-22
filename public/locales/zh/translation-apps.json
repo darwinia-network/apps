@@ -37,7 +37,6 @@
   "Bonded amount": "绑定数量",
   "Bonding preferences": "冻结参数",
   "Validator preferences": "验证人参数",
-  "Bonded {{amount}} {{symbol}}": "已冻结 {{amount}} {{symbol}}",
   "Cancel": "取消",
   "Change controller account": "更改控制账户",
   "Change reward destination": "修改收款账户",
