@@ -6,7 +6,7 @@ export interface AccountHistoryProps {
 }
 
 export enum StakingRecordType {
-  LOCKS = 'Locks',
+  LOCKED = 'Locked',
   UNBONDING = 'Unbonding',
   UNBONDED = 'Unbonded',
 }
