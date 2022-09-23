@@ -1,6 +1,7 @@
 import { Button } from 'antd';
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { BN_ZERO } from '@polkadot/util';
 import { useAccount, useApi, useStaking } from '../../../hooks';
 import { Fund, DarwiniaAsset } from '../../../model';
 import { fundParam, getLedger, fromWei, prettyNumber, isRing } from '../../../utils';
@@ -104,7 +105,7 @@ export function Unbond({ type = 'text', className = '', size }: StakingActionPro
           }
           name="fund"
           extra={null}
-          max={ledgers.reduce((acc, cur) => ({ ...acc, [cur.asset]: cur.bonded }), {})}
+          max={ledgers.reduce((acc, cur) => ({ ...acc, [cur.asset]: cur.bonded || BN_ZERO }), {})}
         />
       </FormModal>
     </>
