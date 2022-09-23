@@ -1,7 +1,7 @@
-import { DVMChainConfig } from '../../model';
+import { EVMChainConfig } from '../../model';
 
-export const pangolinConfig: DVMChainConfig = {
-  dvm: {
+export const pangolinConfig: EVMChainConfig = {
+  evm: {
     kton: {
       address: '0x0000000000000000000000000000000000000402',
       symbol: 'PKTON',

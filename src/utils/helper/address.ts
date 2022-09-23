@@ -10,7 +10,7 @@ import { isAddress as isEthAddress } from 'web3-utils';
 
 export const registry = new TypeRegistry();
 
-export function dvmAddressToAccountId(address: string | null | undefined): DetectCodec<Codec, string> {
+export function evmAddressToAccountId(address: string | null | undefined): DetectCodec<Codec, string> {
   if (!address) {
     return registry.createType('AccountId', '');
   }
@@ -49,7 +49,7 @@ export function convertToSS58(text: string, prefix: number | null, isShort = fal
   }
 }
 
-export function convertToDvm(address: string): string {
+export function convertToEvm(address: string): string {
   if (!address) {
     return '';
   }

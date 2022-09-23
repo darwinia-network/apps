@@ -4,15 +4,15 @@ import type { Token } from '../account';
 import { Facade } from './facade';
 import { Network, NetworkCategory } from './network';
 
-export interface DVMToken {
+export interface EVMToken {
   address: string; // The address of the token contract
   symbol: string; // A ticker symbol or shorthand, up to 5 characters
   decimals: number; // The number of token decimals
 }
 
-interface DVMTokenConfig {
-  ring: DVMToken;
-  kton?: DVMToken;
+interface EVMTokenConfig {
+  ring: EVMToken;
+  kton?: EVMToken;
 }
 
 interface ProviderConfig {
@@ -41,6 +41,6 @@ export interface PolkadotChainConfig extends ChainConfig {
   };
 }
 
-export interface DVMChainConfig extends EthereumChainConfig, PolkadotChainConfig {
-  dvm: DVMTokenConfig;
+export interface EVMChainConfig extends EthereumChainConfig, PolkadotChainConfig {
+  evm: EVMTokenConfig;
 }

@@ -1,7 +1,7 @@
-import { DVMChainConfig } from '../../model';
+import { EVMChainConfig } from '../../model';
 
-export const darwiniaConfig: DVMChainConfig = {
-  dvm: {
+export const darwiniaConfig: EVMChainConfig = {
+  evm: {
     kton: {
       address: '0x0000000000000000000000000000000000000402',
       symbol: 'KTON',

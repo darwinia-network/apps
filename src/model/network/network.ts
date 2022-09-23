@@ -12,6 +12,6 @@ type TronTypeNetwork = 'tron';
 
 export type Network = PolkadotTypeNetwork | EthereumTypeNetwork | TronTypeNetwork;
 
-export type NetworkCategory = 'polkadot' | 'ethereum' | 'darwinia' | 'dvm' | 'tron';
+export type NetworkCategory = 'polkadot' | 'ethereum' | 'darwinia' | 'evm' | 'tron';
 
-export type NetworkMode = 'native' | 'dvm';
+export type NetworkMode = 'native' | 'evm';

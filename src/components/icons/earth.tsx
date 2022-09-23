@@ -3,7 +3,7 @@ import { svgIconFactory } from './icon-factory';
 function Earth() {
   return (
     <svg width="22px" height="22px" viewBox="0 0 22 22" version="1.1" xmlns="http://www.w3.org/2000/svg">
-      <g id="DVM" stroke="none" strokeWidth="1" fill="none" fillRule="evenodd">
+      <g id="EVM" stroke="none" strokeWidth="1" fill="none" fillRule="evenodd">
         <g id="主页" transform="translate(-1365.000000, -854.000000)" fill="currentColor" fillRule="nonzero">
           <g id="编组" transform="translate(1355.000000, 850.000000)">
             <path

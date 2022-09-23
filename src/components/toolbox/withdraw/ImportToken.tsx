@@ -1,7 +1,7 @@
 import { Button } from 'antd';
-import { DVMToken } from '../../../model';
+import { EVMToken } from '../../../model';
 
-export const ImportToken = ({ disabled, token }: { disabled: boolean; token?: DVMToken | null }) =>
+export const ImportToken = ({ disabled, token }: { disabled: boolean; token?: EVMToken | null }) =>
   token ? (
     <Button
       size="large"
