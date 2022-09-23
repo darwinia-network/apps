@@ -1,7 +1,7 @@
-import { DVMChainConfig } from '../../model';
+import { EVMChainConfig } from '../../model';
 
-export const pangoroConfig: DVMChainConfig = {
-  dvm: {
+export const pangoroConfig: EVMChainConfig = {
+  evm: {
     ring: {
       address: '',
       symbol: 'ORING',

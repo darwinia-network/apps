@@ -13,7 +13,7 @@ export const NETWORK_CONFIGURATIONS = SYSTEM_NETWORK_CONFIGURATIONS.map((item) =
 
 export const AIRPORT_NETWORKS: ChainConfig[] = NETWORK_CONFIGURATIONS.filter((item) =>
   ['ethereum', 'crab', 'tron'].includes(item.name)
-).map((item) => omit(item, 'dvm'));
+).map((item) => omit(item, 'evm'));
 
 export const getNetworkByRpc = (rpc: string | null | undefined): ChainConfig | null => {
   if (rpc) {

@@ -4,7 +4,6 @@ export * from './connection';
 export * from './form-control';
 export * from './metamask';
 export * from './network';
-export * from './route';
 export * from './storage';
 export * from './queue';
 export * from './type-operator';

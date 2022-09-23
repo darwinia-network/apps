@@ -3,7 +3,7 @@ import { svgIconFactory } from './icon-factory';
 function Down() {
   return (
     <svg width="14px" height="14px" viewBox="0 0 14 14" version="1.1" xmlns="http://www.w3.org/2000/svg">
-      <g id="DVM" stroke="none" strokeWidth="1" fill="none" fillRule="evenodd">
+      <g id="EVM" stroke="none" strokeWidth="1" fill="none" fillRule="evenodd">
         <g id="其他网络" transform="translate(-528.000000, -195.000000)" fill="currentColor">
           <g id="通用/Icon图标/Line/Down" transform="translate(528.000000, 195.000000)">
             <g id="up" fillRule="nonzero" opacity="0">

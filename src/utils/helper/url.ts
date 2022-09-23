@@ -1,5 +1,5 @@
 import { mapKeys } from 'lodash';
-import { Network, HistoryRouteParam, StorageInfo, ValueOf, WithNull, NetworkMode } from '../../model';
+import { Network, StorageInfo, ValueOf, NetworkMode } from '../../model';
 import { readStorage } from './storage';
 
 export interface HashInfo {
@@ -90,34 +90,3 @@ export function getInitialSetting<T = SettingValue | string>(key: SettingKey, de
 export function apiUrl(domain: string, path: string): string {
   return domain + '/api/' + path;
 }
-
-// eslint-disable-next-line complexity
-export const genHistoryRouteParams: (param: HistoryRouteParam) => string = ({ from, sender, to, fMode, tMode }) => {
-  const params = new URLSearchParams();
-
-  [
-    { key: 'from', value: from || '' },
-    { key: 'sender', value: sender || '' },
-    { key: 'to', value: to || '' },
-    { key: 'fMode', value: fMode || 'native' },
-    { key: 'tMode', value: tMode || 'native' },
-  ].forEach(({ key, value }) => {
-    if (value) {
-      params.set(key, value);
-    }
-  });
-
-  return params.toString();
-};
-
-export const getHistoryRouteParams: (search: string) => WithNull<HistoryRouteParam> = (search) => {
-  const params = new URLSearchParams(search);
-
-  return {
-    from: params.get('from'),
-    sender: params.get('sender'),
-    to: params.get('to'),
-    fMode: params.get('fMode'),
-    tMode: params.get('tMode'),
-  } as HistoryRouteParam;
-};

@@ -14,17 +14,17 @@ import { useAccount, useApi } from '../../../hooks';
 import { useMetamask } from '../../../hooks/ metamask';
 import {
   entrance,
-  getDvmBalances,
+  getEvmBalances,
   fromWei,
   toWei,
-  convertToDvm,
+  convertToEvm,
   handleEthTxResult,
   prettyNumber,
   insufficientBalanceRule,
 } from '../../../utils';
 import { AddressItem } from '../../widget/form-control/AddressItem';
 import { BalanceControl } from '../../widget/form-control/BalanceControl';
-import { DVMChainConfig } from '../../../model';
+import { EVMChainConfig } from '../../../model';
 import { ImportToken } from './ImportToken';
 
 interface WithdrawFormValues {
@@ -33,7 +33,7 @@ interface WithdrawFormValues {
   amount: string;
 }
 
-const DVM_DISPATCH_ADDRESS = '0x0000000000000000000000000000000000000401';
+const EVM_DISPATCH_ADDRESS = '0x0000000000000000000000000000000000000401';
 
 const capitalLetters = (str: string) => {
   // eslint-disable-next-line no-magic-numbers
@@ -59,9 +59,9 @@ export function Withdraw() {
   const [visibleAttention, setVisibleAttention] = useState(false);
   const [attentionState, setAttentionState] = useState<CheckboxValueType[]>([]);
   const [busy, setBusy] = useState(false);
-  const [dvmBalances, setDvmBalances] = useState(['0', '0']); // [ring, kton]
+  const [evmBalances, setEvmBalances] = useState(['0', '0']); // [ring, kton]
 
-  const { ring, kton } = (network as DVMChainConfig).dvm;
+  const { ring, kton } = (network as EVMChainConfig).evm;
 
   const [withdrawFormValue, setWithdrawFormValue] = useState({
     destination: account?.displayAddress || '',
@@ -76,8 +76,8 @@ export function Withdraw() {
     [status, activeAccount, withdrawFormValue.amount, busy]
   );
 
-  const refreshDvmBalances = useCallback(
-    () => from(getDvmBalances(kton?.address || '', activeAccount || '')).subscribe(setDvmBalances),
+  const refreshEvmBalances = useCallback(
+    () => from(getEvmBalances(kton?.address || '', activeAccount || '')).subscribe(setEvmBalances),
     [activeAccount, kton?.address]
   );
 
@@ -105,7 +105,7 @@ export function Withdraw() {
         from(
           web3.eth.estimateGas({
             from: activeAccount,
-            to: DVM_DISPATCH_ADDRESS,
+            to: EVM_DISPATCH_ADDRESS,
             data: u8aToHex(extrinsic.method.toU8a()),
           })
         ).subscribe((gas) => {
@@ -113,7 +113,7 @@ export function Withdraw() {
           const fee = asset === ring.symbol ? maxFeePerGas.muln(gas) : BN_ZERO;
 
           const want = new BN(amount);
-          const max = asset === ring.symbol ? new BN(dvmBalances[0]) : new BN(dvmBalances[1]);
+          const max = asset === ring.symbol ? new BN(evmBalances[0]) : new BN(evmBalances[1]);
           const transferable = want.add(fee).lt(max) ? want : max.sub(fee);
 
           if (transferable.gt(BN_ZERO)) {
@@ -124,7 +124,7 @@ export function Withdraw() {
 
             const tx = web3.eth.sendTransaction({
               from: activeAccount,
-              to: DVM_DISPATCH_ADDRESS,
+              to: EVM_DISPATCH_ADDRESS,
               data: u8aToHex(extrinsic.method.toU8a()),
               gas,
             });
@@ -132,7 +132,7 @@ export function Withdraw() {
             handleEthTxResult(tx, {
               txSuccessCb: () => {
                 refreshAssets(); // substrate balance
-                refreshDvmBalances();
+                refreshEvmBalances();
                 setBusy(false);
                 setVisibleAttention(false);
               },
@@ -149,12 +149,12 @@ export function Withdraw() {
       } else if (asset === kton?.symbol) {
         const contract = new web3.eth.Contract(abi.ktonABI, kton.address);
 
-        const tx = contract.methods.withdraw(convertToDvm(destination), amount).send({ from: activeAccount });
+        const tx = contract.methods.withdraw(convertToEvm(destination), amount).send({ from: activeAccount });
 
         handleEthTxResult(tx, {
           txSuccessCb: () => {
             refreshAssets(); // substrate balance
-            refreshDvmBalances();
+            refreshEvmBalances();
             setBusy(false);
             setVisibleAttention(false);
           },
@@ -169,16 +169,16 @@ export function Withdraw() {
         description: (error as Error).message,
       });
     }
-  }, [activeAccount, ring, kton, withdrawFormValue, api, dvmBalances, network.name, refreshAssets, refreshDvmBalances]);
+  }, [activeAccount, ring, kton, withdrawFormValue, api, evmBalances, network.name, refreshAssets, refreshEvmBalances]);
 
   useEffect(() => {
-    const sub$$ = refreshDvmBalances();
+    const sub$$ = refreshEvmBalances();
 
     return () => sub$$.unsubscribe();
-  }, [refreshDvmBalances]);
+  }, [refreshEvmBalances]);
 
   useEffect(() => {
-    const amount = withdrawFormValue.asset === ring.symbol ? new BN(dvmBalances[0]) : new BN(dvmBalances[1]);
+    const amount = withdrawFormValue.asset === ring.symbol ? new BN(evmBalances[0]) : new BN(evmBalances[1]);
 
     const amountDisplay = prettyNumber(fromWei({ value: amount.isNeg() ? BN_ZERO : amount, unit: 'ether' }), {
       decimal: Number(network.tokens.ring.decimal),
@@ -188,7 +188,7 @@ export function Withdraw() {
       amount: amountDisplay,
     });
     setWithdrawFormValue((prev) => ({ ...prev, amount: amountDisplay }));
-  }, [withdrawFormValue.asset, dvmBalances, ring.symbol, form, network.tokens.ring]);
+  }, [withdrawFormValue.asset, evmBalances, ring.symbol, form, network.tokens.ring]);
 
   const attentionsOpts = useMemo(
     () => [
@@ -245,7 +245,7 @@ export function Withdraw() {
             <Button
               type="primary"
               size="large"
-              onClick={() => connectNetwork((network as DVMChainConfig).ethereumChain)}
+              onClick={() => connectNetwork((network as EVMChainConfig).ethereumChain)}
               disabled={disableConnect}
               loading={metamaskBusy}
             >
