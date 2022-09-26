@@ -5,17 +5,17 @@ interface Props {
 }
 
 interface State {
-  hasError: boolean;
+  error: Error | null;
 }
 
 export class ErrorBoundary extends React.Component<Props, State> {
   public state: State = {
-    hasError: false,
+    error: null,
   };
 
-  public static getDerivedStateFromError(_: Error) {
+  public static getDerivedStateFromError(error: Error) {
     // Update state so the next render will show the fallback UI.
-    return { hasError: true };
+    return { error };
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
@@ -24,9 +24,16 @@ export class ErrorBoundary extends React.Component<Props, State> {
   }
 
   render() {
-    if (this.state.hasError) {
+    if (this.state.error) {
       // You can render any custom fallback UI
-      return <h1>Sorry.. there was an error</h1>;
+      return (
+        <div className="w-screen h-screen flex items-center justify-center">
+          <div className="flex flex-col items-center">
+            <img alt="..." src="/image/error.svg" className="w-16" />
+            <p className="mt-2">Sorry.. something went wrong</p>
+          </div>
+        </div>
+      );
     }
 
     return this.props.children;
