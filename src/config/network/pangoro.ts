@@ -2,6 +2,11 @@ import { EVMChainConfig } from '../../model';
 
 export const pangoroConfig: EVMChainConfig = {
   evm: {
+    kton: {
+      address: '0x0000000000000000000000000000000000000402',
+      symbol: 'OKTON',
+      decimals: 18,
+    },
     ring: {
       address: '',
       symbol: 'ORING',

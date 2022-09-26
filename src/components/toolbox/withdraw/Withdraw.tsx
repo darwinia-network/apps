@@ -94,7 +94,8 @@ export function Withdraw() {
         asset === ring.symbol ||
         network.name === 'crab' ||
         network.name === 'darwinia' ||
-        network.name === 'pangolin'
+        network.name === 'pangolin' ||
+        network.name === 'pangoro'
       ) {
         const transfer = asset === ring.symbol ? api.tx.balances.transfer : api.tx.kton.transfer;
         const extrinsic = transfer(

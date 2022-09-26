@@ -45,8 +45,8 @@ export function AssetOverview({ asset, loading, refresh }: AssetOverviewProps) {
       network.name === 'crab' ||
       network.name === 'darwinia' ||
       network.name === 'pangolin' ||
-      (network.name === 'pangoro' && isRing(asset.token.symbol)),
-    [network.name, asset.token]
+      network.name === 'pangoro',
+    [network.name]
   );
 
   return (
