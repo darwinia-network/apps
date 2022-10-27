@@ -26,4 +26,9 @@ export enum SearchParamsKey {
   NONCE = 'nonce',
   RELAYER = 'relayer',
   DESTINATION = 'destination',
+  OPEN = 'open',
+}
+
+export enum SearchParamsOpen {
+  FAUCET = 'faucet',
 }

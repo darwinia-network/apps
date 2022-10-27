@@ -4,11 +4,20 @@ import { useTranslation } from 'react-i18next';
 import { capitalize } from 'lodash';
 import { timer } from 'rxjs';
 import { millisecondsInHour, millisecondsInSecond } from 'date-fns';
+import { useNavigate } from 'react-router-dom';
 
 import { rxGet, rxPost, formatTimeLeft } from '../../utils';
 import { useAccount } from '../../hooks';
 import { SubscanLink } from '../widget/SubscanLink';
-import { Network, FaucetResponse, FaucetResponseCode, FaucetThrottleData, FaucetTransferData } from '../../model';
+import {
+  Network,
+  FaucetResponse,
+  FaucetResponseCode,
+  FaucetThrottleData,
+  FaucetTransferData,
+  SearchParamsKey,
+  SearchParamsOpen,
+} from '../../model';
 
 const Section = ({ label, children, className }: PropsWithChildren<{ label: string; className?: string }>) => (
   <div className={className}>
@@ -76,6 +85,7 @@ const Insufficient = () => {
 export const Faucet = ({ network, address, symbol }: { network: Network; address: string; symbol: string }) => {
   const { refreshAssets } = useAccount();
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const [busy, setBusy] = useState(false);
   const [loading, setLoaing] = useState(false);
   const [visible, setVisible] = useState(false);
@@ -83,6 +93,20 @@ export const Faucet = ({ network, address, symbol }: { network: Network; address
   const [message, setMessage] = useState('');
   const [throttle, setThrottle] = useState<FaucetThrottleData>({ lastTime: 0, throttleHours: 0 });
   const [status, setStatus] = useState<FaucetResponseCode | null>(null);
+
+  const handleShowFaucet = useCallback(() => {
+    const urlSearchParams = new URLSearchParams(window.location.search);
+    urlSearchParams.set(SearchParamsKey.OPEN, SearchParamsOpen.FAUCET);
+    navigate(`?${urlSearchParams.toString()}`);
+    setVisible(true);
+  }, [navigate]);
+
+  const handleHideFaucet = useCallback(() => {
+    const urlSearchParams = new URLSearchParams(window.location.search);
+    urlSearchParams.delete(SearchParamsKey.OPEN);
+    navigate(`?${urlSearchParams.toString()}`);
+    setVisible(false);
+  }, [navigate]);
 
   const handleOpenFaucet = useCallback(() => {
     setBusy(true);
@@ -171,9 +195,16 @@ export const Faucet = ({ network, address, symbol }: { network: Network; address
     setStatus(null); // reset status
   }, [network, symbol, address]);
 
+  useEffect(() => {
+    const urlSearchParams = new URLSearchParams(window.location.search);
+    if (urlSearchParams.get(SearchParamsKey.OPEN) === SearchParamsOpen.FAUCET) {
+      setVisible(true);
+    }
+  }, []);
+
   return (
     <>
-      <Button onClick={() => setVisible(true)} type="text" loading={busy}>
+      <Button onClick={handleShowFaucet} type="text" loading={busy}>
         <Typography.Text className={`text-${network}-main`}>{t('Faucet')}</Typography.Text>
       </Button>
 
@@ -196,7 +227,7 @@ export const Faucet = ({ network, address, symbol }: { network: Network; address
           )
         }
         width={420}
-        onCancel={() => setVisible(false)}
+        onCancel={handleHideFaucet}
       >
         {busy ? (
           <div className="py-8 flex flex-col justify-center items-center">
