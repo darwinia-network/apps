@@ -41,7 +41,7 @@ export function Migration() {
                   <List.Item.Meta
                     avatar={<Identicon value={item.displayAddress} size={40} className="border rounded-full p-1" />}
                     title={<span className="font-bold text-lg">{item.meta.name}</span>}
-                    description={<EllipsisMiddle value={item.address} />}
+                    description={<EllipsisMiddle value={item.displayAddress} />}
                     className="flex item-center"
                   />
 
