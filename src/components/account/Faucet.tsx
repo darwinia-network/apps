@@ -82,7 +82,7 @@ const Insufficient = () => {
 };
 
 // eslint-disable-next-line complexity
-export const Faucet = ({ network, address, symbol }: { network: Network; address: string; symbol: string }) => {
+const FaucetWithAddress = ({ network, address, symbol }: { network: Network; address: string; symbol: string }) => {
   const { refreshAssets } = useAccount();
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -257,3 +257,29 @@ export const Faucet = ({ network, address, symbol }: { network: Network; address
     </>
   );
 };
+
+const FaucetWithOutAddress = () => {
+  const { t } = useTranslation();
+  const [visible, setVisible] = useState(true);
+
+  return (
+    <Modal
+      title={t('Faucet')}
+      visible={visible}
+      width={420}
+      onCancel={() => setVisible(false)}
+      footer={
+        <div className="flex justify-center">
+          <Button size="large" className="w-11/12" onClick={() => setVisible(false)}>
+            {t('Ok')}
+          </Button>
+        </div>
+      }
+    >
+      <Typography.Text>{t('Please select an account first.')}</Typography.Text>
+    </Modal>
+  );
+};
+
+export const Faucet = ({ network, address, symbol }: { network: Network; address?: string; symbol: string }) =>
+  address ? <FaucetWithAddress network={network} address={address} symbol={symbol} /> : <FaucetWithOutAddress />;

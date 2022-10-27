@@ -62,8 +62,8 @@ export function AssetOverview({ asset, loading, refresh }: AssetOverviewProps) {
               </Spin>
             </div>
           </div>
-          {supportFaucet && account ? (
-            <Faucet address={account.displayAddress} network={network.name} symbol={network.tokens.ring.symbol} />
+          {supportFaucet ? (
+            <Faucet address={account?.displayAddress} network={network.name} symbol={network.tokens.ring.symbol} />
           ) : null}
         </div>
 
