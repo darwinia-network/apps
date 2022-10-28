@@ -4,6 +4,7 @@ import { Trans } from 'react-i18next';
 import { useEffect, ReactNode } from 'react';
 import { SubmittableResult } from '@polkadot/api';
 import { useQueue, useApi, useNetworkColor } from '../../hooks';
+import { Path } from '../../config/routes';
 import { SubscanLink } from './SubscanLink';
 
 type NotificationConfig = {
@@ -13,6 +14,11 @@ type NotificationConfig = {
   icon?: ReactNode;
   description: ReactNode;
   type: 'success' | 'error' | 'info' | 'warning' | 'open';
+};
+
+const AccountMigrationLink = ({ children }: { children: ReactNode }) => {
+  const searchParamsStr = new URLSearchParams(window.location.search).toString();
+  return <a href={searchParamsStr.length ? `${Path.migration}?${searchParamsStr}` : Path.migration}>{children}</a>;
 };
 
 export const QueueStatus = () => {
@@ -26,10 +32,22 @@ export const QueueStatus = () => {
       let config: NotificationConfig | undefined = undefined;
 
       if (status === 'error') {
-        config = {
-          type: 'error',
-          description: error?.message,
-        };
+        if (error?.message && error.message.includes('Unable to retrieve keypair')) {
+          config = {
+            type: 'error',
+            description: (
+              <span>
+                {error.message}. Check on the <AccountMigrationLink>Account Migration</AccountMigrationLink> Page or
+                restore your account with your backup files.
+              </span>
+            ),
+          };
+        } else {
+          config = {
+            type: 'error',
+            description: error?.message,
+          };
+        }
       } else if (status === 'signing') {
         config = {
           type: 'info',

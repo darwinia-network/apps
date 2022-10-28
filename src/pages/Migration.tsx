@@ -17,7 +17,7 @@ export function Migration() {
     <div className="lg:px-8 px-4">
       <Card className="mx-0 shadow-xxl">
         <Trans className="m-8">
-          {`If your account in the old version cannot be found in your wallet, you can restore JSON which the account in the old version Apps through "Account Migration" and add the JSON to your wallet. `}
+          {`Here are the accounts you generated on the Darwinia Apps of the old version. You can restore them in the Polkadot{.js} by importing the JSON files. `}
           <AntdLink
             href="https://darwinianetwork.medium.com/using-darwinia-tools-3-8-darwinia-apps-lite-guide-part-%E2%85%B0-account-ae9b3347b3c7"
             target="_blank"
@@ -41,7 +41,7 @@ export function Migration() {
                   <List.Item.Meta
                     avatar={<Identicon value={item.displayAddress} size={40} className="border rounded-full p-1" />}
                     title={<span className="font-bold text-lg">{item.meta.name}</span>}
-                    description={<EllipsisMiddle value={item.address} />}
+                    description={<EllipsisMiddle value={item.displayAddress} />}
                     className="flex item-center"
                   />
 
