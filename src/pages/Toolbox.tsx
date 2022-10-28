@@ -50,7 +50,7 @@ export function Toolbox() {
                     validator(_, value) {
                       return web3.utils.isAddress(value) ? Promise.resolve() : Promise.reject();
                     },
-                    message: t('Address Invalid'),
+                    message: t('Invalid Account'),
                   },
                 ]}
               >

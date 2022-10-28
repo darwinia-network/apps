@@ -18,7 +18,7 @@
   "Additional bond funds": "质押额外资金",
   "Additional deposit funds": "冻结数量",
   "Address": "地址",
-  "Address Invalid": "无效地址",
+  "Invalid Account": "无效地址",
   "Adds bonded tokens for staking to obtain more power.": "将可用的资金状态变更为冻结以获取更多Power",
   "After setting a lock limit, you will receive an additional {{KTON}} bonus; if you unlock it in advance within the lock limit, you will be charged a penalty of 3 times the {{KTON}} reward.": "设置锁定期限后，您将获得额外的 {{KTON}} 奖励。如您在锁定期限内提前取出，需要提现3倍的 {{KTON}} 罚款。",
   "Amount": "金额",

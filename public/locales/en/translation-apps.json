@@ -18,7 +18,7 @@
   "Additional bond funds": "Additional bond funds",
   "Additional deposit funds": "Additional deposit funds",
   "Address": "Address",
-  "Address Invalid": "Address Invalid",
+  "Invalid Account": "Invalid Account",
   "Adds bonded tokens for staking to obtain more power.": "Adds bonded tokens for staking to obtain more power.",
   "After setting a lock limit, you will receive an additional {{KTON}} bonus; if you unlock it in advance within the lock limit, you will be charged a penalty of 3 times the {{KTON}} reward.": "After setting a lock limit, you will receive an additional {{KTON}} bonus; if you unlock it in advance within the lock limit, you will be charged a penalty of 3 times the {{KTON}} reward.",
   "Amount": "Amount",

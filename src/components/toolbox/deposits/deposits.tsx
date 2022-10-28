@@ -91,7 +91,7 @@ export const Deposits = () => {
   );
 
   return (
-    <Card>
+    <Card className="max-w-xl">
       <div className="my-8 flex items-center gap-4">
         {activeAccount ? (
           <>

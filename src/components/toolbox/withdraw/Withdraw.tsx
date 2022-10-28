@@ -215,7 +215,7 @@ export function Withdraw() {
 
   return (
     <>
-      <Card>
+      <Card className="max-w-xl">
         <div className="my-8 flex items-center space-x-4">
           {activeAccount && (
             <div className="flex" style={{ width: '36rem' }}>
