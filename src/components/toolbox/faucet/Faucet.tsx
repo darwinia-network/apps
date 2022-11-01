@@ -1,4 +1,4 @@
-import { Card, Typography, Spin, Button, Form, notification } from 'antd';
+import { Card, Typography, Spin, Button, Form, Modal, notification } from 'antd';
 import { useState, useCallback, useEffect, PropsWithChildren } from 'react';
 import { useTranslation } from 'react-i18next';
 import { isRing, rxGet, rxPost, formatTimeLeft } from 'src/utils';
@@ -112,13 +112,8 @@ export const Faucet = () => {
   }, [network.name, address]);
 
   return (
-    <Card className="max-w-xl pb-8">
-      {busy ? (
-        <div className="py-8 flex flex-col justify-center items-center">
-          <Spin size="large" />
-          <Typography.Paragraph className="mt-4">{t('Transaction is being processed')}</Typography.Paragraph>
-        </div>
-      ) : (
+    <>
+      <Card className="max-w-xl pb-8">
         <Form<{ address: string }>
           layout="vertical"
           onValuesChange={({ address }) => {
@@ -165,8 +160,15 @@ export const Faucet = () => {
             </div>
           </div>
         </Form>
-      )}
-    </Card>
+      </Card>
+
+      <Modal visible={busy} onCancel={() => setBusy(false)} footer={null} width={460}>
+        <div className="py-16 flex flex-col justify-center items-center">
+          <Spin size="large" />
+          <Typography.Paragraph className="mt-4">{t('Transaction is being processed')}</Typography.Paragraph>
+        </div>
+      </Modal>
+    </>
   );
 };
 
