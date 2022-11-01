@@ -44,15 +44,15 @@ export function Toolbox() {
         onChange={handleChange}
         className={`lg:px-8 px-4 w-full mx-auto dark:shadow-none dark:border-transparent pb-5 page-account-tabs page-account-tabs-${name}`}
       >
-        {supportEvm && (
-          <Tabs.TabPane tab={t('EVM Address')} key="address">
-            <ConvertAddress />
-          </Tabs.TabPane>
-        )}
-
         {supportFaucet && (
           <Tabs.TabPane tab={t('Faucet')} key="faucet">
             <Faucet />
+          </Tabs.TabPane>
+        )}
+
+        {supportEvm && (
+          <Tabs.TabPane tab={t('EVM Address')} key="address">
+            <ConvertAddress />
           </Tabs.TabPane>
         )}
 
