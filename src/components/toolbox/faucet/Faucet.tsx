@@ -129,7 +129,7 @@ export const Faucet = () => {
             console.log(address);
           }}
         >
-          <Section label={t('What is faucet')}>
+          <Section>
             <span>
               {t(
                 'This faucet sends {{symbol}} (TestToken) on {{network}} Chain to your account. You can request 100 {{symbol}} from faucet every 12h.',
@@ -165,9 +165,9 @@ export const Faucet = () => {
   );
 };
 
-const Section = ({ label, children, className }: PropsWithChildren<{ label: string; className?: string }>) => (
+const Section = ({ label, children, className }: PropsWithChildren<{ label?: string; className?: string }>) => (
   <div className={`flex flex-col gap-2 ${className}`}>
-    <h5 className="font-bold">{label}</h5>
+    {label && <h5 className="font-bold">{label}</h5>}
     {children}
   </div>
 );
