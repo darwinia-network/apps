@@ -1,7 +1,7 @@
 import { Card, Typography, Spin, Button, Form, Modal, notification } from 'antd';
 import { useState, useCallback, useEffect, PropsWithChildren } from 'react';
 import { useTranslation } from 'react-i18next';
-import { isRing, rxGet, rxPost, formatTimeLeft } from 'src/utils';
+import { isRing, rxGet, rxPost, formatTimeLeft, isValidAddress } from 'src/utils';
 import { capitalize } from 'lodash';
 import { useAccount, useApi } from 'src/hooks';
 import { AddressItem } from 'src/components/widget/form-control/AddressItem';
@@ -73,7 +73,7 @@ export const Faucet = () => {
   }, [network.name, address, t, refreshAssets]);
 
   useEffect(() => {
-    if (!address) {
+    if (!address || !isValidAddress(address)) {
       return;
     }
 
