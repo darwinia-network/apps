@@ -188,7 +188,7 @@ const Request = ({
 }) => {
   const { t } = useTranslation();
   return (
-    <Button size="large" className="w-full" loading={loading} disabled={disabled} onClick={onClick}>
+    <Button size="large" className="w-full" type="primary" loading={loading} disabled={disabled} onClick={onClick}>
       {t('Request')}
     </Button>
   );
