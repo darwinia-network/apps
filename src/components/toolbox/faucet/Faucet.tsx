@@ -14,7 +14,7 @@ import { FaucetResponse, FaucetResponseCode, FaucetThrottleData, FaucetTransferD
 export const Faucet = () => {
   const { t } = useTranslation();
   const { network } = useApi();
-  const { assets, account, refreshAssets } = useAccount();
+  const { assets, refreshAssets } = useAccount();
   const [busy, setBusy] = useState(false);
   const [loading, setLoaing] = useState(false);
   const [address, setAddress] = useState<string | null | undefined>(null);
@@ -121,7 +121,6 @@ export const Faucet = () => {
       ) : (
         <Form<{ address: string }>
           layout="vertical"
-          initialValues={{ address: account?.displayAddress }}
           onValuesChange={({ address }) => {
             setAddress(address);
           }}
@@ -148,16 +147,22 @@ export const Faucet = () => {
             <AddressItem label={'Your account'} name="address" extra={null} />
           </Form.Item>
 
-          <div className="flex flex-col items-center mt-3">
-            {!status || status === FaucetResponseCode.SUCCESS_PRECHECK ? (
-              <Request onClick={handleOpenFaucet} loading={loading || busy} />
-            ) : status === FaucetResponseCode.FAILED_THROTTLE || status === FaucetResponseCode.SUCCESS_TRANSFER ? (
-              <ThrottleLimit throttleData={throttle} onFinish={() => setStatus(null)} />
-            ) : status === FaucetResponseCode.FAILED_INSUFFICIENT ? (
-              <Insufficient />
-            ) : (
-              <Typography.Text className="text-red-500">{message}</Typography.Text>
-            )}
+          <div className="flex flex-col items-center mt-3 gap-8">
+            <Request
+              onClick={handleOpenFaucet}
+              loading={loading || busy}
+              disabled={status !== FaucetResponseCode.SUCCESS_PRECHECK}
+            />
+            <div className="flex flex-col items-center">
+              {!status || status === FaucetResponseCode.SUCCESS_PRECHECK ? null : status ===
+                  FaucetResponseCode.FAILED_THROTTLE || status === FaucetResponseCode.SUCCESS_TRANSFER ? (
+                <ThrottleLimit throttleData={throttle} onFinish={() => setStatus(null)} />
+              ) : status === FaucetResponseCode.FAILED_INSUFFICIENT ? (
+                <Insufficient />
+              ) : (
+                <Typography.Text className="text-red-500">{message}</Typography.Text>
+              )}
+            </div>
           </div>
         </Form>
       )}
@@ -172,10 +177,18 @@ const Section = ({ label, children, className }: PropsWithChildren<{ label?: str
   </div>
 );
 
-const Request = ({ loading, onClick = () => undefined }: { loading: boolean; onClick?: () => void }) => {
+const Request = ({
+  loading,
+  disabled,
+  onClick = () => undefined,
+}: {
+  loading: boolean;
+  disabled: boolean;
+  onClick?: () => void;
+}) => {
   const { t } = useTranslation();
   return (
-    <Button size="large" className="w-full" loading={loading} onClick={onClick}>
+    <Button size="large" className="w-full" loading={loading} disabled={disabled} onClick={onClick}>
       {t('Request')}
     </Button>
   );
