@@ -10,7 +10,7 @@ import { FormModal } from '../widget/FormModal';
 import { TooltipBalance } from '../widget/TooltipBalance';
 import { BalanceControl } from '../widget/form-control/BalanceControl';
 import { AddressItem } from '../widget/form-control/AddressItem';
-import { Faucet } from './Faucet';
+// import { Faucet } from './Faucet';
 
 interface TransferFormValues {
   from: string;
@@ -30,10 +30,10 @@ export function AssetOverview({ asset, loading, refresh }: AssetOverviewProps) {
   const [isVisible, setIsVisible] = useState(false);
   const [transferable, setTransferable] = useState<BN | null>(null);
 
-  const supportFaucet = useMemo(
-    () => isRing(asset.token.symbol) && (network.name === 'pangolin' || network.name === 'pangoro'),
-    [asset.token, network.name]
-  );
+  // const supportFaucet = useMemo(
+  //   () => isRing(asset.token.symbol) && (network.name === 'pangolin' || network.name === 'pangoro'),
+  //   [asset.token, network.name]
+  // );
 
   const tokenIconSrc = useMemo(
     () => `/image/token/token-${(asset.token?.symbol || 'RING').toLowerCase()}.svg`,
@@ -62,9 +62,9 @@ export function AssetOverview({ asset, loading, refresh }: AssetOverviewProps) {
               </Spin>
             </div>
           </div>
-          {supportFaucet && account ? (
+          {/* {supportFaucet && account ? (
             <Faucet address={account.displayAddress} network={network.name} symbol={network.tokens.ring.symbol} />
-          ) : null}
+          ) : null} */}
         </div>
 
         <hr className={`my-6 opacity-20 h-0.5 bg-${network.name}`} />
