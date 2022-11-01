@@ -215,7 +215,7 @@ export function Withdraw() {
 
   return (
     <>
-      <Card className="max-w-xl">
+      <Card className="max-w-max">
         <div className="my-8 flex items-center space-x-4">
           {activeAccount && (
             <div className="flex" style={{ width: '36rem' }}>
@@ -258,7 +258,7 @@ export function Withdraw() {
         <Form<WithdrawFormValues>
           form={form}
           initialValues={withdrawFormValue}
-          className="max-w-xl"
+          className="max-w-xl lg:w-144"
           validateMessages={validateMessages[i18n.language as 'en' | 'zh-CN' | 'zh']}
           layout="vertical"
           onValuesChange={({ asset }) => {

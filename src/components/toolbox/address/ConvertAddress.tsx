@@ -14,8 +14,8 @@ export const ConvertAddress = () => {
   const { ss58Prefix, name } = network;
 
   return (
-    <Card className="max-w-xl pb-8">
-      <Form layout="vertical" className="max-w-xl">
+    <Card className="max-w-max pb-8">
+      <Form layout="vertical" className="max-w-xl lg:w-144">
         <Form.Item
           label={
             <Label

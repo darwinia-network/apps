@@ -113,9 +113,10 @@ export const Faucet = () => {
 
   return (
     <>
-      <Card className="max-w-xl pb-8">
+      <Card className="max-w-max pb-8">
         <Form<{ address: string }>
           layout="vertical"
+          className="max-w-xl lg:w-144"
           onValuesChange={({ address }) => {
             setAddress(address);
           }}
