@@ -4,6 +4,9 @@ module.exports = {
   content: ['./src/**/*.{js,jsx,ts,tsx}'],
   theme: {
     extend: {
+      spacing: {
+        '144': '36rem',
+      },
       animation: {
         'ball-scale-pulse': 'ball-scale-pulse 2s ease-in-out infinite',
       },

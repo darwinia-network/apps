@@ -91,7 +91,7 @@ export const Deposits = () => {
   );
 
   return (
-    <Card>
+    <Card className="max-w-max">
       <div className="my-8 flex items-center gap-4">
         {activeAccount ? (
           <>
@@ -119,7 +119,7 @@ export const Deposits = () => {
         initialValues={{
           recipient,
         }}
-        className="max-w-xl"
+        className="max-w-xl lg:w-144"
         validateMessages={validateMessages[i18n.language as 'en' | 'zh-CN' | 'zh']}
         onFinish={handleClaim}
       >
