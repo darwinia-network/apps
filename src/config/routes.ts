@@ -5,7 +5,7 @@ import { Migration } from '../pages/Migration';
 import { Portal } from '../pages/Portal';
 import { Staking } from '../pages/Staking';
 import { Toolbox } from '../pages/Toolbox';
-import { FeeMarket } from '../pages/FeeMarket';
+// import { FeeMarket } from '../pages/FeeMarket';
 import { Page404 } from '../components/widget/Page404';
 
 export enum Path {
@@ -43,10 +43,10 @@ export const routes: (RouteProps & { PageComponent: React.ComponentType })[] = [
     path: Path.migration,
     PageComponent: Migration,
   },
-  {
-    path: Path.feemarket,
-    PageComponent: FeeMarket,
-  },
+  // {
+  //   path: Path.feemarket,
+  //   PageComponent: FeeMarket,
+  // },
   {
     path: '*',
     PageComponent: Page404,
