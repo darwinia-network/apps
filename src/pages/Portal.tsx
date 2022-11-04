@@ -123,6 +123,12 @@ export function Portal() {
         description: t('Non-custodial NFT marketplace, connected to Crab network.'),
         link: 'https://raregems.io/',
       },
+      {
+        name: 'Fee Market UI',
+        logo: '/image/portal/fee-market.svg',
+        description: t('To Provide data statistics and relayer operation functions for the Darwinia Fee Market.'),
+        link: 'https://feemarket.darwinia.network/',
+      },
     ],
     [t, network]
   );
