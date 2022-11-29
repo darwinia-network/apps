@@ -88,7 +88,7 @@ export const Deposits = () => {
 
   return (
     <Card className="max-w-max">
-      <div className="my-8 flex items-center gap-4">
+      <div className="mt-8 mb-4 flex items-center gap-4">
         {activeAccount ? (
           <>
             <span className="text-lg mr-2">{t('Metamask account')}:</span>
@@ -110,6 +110,13 @@ export const Deposits = () => {
           </Button>
         )}
       </div>
+
+      <div className="max-w-xl lg:w-144 mb-8">
+        <span className="text-sm font-normal text-gray-500">
+          {t('You can check your term deposit of RING on Ethereum and claim the expired ones by connecting MetaMask.')}
+        </span>
+      </div>
+
       <Form<DepositForm>
         layout="vertical"
         initialValues={{
