@@ -1,11 +1,9 @@
 import { Form, Card, Button } from 'antd';
 import { useCallback, useMemo, useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { decodeAddress } from '@polkadot/util-crypto';
 import { from, Observable, Subscriber } from 'rxjs';
-import { useAccount, useApi, useRecordsQuery } from '../../../hooks';
+import { useAccount, useRecordsQuery } from '../../../hooks';
 import { useMetamask } from '../../../hooks/ metamask';
-import { AddressItem } from '../../widget/form-control/AddressItem';
 import { DepositItem } from '../../widget/form-control/DepositItem';
 import {
   validateMessages,
@@ -16,18 +14,16 @@ import {
 } from '../../../config';
 import i18n from '../../../config/i18n';
 import { abi } from '../../../config/abi';
-import { buf2hex, apiUrl } from '../../../utils';
+import { apiUrl } from '../../../utils';
 import { entrance } from '../../../utils/network';
 import { Deposit, DepositResponse } from '../../../model';
 import { ClaimHistory } from './history';
 
 type DepositForm = {
   deposit: Deposit;
-  recipient: string;
 };
 
 export const Deposits = () => {
-  const { network } = useApi();
   const { account } = useAccount();
   const {
     connection: { status, accounts },
@@ -58,7 +54,7 @@ export const Deposits = () => {
   const disableConnect = useMemo(() => status !== 'success' && status !== 'pending', [status]);
 
   const handleClaim = useCallback(
-    ({ deposit, recipient }: DepositForm) => {
+    ({ deposit }: DepositForm) => {
       const obs = new Observable((subscriber: Subscriber<boolean>) => {
         try {
           subscriber.next(true);
@@ -67,7 +63,7 @@ export const Deposits = () => {
           const contract = new web3.eth.Contract(abi.bankABI, ETHEREUM_CLAIM_DEPOSIT);
 
           contract.methods
-            .burnAndRedeem(deposit.deposit_id, buf2hex(decodeAddress(recipient, false, network.ss58Prefix).buffer))
+            .claimDeposit(deposit.deposit_id)
             .send({ from: activeAccount })
             .on('receipt', () => {
               subscriber.next(false);
@@ -87,7 +83,7 @@ export const Deposits = () => {
         error: () => setBusy(false),
       });
     },
-    [activeAccount, network.ss58Prefix]
+    [activeAccount]
   );
 
   return (
@@ -124,8 +120,6 @@ export const Deposits = () => {
         onFinish={handleClaim}
       >
         <DepositItem label="Deposit list" name="deposit" response={response} />
-        <AddressItem label={'Receive account'} name="recipient" extra={null} />
-
         <Form.Item>
           <Button
             size="large"

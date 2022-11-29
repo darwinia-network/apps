@@ -47,11 +47,18 @@ const columns: ColumnsType<HistoryState> = [
     title: 'Transaction',
     dataIndex: 'withdrawTx',
     align: 'center',
-    render: (hash) => (
-      <Typography.Link rel="noopener noreferrer" target="_blank" href={`${ethereumConfig.blockExplorerUrls}tx/${hash}`}>
-        <ViewBrowserIcon />
-      </Typography.Link>
-    ),
+    render: (hash) =>
+      hash ? (
+        <Typography.Link
+          rel="noopener noreferrer"
+          target="_blank"
+          href={`${ethereumConfig.blockExplorerUrls}tx/${hash}`}
+        >
+          <ViewBrowserIcon />
+        </Typography.Link>
+      ) : (
+        <Typography.Text>Sent</Typography.Text>
+      ),
   },
 ];
 
@@ -59,7 +66,10 @@ export const ClaimHistory = ({ response }: { response: RecordsHook<DepositRespon
   const { t } = useTranslation();
   const { loading, error, data } = response;
 
-  const claimed = useMemo(() => data?.list.filter((item) => item.withdraw_time) || [], [data?.list]);
+  const claimed = useMemo(
+    () => data?.list.filter((item) => item.withdraw_tx || item.map_status === 'sent') || [],
+    [data?.list]
+  );
 
   const dataSource = useMemo<HistoryState[]>(
     () =>
