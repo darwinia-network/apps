@@ -27,7 +27,7 @@ const calcuStakingTime = (until: BlockNumber, current: CurrentBlockTime | undefi
 };
 
 export const UnbondRecords = ({ dataSource, loading }: { dataSource: UnbondDataSourceState[]; loading: boolean }) => {
-  const { api, network } = useApi();
+  const { api } = useApi();
   const { refreshAssets } = useAccount();
   const { queueExtrinsic } = useQueue();
   const [blockTime] = useBlockTime(1); // milliseconds
@@ -79,9 +79,9 @@ export const UnbondRecords = ({ dataSource, loading }: { dataSource: UnbondDataS
       key: 'amount',
       dataIndex: 'amount',
       align: 'center',
-      render: (value) => (
+      render: (value, row) => (
         <span>
-          {fromWei({ value }, prettyNumber)} {network.tokens.ring.symbol}
+          {fromWei({ value }, prettyNumber)} {row.symbol}
         </span>
       ),
     },
