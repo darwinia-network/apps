@@ -40,7 +40,7 @@ const columns: ColumnsType<HistoryState> = [
     title: 'Withdraw Time',
     dataIndex: 'withdrawTime',
     align: 'center',
-    render: (time) => format(fromUnixTime(time), DATE_FORMAT),
+    render: (time) => (time ? format(fromUnixTime(time), DATE_FORMAT) : 'Transferred'),
   },
   {
     key: 'withdrawTx',
@@ -57,7 +57,7 @@ const columns: ColumnsType<HistoryState> = [
           <ViewBrowserIcon />
         </Typography.Link>
       ) : (
-        <Typography.Text>Sent</Typography.Text>
+        <Typography.Text>-</Typography.Text>
       ),
   },
 ];
