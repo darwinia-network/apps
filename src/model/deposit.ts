@@ -10,6 +10,7 @@ export interface Deposit {
   duration: number; // month amount
   deposit_tx: string;
   withdraw_tx: string;
+  map_status: string;
 }
 
 export type DepositResponse = { list: Deposit[] };

@@ -304,5 +304,6 @@
   "Do not fill in any cold wallet address.": "Do not fill in any cold wallet address.",
   "Do not fill in any cold wallet address or exchange controlled address.": "Do not fill in any cold wallet address or exchange controlled address.",
   "Estimated fees of {{amount}} {{token}}": "Estimated fees of {{amount}} {{token}}",
-  "A tool to migrate your Darwinia Tokens to the new contract.": "A tool to migrate your Darwinia Tokens to the new contract."
+  "A tool to migrate your Darwinia Tokens to the new contract.": "A tool to migrate your Darwinia Tokens to the new contract.",
+  "You can check your term deposit of RING on Ethereum and claim the expired ones by connecting MetaMask.": "You can check your term deposit of RING on Ethereum and claim the expired ones by connecting MetaMask."
 }

@@ -8,6 +8,20 @@ import { RecordsHook } from '../../../hooks';
 import { getTimeRange } from '../../../utils';
 import { DATE_FORMAT } from '../../../config';
 
+const getSencondFromMonth = (month: number) => {
+  // eslint-disable-next-line no-magic-numbers
+  return month * 30 * 24 * 60 * 60;
+};
+
+const isEnding = (startTime: number, durationTime: number) => {
+  const current = Date.now();
+  // eslint-disable-next-line no-magic-numbers
+  const start = startTime * 1000;
+  // eslint-disable-next-line no-magic-numbers
+  const duration = getSencondFromMonth(durationTime) * 1000;
+  return current >= start + duration;
+};
+
 const Selector = ({
   response,
   onChange = () => undefined,
@@ -18,7 +32,10 @@ const Selector = ({
   const { t } = useTranslation();
   const { loading, error, data } = response;
 
-  const unclaim = useMemo(() => data?.list.filter((item) => !item.withdraw_time) || [], [data?.list]);
+  const unclaim = useMemo(
+    () => data?.list.filter((item) => !(item.withdraw_tx || item.map_status)) || [],
+    [data?.list]
+  );
 
   const [disableDeposit, placeholderDeposit] = useMemo(
     () => [
@@ -51,7 +68,7 @@ const Selector = ({
         const { start, end } = getTimeRange(item.deposit_time, item.duration);
 
         return (
-          <Select.Option key={deposit_id} value={deposit_id}>
+          <Select.Option key={deposit_id} value={deposit_id} disabled={!isEnding(item.deposit_time, item.duration)}>
             <span>
               {amount} RING
               <span>
