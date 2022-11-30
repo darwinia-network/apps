@@ -33,10 +33,7 @@ const Selector = ({
   const { loading, error, data } = response;
 
   const unclaim = useMemo(
-    () =>
-      data?.list.filter(
-        (item) => !(item.withdraw_tx || item.map_status) && isEnding(item.deposit_time, item.duration)
-      ) || [],
+    () => data?.list.filter((item) => !(item.withdraw_tx || item.map_status)) || [],
     [data?.list]
   );
 
@@ -71,7 +68,7 @@ const Selector = ({
         const { start, end } = getTimeRange(item.deposit_time, item.duration);
 
         return (
-          <Select.Option key={deposit_id} value={deposit_id}>
+          <Select.Option key={deposit_id} value={deposit_id} disabled={!isEnding(item.deposit_time, item.duration)}>
             <span>
               {amount} RING
               <span>
