@@ -4,7 +4,6 @@ import { Trans } from 'react-i18next';
 import { useEffect, ReactNode } from 'react';
 import { SubmittableResult } from '@polkadot/api';
 import { useQueue, useApi, useNetworkColor } from '../../hooks';
-import { Path } from '../../config/routes';
 import { SubscanLink } from './SubscanLink';
 
 type NotificationConfig = {
@@ -14,11 +13,6 @@ type NotificationConfig = {
   icon?: ReactNode;
   description: ReactNode;
   type: 'success' | 'error' | 'info' | 'warning' | 'open';
-};
-
-const AccountMigrationLink = ({ children }: { children: ReactNode }) => {
-  const searchParamsStr = new URLSearchParams(window.location.search).toString();
-  return <a href={searchParamsStr.length ? `${Path.migration}?${searchParamsStr}` : Path.migration}>{children}</a>;
 };
 
 export const QueueStatus = () => {
@@ -36,10 +30,7 @@ export const QueueStatus = () => {
           config = {
             type: 'error',
             description: (
-              <span>
-                {error.message}. Check on the <AccountMigrationLink>Account Migration</AccountMigrationLink> Page or
-                restore your account with your backup files.
-              </span>
+              <span>{error.message}. Check on the Tools Page or restore your account with your backup files.</span>
             ),
           };
         } else {

@@ -8,7 +8,7 @@ import keyring from '@polkadot/ui-keyring';
 import type { u32 } from '@polkadot/types-codec';
 import type { ChainProperties } from '@polkadot/types/interfaces';
 import { BallScalePulse } from '../components/widget/BallScalePulse';
-import { crabConfig, THEME } from '../config';
+import { darwiniaConfig, THEME } from '../config';
 import {
   Chain,
   Token,
@@ -52,10 +52,7 @@ const getInitNetwork = () => {
   const searchParams = new URLSearchParams(window.location.search);
   const rpc = searchParams.get(SearchParamsKey.RPC);
   const name = searchParams.get('network');
-  return (getNetworkByRpc(rpc) ??
-    getNetworkByName(name as Network) ??
-    readStorage().activeNetwork ??
-    crabConfig) as PolkadotChainConfig;
+  return (getNetworkByRpc(rpc) ?? getNetworkByName(name as Network) ?? darwiniaConfig) as PolkadotChainConfig;
 };
 
 const initialConnection: Connection = {

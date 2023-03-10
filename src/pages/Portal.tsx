@@ -36,60 +36,34 @@ export function Portal() {
   const portalData = useMemo<PortalData[]>(
     () => [
       {
-        name: 'polkadot{.js}',
-        logo: '/image/portal/polkadot.svg',
-        description: t(
-          'A wallet built on the polkadot-js stack. This version is updated alongside any changes to the code and always has the latest features.'
-        ),
-        link: `https://polkadot.js.org/apps/?rpc=${encodeURIComponent(network.provider.rpc)}`,
+        name: 'Account Migration',
+        logo: '/image/portal/account-migration.svg',
+        description: t('A tool to migrate your Darwinia 1.0 account to Darwinia 2.0.'),
+        link: 'https://migration.darwinia.network/',
       },
       {
-        name: 'MetaMask',
-        logo: '/image/portal/metamask.png',
-        description: t('A crypto wallet & gateway to blockchain apps.'),
-        link: 'https://metamask.io/',
+        name: 'Staking Dapp',
+        logo: '/image/portal/staking.svg',
+        description: t('The easiest way to stake on Darwinia.'),
+        link: 'https://staking.darwinia.network/',
       },
       {
-        name: 'MathWallet',
-        logo: '/image/portal/mathwallet.png',
-        description: t(`World's First Insured Crypto Wallet.`),
-        link: 'https://www.mathwallet.org/en-us/',
+        name: 'Token Migration',
+        logo: '/image/portal/token-migration.svg',
+        description: t('A tool to migrate your Darwinia Tokens to the new contract.'),
+        link: 'https://token-migration.darwinia.network/',
+      },
+      {
+        name: 'Fee Market UI',
+        logo: '/image/portal/fee-market-ui.svg',
+        description: t('To Provide data statistics and relayer operation functions for the Darwinia Fee Market.'),
+        link: 'https://feemarket.darwinia.network/',
       },
       {
         name: 'Subscan',
         logo: '/image/portal/subscan.png',
         description: t('Subscan is aggregate Substrate ecological network High-precision Web3 explorer.'),
         link: 'https://www.subscan.io/',
-      },
-      {
-        name: 'OnFinality',
-        logo: '/image/portal/onfinality.png',
-        description: t('OnFinality is a leading infrastructure service for some of the largest blockchain projects.'),
-        link: 'https://onfinality.io/',
-      },
-      {
-        name: 'Helix',
-        logo: '/image/portal/helix.png',
-        description: t('A safe community tool for cross-chain assets.'),
-        link: 'https://helixbridge.app/',
-      },
-      {
-        name: 'Celer',
-        logo: '/image/portal/celer.png',
-        description: t('Building the best inter-blockchain and cross-layer communication platform.'),
-        link: 'https://cbridge.celer.network/#/transfer',
-      },
-      {
-        name: 'Crust',
-        logo: '/image/portal/crust.png',
-        description: t('Web3.0 Storage for the Metaverse.'),
-        link: 'https://crust.network/',
-      },
-      {
-        name: 'Evolution Land',
-        logo: '/image/portal/evolution-land.png',
-        description: t('Evolution Land is the first Metaverse+Gamefi+cross-chain game.'),
-        link: 'https://www.evolution.land/',
       },
       {
         name: 'Subview',
@@ -104,6 +78,56 @@ export function Portal() {
         link: 'https://snowswap.xyz/#/',
       },
       {
+        name: 'Helix',
+        logo: '/image/portal/helix.png',
+        description: t('A safe community tool for cross-chain assets.'),
+        link: 'https://helixbridge.app/',
+      },
+      {
+        name: 'Celer',
+        logo: '/image/portal/celer.png',
+        description: t('Building the best inter-blockchain and cross-layer communication platform.'),
+        link: 'https://cbridge.celer.network/#/transfer',
+      },
+      {
+        name: 'OnFinality',
+        logo: '/image/portal/onfinality.png',
+        description: t('OnFinality is a leading infrastructure service for some of the largest blockchain projects.'),
+        link: 'https://onfinality.io/',
+      },
+      {
+        name: 'Crust',
+        logo: '/image/portal/crust.png',
+        description: t('Web3.0 Storage for the Metaverse.'),
+        link: 'https://crust.network/',
+      },
+      {
+        name: 'Evolution Land',
+        logo: '/image/portal/evolution-land.png',
+        description: t('Evolution Land is the first Metaverse+Gamefi+cross-chain game.'),
+        link: 'https://www.evolution.land/',
+      },
+      {
+        name: 'MetaMask',
+        logo: '/image/portal/metamask.png',
+        description: t('A crypto wallet & gateway to blockchain apps.'),
+        link: 'https://metamask.io/',
+      },
+      {
+        name: 'polkadot{.js}',
+        logo: '/image/portal/polkadot.svg',
+        description: t(
+          'A wallet built on the polkadot-js stack. This version is updated alongside any changes to the code and always has the latest features.'
+        ),
+        link: `https://polkadot.js.org/apps/?rpc=${encodeURIComponent(network.provider.rpc)}`,
+      },
+      {
+        name: 'MathWallet',
+        logo: '/image/portal/mathwallet.png',
+        description: t(`World's First Insured Crypto Wallet.`),
+        link: 'https://www.mathwallet.org/en-us/',
+      },
+      {
         name: 'SubWallet',
         logo: '/image/portal/subwallet.png',
         description: t(
@@ -112,22 +136,10 @@ export function Portal() {
         link: 'https://subwallet.app/',
       },
       {
-        name: 'Token Migration',
-        logo: '/image/portal/token-migration.png',
-        description: t('A tool to migrate your Darwinia Tokens to the new contract.'),
-        link: 'https://token-migration.darwinia.network/',
-      },
-      {
         name: 'RARE 💎 GEMS',
         logo: '/image/portal/raregems.svg',
         description: t('Non-custodial NFT marketplace, connected to Crab network.'),
         link: 'https://raregems.io/',
-      },
-      {
-        name: 'Fee Market UI',
-        logo: '/image/portal/fee-market.svg',
-        description: t('To Provide data statistics and relayer operation functions for the Darwinia Fee Market.'),
-        link: 'https://feemarket.darwinia.network/',
       },
     ],
     [t, network]

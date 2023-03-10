@@ -1,7 +1,6 @@
 import { RouteProps } from 'react-router-dom';
 
 import { Account } from '../pages/Account';
-import { Migration } from '../pages/Migration';
 import { Portal } from '../pages/Portal';
 import { Staking } from '../pages/Staking';
 import { Toolbox } from '../pages/Toolbox';
@@ -14,14 +13,13 @@ export enum Path {
   staking = '/staking',
   toolbox = '/toolbox',
   portal = '/portal',
-  migration = '/migration',
   feemarket = '/feemarket',
 }
 
 export const routes: (RouteProps & { PageComponent: React.ComponentType })[] = [
   {
     path: Path.root,
-    PageComponent: Account,
+    PageComponent: Portal,
   },
   {
     path: Path.account,
@@ -38,10 +36,6 @@ export const routes: (RouteProps & { PageComponent: React.ComponentType })[] = [
   {
     path: Path.portal,
     PageComponent: Portal,
-  },
-  {
-    path: Path.migration,
-    PageComponent: Migration,
   },
   // {
   //   path: Path.feemarket,

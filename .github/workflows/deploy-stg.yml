@@ -18,6 +18,10 @@ jobs:
           persist-credentials: false
           ssh-key: "${{ secrets.ITERING_ACTIONS_DEPLOY_KEY }}"
 
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+
       - name: Install dependencies
         run: yarn install
 
