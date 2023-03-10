@@ -17,6 +17,10 @@ jobs:
           persist-credentials: false
           ssh-key: "${{ secrets.ITERING_ACTIONS_DEPLOY_KEY }}"
 
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+
       - name: Install dependencies
         run: yarn install
 
@@ -32,7 +36,6 @@ jobs:
         name: Deploy to Vercel
         id: smart-vercel
         with:
-          node_version: 16
           vercel_token: ${{ secrets.VERCEL_TOKEN }}
           vercel_group: itering
           preview_output: true
