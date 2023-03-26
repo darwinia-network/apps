@@ -141,6 +141,12 @@ export function Portal() {
         description: t('Non-custodial NFT marketplace, connected to Crab network.'),
         link: 'https://raregems.io/',
       },
+      {
+        name: 'Ringo NFT',
+        logo: '/image/portal/ringonft.png',
+        description: t('NFT Avatar Collection on Crab Network'),
+        link: 'https://ringonft.art',
+      },      
     ],
     [t, network]
   );
