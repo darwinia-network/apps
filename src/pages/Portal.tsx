@@ -141,6 +141,12 @@ export function Portal() {
         description: t('Non-custodial NFT marketplace, connected to Crab network.'),
         link: 'https://raregems.io/',
       },
+      {
+        name: 'Multisig',
+        logo: '/image/portal/ipfs.png',
+        description: t('A tool to create multisig account.'),
+        link: 'https://ipfs.io/ipfs/QmfRD4GuqZobNi2NT2C77a3UTQ452ffwstr4fjEJixUgjf/#/wallets',
+      },
     ],
     [t, network]
   );
