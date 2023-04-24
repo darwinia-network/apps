@@ -1,18 +1,14 @@
 import { CaretLeftFilled } from '@ant-design/icons';
-import { Menu, Select } from 'antd';
+import { Menu } from 'antd';
 import { PropsWithChildren, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useLocation } from 'react-router-dom';
-import { Network, PolkadotChainConfig, SearchParamsKey } from '../..//model';
+import { SearchParamsKey } from '../../model';
 import { THEME } from '../../config';
 import { Path, routes } from '../../config/routes';
-import { useApi, useBestNumber } from '../../hooks';
-import { getNetworkByName, NETWORK_CONFIGURATIONS } from '../../utils';
-import { AccountIcon, DarwiniaIcon, StakingIcon, ToolboxIcon, ViewBrowserIcon } from '../icons';
+import { useApi } from '../../hooks';
+import { DarwiniaIcon, ToolboxIcon } from '../icons';
 import { IconProps } from '../icons/icon-factory';
-import { BestNumber } from './BestNumber';
-import { SubscanLink } from './SubscanLink';
-import { toggleTheme } from './ThemeSwitch';
 
 interface SideNavProps {
   collapsed: boolean;
@@ -27,16 +23,10 @@ interface Nav {
   className?: string;
 }
 
-const { Option } = Select;
-
-const NETWORKS_LIVE = NETWORK_CONFIGURATIONS.filter((item) => item.category === 'live');
-const NETWORKS_TEST = NETWORK_CONFIGURATIONS.filter((item) => item.category === 'test');
-const NETWORKS_PARACHAIN = NETWORK_CONFIGURATIONS.filter((item) => item.category === 'parachain');
-
 const navigators: Nav[] = [
   { label: 'Portal', path: Path.portal, Icon: DarwiniaIcon },
-  { label: 'Account', path: Path.account, Icon: AccountIcon },
-  { label: 'Staking', path: Path.staking, Icon: StakingIcon },
+  // { label: 'Account', path: Path.account, Icon: AccountIcon },
+  // { label: 'Staking', path: Path.staking, Icon: StakingIcon },
   { label: 'Toolbox', path: Path.toolbox, Icon: ToolboxIcon },
   // { label: 'Account Migration', path: Path.migration, Icon: UsersIcon, className: 'migration' },
   // { label: 'Fee Market', path: Path.feemarket, Icon: ChartIcon },
@@ -56,8 +46,7 @@ export const getActiveNav = (path: string) => {
 // eslint-disable-next-line complexity
 export function SideNav({ collapsed, theme, toggle, children }: PropsWithChildren<SideNavProps>) {
   const { t } = useTranslation();
-  const { network, connectNetwork } = useApi();
-  const { bestNumber } = useBestNumber();
+  const { network } = useApi();
   const location = useLocation();
   const selectedNavMenu = useMemo<string[]>(() => {
     const nav = getActiveNav(location.pathname);
@@ -65,60 +54,12 @@ export function SideNav({ collapsed, theme, toggle, children }: PropsWithChildre
     return [nav.length ? nav[0].path : ''];
   }, [location?.pathname]);
 
-  const networkOptions = useMemo(() => {
-    const ele = (config: PolkadotChainConfig) => (
-      <Option value={config.name} key={config.name} className={`capitalize ${collapsed ? 'py-2' : ''}`}>
-        <span className="flex items-center">
-          <img
-            src={config.facade.logo}
-            className={`mr-2 rounded-full dark:bg-white ${collapsed ? 'collapsed h-4' : 'h-6'}`}
-            alt=""
-          />
-          {!collapsed && (
-            <span className="flex-1 flex justify-between items-center overflow-hidden overflow-ellipsis">
-              <span className="capitalize mr-2">{config.name}</span>
-            </span>
-          )}
-        </span>
-      </Option>
-    );
-
-    return collapsed ? (
-      <>
-        {NETWORKS_LIVE.map((item) => ele(item))}
-        {NETWORKS_TEST.map((item) => ele(item))}
-        {NETWORKS_PARACHAIN.map((item) => ele(item))}
-      </>
-    ) : (
-      <>
-        <Select.OptGroup key="product" label={collapsed ? '' : t('Live networks')}>
-          {NETWORKS_LIVE.map((item) => ele(item))}
-        </Select.OptGroup>
-      </>
-    );
-  }, [collapsed, t]);
-
   const searchParams = new URLSearchParams();
   searchParams.set(SearchParamsKey.RPC, encodeURIComponent(network.provider.rpc));
 
   return (
     <div className="h-screen max-h-screen flex flex-col items-stretch relative">
-      <div className="p-4">
-        {children}
-
-        <Select
-          defaultValue={network.name}
-          onSelect={(value: Network) => {
-            const config = getNetworkByName(value)!;
-
-            connectNetwork(config);
-            toggleTheme(theme, value);
-          }}
-          className={`w-full ${network.name}-${theme}-select`}
-        >
-          {networkOptions}
-        </Select>
-      </div>
+      <div className="p-4">{children}</div>
 
       <Menu
         theme={theme}
@@ -142,18 +83,6 @@ export function SideNav({ collapsed, theme, toggle, children }: PropsWithChildre
       </Menu>
 
       <div className="w-full">
-        <div
-          className="w-3/4 flex justify-between items-center rounded-2xl px-4 py-2 mx-auto mb-8 overflow-hidden"
-          style={{ boxShadow: '0px 0px 24px rgba(191, 194, 234, 0.413501)' }}
-        >
-          <BestNumber bestNumber={bestNumber || 0} />
-          {!collapsed && (
-            <SubscanLink network={network.name} block={(bestNumber || 0).toString()}>
-              <ViewBrowserIcon />
-            </SubscanLink>
-          )}
-        </div>
-
         <div className="w-full flex flex-wrap items-center justify-around px-2 mb-2">
           {/* TODO: Icon can not display on drawer */}
           <a href="https://github.com/darwinia-network/apps" target="_blank" rel="noreferrer">
@@ -165,8 +94,8 @@ export function SideNav({ collapsed, theme, toggle, children }: PropsWithChildre
           <a href="https://medium.com/@darwinianetwork" target="_blank" rel="noreferrer">
             <img className="w-5" src="/image/social/medium.svg" />
           </a>
-          <a href="https://t.me/DarwiniaNetwork" target="_blank" rel="noreferrer">
-            <img className="w-5" src="/image/social/telegram.svg" />
+          <a href="https://discord.com/invite/VcYFYETrw5" target="_blank" rel="noreferrer">
+            <img className="w-5" src="/image/social/discord.svg" />
           </a>
         </div>
       </div>

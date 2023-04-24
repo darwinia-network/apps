@@ -1,24 +1,17 @@
 import { BarsOutlined } from '@ant-design/icons';
 import { Drawer, Layout } from 'antd';
-import AntdLink from 'antd/lib/typography/Link';
-import { Steps } from 'intro.js-react';
-import isMobile from 'is-mobile';
-import { useEffect, useMemo, useState } from 'react';
-import { Trans, useTranslation } from 'react-i18next';
+import { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Routes, Route, useLocation } from 'react-router-dom';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import { Signer } from './components/widget/Signer';
 import { QueueStatus } from './components/widget/QueueStatus';
-import { ConnectWallet } from './components/widget/ConnectWallet';
-import { ActiveAccount } from './components/widget/account/ActiveAccount';
-import { Language } from './components/widget/Language';
 import { getActiveNav, SideNav } from './components/widget/SideNav';
 import { FeeMarketDestinationSelector } from './components/widget/FeeMarketDestinationSelector';
-import { toggleTheme } from './components/widget/ThemeSwitch';
 import { THEME } from './config';
 import { routes } from './config/routes';
 import { useApi, useFeeMarket } from './hooks';
-import { readStorage, updateStorage } from './utils';
+import { readStorage } from './utils';
 
 const { Sider, Content } = Layout;
 
@@ -28,89 +21,6 @@ function Logo({ withText, className = '' }: { className?: string; withText?: boo
       <img src={`/image/apps.svg`} className="w-8 lg:w-11" />
       {withText && <h1 className="text-darwinia-main text-sm lg:text-lg">Apps</h1>}
     </div>
-  );
-}
-
-function IntroGuide() {
-  const { t } = useTranslation();
-  const { network } = useApi();
-  const [stepsEnabled, setStepsEnabled] = useState(false);
-  const [currentStep, setCurrentStep] = useState(0);
-
-  const steps = useMemo(() => {
-    const stepConnection = {
-      element: '.connection',
-      title: t('Connect Wallet'),
-      position: 'bottom-middle-aligned',
-      intro: (
-        <Trans>
-          Please connect wallet to participate in Darwinia Apps.{' '}
-          <AntdLink href="https://www.youtube.com/watch?v=mT7rUlQh660" target="_blank" rel="noopener noreferrer">
-            Tutorial refers here.
-          </AntdLink>
-        </Trans>
-      ),
-      tooltipClass: 'intro-step-tooltip',
-      highlightClass: 'intro-step-heighlight',
-    };
-
-    const stepMigration = {
-      element: '.migration',
-      title: t('Account Migration'),
-      position: 'right',
-      intro: (
-        <Trans className="m-8">
-          {`If your account in the old version cannot be found in your wallet, you can restore JSON which the account in the old version Apps through "Account Migration" and add the JSON to your wallet. `}
-          <AntdLink
-            href="https://darwinianetwork.medium.com/using-darwinia-tools-3-8-darwinia-apps-lite-guide-part-%E2%85%B0-account-ae9b3347b3c7"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Tutorial refers here.
-          </AntdLink>
-        </Trans>
-      ),
-      tooltipClass: 'intro-step-tooltip',
-      highlightClass: 'intro-step-heighlight',
-    };
-
-    return [stepConnection, stepMigration];
-  }, [t]);
-
-  useEffect(() => {
-    if (!isMobile()) {
-      const index = readStorage().introIndex;
-      if (index === 0) {
-        setCurrentStep(1);
-        setStepsEnabled(true);
-      } else if (index === 1) {
-        setStepsEnabled(false);
-      } else {
-        setStepsEnabled(true);
-      }
-    }
-
-    toggleTheme(THEME.LIGHT, network.name);
-  }, [network.name]);
-
-  return (
-    <Steps
-      enabled={stepsEnabled}
-      steps={steps}
-      initialStep={currentStep}
-      onExit={(stepIndex) => {
-        // may be not a Number
-        if (typeof stepIndex === 'number') {
-          updateStorage({ introIndex: stepIndex });
-        }
-
-        setStepsEnabled(false);
-      }}
-      options={{
-        showBullets: false,
-        exitOnOverlayClick: false,
-      }}
-    />
   );
 }
 
@@ -166,16 +76,6 @@ function App() {
                 />
               </div>
             </div>
-
-            <div className="flex items-center gap-4">
-              <ActiveAccount />
-              {isMobile() ? null : <ConnectWallet />}
-
-              <div className="hidden lg:flex items-center">
-                {/* <ThemeSwitch mode="btn" network={network.name} onThemeChange={setTheme} /> */}
-                <Language mode="icon" network={network.name} theme={theme} />
-              </div>
-            </div>
           </header>
 
           <Content>
@@ -190,7 +90,6 @@ function App() {
             </TransitionGroup>
           </Content>
         </Layout>
-        <IntroGuide />
       </Layout>
       <Signer />
       <QueueStatus />
