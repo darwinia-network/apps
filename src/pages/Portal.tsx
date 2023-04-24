@@ -146,7 +146,13 @@ export function Portal() {
         logo: '/image/portal/ringonft.png',
         description: t('NFT Avatar Collection on Crab Network'),
         link: 'https://ringonft.art',
-      },      
+      },
+      {
+        name: 'Multisig',
+        logo: '/image/portal/ipfs.png',
+        description: t('A tool to create multisig account.'),
+        link: 'https://ipfs.io/ipfs/QmfRD4GuqZobNi2NT2C77a3UTQ452ffwstr4fjEJixUgjf/#/wallets',
+      },
     ],
     [t, network]
   );
