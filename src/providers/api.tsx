@@ -1,7 +1,5 @@
 import { ApiPromise } from '@polkadot/api';
-import { Alert } from 'antd';
 import { createContext, useCallback, useEffect, useMemo, useReducer, useState } from 'react';
-import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { EMPTY, Subscription, from } from 'rxjs';
 import keyring from '@polkadot/ui-keyring';
@@ -114,7 +112,6 @@ let subscription: Subscription = EMPTY.subscribe();
 
 export const ApiProvider = ({ children }: React.PropsWithChildren<unknown>) => {
   const navigate = useNavigate();
-  const { t } = useTranslation();
   const [state, dispatch] = useReducer(accountReducer, initialState, (initValue) => {
     updateStorage({ activeNetwork: initValue.network });
     return { ...initValue };
@@ -207,13 +204,6 @@ export const ApiProvider = ({ children }: React.PropsWithChildren<unknown>) => {
         }`}
       >
         <BallScalePulse />
-        <Alert
-          message={t('Api connecting')}
-          description={t('Connecting to the remote node')}
-          type="info"
-          showIcon
-          className="absolute top-4 right-4 max-w-2xl"
-        />
       </div>
     );
   }
