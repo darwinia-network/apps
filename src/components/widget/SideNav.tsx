@@ -1,6 +1,6 @@
 import { CaretLeftFilled } from '@ant-design/icons';
 import { Menu } from 'antd';
-import { PropsWithChildren, useMemo } from 'react';
+import { PropsWithChildren, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useLocation } from 'react-router-dom';
 import { SearchParamsKey } from '../../model';
@@ -9,6 +9,7 @@ import { Path, routes } from '../../config/routes';
 import { useApi } from '../../hooks';
 import { DarwiniaIcon, ToolboxIcon } from '../icons';
 import { IconProps } from '../icons/icon-factory';
+import { toggleTheme } from './ThemeSwitch';
 
 interface SideNavProps {
   collapsed: boolean;
@@ -53,6 +54,10 @@ export function SideNav({ collapsed, theme, toggle, children }: PropsWithChildre
 
     return [nav.length ? nav[0].path : ''];
   }, [location?.pathname]);
+
+  useEffect(() => {
+    toggleTheme(theme, 'darwinia');
+  }, [theme]);
 
   const searchParams = new URLSearchParams();
   searchParams.set(SearchParamsKey.RPC, encodeURIComponent(network.provider.rpc));
