@@ -108,6 +108,12 @@ export function Portal() {
         link: 'https://www.evolution.land/',
       },
       {
+        name: 'Talisman',
+        logo: '/image/portal/talisman.svg',
+        description: t('One wallet for Polkadot & Ethereum.'),
+        link: `https://talisman.xyz`,
+      },
+      {
         name: 'MetaMask',
         logo: '/image/portal/metamask.png',
         description: t('A crypto wallet & gateway to blockchain apps.'),
