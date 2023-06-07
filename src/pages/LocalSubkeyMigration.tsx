@@ -1,58 +1,12 @@
-import { web3Accounts, web3Enable } from "@polkadot/extension-dapp";
-import { accounts as accountsObs } from "@polkadot/ui-keyring/observable/accounts";
-import type { SingleAddress } from "@polkadot/ui-keyring/observable/types";
-import { Fragment, useEffect, useState } from "react";
-import { from, switchMap, forkJoin } from "rxjs";
+import { Fragment } from "react";
 import { Trans, useTranslation } from "react-i18next";
 import Identicon from "@polkadot/react-identicon";
 import FileSaver from "file-saver";
-
-interface Account {
-  address: string;
-  singleAddress?: SingleAddress;
-}
-
-const DAPP_NAME = "darwinia/apps";
+import { useWallet } from "../hooks/wallet";
 
 export default function LocalSubkeyMigration() {
   const { t } = useTranslation();
-  const [accounts, setAccounts] = useState<Account[]>([]);
-
-  useEffect(() => {
-    const sub$$ = from(web3Enable(DAPP_NAME))
-      .pipe(switchMap(() => forkJoin([web3Accounts(), accountsObs.subject.asObservable()])))
-      .subscribe({
-        next: ([accs, subjectInfo]) => {
-          const addresses = Object.keys(subjectInfo);
-          const extensionAddresses = accs.map((item) => item.address);
-          const localAddresses = addresses.filter((address) => !extensionAddresses.includes(address));
-
-          setAccounts(localAddresses.map((address) => ({ address, singleAddress: subjectInfo[address] })));
-        },
-        error: (err) => {
-          console.error(err);
-          setAccounts([]);
-        },
-      });
-
-    return () => sub$$.unsubscribe();
-  }, []);
-
-  // useEffect(() => {
-  //   const sub$$ = from(web3Enable(DAPP_NAME))
-  //     .pipe(switchMap(() => from(web3Accounts())))
-  //     .subscribe({
-  //       next(accs) {
-  //         setAccounts(accs.map(({ address }) => ({ address })));
-  //       },
-  //       error(err) {
-  //         console.error(err);
-  //         setAccounts([]);
-  //       },
-  //     });
-
-  //   return () => sub$$.unsubscribe();
-  // }, []);
+  const { isConnected, accounts, connect } = useWallet();
 
   return (
     <div data-aos="fade-up" data-aos-duration={700}>
@@ -74,38 +28,48 @@ export default function LocalSubkeyMigration() {
         <div className="flex flex-col gap-[0.625rem] rounded-[0.625rem] bg-bg-component p-[0.625rem] lg:gap-5 lg:p-5">
           <span className="text-normal lg:text-bold text-xs text-white">{t("Local Accounts")}</span>
           <div className="h-[1px] bg-white/20" />
-          {accounts.length ? (
-            <div className="flex flex-col gap-[0.625rem]">
-              {accounts.map((account, index) => (
-                <Fragment key={index}>
-                  <div className="flex gap-[0.625rem]">
-                    <Identicon size={40} value={account.address} />
-                    <div className="flex flex-col items-start gap-[0.625rem]">
-                      <button
-                        className="text-thin lg:text-light rounded bg-primary px-2 py-1 text-xs text-white transition hover:opacity-80 active:scale-95"
-                        onClick={() => {
-                          if (account.singleAddress?.json) {
-                            const blob = new Blob([JSON.stringify(account.singleAddress.json)], {
+          {isConnected ? (
+            accounts.length ? (
+              <div className="flex flex-col gap-[0.625rem]">
+                {accounts.map((account, index) => (
+                  <Fragment key={index}>
+                    <div className="flex gap-[0.625rem]">
+                      <Identicon size={40} value={account.address} />
+                      <div className="flex flex-col items-start gap-[0.625rem]">
+                        <button
+                          className="text-thin lg:text-light rounded bg-primary px-2 py-1 text-xs text-white transition hover:opacity-80 active:scale-95"
+                          onClick={() => {
+                            const blob = new Blob([JSON.stringify(account.json)], {
                               type: "application/json; charset=utf-8",
                             });
                             FileSaver.saveAs(blob, `${account.address}.json`);
-                          }
-                        }}
-                      >
-                        {t("Export JSON")}
-                      </button>
-                      <span className="text-thin lg:text-light w-4/5 truncate text-xs text-white/50 lg:w-full">
-                        {account.address}
-                      </span>
+                          }}
+                        >
+                          {t("Export JSON")}
+                        </button>
+                        <span className="text-thin lg:text-light w-4/5 truncate text-xs text-white/50 lg:w-full">
+                          {account.address}
+                        </span>
+                      </div>
                     </div>
-                  </div>
-                  {index + 1 !== accounts.length ? <div className="h-[1px] bg-white/20" /> : null}
-                </Fragment>
-              ))}
-            </div>
+                    {index + 1 !== accounts.length ? <div className="h-[1px] bg-white/20" /> : null}
+                  </Fragment>
+                ))}
+              </div>
+            ) : (
+              <div className="flex items-center justify-center py-[0.625rem]">
+                <NoData />
+              </div>
+            )
           ) : (
             <div className="flex items-center justify-center py-[0.625rem]">
-              <span className="text-light text-xs text-white/50">{t("No Date")}</span>
+              <NoData className="lg:hidden" />
+              <button
+                onClick={connect}
+                className="text-bold hidden bg-primary px-2 py-1 text-sm text-white transition hover:opacity-80 active:scale-95 lg:inline"
+              >
+                {t("Connect Wallet")}
+              </button>
             </div>
           )}
         </div>
@@ -113,3 +77,8 @@ export default function LocalSubkeyMigration() {
     </div>
   );
 }
+
+const NoData = ({ className }: { className?: string }) => {
+  const { t } = useTranslation();
+  return <span className={`text-light text-xs text-white/50 ${className}`}>{t("No Date")}</span>;
+};

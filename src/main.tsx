@@ -7,9 +7,12 @@ import "./config/i18n.ts";
 
 import { RouterProvider } from "react-router-dom";
 import { router } from "./config/router.tsx";
+import { WalletProvider } from "./providers/wallet.tsx";
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>
-    <RouterProvider router={router} />
+    <WalletProvider>
+      <RouterProvider router={router} />
+    </WalletProvider>
   </React.StrictMode>
 );
