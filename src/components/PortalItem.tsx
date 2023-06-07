@@ -78,7 +78,7 @@ export const PortalItem = ({
             onClick={() => onClick(meta.name)}
           >
             <img alt="..." src={meta.logo} className="h-[5rem] w-[5rem]" />
-            <h5 className="text-bold mt-[1.875rem] text-center text-lg text-white">{meta.name}</h5>
+            <h5 className="text-bold mt-[1rem] text-center text-lg text-white">{meta.name}</h5>
             <div className="mt-[0.625rem] flex items-center gap-[0.625rem]">
               {meta.tags.slice(0, 3).map((tag) => (
                 <span
