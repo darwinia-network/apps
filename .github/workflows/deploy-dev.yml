@@ -1,0 +1,50 @@
+name: Deploy develop
+
+on:
+  pull_request:
+
+jobs:
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions/checkout@v2
+        with:
+          repository: itering/actions
+          path: .github/actions
+          persist-credentials: false
+          ssh-key: "${{ secrets.ITERING_ACTIONS_DEPLOY_KEY }}"
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+
+      - name: Install dependencies
+        run: yarn install
+
+      - name: Build
+        run: yarn build
+
+      - name: Prepare Project Config
+        run: |
+          mv dist build
+          mv vercel.json build/
+
+      - uses: ./.github/actions/smart-vercel
+        name: Deploy to Vercel
+        id: smart-vercel
+        with:
+          vercel_token: ${{ secrets.VERCEL_TOKEN }}
+          vercel_group: itering
+          preview_output: true
+          project_name: apps
+          script_run: false
+          enable_cache: true
+          enable_notify_comment: true
+          enable_notify_slack: true
+          slack_channel: darwinia-apps
+          slack_webhook: ${{ secrets.SLACK_INCOMING_WEBHOOK_URL }}
+
+
