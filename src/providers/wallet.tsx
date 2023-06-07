@@ -1,71 +1,53 @@
-import { PropsWithChildren, useState, createContext, useCallback, useEffect } from 'react';
-import type { Signer as InjectedSigner } from '@polkadot/api/types';
-import { accounts as accountsObs } from '@polkadot/ui-keyring/observable/accounts';
-import type { SubjectInfo } from '@polkadot/ui-keyring/observable/types';
-import type { Injected } from '@polkadot/extension-inject/types';
-import { web3Enable, web3Accounts } from '@polkadot/extension-dapp';
-import { from, switchMap, tap } from 'rxjs';
-import isMobile from 'is-mobile';
-import type { Wallet, Account, WalletSource } from '../model';
-import { DAPP_NAME, LOCAL_SOURCE, SEARCH_PARAMS_SOURCE, supportedWallets } from '../config';
-import { convertToSS58, isValidAddress, updateStorage, readStorage } from '../utils';
-import { useApi } from '../hooks';
+import { PropsWithChildren, createContext, useCallback, useEffect, useState } from "react";
+import type { Account } from "../types";
+import type { Injected } from "@polkadot/extension-inject/types";
+import { accounts as accountsObs } from "@polkadot/ui-keyring/observable/accounts";
+import { from } from "rxjs";
+import type { SubjectInfo } from "@polkadot/ui-keyring/observable/types";
 
-export interface WalletCtx {
-  error: Error | null | undefined;
-  signer: InjectedSigner | null | undefined;
+const DAPP_NAME = "darwinia/apps";
 
+interface WalletCtx {
+  isConnected: boolean;
   accounts: Account[];
-
-  walletToUse: Wallet | null | undefined;
-  supportedWallets: Omit<Wallet, keyof Injected>[];
-
-  connectWallet: (source: WalletSource) => Promise<boolean>;
-  disConnectWallet: () => void;
+  connect: () => Promise<void>;
 }
 
-export const WalletContext = createContext<WalletCtx>({} as WalletCtx);
+export const WalletContext = createContext<WalletCtx>({
+  isConnected: false,
+  accounts: [],
+  connect: async () => undefined,
+});
 
 export const WalletProvider = ({ children }: PropsWithChildren<unknown>) => {
-  const { api, network } = useApi();
+  const [isConnected, setIsConnected] = useState<WalletCtx["isConnected"]>(false);
+  const [accounts, setAccounts] = useState<WalletCtx["accounts"]>([]);
 
   const [accountsObsData, setAccountsObsData] = useState<SubjectInfo>({});
 
-  const [error, setError] = useState<Error | null>();
-  const [signer, setSigner] = useState<InjectedSigner | null>();
-  const [accounts, setAccounts] = useState<Account[]>([]);
-  const [walletToUse, setWalletToUse] = useState<Wallet | null>();
+  const connect = useCallback(async () => {
+    const injecteds = window.injectedWeb3;
+    const wallet = injecteds && (injecteds["polkadot-js"] || injecteds['"polkadot-js"']);
 
-  const getWalletBySource = useCallback(
-    (source: WalletSource) => supportedWallets.find((item) => item.extensionName === source),
-    []
-  );
+    try {
+      const provider: Injected | undefined = await wallet?.enable(DAPP_NAME);
+      setIsConnected(true);
 
-  const connectWallet = useCallback(
-    async (source: WalletSource) => {
-      try {
-        const wallet = getWalletBySource(source);
-        const provider = await wallet?.getProvider()?.enable(DAPP_NAME);
+      if (provider) {
+        const accs = await provider.accounts.get();
 
-        if (wallet && provider) {
-          setWalletToUse({ ...wallet, ...provider });
-          return true;
-        }
-      } catch (err) {
-        console.error(err);
-        setError(err as Error);
+        const addresses = Object.keys(accountsObsData);
+        const extensionAddresses = accs.map((item) => item.address);
+        const localAddresses = addresses.filter((address) => !extensionAddresses.includes(address));
+
+        setAccounts(localAddresses.map((address) => ({ address, json: accountsObsData[address].json })));
       }
-
-      return false;
-    },
-    [getWalletBySource]
-  );
-
-  const disConnectWallet = useCallback(() => {
-    setSigner(null);
-    setAccounts([]);
-    setWalletToUse(null);
-  }, []);
+    } catch (err) {
+      console.error(err);
+      setIsConnected(false);
+      setAccounts([]);
+    }
+  }, [accountsObsData]);
 
   useEffect(() => {
     const sub$$ = from(accountsObs.subject.asObservable()).subscribe(setAccountsObsData);
@@ -73,136 +55,5 @@ export const WalletProvider = ({ children }: PropsWithChildren<unknown>) => {
     return () => sub$$.unsubscribe();
   }, []);
 
-  useEffect(() => {
-    const readOnlyAddress = new URL(window.location.href).searchParams.get('address');
-    const readOnly =
-      readOnlyAddress && isValidAddress(readOnlyAddress)
-        ? [
-            {
-              address: readOnlyAddress,
-              displayAddress: convertToSS58(readOnlyAddress, network.ss58Prefix),
-              meta: { name: 'Read-Only', source: SEARCH_PARAMS_SOURCE },
-            },
-          ]
-        : [];
-
-    setAccounts((prev) => {
-      const exist = prev.find(({ meta }) => meta.source === SEARCH_PARAMS_SOURCE);
-
-      return exist ? prev : [...prev, ...readOnly];
-    });
-  }, [network.ss58Prefix]);
-
-  useEffect(() => {
-    if (!walletToUse) {
-      return;
-    }
-
-    setSigner(walletToUse.signer);
-
-    const apiGenesisHash = api.genesisHash.toHex();
-
-    const sub$$ = walletToUse.accounts.subscribe((accs) => {
-      const extension = accs
-        .filter((acc) => (!acc.genesisHash || acc.genesisHash === apiGenesisHash) && isValidAddress(acc.address))
-        .map((acc) => {
-          const { address, genesisHash, name, type } = acc;
-
-          return {
-            address,
-            displayAddress: convertToSS58(address, network.ss58Prefix),
-            type,
-            meta: {
-              genesisHash,
-              name,
-              source: walletToUse.extensionName,
-            },
-          };
-        });
-
-      const keys = Object.keys(accountsObsData);
-      const extensionAddresses = accs.map((item) => item.address);
-      const sources = keys.filter((key) => !extensionAddresses.includes(key));
-
-      const locals: Account[] = sources.map((address) => {
-        const found = accs.find((item) => item.address === address);
-
-        return {
-          address,
-          displayAddress: convertToSS58(address, network.ss58Prefix),
-          type: found?.type,
-          json: accountsObsData[address].json,
-          meta: {
-            genesisHash: found?.genesisHash,
-            name: found?.name,
-            source: LOCAL_SOURCE,
-          },
-        };
-      });
-
-      setAccounts((prev) => {
-        const readOnly = prev.find(({ meta }) => meta.source === SEARCH_PARAMS_SOURCE);
-
-        return readOnly ? [...extension, ...locals, readOnly] : [...extension, ...locals];
-      });
-    });
-
-    return () => sub$$();
-  }, [walletToUse, network.ss58Prefix, api, accountsObsData]);
-
-  useEffect(() => {
-    connectWallet(readStorage().activeWallet);
-  }, [connectWallet]);
-
-  useEffect(() => {
-    if (walletToUse) {
-      updateStorage({ activeWallet: walletToUse?.extensionName });
-    }
-  }, [walletToUse]);
-
-  useEffect(() => {
-    if (!isMobile()) {
-      return;
-    }
-
-    const sub$$ = from(web3Enable(DAPP_NAME))
-      .pipe(
-        tap((extensions) => {
-          if (extensions.length) {
-            setSigner(extensions[0].signer);
-          }
-        }),
-        switchMap(() => {
-          return from(web3Accounts());
-        })
-      )
-      .subscribe((accs) => {
-        setAccounts(
-          accs.map((acc) => ({
-            address: acc.address,
-            meta: acc.meta,
-            type: acc.type,
-            displayAddress: convertToSS58(acc.address, network.ss58Prefix),
-          }))
-        );
-      });
-
-    return () => sub$$.unsubscribe();
-  }, [network.ss58Prefix]);
-
-  return (
-    <WalletContext.Provider
-      value={{
-        error,
-        signer,
-        accounts,
-        walletToUse,
-        supportedWallets,
-        connectWallet,
-        disConnectWallet,
-      }}
-    >
-      {children}
-    </WalletContext.Provider>
-  );
+  return <WalletContext.Provider value={{ isConnected, accounts, connect }}>{children}</WalletContext.Provider>;
 };

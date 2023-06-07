@@ -30,8 +30,8 @@ jobs:
 
       - name: Prepare Project Config
         run: |
+          mv dist build
           mv vercel.json build/
-          mv faucet/* build/
 
       - uses: ./.github/actions/smart-vercel
         name: Deploy to Vercel

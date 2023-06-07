@@ -25,12 +25,12 @@ jobs:
         run: yarn install
 
       - name: Build
-        run: yarn build:dev
+        run: yarn build
 
       - name: Prepare Project Config
         run: |
+          mv dist build
           mv vercel.json build/
-          mv faucet/* build/
 
       - uses: ./.github/actions/smart-vercel
         name: Deploy to Vercel

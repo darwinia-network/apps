@@ -22,12 +22,5 @@
       ]
     }
   ],
-  "rewrites": [
-    { "source": "/account", "destination": "/index.html" },
-    { "source": "/staking", "destination": "/index.html" },
-    { "source": "/toolbox", "destination": "/index.html" },
-    { "source": "/portal", "destination": "/index.html" },
-    { "source": "/migration", "destination": "/index.html" },
-    { "source": "/feemarket", "destination": "/index.html" }
-  ]
+  "rewrites": [{ "source": "/local_subkey_migration", "destination": "/index.html" }]
 }
