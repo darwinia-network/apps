@@ -22,6 +22,12 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+  html {
+    @apply bg-bg-primary;
+  }
+}
+
 @layer components {
   .text-thin {
     @apply font-[JetBrainsMono-Thin] font-thin;
