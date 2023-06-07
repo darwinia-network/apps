@@ -1,4 +1,4 @@
-import logo from "../assets/app-logo.png";
+import logo from "../assets/app-logo.svg";
 import { Link, useMatch } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
