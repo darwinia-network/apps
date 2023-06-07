@@ -80,5 +80,5 @@ export default function LocalSubkeyMigration() {
 
 const NoData = ({ className }: { className?: string }) => {
   const { t } = useTranslation();
-  return <span className={`text-light text-xs text-white/50 ${className}`}>{t("No Date")}</span>;
+  return <span className={`text-light text-xs text-white/50 ${className}`}>{t("No Data")}</span>;
 };
