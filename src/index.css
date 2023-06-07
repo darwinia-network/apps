@@ -47,7 +47,7 @@
   height: 240px;
   position: relative;
   transform-style: preserve-3d;
-  transition: 1s;
+  transition: 0.6s;
 }
 .front,
 .back {
@@ -60,14 +60,6 @@
 }
 .back {
   transform: rotateY(180deg);
-}
-.card-filp:hover {
-  transform: rotateY(180deg);
-}
-
-.card-filp:hover .front {
-  opacity: 0.2;
-  z-index: -1;
 }
 
 /* :root {

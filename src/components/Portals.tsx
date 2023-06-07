@@ -1,7 +1,7 @@
 import { portals as getPortals } from "../config/portals";
 import { useTranslation } from "react-i18next";
 import { PortalTag } from "../types";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { PortalItem } from "./PortalItem";
 
 type FilterTag = PortalTag | "All";
@@ -23,6 +23,23 @@ const ALL_TAGS: FilterTag[] = [
 export const Portals = () => {
   const { t } = useTranslation();
   const [selectedTag, setSelectedTag] = useState<FilterTag>("All");
+  const [flippedPortal, setFlippedPortal] = useState(""); // portal name
+
+  const portalsRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const listener = (e: MouseEvent) => {
+      if (e.target && portalsRef.current && !portalsRef.current.contains(e.target as Node)) {
+        setFlippedPortal("");
+      }
+    };
+
+    document.addEventListener("click", listener);
+
+    return () => {
+      document.removeEventListener("click", listener);
+    };
+  }, []);
 
   return (
     <div data-aos="fade-up" data-aos-duration={700}>
@@ -41,11 +58,14 @@ export const Portals = () => {
           ))}
         </div>
 
-        <div className="mt-[0.625rem] grid grid-cols-1 gap-[0.625rem] lg:mt-[1.875rem] lg:grid-cols-4 lg:gap-5">
+        <div
+          className="mt-[0.625rem] grid grid-cols-1 gap-[0.625rem] lg:mt-[1.875rem] lg:grid-cols-4 lg:gap-5"
+          ref={portalsRef}
+        >
           {getPortals(t)
             .filter(({ tags }) => selectedTag === "All" || tags.includes(selectedTag))
             .map((meta) => (
-              <PortalItem key={meta.name} meta={meta} />
+              <PortalItem key={meta.name} meta={meta} flipped={flippedPortal} onClick={setFlippedPortal} />
             ))}
         </div>
       </div>
