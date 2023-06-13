@@ -6,7 +6,7 @@ export const Hero = () => {
       <img alt="..." src={hero} />
       <p className="text-bold text-lg text-white lg:text-5xl">
         Explore Dapps building on {"{"}
-        <span className="text-primary">Darwinia2</span>
+        <span className="text-primary">Darwinia</span>
         {"}"} ecosystem_
       </p>
     </div>
