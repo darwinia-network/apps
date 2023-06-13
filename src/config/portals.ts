@@ -51,7 +51,7 @@ export const portals = (t: TFunction): PortalMeta[] => [
     description: t(
       "Gnosis Safe is the most trusted decentralized custody protocol and collective asset management platform on Ethereum and the EVM."
     ),
-    tags: ["Infrastructure"],
+    tags: ["Wallet", "Infrastructure"],
   },
   {
     logo: multichain,
