@@ -35,6 +35,19 @@ import tokenMigrationDapp from "../assets/portals/token-migration-dapp.png";
 import localSubkeyMigration from "../assets/portals/local-subkey-migration.png";
 import darwiniaPolkadotParachainAuction from "../assets/portals/darwinia-polkadot-parachain-auction.png";
 import crabKusamaParachainAuction from "../assets/portals/crab-kusama-parachain-auction.png";
+import openzeppelin from "../assets/portals/openzeppelin.png";
+import theGraph from "../assets/portals/the-graph.png";
+import remix from "../assets/portals/remix.png";
+import ethSign from "../assets/portals/eth-sign.png";
+import truffle from "../assets/portals/truffle.png";
+import mars from "../assets/portals/mars.png";
+import waffle from "../assets/portals/waffle.png";
+import bwareLabs from "../assets/portals/bware-labs.png";
+import subsquid from "../assets/portals/subsquid.png";
+import hardhat from "../assets/portals/hardhat.png";
+import web3Py from "../assets/portals/web3-py.png";
+import web3Js from "../assets/portals/web3-js.png";
+import ethersJs from "../assets/portals/ethers-js.png";
 
 export const portals = (t: TFunction): PortalMeta[] => [
   {
@@ -320,5 +333,118 @@ export const portals = (t: TFunction): PortalMeta[] => [
     link: t("https://darwinia-network.github.io/crab-home-v1/plo_contribute"),
     description: t("Do not contribute any more KSM at this time. Metaverse NFT Package rewards can be claimed now!"),
     tags: ["Tool"],
+  },
+  {
+    logo: openzeppelin,
+    name: t("Openzeppelin"),
+    link: t("https://www.openzeppelin.com/"),
+    description: t(
+      "OpenZeppelin is an open-source framework to build secure smart contracts. OpenZeppelin provides a complete suite of security products and audit services to build, manage, and inspect all aspects of software development and operations for decentralized applications."
+    ),
+    tags: ["Infrastructure", "Tool"],
+  },
+  {
+    logo: theGraph,
+    name: t("The Graph"),
+    link: t("https://thegraph.com/"),
+    description: t(
+      "The Graph is the indexing and query layer of the decentralized web. Developers build and publish open APIs, called subgraphs, that applications can query using GraphQL. The Graph currently supports indexing data from Ethereum, IPFS, and PoA, with more networks coming soon."
+    ),
+    tags: ["Infrastructure", "Tool"],
+  },
+  {
+    logo: remix,
+    name: t("Remix"),
+    link: t("https://remix.ethereum.org/"),
+    description: t(
+      "Remix Project is a platform for development tools that use a plugin architecture. It encompasses sub-projects including Remix Plugin Engine, Remix Libs, and Remix-IDE."
+    ),
+    tags: ["Infrastructure", "Tool"],
+  },
+  {
+    logo: ethSign,
+    name: t("EthSign"),
+    link: t("https://www.ethsign.xyz/"),
+    description: t(
+      "EthSign is a decentralized, versioned electronic agreement signing DApp built with Web3 technologies."
+    ),
+    tags: ["Infrastructure", "Tool"],
+  },
+  {
+    logo: truffle,
+    name: t("Truffle"),
+    link: t("https://trufflesuite.com/"),
+    description: t(
+      "Truffle is the most popular development framework for Ethereum with a mission to make your life a whole lot easier."
+    ),
+    tags: ["Infrastructure", "Tool"],
+  },
+  {
+    logo: mars,
+    name: t("Mars"),
+    link: t("https://getmars.io/"),
+    description: t(
+      "Mars is a deployment manager for Ethereum smart contracts. Mars provides a simple, TypeScript compatible framework for creating advanced deployment scripts and staying in sync with state changes."
+    ),
+    tags: ["Infrastructure", "Tool"],
+  },
+  {
+    logo: waffle,
+    name: t("Waffle"),
+    link: t("https://getwaffle.io/"),
+    description: t(
+      "Waffle is a framework for testing smart contracts that uses minimal dependencies, has syntax that is easy to learn and extend, and provides fast execution times when compiling and testing smart contracts."
+    ),
+    tags: ["Infrastructure", "Tool"],
+  },
+  {
+    logo: bwareLabs,
+    name: t("Bware Labs"),
+    link: t("https://bwarelabs.com/"),
+    description: t(
+      "Bware Labs provides an interface between Blockchain APIs consumers and node providers with integrated payment options and verified reliability, all embedded within their platform and protocol service."
+    ),
+    tags: ["Infrastructure", "Tool"],
+  },
+  {
+    logo: subsquid,
+    name: t("Subsquid"),
+    link: t("https://www.subsquid.io/"),
+    description: t(
+      "Subsquid is an on-chain data processing solution that enables Web3 builders to gain access to on-chain data on their own terms."
+    ),
+    tags: ["Infrastructure"],
+  },
+  {
+    logo: hardhat,
+    name: t("Hardhat"),
+    link: t("https://hardhat.org/"),
+    description: t("Hardhat is a development environment to compile, deploy, test, and debug your Ethereum software."),
+    tags: ["Infrastructure", "Tool"],
+  },
+  {
+    logo: web3Py,
+    name: t("web3.py"),
+    link: t("https://web3py.readthedocs.io/"),
+    description: t("web3.py is a Python library for interacting with Ethereum."),
+    tags: ["Infrastructure", "Tool"],
+  },
+  {
+    logo: web3Js,
+    name: t("web3.js"),
+    link: t("https://web3js.readthedocs.io/"),
+    description: t(
+      "web3.js is a collection of libraries that allow you to interact with a local or remote ethereum node using HTTP, IPC or WebSocket."
+    ),
+    tags: ["Infrastructure", "Tool"],
+  },
+  {
+    logo: ethersJs,
+    name: t("ethers.js"),
+    link: t("https://docs.ethers.org/"),
+    description: t(
+      "The ethers.js library aims to be a complete and compact library for interacting with the Ethereum Blockchain and its ecosystem."
+    ),
+    tags: ["Infrastructure", "Tool"],
   },
 ];
