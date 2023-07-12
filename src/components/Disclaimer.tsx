@@ -1,5 +1,4 @@
 import { useRef, useState } from "react";
-import { createPortal } from "react-dom";
 import { CSSTransition } from "react-transition-group";
 
 const STORE_KEY = "disclaimer";
