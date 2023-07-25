@@ -52,7 +52,11 @@ export const PortalItem = ({
       {/* pc */}
       <div className="hidden lg:block" style={{ perspective: 800 }}>
         <div className="card-filp" style={{ ...(flipped === meta.name ? { transform: "rotateY(-180deg)" } : {}) }}>
-          <div className="back flex flex-col items-center justify-between bg-bg-component/70 p-5">
+          <div
+            className={`back flex flex-col items-center justify-between bg-bg-component/70 p-5 transition-opacity duration-700 ${
+              flipped === meta.name ? "opacity-100" : "opacity-0"
+            }`}
+          >
             <span className="text-bold text-xs text-white">{meta.description}</span>
             {meta.link.startsWith("//") ? (
               <a
@@ -74,7 +78,7 @@ export const PortalItem = ({
           </div>
           <div
             className="front flex flex-col items-center justify-center border border-transparent bg-bg-component p-3 transition hover:cursor-pointer hover:border-primary active:scale-95"
-            style={{ ...(flipped === meta.name ? { zIndex: -1, opacity: 0.2 } : {}) }}
+            style={{ ...(flipped === meta.name ? { zIndex: -1, opacity: 0.2 } : { opacity: 1 }) }}
             onClick={() => onClick(meta.name)}
           >
             <img alt="..." src={meta.logo} className="h-[5rem] w-[5rem]" />
