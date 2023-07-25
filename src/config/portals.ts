@@ -48,6 +48,10 @@ import hardhat from "../assets/portals/hardhat.png";
 import web3Py from "../assets/portals/web3-py.png";
 import web3Js from "../assets/portals/web3-js.png";
 import ethersJs from "../assets/portals/ethers-js.png";
+import foundry from "../assets/portals/foundry.png";
+import brownie from "../assets/portals/brownie.png";
+import scaffoldEth from "../assets/portals/scaffold-eth.png";
+import walletconnect from "../assets/portals/walletconnect.png";
 
 export const portals = (t: TFunction): PortalMeta[] => [
   {
@@ -446,5 +450,39 @@ export const portals = (t: TFunction): PortalMeta[] => [
       "The ethers.js library aims to be a complete and compact library for interacting with the Ethereum Blockchain and its ecosystem."
     ),
     tags: ["Infrastructure", "Tool"],
+  },
+  {
+    logo: foundry,
+    name: t("Foundry"),
+    link: t("https://book.getfoundry.sh"),
+    description: t(
+      "Foundry is a blazing fast, portable and modular toolkit for Ethereum application development written in Rust."
+    ),
+    tags: ["Infrastructure", "Tool"],
+  },
+  {
+    logo: brownie,
+    name: t("Brownie"),
+    link: t("https://eth-brownie.readthedocs.io/en/stable/"),
+    description: t(
+      "A Python-based development and testing framework for smart contracts targeting the Ethereum Virtual Machine."
+    ),
+    tags: ["Infrastructure", "Tool"],
+  },
+  {
+    logo: scaffoldEth,
+    name: t("scaffold-eth"),
+    link: t("https://github.com/scaffold-eth/scaffold-eth#-scaffold-eth"),
+    description: t("Forkable Ethereum dev stack focused on fast product iterations."),
+    tags: ["Infrastructure", "Tool"],
+  },
+  {
+    logo: walletconnect,
+    name: t("Walletconnect"),
+    link: t("https://walletconnect.com/"),
+    description: t(
+      "WalletConnect is the Web3 messaging layer and a standard to connect blockchain wallets to Dapps. Our mission continues to expand the interoperability of the Web3 space by providing the best tooling and infrastructure for Wallets to deliver an outstanding user experience."
+    ),
+    tags: ["Wallet"],
   },
 ];
