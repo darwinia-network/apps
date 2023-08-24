@@ -3,7 +3,6 @@ import { PortalMeta } from "../types";
 
 import metamask from "../assets/portals/metamask.png";
 import gnosisSafeFork from "../assets/portals/gnosis-safe-fork.png";
-import multichain from "../assets/portals/multichain.png";
 import celerNetwork from "../assets/portals/celer-network.png";
 import moonbeam from "../assets/portals/moonbeam.png";
 import subscan from "../assets/portals/subscan.png";
@@ -69,15 +68,6 @@ export const portals = (t: TFunction): PortalMeta[] => [
       "Gnosis Safe is the most trusted decentralized custody protocol and collective asset management platform on Ethereum and the EVM."
     ),
     tags: ["Wallet", "Infrastructure"],
-  },
-  {
-    logo: multichain,
-    name: t("Multichain"),
-    link: t("https://multichain.org/"),
-    description: t(
-      "Multichain is the ultimate Router for web3. It is an infrastructure developed for arbitrary cross-chain interactions."
-    ),
-    tags: ["Bridge"],
   },
   {
     logo: celerNetwork,
