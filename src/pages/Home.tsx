@@ -1,12 +1,12 @@
 import { Disclaimer } from "../components/Disclaimer";
 import { Hero } from "../components/Hero";
-import { Portals } from "../components/Portals";
+import { Projects } from "../components/Projects";
 
 export default function Home() {
   return (
     <>
       <Hero />
-      <Portals />
+      <Projects />
       <Disclaimer />
     </>
   );
