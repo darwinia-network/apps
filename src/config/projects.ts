@@ -52,7 +52,7 @@ import brownie from "../assets/portals/brownie.png";
 import scaffoldEth from "../assets/portals/scaffold-eth.png";
 import walletconnect from "../assets/portals/walletconnect.png";
 
-export const portals = (t: TFunction): PortalMeta[] => [
+export const projects = (t: TFunction): PortalMeta[] => [
   {
     logo: metamask,
     name: t("MetaMask"),
@@ -266,7 +266,7 @@ export const portals = (t: TFunction): PortalMeta[] => [
     name: t("RareGems"),
     link: t("https://raregems.io/"),
     description: t(
-      "RareGems is a non-custodial multichain NFT marketplace, which has supported Crab2, Energy Web, Velas, Celo, Moonbeam, Moonriver, Oasis Emerald, Astar Network, and Avalanche. "
+      "RareGems is a non-custodial multichain NFT marketplace, which has supported Crab, Energy Web, Velas, Celo, Moonbeam, Moonriver, Oasis Emerald, Astar Network, and Avalanche."
     ),
     tags: ["NFT"],
   },
@@ -274,28 +274,28 @@ export const portals = (t: TFunction): PortalMeta[] => [
     logo: ringoNft,
     name: t("RINGO NFT"),
     link: t("https://ringonft.art/"),
-    description: t("NFT Avatar Collection on Crab2."),
+    description: t("NFT Avatar Collection on Crab."),
     tags: ["NFT"],
   },
   {
     logo: accountMigrationDapp,
     name: t("Account Migration Dapp"),
     link: t("https://migration.darwinia.network/"),
-    description: t("A tool to migrate your Darwinia1 account to Darwinia2."),
+    description: t("A tool to migrate your Darwinia 1.0 account to Darwinia."),
     tags: ["Tool"],
   },
   {
     logo: stakingDapp,
     name: t("Staking Dapp"),
     link: t("https://staking.darwinia.network/"),
-    description: t("The easiest way to stake on Darwinia2."),
+    description: t("The easiest way to stake on Darwinia."),
     tags: ["Tool"],
   },
   {
     logo: feeMarketDapp,
     name: t("Fee Market Dapp"),
     link: t("https://feemarket.darwinia.network/"),
-    description: t("To Provide data statistics and relayer operation functions for Darwinia2."),
+    description: t("To Provide data statistics and relayer operation functions for Darwinia."),
     tags: ["Tool"],
   },
   {
@@ -310,7 +310,7 @@ export const portals = (t: TFunction): PortalMeta[] => [
     name: t("Local Subkey Migration"),
     link: t("/local_subkey_migration"),
     description: t(
-      "Here are the Darwinia1 accounts you generated on the Darwinia Apps of the old version. You can restore them in the polkadot.js by importing the JSON files."
+      "Here are the Darwinia 1.0 accounts you generated on the Darwinia Apps of the old version. You can restore them in the polkadot.js by importing the JSON files."
     ),
     tags: ["Tool"],
   },

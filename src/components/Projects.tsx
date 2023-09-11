@@ -1,4 +1,4 @@
-import { portals as getPortals } from "../config/portals";
+import { projects as getProjects } from "../config/projects";
 import { useTranslation } from "react-i18next";
 import { PortalTag } from "../types";
 import { useEffect, useRef, useState } from "react";
@@ -20,7 +20,7 @@ const ALL_TAGS: FilterTag[] = [
   "Tool",
 ];
 
-export const Portals = () => {
+export const Projects = () => {
   const { t } = useTranslation();
   const [selectedTag, setSelectedTag] = useState<FilterTag>("All");
   const [flippedPortal, setFlippedPortal] = useState(""); // portal name
@@ -62,7 +62,7 @@ export const Portals = () => {
           className="mt-[0.625rem] grid grid-cols-1 gap-[0.625rem] lg:mt-[1.875rem] lg:grid-cols-4 lg:gap-5"
           ref={portalsRef}
         >
-          {getPortals(t)
+          {getProjects(t)
             .filter(({ tags }) => selectedTag === "All" || tags.includes(selectedTag))
             .map((meta) => (
               <PortalItem key={meta.name} meta={meta} flipped={flippedPortal} onClick={setFlippedPortal} />
