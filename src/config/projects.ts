@@ -51,6 +51,7 @@ import foundry from "../assets/portals/foundry.png";
 import brownie from "../assets/portals/brownie.png";
 import scaffoldEth from "../assets/portals/scaffold-eth.png";
 import walletconnect from "../assets/portals/walletconnect.png";
+import darwinia from "../assets/portals/darwinia.svg";
 
 export const projects = (t: TFunction): PortalMeta[] => [
   {
@@ -474,5 +475,12 @@ export const projects = (t: TFunction): PortalMeta[] => [
       "WalletConnect is the Web3 messaging layer and a standard to connect blockchain wallets to Dapps. Our mission continues to expand the interoperability of the Web3 space by providing the best tooling and infrastructure for Wallets to deliver an outstanding user experience."
     ),
     tags: ["Wallet"],
+  },
+  {
+    logo: darwinia,
+    name: t("Darwinia Widgets"),
+    link: t("https://itering.notion.site/itering/Darwinia-Widgets-62b07ee055ce4ae083ec835344bc1b24"),
+    description: t("With Darwinia Widgets, anyone can query staking-related data on Darwinia."),
+    tags: ["Tool"],
   },
 ];
