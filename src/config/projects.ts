@@ -1,56 +1,57 @@
 import type { TFunction } from "i18next";
 import { PortalMeta } from "../types";
 
-import metamask from "../assets/portals/metamask.png";
-import gnosisSafeFork from "../assets/portals/gnosis-safe-fork.png";
-import celerNetwork from "../assets/portals/celer-network.png";
-import moonbeam from "../assets/portals/moonbeam.png";
-import subscan from "../assets/portals/subscan.png";
-import helix from "../assets/portals/helix.png";
-import snapshot from "../assets/portals/snapshot.png";
-import mathwallet from "../assets/portals/mathwallet.png";
-import talisman from "../assets/portals/talisman.png";
-import onfinality from "../assets/portals/onfinality.png";
-import subview from "../assets/portals/subview.png";
-import subsquare from "../assets/portals/subsquare.png";
-import astar from "../assets/portals/astar.png";
-import dwellir from "../assets/portals/dwellir.png";
-import snowswap from "../assets/portals/snowswap.png";
-import evolutionLand from "../assets/portals/evolution-land.png";
-import subwallet from "../assets/portals/subwallet.png";
-import polkadotJs from "../assets/portals/polkadot.js.png";
-import subquery from "../assets/portals/subquery.png";
-import darwiniaCommunityDao from "../assets/portals/darwinia-community-dao.png";
-import phala from "../assets/portals/phala.png";
-import bifrost from "../assets/portals/bifrost.png";
-import parallel from "../assets/portals/parallel.png";
-import novawallet from "../assets/portals/novawallet.png";
-import raregems from "../assets/portals/raregems.png";
-import ringoNft from "../assets/portals/ringo-nft.png";
-import accountMigrationDapp from "../assets/portals/account-migration-dapp.png";
-import stakingDapp from "../assets/portals/staking-dapp.png";
-import feeMarketDapp from "../assets/portals/fee-market-dapp.png";
-import tokenMigrationDapp from "../assets/portals/token-migration-dapp.png";
-import localSubkeyMigration from "../assets/portals/local-subkey-migration.png";
-import darwiniaPolkadotParachainAuction from "../assets/portals/darwinia-polkadot-parachain-auction.png";
-import crabKusamaParachainAuction from "../assets/portals/crab-kusama-parachain-auction.png";
-import openzeppelin from "../assets/portals/openzeppelin.png";
-import theGraph from "../assets/portals/the-graph.png";
-import remix from "../assets/portals/remix.png";
-import ethSign from "../assets/portals/eth-sign.png";
-import truffle from "../assets/portals/truffle.png";
-import mars from "../assets/portals/mars.png";
-import waffle from "../assets/portals/waffle.png";
-import bwareLabs from "../assets/portals/bware-labs.png";
-import subsquid from "../assets/portals/subsquid.png";
-import hardhat from "../assets/portals/hardhat.png";
-import web3Py from "../assets/portals/web3-py.png";
-import web3Js from "../assets/portals/web3-js.png";
-import ethersJs from "../assets/portals/ethers-js.png";
-import foundry from "../assets/portals/foundry.png";
-import brownie from "../assets/portals/brownie.png";
-import scaffoldEth from "../assets/portals/scaffold-eth.png";
-import walletconnect from "../assets/portals/walletconnect.png";
+import metamask from "../assets/projects/metamask.png";
+import gnosisSafeFork from "../assets/projects/gnosis-safe-fork.png";
+import celerNetwork from "../assets/projects/celer-network.png";
+import moonbeam from "../assets/projects/moonbeam.png";
+import subscan from "../assets/projects/subscan.png";
+import helix from "../assets/projects/helix.png";
+import snapshot from "../assets/projects/snapshot.png";
+import mathwallet from "../assets/projects/mathwallet.png";
+import talisman from "../assets/projects/talisman.png";
+import onfinality from "../assets/projects/onfinality.png";
+import subview from "../assets/projects/subview.png";
+import subsquare from "../assets/projects/subsquare.png";
+import astar from "../assets/projects/astar.png";
+import dwellir from "../assets/projects/dwellir.png";
+import snowswap from "../assets/projects/snowswap.png";
+import evolutionLand from "../assets/projects/evolution-land.png";
+import subwallet from "../assets/projects/subwallet.png";
+import polkadotJs from "../assets/projects/polkadot.js.png";
+import subquery from "../assets/projects/subquery.png";
+import darwiniaCommunityDao from "../assets/projects/darwinia-community-dao.png";
+import phala from "../assets/projects/phala.png";
+import bifrost from "../assets/projects/bifrost.png";
+import parallel from "../assets/projects/parallel.png";
+import novawallet from "../assets/projects/novawallet.png";
+import raregems from "../assets/projects/raregems.png";
+import ringoNft from "../assets/projects/ringo-nft.png";
+import accountMigrationDapp from "../assets/projects/account-migration-dapp.png";
+import stakingDapp from "../assets/projects/staking-dapp.png";
+import feeMarketDapp from "../assets/projects/fee-market-dapp.png";
+import tokenMigrationDapp from "../assets/projects/token-migration-dapp.png";
+import localSubkeyMigration from "../assets/projects/local-subkey-migration.png";
+import darwiniaPolkadotParachainAuction from "../assets/projects/darwinia-polkadot-parachain-auction.png";
+import crabKusamaParachainAuction from "../assets/projects/crab-kusama-parachain-auction.png";
+import openzeppelin from "../assets/projects/openzeppelin.png";
+import theGraph from "../assets/projects/the-graph.png";
+import remix from "../assets/projects/remix.png";
+import ethSign from "../assets/projects/eth-sign.png";
+import truffle from "../assets/projects/truffle.png";
+import mars from "../assets/projects/mars.png";
+import waffle from "../assets/projects/waffle.png";
+import bwareLabs from "../assets/projects/bware-labs.png";
+import subsquid from "../assets/projects/subsquid.png";
+import hardhat from "../assets/projects/hardhat.png";
+import web3Py from "../assets/projects/web3-py.png";
+import web3Js from "../assets/projects/web3-js.png";
+import ethersJs from "../assets/projects/ethers-js.png";
+import foundry from "../assets/projects/foundry.png";
+import brownie from "../assets/projects/brownie.png";
+import scaffoldEth from "../assets/projects/scaffold-eth.png";
+import walletconnect from "../assets/projects/walletconnect.png";
+import darwinia from "../assets/projects/darwinia.svg";
 
 export const projects = (t: TFunction): PortalMeta[] => [
   {
@@ -474,5 +475,14 @@ export const projects = (t: TFunction): PortalMeta[] => [
       "WalletConnect is the Web3 messaging layer and a standard to connect blockchain wallets to Dapps. Our mission continues to expand the interoperability of the Web3 space by providing the best tooling and infrastructure for Wallets to deliver an outstanding user experience."
     ),
     tags: ["Wallet"],
+  },
+  {
+    logo: darwinia,
+    name: t("Darwinia Widgets"),
+    link: t("https://dcdao.notion.site/Darwinia-Widgets-37f4d56506d54f288bcdea93c03a33b4"),
+    description: t(
+      "Darwinia Widget, created by DCDAO, a community self-organized workgroup in the Darwinia ecosystem, allows easy access to staking-related data on the Darwinia Chain."
+    ),
+    tags: ["Tool"],
   },
 ];

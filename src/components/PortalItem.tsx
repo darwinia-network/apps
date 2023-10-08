@@ -17,7 +17,7 @@ export const PortalItem = ({
     <>
       {/* mobile */}
       <div className="flex gap-[0.625rem] rounded-[0.625rem] bg-bg-component p-[0.9375rem] lg:hidden">
-        <img alt="..." src={meta.logo} className="h-[3.125rem] w-[3.125rem]" />
+        <img alt="..." src={meta.logo} className="h-[3.125rem] w-[3.125rem] rounded-full" />
 
         <div className="flex w-fit flex-col gap-[0.625rem]">
           {meta.link.startsWith("//") ? (
@@ -81,7 +81,7 @@ export const PortalItem = ({
             style={{ ...(flipped === meta.name ? { zIndex: -1, opacity: 0.2 } : { opacity: 1 }) }}
             onClick={() => onClick(meta.name)}
           >
-            <img alt="..." src={meta.logo} className="h-[5rem] w-[5rem]" />
+            <img alt="..." src={meta.logo} className="h-[5rem] w-[5rem] rounded-full" />
             <h5 className="text-bold mt-[1rem] text-center text-lg text-white">{meta.name}</h5>
             <div className="mt-[0.625rem] flex items-center gap-[0.625rem]">
               {meta.tags.slice(0, 3).map((tag) => (
