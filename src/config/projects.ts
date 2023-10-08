@@ -479,8 +479,10 @@ export const projects = (t: TFunction): PortalMeta[] => [
   {
     logo: darwinia,
     name: t("Darwinia Widgets"),
-    link: t("https://itering.notion.site/itering/Darwinia-Widgets-62b07ee055ce4ae083ec835344bc1b24"),
-    description: t("With Darwinia Widgets, anyone can query staking-related data on Darwinia."),
+    link: t("https://dcdao.notion.site/Darwinia-Widgets-37f4d56506d54f288bcdea93c03a33b4"),
+    description: t(
+      "Darwinia Widget, created by DCDAO, a community self-organized workgroup in the Darwinia ecosystem, allows easy access to staking-related data on the Darwinia Chain."
+    ),
     tags: ["Tool"],
   },
 ];
