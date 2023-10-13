@@ -52,6 +52,7 @@ import brownie from "../assets/projects/brownie.png";
 import scaffoldEth from "../assets/projects/scaffold-eth.png";
 import walletconnect from "../assets/projects/walletconnect.png";
 import darwinia from "../assets/projects/darwinia.svg";
+import gnosisMultisigWallet from "../assets/projects/gnosis-multisig-wallet.svg";
 
 export const projects = (t: TFunction): PortalMeta[] => [
   {
@@ -484,5 +485,14 @@ export const projects = (t: TFunction): PortalMeta[] => [
       "Darwinia Widget, created by DCDAO, a community self-organized workgroup in the Darwinia ecosystem, allows easy access to staking-related data on the Darwinia Chain."
     ),
     tags: ["Tool"],
+  },
+  {
+    logo: gnosisMultisigWallet,
+    name: t("Gnosis MultiSigWallet(Classic)"),
+    link: t("https://ipfs.io/ipfs/QmfRD4GuqZobNi2NT2C77a3UTQ452ffwstr4fjEJixUgjf/#/wallets"),
+    description: t(
+      "Gnosis Safe is the most trusted decentralized custody protocol and collective asset management platform on Ethereum and the EVM."
+    ),
+    tags: ["Infrastructure", "Wallet"],
   },
 ];
