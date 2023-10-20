@@ -221,7 +221,7 @@ export const projects = (t: TFunction): PortalMeta[] => [
   {
     logo: darwiniaCommunityDao,
     name: t("Darwinia Community DAO"),
-    link: t("https://twitter.com/realDCDAO2023"),
+    link: t("https://twitter.com/Official_DCDAO"),
     description: t(
       "Darwinia Community DAO(DCDAO) is a community self-organized workgroup(WG) contributing to the growth of the Darwinia community."
     ),
