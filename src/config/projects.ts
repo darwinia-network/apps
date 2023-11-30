@@ -53,6 +53,9 @@ import scaffoldEth from "../assets/projects/scaffold-eth.png";
 import walletconnect from "../assets/projects/walletconnect.png";
 import darwinia from "../assets/projects/darwinia.svg";
 import gnosisMultisigWallet from "../assets/projects/gnosis-multisig-wallet.svg";
+import subApiDao from "../assets/projects/subapi-dao.png";
+import helixDao from "../assets/projects/helix-dao.png";
+import tally from "../assets/projects/tally.png";
 
 export const projects = (t: TFunction): PortalMeta[] => [
   {
@@ -494,5 +497,41 @@ export const projects = (t: TFunction): PortalMeta[] => [
       "Gnosis Safe is the most trusted decentralized custody protocol and collective asset management platform on Ethereum and the EVM."
     ),
     tags: ["Infrastructure", "Wallet"],
+  },
+  {
+    logo: subApiDao,
+    name: t("SubAPI DAO"),
+    link: t("https://github.com/subapidao"),
+    description: t(
+      "SubAPI DAO is targeting to be a SubDAO of Darwinia, working on Oracle and API integration. The SubAPI solution, developed by SubAPI DAO, is based on API3's airnode. Darwinia Msgport is set to adopt the services provided by this SubAPI solution."
+    ),
+    tags: ["Infrastructure", "DAO"],
+  },
+  {
+    logo: helixDao,
+    name: t("Helix DAO"),
+    link: t("https://github.com/helix-bridge/dao"),
+    description: t(
+      "Helix DAO plays a pivotal role in fostering discussions and executing impactful decisions for Helix Bridge. These decisions encompass a spectrum of actions, including adjusting execution parameters and exploring new chains and assets. Furthermore, Helix DAO holds and manages the significant revenues and assets within the Helix ecosystem."
+    ),
+    tags: ["Infrastructure", "DAO"],
+  },
+  {
+    logo: openzeppelin,
+    name: t("OpenZeppelin Defender"),
+    link: t("https://docs.openzeppelin.com/defender/v2/"),
+    description: t(
+      "OpenZeppelin Defender is a mission-critical developer security platform to code, audit, deploy, monitor, and operate blockchain applications with confidence. Integrating directly into the developer workflow, Defender makes it easy and fast for developers and operators to prevent and fix security issues pre and post-deployment."
+    ),
+    tags: ["Infrastructure"],
+  },
+  {
+    logo: tally,
+    name: t("Tally"),
+    link: t("https://www.tally.xyz/"),
+    description: t(
+      "Tally is a DAO operations platform. DAOs use Tally to create and pass proposals, enable delegation, and power voting."
+    ),
+    tags: ["Infrastructure", "DAO"],
   },
 ];
