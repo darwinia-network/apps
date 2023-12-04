@@ -25,8 +25,8 @@ import phala from "../assets/projects/phala.png";
 import bifrost from "../assets/projects/bifrost.png";
 import parallel from "../assets/projects/parallel.png";
 import novawallet from "../assets/projects/novawallet.png";
-import raregems from "../assets/projects/raregems.png";
-import ringoNft from "../assets/projects/ringo-nft.png";
+// import raregems from "../assets/projects/raregems.png";
+// import ringoNft from "../assets/projects/ringo-nft.png";
 import accountMigrationDapp from "../assets/projects/account-migration-dapp.png";
 import stakingDapp from "../assets/projects/staking-dapp.png";
 import feeMarketDapp from "../assets/projects/fee-market-dapp.png";
@@ -266,22 +266,22 @@ export const projects = (t: TFunction): PortalMeta[] => [
     ),
     tags: ["Wallet"],
   },
-  {
-    logo: raregems,
-    name: t("RareGems"),
-    link: t("https://raregems.io/"),
-    description: t(
-      "RareGems is a non-custodial multichain NFT marketplace, which has supported Crab, Energy Web, Velas, Celo, Moonbeam, Moonriver, Oasis Emerald, Astar Network, and Avalanche."
-    ),
-    tags: ["NFT"],
-  },
-  {
-    logo: ringoNft,
-    name: t("RINGO NFT"),
-    link: t("https://ringonft.art/"),
-    description: t("NFT Avatar Collection on Crab."),
-    tags: ["NFT"],
-  },
+  // {
+  //   logo: raregems,
+  //   name: t("RareGems"),
+  //   link: t("https://raregems.io/"),
+  //   description: t(
+  //     "RareGems is a non-custodial multichain NFT marketplace, which has supported Crab, Energy Web, Velas, Celo, Moonbeam, Moonriver, Oasis Emerald, Astar Network, and Avalanche."
+  //   ),
+  //   tags: ["NFT"],
+  // },
+  // {
+  //   logo: ringoNft,
+  //   name: t("RINGO NFT"),
+  //   link: t("https://ringonft.art/"),
+  //   description: t("NFT Avatar Collection on Crab."),
+  //   tags: ["NFT"],
+  // },
   {
     logo: accountMigrationDapp,
     name: t("Account Migration Dapp"),
