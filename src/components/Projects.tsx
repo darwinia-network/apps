@@ -1,7 +1,7 @@
 import { projects as getProjects } from "../config/projects";
 import { useTranslation } from "react-i18next";
 import { PortalTag } from "../types";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { PortalItem } from "./PortalItem";
 
 type FilterTag = PortalTag | "All";
@@ -26,6 +26,11 @@ export const Projects = () => {
   const [flippedPortal, setFlippedPortal] = useState(""); // portal name
 
   const portalsRef = useRef<HTMLDivElement>(null);
+
+  const projects = useMemo(
+    () => getProjects(t).filter(({ tags }) => selectedTag === "All" || tags.includes(selectedTag)),
+    [selectedTag, t]
+  );
 
   useEffect(() => {
     const listener = (e: MouseEvent) => {
@@ -59,14 +64,20 @@ export const Projects = () => {
         </div>
 
         <div
-          className="mt-[0.625rem] grid grid-cols-1 gap-[0.625rem] lg:mt-[1.875rem] lg:grid-cols-4 lg:gap-5"
+          className={`${
+            projects.length
+              ? "mt-[0.625rem] grid grid-cols-1 gap-[0.625rem] lg:mt-[1.875rem] lg:grid-cols-4 lg:gap-5"
+              : "mt-10 flex justify-center"
+          }`}
           ref={portalsRef}
         >
-          {getProjects(t)
-            .filter(({ tags }) => selectedTag === "All" || tags.includes(selectedTag))
-            .map((meta) => (
+          {projects.length ? (
+            projects.map((meta) => (
               <PortalItem key={meta.name} meta={meta} flipped={flippedPortal} onClick={setFlippedPortal} />
-            ))}
+            ))
+          ) : (
+            <span className="text-bold text-sm text-white/50">No data</span>
+          )}
         </div>
       </div>
     </div>
