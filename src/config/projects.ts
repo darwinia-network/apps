@@ -56,6 +56,7 @@ import gnosisMultisigWallet from "../assets/projects/gnosis-multisig-wallet.svg"
 import subApiDao from "../assets/projects/subapi-dao.png";
 import helixDao from "../assets/projects/helix-dao.png";
 import tally from "../assets/projects/tally.png";
+import immunefi from "../assets/projects/immunefi.png";
 
 export const projects = (t: TFunction): PortalMeta[] => [
   {
@@ -533,5 +534,13 @@ export const projects = (t: TFunction): PortalMeta[] => [
       "Tally is a DAO operations platform. DAOs use Tally to create and pass proposals, enable delegation, and power voting."
     ),
     tags: ["Infrastructure", "DAO"],
+  },
+  {
+    logo: immunefi,
+    name: "Immunefi",
+    link: "https://immunefi.com/",
+    description:
+      "The leading bug bounty platform for blockchain with the world's largest bug bounties. More than $90m paid out to Whitehats and $156m in rewards available.",
+    tags: ["Infrastructure", "Tool"],
   },
 ];
