@@ -29,7 +29,6 @@ import novawallet from "../assets/projects/novawallet.png";
 // import ringoNft from "../assets/projects/ringo-nft.png";
 import accountMigrationDapp from "../assets/projects/account-migration-dapp.png";
 import stakingDapp from "../assets/projects/staking-dapp.png";
-import feeMarketDapp from "../assets/projects/fee-market-dapp.png";
 import tokenMigrationDapp from "../assets/projects/token-migration-dapp.png";
 import localSubkeyMigration from "../assets/projects/local-subkey-migration.png";
 import darwiniaPolkadotParachainAuction from "../assets/projects/darwinia-polkadot-parachain-auction.png";
@@ -295,13 +294,6 @@ export const projects = (t: TFunction): PortalMeta[] => [
     name: t("Staking Dapp"),
     link: t("https://staking.darwinia.network/"),
     description: t("The easiest way to stake on Darwinia."),
-    tags: ["Tool"],
-  },
-  {
-    logo: feeMarketDapp,
-    name: t("Fee Market Dapp"),
-    link: t("https://feemarket.darwinia.network/"),
-    description: t("To Provide data statistics and relayer operation functions for Darwinia."),
     tags: ["Tool"],
   },
   {
