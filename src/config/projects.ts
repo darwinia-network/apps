@@ -3,17 +3,13 @@ import { PortalMeta } from "../types";
 
 import metamask from "../assets/projects/metamask.png";
 import gnosisSafeFork from "../assets/projects/gnosis-safe-fork.png";
-import celerNetwork from "../assets/projects/celer-network.png";
-import moonbeam from "../assets/projects/moonbeam.png";
 import subscan from "../assets/projects/subscan.png";
 import helix from "../assets/projects/helix.png";
 import snapshot from "../assets/projects/snapshot.png";
 import mathwallet from "../assets/projects/mathwallet.png";
 import talisman from "../assets/projects/talisman.png";
-import onfinality from "../assets/projects/onfinality.png";
 import subview from "../assets/projects/subview.png";
 import subsquare from "../assets/projects/subsquare.png";
-import astar from "../assets/projects/astar.png";
 import dwellir from "../assets/projects/dwellir.png";
 import snowswap from "../assets/projects/snowswap.png";
 import evolutionLand from "../assets/projects/evolution-land.png";
@@ -21,9 +17,6 @@ import subwallet from "../assets/projects/subwallet.png";
 import polkadotJs from "../assets/projects/polkadot.js.png";
 import subquery from "../assets/projects/subquery.png";
 import darwiniaCommunityDao from "../assets/projects/darwinia-community-dao.png";
-import phala from "../assets/projects/phala.png";
-import bifrost from "../assets/projects/bifrost.png";
-import parallel from "../assets/projects/parallel.png";
 import novawallet from "../assets/projects/novawallet.png";
 // import raregems from "../assets/projects/raregems.png";
 // import ringoNft from "../assets/projects/ringo-nft.png";
@@ -34,7 +27,6 @@ import localSubkeyMigration from "../assets/projects/local-subkey-migration.png"
 import darwiniaPolkadotParachainAuction from "../assets/projects/darwinia-polkadot-parachain-auction.png";
 import crabKusamaParachainAuction from "../assets/projects/crab-kusama-parachain-auction.png";
 import openzeppelin from "../assets/projects/openzeppelin.png";
-import theGraph from "../assets/projects/the-graph.png";
 import remix from "../assets/projects/remix.png";
 import ethSign from "../assets/projects/eth-sign.png";
 import truffle from "../assets/projects/truffle.png";
@@ -54,7 +46,6 @@ import darwinia from "../assets/projects/darwinia.svg";
 import gnosisMultisigWallet from "../assets/projects/gnosis-multisig-wallet.svg";
 import subApiDao from "../assets/projects/subapi-dao.png";
 import helixDao from "../assets/projects/helix-dao.png";
-import tally from "../assets/projects/tally.png";
 import immunefi from "../assets/projects/immunefi.png";
 
 export const projects = (t: TFunction): PortalMeta[] => [
