@@ -417,7 +417,7 @@ export const projects = (t: TFunction): PortalMeta[] => [
     description: t(
       "SubAPI DAO is targeting to be a SubDAO of Darwinia, working on Oracle and API integration. The SubAPI solution, developed by SubAPI DAO, is based on API3's airnode. Darwinia Msgport is set to adopt the services provided by this SubAPI solution."
     ),
-    tags: ["Infrastructure", "DAO"],
+    tags: ["DAO"],
   },
   {
     logo: helixDao,
