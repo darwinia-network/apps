@@ -75,24 +75,6 @@ export const projects = (t: TFunction): PortalMeta[] => [
     tags: ["Wallet", "Infrastructure"],
   },
   {
-    logo: celerNetwork,
-    name: t("Celer Network"),
-    link: t("https://celer.network/"),
-    description: t(
-      "Celer is a blockchain interoperability protocol enabling a one-click user experience accessing tokens, DeFi, GameFi, NFTs, governance, and more across multiple chains."
-    ),
-    tags: ["Bridge"],
-  },
-  {
-    logo: moonbeam,
-    name: t("Moonbeam"),
-    link: t("https://moonbeam.network/"),
-    description: t(
-      "Moonbeam is a smart contract platform for building cross-chain connected applications that can access users, assets, and services on any chain."
-    ),
-    tags: ["Infrastructure"],
-  },
-  {
     logo: subscan,
     name: t("Subscan"),
     link: t("https://www.subscan.io/"),
@@ -134,15 +116,6 @@ export const projects = (t: TFunction): PortalMeta[] => [
     tags: ["Wallet"],
   },
   {
-    logo: onfinality,
-    name: t("OnFinality"),
-    link: t("https://onfinality.io/"),
-    description: t(
-      "OnFinality is a SaaS platform providing infrastructure services for the Kusama/Substrate community. Their mission is to support blockchain developers of all shapes and sizes by providing infrastructure services so they can focus on building the next dApp."
-    ),
-    tags: ["Infrastructure"],
-  },
-  {
     logo: subview,
     name: t("Subview"),
     link: t("https://darwinia.subview.xyz/"),
@@ -157,15 +130,6 @@ export const projects = (t: TFunction): PortalMeta[] => [
       "SubSquare provides a very clear visualization for the on-chain governance process and neat interfaces for community members to discuss proposals."
     ),
     tags: ["Governance"],
-  },
-  {
-    logo: astar,
-    name: t("Astar"),
-    link: t("https://astar.network/"),
-    description: t(
-      "Astar Network supports the building of dApps with EVM and WASM smart contracts and offers developers true interoperability, with cross-consensus messaging (XCM)."
-    ),
-    tags: ["Infrastructure"],
   },
   {
     logo: dwellir,
@@ -229,33 +193,6 @@ export const projects = (t: TFunction): PortalMeta[] => [
       "Darwinia Community DAO(DCDAO) is a community self-organized workgroup(WG) contributing to the growth of the Darwinia community."
     ),
     tags: ["DAO"],
-  },
-  {
-    logo: phala,
-    name: t("Phala"),
-    link: t("https://www.phala.network/en/"),
-    description: t(
-      "Phala Network tackles the issue of trust in the computation cloud. Organizing a decentralized network of computation nodes around the world, it offers high-performance services without relying on any cloud vendor."
-    ),
-    tags: ["Infrastructure"],
-  },
-  {
-    logo: bifrost,
-    name: t("Bifrost"),
-    link: t("https://bifrost.finance/"),
-    description: t(
-      "Bifrost is a web3 derivatives protocol that provides decentralized cross-chain liquidity for staked assets. By leveraging on the cross-consensus message (XCM), it can provide cross-chain liquid staking services for multiple chains."
-    ),
-    tags: ["Defi"],
-  },
-  {
-    logo: parallel,
-    name: t("Parallel"),
-    link: t("https://parallel.fi/"),
-    description: t(
-      "Parallel Finance (with its Kusama-based Heiko network) is the Polkadot network-based DeFi super DApp protocol that features a composable and interoperable ecosystem of community-focused decentralized applications."
-    ),
-    tags: ["Defi"],
   },
   {
     logo: novawallet,
@@ -333,16 +270,7 @@ export const projects = (t: TFunction): PortalMeta[] => [
     description: t(
       "OpenZeppelin is an open-source framework to build secure smart contracts. OpenZeppelin provides a complete suite of security products and audit services to build, manage, and inspect all aspects of software development and operations for decentralized applications."
     ),
-    tags: ["Infrastructure", "Tool"],
-  },
-  {
-    logo: theGraph,
-    name: t("The Graph"),
-    link: t("https://thegraph.com/"),
-    description: t(
-      "The Graph is the indexing and query layer of the decentralized web. Developers build and publish open APIs, called subgraphs, that applications can query using GraphQL. The Graph currently supports indexing data from Ethereum, IPFS, and PoA, with more networks coming soon."
-    ),
-    tags: ["Infrastructure", "Tool"],
+    tags: ["Tool"],
   },
   {
     logo: remix,
@@ -351,7 +279,7 @@ export const projects = (t: TFunction): PortalMeta[] => [
     description: t(
       "Remix Project is a platform for development tools that use a plugin architecture. It encompasses sub-projects including Remix Plugin Engine, Remix Libs, and Remix-IDE."
     ),
-    tags: ["Infrastructure", "Tool"],
+    tags: ["Tool"],
   },
   {
     logo: ethSign,
@@ -360,7 +288,7 @@ export const projects = (t: TFunction): PortalMeta[] => [
     description: t(
       "EthSign is a decentralized, versioned electronic agreement signing DApp built with Web3 technologies."
     ),
-    tags: ["Infrastructure", "Tool"],
+    tags: ["Tool"],
   },
   {
     logo: truffle,
@@ -369,7 +297,7 @@ export const projects = (t: TFunction): PortalMeta[] => [
     description: t(
       "Truffle is the most popular development framework for Ethereum with a mission to make your life a whole lot easier."
     ),
-    tags: ["Infrastructure", "Tool"],
+    tags: ["Tool"],
   },
   {
     logo: mars,
@@ -378,7 +306,7 @@ export const projects = (t: TFunction): PortalMeta[] => [
     description: t(
       "Mars is a deployment manager for Ethereum smart contracts. Mars provides a simple, TypeScript compatible framework for creating advanced deployment scripts and staying in sync with state changes."
     ),
-    tags: ["Infrastructure", "Tool"],
+    tags: ["Tool"],
   },
   {
     logo: waffle,
@@ -387,7 +315,7 @@ export const projects = (t: TFunction): PortalMeta[] => [
     description: t(
       "Waffle is a framework for testing smart contracts that uses minimal dependencies, has syntax that is easy to learn and extend, and provides fast execution times when compiling and testing smart contracts."
     ),
-    tags: ["Infrastructure", "Tool"],
+    tags: ["Tool"],
   },
   {
     logo: bwareLabs,
@@ -396,7 +324,7 @@ export const projects = (t: TFunction): PortalMeta[] => [
     description: t(
       "Bware Labs provides an interface between Blockchain APIs consumers and node providers with integrated payment options and verified reliability, all embedded within their platform and protocol service."
     ),
-    tags: ["Infrastructure", "Tool"],
+    tags: ["Tool"],
   },
   {
     logo: subsquid,
@@ -412,14 +340,14 @@ export const projects = (t: TFunction): PortalMeta[] => [
     name: t("Hardhat"),
     link: t("https://hardhat.org/"),
     description: t("Hardhat is a development environment to compile, deploy, test, and debug your Ethereum software."),
-    tags: ["Infrastructure", "Tool"],
+    tags: ["Tool"],
   },
   {
     logo: web3Py,
     name: t("web3.py"),
     link: t("https://web3py.readthedocs.io/"),
     description: t("web3.py is a Python library for interacting with Ethereum."),
-    tags: ["Infrastructure", "Tool"],
+    tags: ["Tool"],
   },
   {
     logo: web3Js,
@@ -428,7 +356,7 @@ export const projects = (t: TFunction): PortalMeta[] => [
     description: t(
       "web3.js is a collection of libraries that allow you to interact with a local or remote ethereum node using HTTP, IPC or WebSocket."
     ),
-    tags: ["Infrastructure", "Tool"],
+    tags: ["Tool"],
   },
   {
     logo: ethersJs,
@@ -437,7 +365,7 @@ export const projects = (t: TFunction): PortalMeta[] => [
     description: t(
       "The ethers.js library aims to be a complete and compact library for interacting with the Ethereum Blockchain and its ecosystem."
     ),
-    tags: ["Infrastructure", "Tool"],
+    tags: ["Tool"],
   },
   {
     logo: foundry,
@@ -446,7 +374,7 @@ export const projects = (t: TFunction): PortalMeta[] => [
     description: t(
       "Foundry is a blazing fast, portable and modular toolkit for Ethereum application development written in Rust."
     ),
-    tags: ["Infrastructure", "Tool"],
+    tags: ["Tool"],
   },
   {
     logo: brownie,
@@ -455,14 +383,14 @@ export const projects = (t: TFunction): PortalMeta[] => [
     description: t(
       "A Python-based development and testing framework for smart contracts targeting the Ethereum Virtual Machine."
     ),
-    tags: ["Infrastructure", "Tool"],
+    tags: ["Tool"],
   },
   {
     logo: scaffoldEth,
     name: t("scaffold-eth"),
     link: t("https://github.com/scaffold-eth/scaffold-eth#-scaffold-eth"),
     description: t("Forkable Ethereum dev stack focused on fast product iterations."),
-    tags: ["Infrastructure", "Tool"],
+    tags: ["Tool"],
   },
   {
     logo: walletconnect,
@@ -507,25 +435,7 @@ export const projects = (t: TFunction): PortalMeta[] => [
     description: t(
       "Helix DAO plays a pivotal role in fostering discussions and executing impactful decisions for Helix Bridge. These decisions encompass a spectrum of actions, including adjusting execution parameters and exploring new chains and assets. Furthermore, Helix DAO holds and manages the significant revenues and assets within the Helix ecosystem."
     ),
-    tags: ["Infrastructure", "DAO"],
-  },
-  {
-    logo: openzeppelin,
-    name: t("OpenZeppelin Defender"),
-    link: t("https://docs.openzeppelin.com/defender/v2/"),
-    description: t(
-      "OpenZeppelin Defender is a mission-critical developer security platform to code, audit, deploy, monitor, and operate blockchain applications with confidence. Integrating directly into the developer workflow, Defender makes it easy and fast for developers and operators to prevent and fix security issues pre and post-deployment."
-    ),
-    tags: ["Infrastructure"],
-  },
-  {
-    logo: tally,
-    name: t("Tally"),
-    link: t("https://www.tally.xyz/"),
-    description: t(
-      "Tally is a DAO operations platform. DAOs use Tally to create and pass proposals, enable delegation, and power voting."
-    ),
-    tags: ["Infrastructure", "DAO"],
+    tags: ["DAO"],
   },
   {
     logo: immunefi,
