@@ -47,8 +47,16 @@ import gnosisMultisigWallet from "../assets/projects/gnosis-multisig-wallet.svg"
 import subApiDao from "../assets/projects/subapi-dao.png";
 import helixDao from "../assets/projects/helix-dao.png";
 import immunefi from "../assets/projects/immunefi.png";
+import ktonStaking from "../assets/projects/kton-staking.png";
 
 export const projects = (t: TFunction): PortalMeta[] => [
+  {
+    logo: ktonStaking,
+    name: t("Kton Staking"),
+    link: t("https://kton-staking.darwinia.network/"),
+    description: t("Stake Kton to earn rewards."),
+    tags: ["Tool"],
+  },
   {
     logo: metamask,
     name: t("MetaMask"),
