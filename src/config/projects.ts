@@ -52,7 +52,7 @@ import ktonStaking from "../assets/projects/kton-staking.png";
 export const projects = (t: TFunction): PortalMeta[] => [
   {
     logo: ktonStaking,
-    name: t("Kton Staking"),
+    name: t("KTON Staking"),
     link: t("https://kton-staking.darwinia.network/"),
     description: t("Stake KTON to earn rewards."),
     tags: ["Tool"],
