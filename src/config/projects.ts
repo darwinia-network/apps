@@ -55,7 +55,7 @@ export const projects = (t: TFunction): PortalMeta[] => [
     name: t("KTON Staking"),
     link: t("https://kton-staking.darwinia.network/"),
     description: t("Stake KTON to earn rewards."),
-    tags: ["Tool"],
+    tags: ["Defi", "Tool"],
   },
   {
     logo: metamask,
