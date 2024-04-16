@@ -1,12 +1,18 @@
-import hero from "../assets/hero.png";
+import hero from "../assets/herobg.png";
 
 export const Hero = () => {
   return (
-    <div className="container mx-auto mt-[0.625rem] flex flex-col items-center justify-between gap-5 py-5 lg:mt-[1.875rem] lg:flex-row lg:gap-[1.875rem]">
-      <img alt="..." src={hero} />
-      <p className="text-bold text-lg text-white lg:text-5xl">
+    <div className="flex flex-col items-center justify-center gap-5 px-[0.625rem] py-5 lg:relative lg:mt-[1.875rem] lg:gap-[1.875rem] lg:px-0 lg:py-[4.063rem] ">
+      {/* <img alt="..." src={hero} /> */}
+      <div
+        className="inset-0 mt-[1.875rem] h-[189px] w-full bg-cover bg-center lg:absolute lg:mt-0 lg:h-auto lg:opacity-[30%]"
+        style={{
+          backgroundImage: `url(${hero})`,
+        }}
+      ></div>
+      <p className="relative z-10 text-lg font-[700] text-white lg:text-[1.5rem] ">
         Explore Dapps building on {"{"}
-        <span className="text-primary">Darwinia</span>
+        <span className="text-primary">Darwinia2</span>
         {"}"} ecosystem_
       </p>
     </div>

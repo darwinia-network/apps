@@ -77,7 +77,7 @@ export const PortalItem = ({
             )}
           </div>
           <div
-            className="front flex flex-col items-center justify-center gap-[1.25rem] rounded-[1.25rem] border border-transparent bg-bg-component p-3 transition hover:cursor-pointer hover:border-primary active:scale-95 "
+            className="front flex flex-col items-center justify-center gap-[1.25rem] rounded-[1.25rem] border border-transparent bg-bg-component py-[2.5rem] transition hover:cursor-pointer hover:border-primary active:scale-95 "
             style={{ ...(flipped === meta.name ? { zIndex: -1, opacity: 0.2 } : { opacity: 1 }) }}
             onClick={() => onClick(meta.name)}
           >

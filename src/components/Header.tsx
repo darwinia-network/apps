@@ -1,4 +1,7 @@
 import logo from "../assets/app-logo.svg";
+import darwiniabtnlogo from "../assets/darwiniabtnlogo.svg";
+import headerbtnlogo from "../assets/headerbtnlogo.svg";
+import DownArrow from "../assets/DownArrow.svg";
 import { Link, useMatch } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useWallet } from "../hooks/wallet";
@@ -21,14 +24,28 @@ export const Header = () => {
         ) : null}
       </div>
       {isHome ? (
-        <a
-          className="text-light bg-bg-primary px-[15px] py-[7px] text-sm text-white transition hover:opacity-80 active:scale-95 lg:border lg:border-primary"
-          target="_blank"
-          rel="noopener noreferrer"
-          href="https://github.com/darwinia-network/apps/blob/master/README.md#how-to-add-your-portal"
-        >
-          {t("Submit")}
-        </a>
+        // <a
+        //   className="text-light bg-bg-primary px-[15px] py-[7px] text-sm text-white transition hover:opacity-80 active:scale-95 lg:border lg:border-primary"
+        //   target="_blank"
+        //   rel="noopener noreferrer"
+        //   href="https://github.com/darwinia-network/apps/blob/master/README.md#how-to-add-your-portal"
+        // >
+        //   {t("Submit")}
+        // </a>
+        <div className="flex items-center gap-[0.625rem]">
+          <div className="flex cursor-pointer items-center gap-[0.313rem] rounded-[0.313rem] bg-[#242A2E] px-[0.625rem] py-[0.5rem]">
+            <img src={darwiniabtnlogo} alt="darwiniabtnlogo" />
+            <span className="text-[0.875rem] font-[400] leading-[1.5rem] text-white">Darwinia</span>
+            <button
+              className="h-[1rem] w-[1rem] bg-cover bg-center"
+              style={{ backgroundImage: `url(${DownArrow})` }}
+            ></button>
+          </div>
+          <div className="flex cursor-pointer items-center gap-[0.313rem] rounded-[0.313rem] bg-[#242A2E] px-[0.625rem] py-[0.5rem]">
+            <img src={headerbtnlogo} alt="darwiniabtnlogo" />
+            <span className="text-[0.875rem] font-[400] leading-[1.5rem] text-white">0x0E5...f204</span>
+          </div>
+        </div>
       ) : null}
       {isLocalSubkeyMigration ? (
         <button
