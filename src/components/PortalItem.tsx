@@ -38,7 +38,7 @@ export const PortalItem = ({
             {meta.tags.slice(0, 3).map((tag) => (
               <span
                 key={tag}
-                className="text-bold border border-primary px-[0.625rem] py-[0.1875rem] text-xs text-white"
+                className="text-bold rounded-[0.313rem] bg-[#FFFFFF1A] px-[0.313rem] py-[0.469rem] text-[0.75rem] text-xs text-white"
               >
                 {tag}
               </span>
