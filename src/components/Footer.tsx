@@ -22,10 +22,10 @@ const socialCfg: { icon: string; link: string; isMail?: boolean }[] = [
     icon: discord,
     link: "https://discord.com/invite/aQdK9H4MZS",
   },
-  {
-    icon: element,
-    link: "https://app.element.io/#/room/#darwinia:matrix.org",
-  },
+  // {
+  //   icon: element,
+  //   link: "https://app.element.io/#/room/#darwinia:matrix.org",
+  // },
   {
     icon: github,
     link: "https://github.com/darwinia-network",
@@ -59,13 +59,13 @@ export const Footer = () => {
           </a>
         ))}
 
-        <button
+        {/* <button
           className="flex items-center gap-[0.3125rem] transition hover:opacity-80 active:scale-95"
           onClick={() => i18n.changeLanguage(i18n.language === "en" ? "zh" : "en")}
         >
           <img alt="..." src={lng} />
           <span className="text-normal text-sm text-white/50">{i18n.language === "en" ? "EN" : "ZH"}</span>
-        </button>
+        </button> */}
       </div>
     </div>
   );
