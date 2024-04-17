@@ -1,4 +1,4 @@
-@font-face {
+/* @font-face {
   font-family: JetBrainsMono-Thin;
   src: url("./fonts/JetBrainsMono-Thin.woff2") format("woff2");
 }
@@ -16,6 +16,27 @@
 @font-face {
   font-family: JetBrainsMono-Bold;
   src: url("./fonts/JetBrainsMono-Bold.woff2") format("woff2");
+} */
+
+@font-face {
+  font-family: JetBrainsMono-Thin;
+  src: url("./fonts/EuclidCircularA/EuclidCircularALight.ttf") format("woff2");
+}
+@font-face {
+  font-family: EuclidCircularA-Light;
+  src: url("./fonts/EuclidCircularA/EuclidCircularALight.ttf") format("woff2");
+}
+@font-face {
+  font-family: EuclidCircularA-Regular;
+  src: url("./fonts/EuclidCircularA/EuclidCircularARegular.ttf") format("woff2");
+}
+@font-face {
+  font-family: EuclidCircularA-Medium;
+  src: url("./fonts/EuclidCircularA/EuclidCircularAMedium.ttf") format("woff2");
+}
+@font-face {
+  font-family: EuclidCircularA-Bold;
+  src: url("./fonts/EuclidCircularA/EuclidCircularABold.ttf") format("woff2");
 }
 
 @tailwind base;
@@ -29,7 +50,7 @@
 }
 
 @layer components {
-  .text-thin {
+  /* .text-thin {
     @apply font-[JetBrainsMono-Thin] font-thin;
   }
   .text-light {
@@ -40,6 +61,21 @@
   }
   .text-bold {
     @apply font-[JetBrainsMono-Bold] font-bold;
+  } */
+  .text-thin {
+    @apply font-[EuclidCircularA-Thin] font-thin;
+  }
+  .text-light {
+    @apply font-[EuclidCircularA-Light] font-light;
+  }
+  .text-normal {
+    @apply font-[EuclidCircularA-Regular] font-normal;
+  }
+  .text-normal {
+    @apply font-[EuclidCircularA-Medium] font-medium;
+  }
+  .text-bold {
+    @apply font-[EuclidCircularA-Bold] font-bold;
   }
 }
 

@@ -37,7 +37,6 @@ export const Header = () => {
             </a>
             <button className="h-[2.25rem] w-[2.25rem] bg-[#242A2E] p-[0.625rem] lg:border lg:border-primary">
               <img src={mobileMenuIcon} alt="mobileMenuIcon" className="" />
-              <img src={mobileMenuIcon} alt="mobileMenuIcon" className="" />
             </button>
           </div>
           <div className=" hidden items-center gap-[0.625rem] lg:flex">

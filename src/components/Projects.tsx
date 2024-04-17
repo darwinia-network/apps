@@ -48,7 +48,7 @@ export const Projects = () => {
 
   return (
     <div data-aos="fade-up" data-aos-duration={700}>
-      <div className="container mx-auto gap-[1.875rem] py-[0.625rem] lg:flex lg:pt-[1.875rem]">
+      <div className="container mx-auto gap-[3.5rem] py-[0.625rem] lg:flex lg:pt-[1.875rem]">
         <div
           className="flex items-start gap-[1.25rem] overflow-auto lg:flex-col"
           style={{
@@ -60,7 +60,7 @@ export const Projects = () => {
             <button
               key={tag}
               onClick={() => setSelectedTag(tag)}
-              className={`text-bold pb-2 text-sm text-white transition hover:opacity-100 active:scale-95 ${
+              className={`pb-2 text-sm font-light text-white transition hover:opacity-100 active:scale-95 ${
                 selectedTag === tag ? "opacity-100" : "opacity-30"
               }`}
             >

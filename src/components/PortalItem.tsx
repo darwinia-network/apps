@@ -25,7 +25,7 @@ export const PortalItem = ({
               target="_blank"
               rel="noopener noreferrer"
               href={meta.link}
-              className="text-light text-sm text-white transition hover:opacity-80 active:scale-95"
+              className="text-sm font-bold text-white transition hover:opacity-80 active:scale-95"
             >
               {meta.name}
             </a>
@@ -38,14 +38,14 @@ export const PortalItem = ({
             {meta.tags.slice(0, 3).map((tag) => (
               <span
                 key={tag}
-                className="text-bold rounded-[0.313rem] bg-[#FFFFFF1A] px-[0.313rem] py-[0.469rem] text-[0.75rem] text-xs text-white"
+                className="rounded-[0.313rem] bg-[#FFFFFF1A] px-[0.313rem] py-[0.469rem] text-[0.75rem] text-xs font-light text-white"
               >
                 {tag}
               </span>
             ))}
           </div>
           <div className="h-[1px] bg-white/20" />
-          <span className="text-thin text-xs text-white/50">{meta.description}</span>
+          <span className="text-xs font-light text-white/50">{meta.description}</span>
         </div>
       </div>
 
@@ -87,7 +87,7 @@ export const PortalItem = ({
               {meta.tags.slice(0, 3).map((tag) => (
                 <span
                   key={tag}
-                  className="text-bold rounded-[0.313rem] bg-[#FFFFFF1A] px-[0.313rem] py-[0.469rem] text-[0.75rem] text-xs text-white"
+                  className="rounded-[0.313rem] bg-[#FFFFFF1A] px-[0.313rem] py-[0.469rem] text-xs font-light  text-white"
                 >
                   {tag}
                 </span>
