@@ -26,7 +26,7 @@ export const Header = () => {
       </div>
       {isHome ? (
         <>
-          <div className="flex items-center gap-[0.625rem] lg:hidden">
+          <div className="flex items-center gap-[0.625rem]">
             <a
               className="text-light min-h-[2.25rem] bg-[#242A2E] px-[15px] py-[7px] text-sm text-white transition hover:opacity-80 active:scale-95 lg:border lg:border-primary"
               target="_blank"
@@ -35,11 +35,11 @@ export const Header = () => {
             >
               {t("Submit")}
             </a>
-            <button className="h-[2.25rem] w-[2.25rem] bg-[#242A2E] p-[0.625rem] lg:border lg:border-primary">
+            <button className="h-[2.25rem] w-[2.25rem] bg-[#242A2E] p-[0.625rem] lg:hidden lg:border lg:border-primary">
               <img src={mobileMenuIcon} alt="mobileMenuIcon" className="" />
             </button>
           </div>
-          <div className=" hidden items-center gap-[0.625rem] lg:flex">
+          {/* <div className=" hidden items-center gap-[0.625rem] lg:flex">
             <div className="flex cursor-pointer items-center gap-[0.313rem] rounded-[0.313rem] bg-[#242A2E] px-[0.625rem] py-[0.5rem]">
               <img src={darwiniabtnlogo} alt="darwiniabtnlogo" />
               <span className="text-[0.875rem] font-[400] leading-[1.5rem] text-white">Darwinia</span>
@@ -52,7 +52,7 @@ export const Header = () => {
               <img src={headerbtnlogo} alt="darwiniabtnlogo" />
               <span className="text-[0.875rem] font-[400] leading-[1.5rem] text-white">0x0E5...f204</span>
             </div>
-          </div>
+          </div> */}
         </>
       ) : null}
       {isLocalSubkeyMigration ? (

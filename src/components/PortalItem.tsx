@@ -53,17 +53,17 @@ export const PortalItem = ({
       <div className="hidden lg:block" style={{ perspective: 800 }}>
         <div className="card-filp" style={{ ...(flipped === meta.name ? { transform: "rotateY(-180deg)" } : {}) }}>
           <div
-            className={`back flex flex-col items-center justify-between bg-bg-component/70 p-5 transition-opacity duration-700 ${
+            className={`back flex flex-col items-center justify-between rounded-[1.25rem] bg-bg-component/70 p-5 transition-opacity duration-700 ${
               flipped === meta.name ? "opacity-100" : "opacity-0"
             }`}
           >
-            <span className="text-bold text-xs text-white">{meta.description}</span>
+            <span className="text-[0.875rem] font-[400] text-white">{meta.description}</span>
             {meta.link.startsWith("//") ? (
               <a
                 target="_blank"
                 rel="noopener noreferrer"
                 href={meta.link}
-                className="text-bold flex h-[2.3125rem] w-full items-center justify-center bg-primary text-xs text-white transition hover:opacity-80 active:scale-95"
+                className="flex h-[2.125rem] w-full items-center justify-center rounded-[0.625rem] bg-primary text-xs font-bold leading-[1.5rem] text-white transition hover:opacity-80 active:scale-95"
               >
                 {t("Explore")}
               </a>
