@@ -1,13 +1,13 @@
-import { useTranslation } from "react-i18next";
+// import { useTranslation } from "react-i18next";
 
 import twitter from "../assets/social/twitter.svg";
 import telegram from "../assets/social/telegram.svg";
 import discord from "../assets/social/discord.svg";
-import element from "../assets/social/element.svg";
+// import element from "../assets/social/element.svg";
 import github from "../assets/social/github.svg";
 import medium from "../assets/social/medium.svg";
 import email from "../assets/social/email.svg";
-import lng from "../assets/lng.svg";
+// import lng from "../assets/lng.svg";
 
 const socialCfg: { icon: string; link: string; isMail?: boolean }[] = [
   {
@@ -41,7 +41,7 @@ const socialCfg: { icon: string; link: string; isMail?: boolean }[] = [
 ];
 
 export const Footer = () => {
-  const { i18n } = useTranslation();
+  // const { i18n } = useTranslation();
 
   return (
     <div className="container flex items-center justify-between">

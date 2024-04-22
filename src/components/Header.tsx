@@ -1,8 +1,8 @@
 import logo from "../assets/app-logo.svg";
-import darwiniabtnlogo from "../assets/darwiniabtnlogo.svg";
-import headerbtnlogo from "../assets/headerbtnlogo.svg";
+// import darwiniabtnlogo from "../assets/darwiniabtnlogo.svg";
+// import headerbtnlogo from "../assets/headerbtnlogo.svg";
 import mobileMenuIcon from "../assets/mobileMenuIcon.svg";
-import DownArrow from "../assets/DownArrow.svg";
+// import DownArrow from "../assets/DownArrow.svg";
 import { Link, useMatch } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useWallet } from "../hooks/wallet";
