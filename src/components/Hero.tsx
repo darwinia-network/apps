@@ -12,7 +12,7 @@ export const Hero = () => {
       ></div>
       <p className="relative z-10 text-[1.5rem] font-[700] text-white ">
         Explore Dapps building on {"{"}
-        <span className="text-primary">Darwinia2</span>
+        <span className="text-primary">Darwinia</span>
         {"}"} ecosystem_
       </p>
     </div>
