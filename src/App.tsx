@@ -9,7 +9,7 @@ function App() {
         <Header />
       </div>
 
-      <div className="pb-0 pt-[3.125rem] lg:pb-[4.375rem] lg:pt-[3.75rem]">
+      <div className="pb-0 lg:pb-[4.375rem]">
         <Outlet />
       </div>
 

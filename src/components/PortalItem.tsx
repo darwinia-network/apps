@@ -25,7 +25,7 @@ export const PortalItem = ({
               target="_blank"
               rel="noopener noreferrer"
               href={meta.link}
-              className="text-light text-sm text-white transition hover:opacity-80 active:scale-95"
+              className="text-sm font-bold text-white transition hover:opacity-80 active:scale-95"
             >
               {meta.name}
             </a>
@@ -38,14 +38,14 @@ export const PortalItem = ({
             {meta.tags.slice(0, 3).map((tag) => (
               <span
                 key={tag}
-                className="text-bold border border-primary px-[0.625rem] py-[0.1875rem] text-xs text-white"
+                className="rounded-[0.313rem] bg-[#FFFFFF1A] px-[0.313rem] py-[0.469rem] text-[0.75rem] text-xs font-light text-white"
               >
                 {tag}
               </span>
             ))}
           </div>
           <div className="h-[1px] bg-white/20" />
-          <span className="text-thin text-xs text-white/50">{meta.description}</span>
+          <span className="text-xs font-light text-white/50">{meta.description}</span>
         </div>
       </div>
 
@@ -53,17 +53,17 @@ export const PortalItem = ({
       <div className="hidden lg:block" style={{ perspective: 800 }}>
         <div className="card-filp" style={{ ...(flipped === meta.name ? { transform: "rotateY(-180deg)" } : {}) }}>
           <div
-            className={`back flex flex-col items-center justify-between bg-bg-component/70 p-5 transition-opacity duration-700 ${
+            className={`back flex flex-col items-center justify-between rounded-[1.25rem] bg-bg-component/70 p-5 transition-opacity duration-700 ${
               flipped === meta.name ? "opacity-100" : "opacity-0"
             }`}
           >
-            <span className="text-bold text-xs text-white">{meta.description}</span>
+            <span className="text-[0.875rem] font-[400] text-white">{meta.description}</span>
             {meta.link.startsWith("//") ? (
               <a
                 target="_blank"
                 rel="noopener noreferrer"
                 href={meta.link}
-                className="text-bold flex h-[2.3125rem] w-full items-center justify-center bg-primary text-xs text-white transition hover:opacity-80 active:scale-95"
+                className="flex h-[2.125rem] w-full items-center justify-center rounded-[0.625rem] bg-primary text-xs font-bold leading-[1.5rem] text-white transition hover:opacity-80 active:scale-95"
               >
                 {t("Explore")}
               </a>
@@ -77,17 +77,17 @@ export const PortalItem = ({
             )}
           </div>
           <div
-            className="front flex flex-col items-center justify-center border border-transparent bg-bg-component p-3 transition hover:cursor-pointer hover:border-primary active:scale-95"
+            className="front flex flex-col items-center justify-center gap-[1.25rem] rounded-[1.25rem] border border-transparent bg-bg-component py-[2.5rem] transition hover:cursor-pointer hover:border-primary active:scale-95 "
             style={{ ...(flipped === meta.name ? { zIndex: -1, opacity: 0.2 } : { opacity: 1 }) }}
             onClick={() => onClick(meta.name)}
           >
-            <img alt="..." src={meta.logo} className="h-[5rem] w-[5rem] rounded-full" />
-            <h5 className="text-bold mt-[1rem] text-center text-lg text-white">{meta.name}</h5>
-            <div className="mt-[0.625rem] flex items-center gap-[0.625rem]">
+            <img alt="..." src={meta.logo} className="h-[3.75rem] w-[3.75rem] rounded-full" />
+            <h5 className="text-bold text-center text-lg text-white">{meta.name}</h5>
+            <div className="flex items-center gap-[0.625rem]">
               {meta.tags.slice(0, 3).map((tag) => (
                 <span
                   key={tag}
-                  className="text-bold border border-primary px-[0.625rem] py-[0.1875rem] text-xs text-white"
+                  className="rounded-[0.313rem] bg-[#FFFFFF1A] px-[0.313rem] py-[0.469rem] text-xs font-light  text-white"
                 >
                   {tag}
                 </span>
