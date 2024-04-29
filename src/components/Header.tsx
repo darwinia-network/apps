@@ -28,16 +28,13 @@ export const Header = () => {
         <>
           <div className="flex items-center gap-[0.625rem]">
             <a
-              className="text-light min-h-[2.25rem] bg-[#242A2E] px-[15px] py-[7px] text-sm text-white transition hover:opacity-80 active:scale-95 lg:border lg:border-primary"
+              className="text-light active:scale-9 min-h-[2.25rem] rounded-[0.625rem] bg-primary px-[0.938rem] py-[0.5rem] text-[0.875rem] font-[700] text-white transition hover:opacity-80"
               target="_blank"
               rel="noopener noreferrer"
               href="https://github.com/darwinia-network/apps/blob/master/README.md#how-to-add-your-portal"
             >
               {t("Submit")}
             </a>
-            <button className="h-[2.25rem] w-[2.25rem] bg-[#242A2E] p-[0.625rem] lg:hidden lg:border lg:border-primary">
-              <img src={mobileMenuIcon} alt="mobileMenuIcon" className="" />
-            </button>
           </div>
           {/* <div className=" hidden items-center gap-[0.625rem] lg:flex">
             <div className="flex cursor-pointer items-center gap-[0.313rem] rounded-[0.313rem] bg-[#242A2E] px-[0.625rem] py-[0.5rem]">

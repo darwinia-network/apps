@@ -5,7 +5,7 @@ import { Outlet } from "react-router-dom";
 function App() {
   return (
     <div className="relative min-h-screen bg-bg-primary">
-      <div className="fixed left-0 top-0 z-10 flex h-[3.125rem] w-full items-center justify-center bg-primary lg:h-[3.75rem] lg:bg-bg-primary">
+      <div className="fixed left-0 top-0 z-10 flex h-[3.125rem] w-full items-center justify-center bg-bg-primary pt-[10px] lg:h-[3.75rem] lg:pt-0">
         <Header />
       </div>
 
