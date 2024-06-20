@@ -48,6 +48,7 @@ import subApiDao from "../assets/projects/subapi-dao.png";
 import helixDao from "../assets/projects/helix-dao.png";
 import immunefi from "../assets/projects/immunefi.png";
 import ktonStaking from "../assets/projects/kton-staking.png";
+import ktonStaking from "..assets/projects/Envio_logo_sqaure.png";
 
 export const projects = (t: TFunction): PortalMeta[] => [
   {
@@ -174,6 +175,13 @@ export const projects = (t: TFunction): PortalMeta[] => [
       "Polkadot.js is a very simple scaffolding browser extension that injects a Polkadot API Signer into a page, along with any associated accounts, allowing for use by any DApp."
     ),
     tags: ["Wallet"],
+  },
+  logo: envio,
+  name: "Envio",
+    link: "https://envio.dev/",
+    description:
+      "Envio is a modern, multi-chain EVM blockchain indexing framework speed-optimized for querying real-time and historical data.",
+    tags: ["Infrastructure", "Tool"],
   },
   {
     logo: subquery,
