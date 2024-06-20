@@ -444,4 +444,12 @@ export const projects = (t: TFunction): PortalMeta[] => [
       "The leading bug bounty platform for blockchain with the world's largest bug bounties. More than $90m paid out to Whitehats and $156m in rewards available.",
     tags: ["Infrastructure", "Tool"],
   },
+  {
+    logo: envio,
+    name: "Envio",
+    link: "https://envio.dev/",
+    description:
+      "Envio is a modern, multi-chain EVM blockchain indexing framework speed-optimized for querying real-time and historical data.",
+    tags: ["Infrastructure", "Tool"],
+  },
 ];
