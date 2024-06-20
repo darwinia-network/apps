@@ -48,7 +48,7 @@ import subApiDao from "../assets/projects/subapi-dao.png";
 import helixDao from "../assets/projects/helix-dao.png";
 import immunefi from "../assets/projects/immunefi.png";
 import ktonStaking from "../assets/projects/kton-staking.png";
-import ktonStaking from "..assets/projects/Envio_logo_sqaure.png";
+import envio from "..assets/projects/Envio_logo_sqaure.png";
 
 export const projects = (t: TFunction): PortalMeta[] => [
   {
