@@ -176,11 +176,13 @@ export const projects = (t: TFunction): PortalMeta[] => [
     ),
     tags: ["Wallet"],
   },
-  logo: envio,
-  name: "Envio",
-    link: "https://envio.dev/",
-    description:
-      "Envio is a modern, multi-chain EVM blockchain indexing framework speed-optimized for querying real-time and historical data.",
+  {
+    logo: envio,
+    name: t("Envio"),
+    link: t("https://envio.dev/"),
+    description: t(
+      "Envio is a modern, multi-chain EVM blockchain indexing framework speed-optimized for querying real-time and historical data."
+    ),
     tags: ["Infrastructure", "Tool"],
   },
   {
