@@ -10,11 +10,6 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - uses: actions/checkout@v2
-        with:
-          repository: darwinia-network/devops
-          path: .github
-
       - uses: actions/setup-node@v3
         with:
           node-version: 16
@@ -30,9 +25,8 @@ jobs:
           mv dist build
           mv vercel.json build/
 
-      - uses: ./.github/actions/smart-vercel
+      - uses: darwinia-network/devops/actions/smart-vercel@main
         name: Deploy to Vercel
-        id: smart-vercel
         with:
           vercel_token: ${{ secrets.VERCEL_TOKEN }}
           vercel_group: itering
