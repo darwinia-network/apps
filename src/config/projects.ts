@@ -49,6 +49,7 @@ import helixDao from "../assets/projects/helix-dao.png";
 import immunefi from "../assets/projects/immunefi.png";
 import ktonStaking from "../assets/projects/kton-staking.png";
 import envio from "../assets/projects/Envio_logo_sqaure.png";
+import mimir from "../assets/projects/mimir.png";
 
 export const projects = (t: TFunction): PortalMeta[] => [
   {
@@ -453,5 +454,12 @@ export const projects = (t: TFunction): PortalMeta[] => [
     description:
       "The leading bug bounty platform for blockchain with the world's largest bug bounties. More than $90m paid out to Whitehats and $156m in rewards available.",
     tags: ["Infrastructure", "Tool"],
+  },
+  {
+    logo: mimir,
+    name: t("Mimir"),
+    link: t("https://safe.mimir.global/?chainid=46"),
+    description: t("Mimir is your ultimate multisig wallet, engineered to deliver an exceptional multisig experience."),
+    tags: ["Wallet", "Infrastructure"],
   },
 ];
