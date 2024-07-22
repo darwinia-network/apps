@@ -50,6 +50,7 @@ import immunefi from "../assets/projects/immunefi.png";
 import ktonStaking from "../assets/projects/kton-staking.png";
 import envio from "../assets/projects/Envio_logo_sqaure.png";
 import mimir from "../assets/projects/mimir.png";
+import helixswap from "../assets/projects/helixswap.png";
 
 export const projects = (t: TFunction): PortalMeta[] => [
   {
@@ -461,5 +462,14 @@ export const projects = (t: TFunction): PortalMeta[] => [
     link: t("https://safe.mimir.global/?chainid=46"),
     description: t("Mimir is your ultimate multisig wallet, engineered to deliver an exceptional multisig experience."),
     tags: ["Wallet", "Infrastructure"],
+  },
+  {
+    logo: helixswap,
+    name: t("HelixSwap"),
+    link: t("https://swap.helix.box/#/?chain=darwinia"),
+    description: t(
+      "A decentralized swap platform that aggregates various swap protocols to offer users a simple one-click swap feature, while also allowing users to add liquidity and earn rewards."
+    ),
+    tags: ["Defi"],
   },
 ];
