@@ -85,10 +85,10 @@ export const projects = (t: TFunction): PortalMeta[] => [
   },
   {
     logo: helix,
-    name: t("Helix"),
-    link: t("https://helixbridge.app/"),
+    name: t("Helix Box"),
+    link: t("https://app.helix.box/"),
     description: t(
-      "Helix integrates the best asset bridging projects in the industry, providing users with a filtered list of asset bridges and a cross-chain portal."
+      "Helix Box integrates the best asset bridging projects in the industry, providing users with a filtered list of asset bridges and a cross-chain portal."
     ),
     tags: ["Bridge", "Infrastructure"],
   },
