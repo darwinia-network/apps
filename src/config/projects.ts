@@ -69,8 +69,8 @@ export const projects = (t: TFunction): PortalMeta[] => [
   },
   {
     logo: gnosisSafeFork,
-    name: t("Gnosis Safe (Fork)"),
-    link: t("https://multisig.darwiniacommunitydao.xyz/"),
+    name: t("DSafe (Fork Gnosis Safe)"),
+    link: t("https://dsafe.dcdao.box/"),
     description: t(
       "Gnosis Safe is the most trusted decentralized custody protocol and collective asset management platform on Ethereum and the EVM."
     ),
