@@ -8,7 +8,6 @@ import helix from "../assets/projects/helix.png";
 import snapshot from "../assets/projects/snapshot.png";
 import mathwallet from "../assets/projects/mathwallet.png";
 import talisman from "../assets/projects/talisman.png";
-import subview from "../assets/projects/subview.png";
 import subsquare from "../assets/projects/subsquare.png";
 import dwellir from "../assets/projects/dwellir.png";
 import snowswap from "../assets/projects/snowswap.png";
@@ -42,21 +41,23 @@ import foundry from "../assets/projects/foundry.png";
 import brownie from "../assets/projects/brownie.png";
 import scaffoldEth from "../assets/projects/scaffold-eth.png";
 import walletconnect from "../assets/projects/walletconnect.png";
-import darwinia from "../assets/projects/darwinia.svg";
 import gnosisMultisigWallet from "../assets/projects/gnosis-multisig-wallet.svg";
-import subApiDao from "../assets/projects/subapi-dao.png";
-import helixDao from "../assets/projects/helix-dao.png";
 import immunefi from "../assets/projects/immunefi.png";
 import ktonStaking from "../assets/projects/kton-staking.png";
 import envio from "../assets/projects/Envio_logo_sqaure.png";
 import mimir from "../assets/projects/mimir.png";
-import helixswap from "../assets/projects/helixswap.png";
+import blockscout from "../assets/projects/blockscout.png";
+import paralink from "../assets/projects/paralink.png";
+import degov from "../assets/projects/degov.png";
+import ringdao from "../assets/projects/ringdao.png";
+import ktondao from "../assets/projects/ktondao.png";
+import darwiniaName from "../assets/projects/darwiniaName.png";
 
 export const projects = (t: TFunction): PortalMeta[] => [
   {
     logo: ktonStaking,
     name: t("KTON Staking"),
-    link: t("https://kton-staking.darwinia.network/"),
+    link: t("https://staking.ktondao.xyz"),
     description: t("Stake KTON to earn rewards."),
     tags: ["Defi", "Tool"],
   },
@@ -70,11 +71,11 @@ export const projects = (t: TFunction): PortalMeta[] => [
   {
     logo: gnosisSafeFork,
     name: t("DSafe (Fork Gnosis Safe)"),
-    link: t("https://dsafe.dcdao.box/"),
+    link: t("https://dsafe.darwinia.network"),
     description: t(
       "Gnosis Safe is the most trusted decentralized custody protocol and collective asset management platform on Ethereum and the EVM."
     ),
-    tags: ["Wallet", "Infrastructure"],
+    tags: ["Wallet"],
   },
   {
     logo: subscan,
@@ -90,7 +91,7 @@ export const projects = (t: TFunction): PortalMeta[] => [
     description: t(
       "Helixbox integrates the best asset bridging projects in the industry, providing users with a filtered list of asset bridges and a cross-chain portal."
     ),
-    tags: ["Bridge", "Infrastructure"],
+    tags: ["Defi"],
   },
   {
     logo: snapshot,
@@ -99,7 +100,7 @@ export const projects = (t: TFunction): PortalMeta[] => [
     description: t(
       "Snapshot is a free and flexible voting framework that allows DAOs to make decisions transparently."
     ),
-    tags: ["Governance", "DAO"],
+    tags: ["Governance"],
   },
   {
     logo: mathwallet,
@@ -118,9 +119,9 @@ export const projects = (t: TFunction): PortalMeta[] => [
     tags: ["Wallet"],
   },
   {
-    logo: subview,
-    name: t("Subview"),
-    link: t("https://darwinia.subview.xyz/"),
+    logo: blockscout,
+    name: t("Blockscout"),
+    link: t("https://explorer.darwinia.network"),
     description: t("A block explorer and analytics platform for EVM blockchains."),
     tags: ["Explorer"],
   },
@@ -199,11 +200,11 @@ export const projects = (t: TFunction): PortalMeta[] => [
   {
     logo: darwiniaCommunityDao,
     name: t("Darwinia Community DAO"),
-    link: t("https://twitter.com/Official_DCDAO"),
+    link: t("https://guild-gov.ringdao.com/"),
     description: t(
       "Darwinia Community DAO(DCDAO) is a community self-organized workgroup(WG) contributing to the growth of the Darwinia community."
     ),
-    tags: ["DAO"],
+    tags: ["Governance"],
   },
   {
     logo: novawallet,
@@ -214,22 +215,6 @@ export const projects = (t: TFunction): PortalMeta[] => [
     ),
     tags: ["Wallet"],
   },
-  // {
-  //   logo: raregems,
-  //   name: t("RareGems"),
-  //   link: t("https://raregems.io/"),
-  //   description: t(
-  //     "RareGems is a non-custodial multichain NFT marketplace, which has supported Crab, Energy Web, Velas, Celo, Moonbeam, Moonriver, Oasis Emerald, Astar Network, and Avalanche."
-  //   ),
-  //   tags: ["NFT"],
-  // },
-  // {
-  //   logo: ringoNft,
-  //   name: t("RINGO NFT"),
-  //   link: t("https://ringonft.art/"),
-  //   description: t("NFT Avatar Collection on Crab."),
-  //   tags: ["NFT"],
-  // },
   {
     logo: accountMigrationDapp,
     name: t("Account Migration Dapp"),
@@ -239,10 +224,10 @@ export const projects = (t: TFunction): PortalMeta[] => [
   },
   {
     logo: stakingDapp,
-    name: t("Staking Dapp"),
-    link: t("https://staking.darwinia.network/"),
-    description: t("The easiest way to stake on Darwinia."),
-    tags: ["Tool"],
+    name: t("Darwinia Staking"),
+    link: t("https://collator-staking.ringdao.com/"),
+    description: t("The easiest way to stake on Darwinia chain."),
+    tags: ["Defi", "Tool"],
   },
   {
     logo: tokenMigrationDapp,
@@ -406,20 +391,11 @@ export const projects = (t: TFunction): PortalMeta[] => [
   {
     logo: walletconnect,
     name: t("Walletconnect"),
-    link: t("https://walletconnect.com/"),
+    link: t("https://walletconnect.network"),
     description: t(
       "WalletConnect is the Web3 messaging layer and a standard to connect blockchain wallets to Dapps. Our mission continues to expand the interoperability of the Web3 space by providing the best tooling and infrastructure for Wallets to deliver an outstanding user experience."
     ),
     tags: ["Wallet"],
-  },
-  {
-    logo: darwinia,
-    name: t("Darwinia Widgets"),
-    link: t("https://dcdao.notion.site/Darwinia-Widgets-37f4d56506d54f288bcdea93c03a33b4"),
-    description: t(
-      "Darwinia Widget, created by DCDAO, a community self-organized workgroup in the Darwinia ecosystem, allows easy access to staking-related data on the Darwinia Chain."
-    ),
-    tags: ["Tool"],
   },
   {
     logo: gnosisMultisigWallet,
@@ -428,25 +404,7 @@ export const projects = (t: TFunction): PortalMeta[] => [
     description: t(
       "Gnosis Safe is the most trusted decentralized custody protocol and collective asset management platform on Ethereum and the EVM."
     ),
-    tags: ["Infrastructure", "Wallet"],
-  },
-  {
-    logo: subApiDao,
-    name: t("SubAPI DAO"),
-    link: t("https://github.com/subapidao"),
-    description: t(
-      "SubAPI DAO is targeting to be a SubDAO of Darwinia, working on Oracle and API integration. The SubAPI solution, developed by SubAPI DAO, is based on API3's airnode. Darwinia Msgport is set to adopt the services provided by this SubAPI solution."
-    ),
-    tags: ["DAO"],
-  },
-  {
-    logo: helixDao,
-    name: t("Helix DAO"),
-    link: t("https://github.com/helix-bridge/dao"),
-    description: t(
-      "Helix DAO plays a pivotal role in fostering discussions and executing impactful decisions for Helix Bridge. These decisions encompass a spectrum of actions, including adjusting execution parameters and exploring new chains and assets. Furthermore, Helix DAO holds and manages the significant revenues and assets within the Helix ecosystem."
-    ),
-    tags: ["DAO"],
+    tags: ["Wallet"],
   },
   {
     logo: immunefi,
@@ -461,15 +419,43 @@ export const projects = (t: TFunction): PortalMeta[] => [
     name: t("Mimir"),
     link: t("https://safe.mimir.global/?chainid=46"),
     description: t("Mimir is your ultimate multisig wallet, engineered to deliver an exceptional multisig experience."),
-    tags: ["Wallet", "Infrastructure"],
+    tags: ["Wallet"],
   },
   {
-    logo: helixswap,
-    name: t("HelixSwap"),
-    link: t("https://swap.helix.box/#/?chain=darwinia"),
-    description: t(
-      "A decentralized swap platform that aggregates various swap protocols to offer users a simple one-click swap feature, while also allowing users to add liquidity and earn rewards."
-    ),
+    logo: paralink,
+    name: t("Paralink"),
+    link: t("https://para.link"),
+    description: t("ParaLink is the decentralized token exchange hub in the Polkadot ecosystem."),
     tags: ["Defi"],
+  },
+  {
+    logo: degov,
+    name: t("DeGov.AI"),
+    link: t("https://degov.ai/"),
+    description: t("An AI-powered governance platform for DAOs."),
+    tags: ["Governance"],
+  },
+  {
+    logo: ringdao,
+    name: t("RingDAO"),
+    link: t("https://gov.ringdao.com/"),
+    description: t(
+      "RingDAO is a Venture DAO dedicated to DeFi and DAO Applications, driven by AI and Chain Abstraction Technologies."
+    ),
+    tags: ["Governance"],
+  },
+  {
+    logo: ktondao,
+    name: t("KtonDAO"),
+    link: t("https://gov.ktondao.xyz/"),
+    description: t("The DAO governed by KTON token holders."),
+    tags: ["Governance"],
+  },
+  {
+    logo: darwiniaName,
+    name: t("Darwinia Names"),
+    link: t("https://names.darwinia.network/"),
+    description: t("The first decentralized domain name service for the Darwinia network."),
+    tags: ["Infrastructure"],
   },
 ];
