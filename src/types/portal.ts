@@ -1,14 +1,4 @@
-export type PortalTag =
-  | "Defi"
-  | "Wallet"
-  | "Explorer"
-  | "Infrastructure"
-  | "Bridge"
-  | "Governance"
-  | "Gaming"
-  | "NFT"
-  | "DAO"
-  | "Tool";
+export type PortalTag = "Defi" | "Wallet" | "Explorer" | "Infrastructure" | "Governance" | "Gaming" | "Tool";
 
 export interface PortalMeta {
   name: string;

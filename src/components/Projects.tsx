@@ -6,19 +6,7 @@ import { PortalItem } from "./PortalItem";
 
 type FilterTag = PortalTag | "All";
 
-const ALL_TAGS: FilterTag[] = [
-  "All",
-  "Defi",
-  "Wallet",
-  "Explorer",
-  "Infrastructure",
-  "Bridge",
-  "Governance",
-  "Gaming",
-  "NFT",
-  "DAO",
-  "Tool",
-];
+const ALL_TAGS: FilterTag[] = ["All", "Defi", "Wallet", "Explorer", "Infrastructure", "Governance", "Gaming", "Tool"];
 
 export const Projects = () => {
   const { t } = useTranslation();
