@@ -15,7 +15,6 @@ import evolutionLand from "../assets/projects/evolution-land.png";
 import subwallet from "../assets/projects/subwallet.png";
 import polkadotJs from "../assets/projects/polkadot.js.png";
 import subquery from "../assets/projects/subquery.png";
-import darwiniaCommunityDao from "../assets/projects/darwinia-community-dao.png";
 import novawallet from "../assets/projects/novawallet.png";
 // import raregems from "../assets/projects/raregems.png";
 // import ringoNft from "../assets/projects/ringo-nft.png";
@@ -52,6 +51,7 @@ import degov from "../assets/projects/degov.png";
 import ringdao from "../assets/projects/ringdao.png";
 import ktondao from "../assets/projects/ktondao.png";
 import darwiniaName from "../assets/projects/darwiniaName.png";
+import rcg from "../assets/projects/rcg.png";
 
 export const projects = (t: TFunction): PortalMeta[] => [
   {
@@ -87,7 +87,7 @@ export const projects = (t: TFunction): PortalMeta[] => [
   {
     logo: helix,
     name: t("Helixbox"),
-    link: t("https://app.helix.box/"),
+    link: t("https://helixbox.ai"),
     description: t(
       "Helixbox integrates the best asset bridging projects in the industry, providing users with a filtered list of asset bridges and a cross-chain portal."
     ),
@@ -198,11 +198,11 @@ export const projects = (t: TFunction): PortalMeta[] => [
     tags: ["Infrastructure"],
   },
   {
-    logo: darwiniaCommunityDao,
-    name: t("Darwinia Community DAO"),
+    logo: rcg,
+    name: t("RingDAO Community Guild"),
     link: t("https://guild-gov.ringdao.com/"),
     description: t(
-      "Darwinia Community DAO(DCDAO) is a community self-organized workgroup(WG) contributing to the growth of the Darwinia community."
+      "RingDAO Community Guild is a community self-organized workgroup(WG) contributing to the growth of the RingDAO community."
     ),
     tags: ["Governance"],
   },
