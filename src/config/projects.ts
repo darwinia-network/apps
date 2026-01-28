@@ -20,10 +20,7 @@ import novawallet from "../assets/projects/novawallet.png";
 // import ringoNft from "../assets/projects/ringo-nft.png";
 import accountMigrationDapp from "../assets/projects/account-migration-dapp.png";
 import stakingDapp from "../assets/projects/staking-dapp.png";
-import tokenMigrationDapp from "../assets/projects/token-migration-dapp.png";
 import localSubkeyMigration from "../assets/projects/local-subkey-migration.png";
-import darwiniaPolkadotParachainAuction from "../assets/projects/darwinia-polkadot-parachain-auction.png";
-import crabKusamaParachainAuction from "../assets/projects/crab-kusama-parachain-auction.png";
 import openzeppelin from "../assets/projects/openzeppelin.png";
 import remix from "../assets/projects/remix.png";
 import ethSign from "../assets/projects/eth-sign.png";
@@ -230,33 +227,12 @@ export const projects = (t: TFunction): PortalMeta[] => [
     tags: ["Defi", "Tool"],
   },
   {
-    logo: tokenMigrationDapp,
-    name: t("Token Migration Dapp"),
-    link: t("https://token-migration.darwinia.network/"),
-    description: t("A tool to migrate your Darwinia Tokens to the new contract."),
-    tags: ["Tool"],
-  },
-  {
     logo: localSubkeyMigration,
     name: t("Local Subkey Migration"),
     link: t("/local_subkey_migration"),
     description: t(
       "Here are the Darwinia 1.0 accounts you generated on the Darwinia Apps of the old version. You can restore them in the polkadot.js by importing the JSON files."
     ),
-    tags: ["Tool"],
-  },
-  {
-    logo: darwiniaPolkadotParachainAuction,
-    name: t("Darwinia Polkadot Parachain Auction"),
-    link: t("https://darwinia-network.github.io/home-v1/plo"),
-    description: t("Do not contribute any more DOT at this time. Metaverse NFT Package rewards can be claimed now!"),
-    tags: ["Tool"],
-  },
-  {
-    logo: crabKusamaParachainAuction,
-    name: t("Crab Kusama Parachain Auction"),
-    link: t("https://darwinia-network.github.io/crab-home-v1/plo_contribute"),
-    description: t("Do not contribute any more KSM at this time. Metaverse NFT Package rewards can be claimed now!"),
     tags: ["Tool"],
   },
   {
