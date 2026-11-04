@@ -35,7 +35,7 @@ jobs:
           script_run: false
           enable_cache: true
           enable_notify_comment: true
-          enable_notify_slack: true
+          enable_notify_slack: false
           slack_channel: public-ringdao-apps
           slack_webhook: ${{ secrets.SLACK_INCOMING_WEBHOOK_URL }}
 
