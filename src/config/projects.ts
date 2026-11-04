@@ -18,7 +18,6 @@ import subquery from "../assets/projects/subquery.png";
 import novawallet from "../assets/projects/novawallet.png";
 // import raregems from "../assets/projects/raregems.png";
 // import ringoNft from "../assets/projects/ringo-nft.png";
-import accountMigrationDapp from "../assets/projects/account-migration-dapp.png";
 import stakingDapp from "../assets/projects/staking-dapp.png";
 import localSubkeyMigration from "../assets/projects/local-subkey-migration.png";
 import openzeppelin from "../assets/projects/openzeppelin.png";
@@ -211,13 +210,6 @@ export const projects = (t: TFunction): PortalMeta[] => [
       "Nova wallet is a universal cryptocurrency wallet that aims to provide exceptional blockchain experiences for users."
     ),
     tags: ["Wallet"],
-  },
-  {
-    logo: accountMigrationDapp,
-    name: t("Account Migration Dapp"),
-    link: t("https://migration.darwinia.network/"),
-    description: t("A tool to migrate your Darwinia 1.0 account to Darwinia."),
-    tags: ["Tool"],
   },
   {
     logo: stakingDapp,
